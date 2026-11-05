@@ -93,7 +93,10 @@ Fill the plan's **Overlays** table: title styles (`references/typography.md`), c
 checklists, prices, the cart pointer and so on (`references/layout-and-motion-graphics.md`). Anchor
 graphics to words with `@"phrase"` so they land on the voice. Vary title styles (3–4 per video),
 never the same style twice in a row, one accent word per title. On-screen text must say something
-**different** from the voiceover.
+**different** from the voiceover. When the voice lists exactly three things (problems, steps, results),
+use the three-photo header (`thumbs`, `layout-and-motion-graphics.md`): one framed still per item with
+its caption landing on the word. The cart arrow points at the real product bar's bag tile, measured at
+frame (112, 1677) — never anywhere else.
 
 ### 5. Write and synthesize the voiceover
 Commerce pace is ~4.5–5 words/s: **150–170 words** for 35 s. Check every line against

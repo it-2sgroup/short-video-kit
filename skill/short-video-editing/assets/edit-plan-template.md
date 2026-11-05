@@ -68,7 +68,7 @@ Graphics and titles, on their own timeline. See `references/layout-and-motion-gr
 |---|-------|-----|-----------|------|------|---------|
 | 1 | 0.0 | 1.4 | title | top | before | style=outline; lines=[promise]; sub=TRƯỚC · [honest label] |
 | 2 | 1.6 | 2.9 | title | top | after | style=outline; lines=SAU KHI [action]; sub=đã rút gọn thời gian |
-| 3 | 9.2 | cut | cart | upper | – | text=Giỏ hàng ở góc trái |
+| 3 | 9.2 | cut | cart | – | – | text=Giỏ hàng ở góc trái |
 | 4 | @"[product name]" | cut | title | top | – | style=stack; lines=[lead] / [main line]; accent=[one word] |
 | 5 | @"[product name]" | +2.0 | punch | – | – | scale=1.12 |
 

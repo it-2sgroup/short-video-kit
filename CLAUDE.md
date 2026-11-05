@@ -92,6 +92,11 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
   (`new_remotion_project.py --proxies`), not the originals.
 - White text vanishes on white fabric: over white garments use the `outline` or `marker` title style, not
   `gradient` or `stack` (white→sky fills). Check every title on the contact sheet.
+- TikTok Shop's cart (the yellow bag tile of the product bar) is at frame (112, 1677), **not** (300, 1440):
+  measured on a phone screenshot of the feed, details and how to re-measure in
+  `references/layout-and-motion-graphics.md`. The `cart` arrow curves onto it; check any change with a
+  mockup of the frame scaled to a real phone screen. When the voice lists three things, use the
+  `thumbs` strip (three-photo header) with `+@"word"` timing and `~x,y,zoom` framing.
 - Before/after: the reveal gets a `compare` card (TRƯỚC/SAU frames of the same garment from ranges
   already on screen, with an honest time note); TikTok's **ad** policy bars before-and-after
   comparisons, so ask whether the video will be boosted. Details: `references/before-after.md`.

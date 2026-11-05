@@ -24,7 +24,7 @@
     "overlay": {
       "title:stack": "pop", "title:glass": "pop", "highlight": "pop", "sticker": "pop",
       "step": "switch", "checklist": "tick",
-      "cart": "mouse-click", "thumbs": "shutter-modern", "price": "ding", "ranking": "ding",
+      "cart": { "sound": "mouse-click", "offset": 0.4 }, "thumbs": "shutter-modern", "price": "ding", "ranking": "ding",
       "compare": { "sound": "whoosh", "offset": 0.3 }
     }
   },

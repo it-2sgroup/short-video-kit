@@ -27,7 +27,9 @@ Overlays table:  Start | End | Component | Zone | Tone | Content
     Content  key=value pairs separated by ';'. Lists use ' / ', points use 'x,y' (0..1).
            e.g.  style=stack; lines=đợi vừa lâu / vừa tốn token; accent=token
                  label=2 cổng USB-C; target=0.42,0.55; side=left
-                 cards=IMG_0326@40:Áo thun / IMG_0330@17:Tất     (thumbs)
+                 cards=IMG_0326@40:Áo thun / IMG_0330@17:Tất     (thumbs; a card may end with
+                     +1.2 or +@"word" to land 1.2 s in, or on that word, and ~x,y,zoom to frame the
+                     stain: IMG_0319@33:Áo ố+@"áo trắng bị ố"~0.22,0.34,2)
                  before=IMG_0327@1.6; after=IMG_0327@27.6; zoom=1.4   (compare: TRƯỚC/SAU card)
                  items=Claude#1 / Manus#1 / ChatGPT#2           (ranking)
 
@@ -191,10 +193,18 @@ def parse_content(component: str, raw: str) -> dict:
         cards = props.get("cards", [])
         cards = [cards] if isinstance(cards, str) else cards
         out = []
-        for c in cards:
-            m = re.match(r"(\S+)@([\d.]+)(?::(.*))?", c)
+        for c in cards:  # CLIP@sec[:caption][+delay | +@"phrase"][~x,y[,zoom]]: when it lands, how it is framed
+            m = re.match(r'(\S+)@([\d.]+)(?::(.*?))?(?:\s*\+\s*(@".+?"(?:#\d+)?|[\d.]+))?'
+                         r'(?:\s*~\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?)?\s*$', c)
             if m:
-                out.append({"clip": Path(m.group(1)).stem.upper(), "at": float(m.group(2)), "caption": (m.group(3) or "").strip()})
+                card = {"clip": Path(m.group(1)).stem.upper(), "at": float(m.group(2)), "caption": (m.group(3) or "").strip()}
+                if m.group(4):
+                    card["when"] = m.group(4)
+                if m.group(5):
+                    card["focus"] = [float(m.group(5)), float(m.group(6))]
+                    if m.group(7):
+                        card["zoom"] = float(m.group(7))
+                out.append(card)
         props["cards"] = out
     if component == "compare":
         for side in ("before", "after"):
@@ -351,10 +361,12 @@ def report(scenes, overlays, captions, words):
     for o in overlays:
         if o["component"] in ("punch", "sfx"):
             continue
+        if o["component"] == "cart":
+            continue  # the cart arrow lives at the bottom-left and keeps its own label
         # the compare card is tall: its note line reaches into the lower zone as well
         for z in [o.get("zone", "top")] + (["lower"] if o["component"] == "compare" else []):
             for p in busy.get(z, []):
-                if o["start"] < p["end"] and p["start"] < o["end"] and o["component"] not in ("callout", "highlight", "sticker", "cart"):
+                if o["start"] < p["end"] and p["start"] < o["end"] and o["component"] not in ("callout", "highlight", "sticker"):
                     warns.append(f"{o['component']} at {o['start']:.2f}s overlaps {p['component']} in zone '{z}'")
             busy.setdefault(z, []).append(o)
     return warns
@@ -444,6 +456,19 @@ def main() -> int:
         if comp == "sfx":
             sfx.append({"src": props.get("src"), "at": start, "volumeDb": float(props.get("volumeDb", -16))})
             continue
+        for card in props.get("cards", []) if comp == "thumbs" else []:
+            when = card.pop("when", None)
+            if when is None:
+                continue
+            m = ANCHOR.match(when)
+            if not m:
+                card["delay"] = float(when)
+                continue
+            hit = find_phrase(words, m.group(1), int(m.group(2) or 1))
+            if hit:
+                card["delay"] = round(max(0.0, hit[0]["start"] - LEAD - start), 3)
+            else:
+                problems.append(f'thumbs card anchor @"{m.group(1)}" not found in the word timings')
         o = {"component": comp, "start": round(start, 3), "end": round(end, 3), "props": props}
         if cell(oh, r, "zone") not in ("", "-", "–"):
             o["zone"] = cell(oh, r, "zone")

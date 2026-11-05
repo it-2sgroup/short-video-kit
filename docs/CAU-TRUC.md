@@ -144,7 +144,7 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | `project.example.json` | Thư viện mẫu không cần footage: đủ kiểu chữ và đồ họa; mở bằng `npm run studio`. |
 | `src/index.ts` · `src/Root.tsx` | Đăng ký composition; độ dài lấy từ `duration` và `fps` trong dữ liệu (`calculateMetadata`). |
 | `src/project.ts` | **Hợp đồng dữ liệu**: kiểu `Project`, `Scene`, `Overlay`, `Caption`, `Word`, `Camera`… |
-| `src/theme.ts` | **Mọi token thiết kế**: font, bảng màu, vùng bố cục, điểm giỏ hàng, đường cong chuyển động, giới hạn camera. Đổi diện mạo ở đây. |
+| `src/theme.ts` | **Mọi token thiết kế**: font, bảng màu, vùng bố cục, điểm giỏ hàng (112, 1677; đo từ ảnh chụp màn hình TikTok thật), đường cong chuyển động, giới hạn camera, thông số thẻ so sánh. Đổi diện mạo ở đây. |
 | `src/engine/timeline.ts` | Dàn cảnh với chuyển cảnh **căn giữa điểm cắt**, để giọng không bị lệch. |
 | `src/engine/transitions.tsx` | Bảng chuyển cảnh: có sẵn của Remotion + `zoomThrough`, `blurDissolve`, `whip`. |
 | `src/engine/camera.ts` | Camera ảo: push, pull, pan, hold, phóng theo từ khóa. |
@@ -153,7 +153,7 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | `src/components/registry.tsx` | Tên thành phần dùng trong `project.json`; tên lạ sẽ báo lỗi. |
 | `src/components/anim.ts` | Hàm hoạt họa dùng chung (vào/ra, spring, vừa khung). |
 | `src/components/text/` | `Title.tsx` (5 kiểu: outline, stack, gradient, glass, marker), `Captions.tsx` (karaoke/plain), `primitives.tsx` (chữ viền, chữ gradient, chữ trồi qua mặt nạ). |
-| `src/components/graphics/` | 13 thành phần: `Callout`, `Lists` (checklist, step), `Price`, `Pointers` (mũi tên giỏ hàng, vòng khoanh, sticker), `Media` (kính lúp, hàng thumbnail, **thẻ so sánh TRƯỚC/SAU `compare`**), `Ranking`, `Bars` (thanh tiến trình, thẻ tên). |
+| `src/components/graphics/` | 13 thành phần: `Callout`, `Lists` (checklist, step), `Price`, `Pointers` (mũi tên cong chỉ đúng ô giỏ hàng của TikTok Shop, vòng khoanh, sticker), `Media` (kính lúp, **dải 3 hình nhỏ ở đầu `thumbs`**, **thẻ so sánh TRƯỚC/SAU `compare`**), `Ranking`, `Bars` (thanh tiến trình, thẻ tên). |
 
 ## 8. Nằm ngoài repo (do `setup.sh` và quá trình làm việc tạo ra)
 

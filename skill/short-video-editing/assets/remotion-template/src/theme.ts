@@ -47,7 +47,11 @@ export const zones: Record<Zone, number> = {
   lower: 1010, // chest band: prices, checklists, lower thirds
 };
 export const captionTop = 1190; // spoken captions live in their own band
-export const cartPoint = { x: 300, y: 1440 }; // where TikTok Shop's yellow basket sits (approx.)
+// Centre of the yellow shopping-bag tile in TikTok Shop's product bar, in frame pixels. Measured on a
+// 1284x2778 iPhone screenshot of the feed (tile x 48-107, y 2180-2239; tab bar starts at y 2530, so the
+// video fills 1284x2530 and a 1080x1920 frame is scaled 1.3177 and cropped 69.5 px each side). The bar
+// runs x 80-607, y 1644-1709 and the account name starts near y 1750. Other phones differ by ~40 px.
+export const cartPoint = { x: 112, y: 1677 };
 
 // Before/after card (components/graphics/Media.tsx). It sits in the `top` zone, inside the safe
 // width; frames are in 30 fps frames. `settle` is where the divider stops: 0.5 shows both halves.

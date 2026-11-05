@@ -209,7 +209,12 @@ export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
   );
 };
 
-export type ThumbsProps = { cards: { clip: string; at: number; caption?: string }[] };
+// A strip of up to 3 framed stills with a caption under each (the "three small photos at the top"
+// header). `delay` (seconds after the strip starts) lets each card land on the word it names; without
+// it the cards follow each other every 4 frames. `focus`/`zoom` frame the stain inside the small card.
+export type ThumbsProps = { cards: { clip: string; at: number; caption?: string; delay?: number; focus?: Point; zoom?: number }[] };
+
+const THUMB = { width: 286, height: 266 };
 
 export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
   const { fps } = useVideoConfig();
@@ -220,14 +225,13 @@ export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
     <AbsoluteFill style={{ opacity: exit }}>
       <div style={{ position: "absolute", top: zones[ov.zone ?? "top"], left: 70, right: 70, display: "flex", gap: 22, justifyContent: "center" }}>
         {cards.map((c, i) => {
-          const k = instant ? 1 : smooth(frame, fps, i * 4, 14);
-          const cap = interpolate(frame, [i * 4 + 4, i * 4 + 12], [0, 1], clamp);
+          const at = c.delay === undefined ? i * 4 : Math.round(c.delay * fps);
+          const k = instant && at === 0 ? 1 : smooth(frame, fps, at, 14);
+          const cap = interpolate(frame, [at + 4, at + 12], [0, 1], clamp);
           return (
-            <div key={i} style={{ width: 286, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, translate: `0 ${(1 - k) * 40}px`, opacity: k }}>
-              <div style={{ width: 286, height: 266, borderRadius: 22, overflow: "hidden", border: `5px solid ${palette.white}`, boxShadow: "0 10px 26px rgba(0,0,0,0.38)" }}>
-                <Freeze frame={0}>
-                  <OffthreadVideo src={staticFile(`clips/${c.clip}.mp4`)} startFrom={Math.round(c.at * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </Freeze>
+            <div key={i} style={{ width: THUMB.width, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, translate: `0 ${(1 - k) * 40}px`, opacity: k }}>
+              <div style={{ position: "relative", width: THUMB.width, height: THUMB.height, borderRadius: 22, overflow: "hidden", border: `5px solid ${palette.white}`, boxShadow: "0 10px 26px rgba(0,0,0,0.38)", boxSizing: "border-box" }}>
+                <Still clip={c.clip} at={c.at} focus={c.focus ?? [0.5, 0.5]} zoom={c.zoom ?? 1} cx={(THUMB.width - 10) / 2} cy={(THUMB.height - 10) / 2} w={THUMB.width - 10} h={THUMB.height - 10} />
               </div>
               {c.caption ? (
                 <div style={{ opacity: cap }}>

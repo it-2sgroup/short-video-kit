@@ -50,8 +50,9 @@ voiceover ─► align_captions (captions.srt + words.json) ──────�
   - five title styles (outline, stack with serif-italic accent, gradient, frosted glass, marker) with
     fonts verified for Vietnamese;
   - thirteen motion-graphic components (callouts with leader lines, steps, checklists, count-up price,
-    cart pointer, hand-drawn highlights, stickers, magnifier, thumbnail recap, before/after compare
-    card, ranking podium, progress bar, lower third);
+    cart arrow aimed at the measured position of TikTok Shop's product bar, hand-drawn highlights,
+    stickers, magnifier, three-photo header strip, before/after compare card, ranking podium,
+    progress bar, lower third);
   - karaoke captions, music ducked under speech, sound-effect cues.
 - **Sound design**: `--auto-sfx` places licence-safe sound effects (CC0 recordings plus sounds
   synthesized with ffmpeg) on moving transitions and selected graphics from an editable table

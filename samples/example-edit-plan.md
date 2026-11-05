@@ -23,10 +23,11 @@
 | 1 | 0.0 | 1.3 | title | top | before | style=outline; lines=Cùng 1 cái áo; sub=vết thử bằng thuốc đỏ |
 | 2 | 3.2 | 5.9 | title | top | before | style=marker; lines=Ố 2 tháng; accent=Ố |
 | 3 | 6.2 | 9.4 | step | top | – | n=1; text=Đổ chai hồng |
-| 4 | 9.7 | cut | cart | upper | – | text=Giỏ hàng ở góc trái |
+| 4 | 9.7 | cut | cart | – | – | text=Giỏ hàng ở góc trái |
 | 5 | 13.2 | 16.4 | progress | lower | – | label=Ngâm 2 tiếng · đã rút gọn thời gian |
 | 6 | 16.7 | 19.9 | title | top | – | style=stack; lines=Chưa chà / lần nào; accent=lần nào |
 | 7 | 23.7 | 26.9 | title | top | after | style=gradient; lines=Sau 2 tiếng |
 | 8 | 27.2 | 30.4 | checklist | upper | – | items=Chai hồng / Ngâm 2 tiếng / Xả nước |
-| 9 | 30.7 | 33.5 | cart | upper | – | text=Giỏ hàng ở góc trái |
-| 10 | 27.4 | 30.3 | compare | top | – | before=clip_05@2.0; after=clip_05@14.0; zoom=1.3; note=Cùng một cái áo · sau 2 tiếng ngâm (đã rút gọn thời gian) |
+| 9 | 30.7 | 33.5 | cart | – | – | text=Giỏ hàng ở góc trái |
+| 10 | 13.2 | 16.4 | thumbs | top | – | cards=clip_01@8.0:Vết cũ~0.3,0.4,1.8 / clip_02@1.0:Vết mới+1.2 / clip_03@12.4:Đã ngấm+2.0 |
+| 11 | 27.4 | 30.3 | compare | top | – | before=clip_05@2.0; after=clip_05@14.0; zoom=1.3; note=Cùng một cái áo · sau 2 tiếng ngâm (đã rút gọn thời gian) |
