@@ -38,6 +38,7 @@ from pathlib import Path
 
 MIN_DISPLAY = 0.5      # a group must stay up at least this long
 PER_WORD = 0.3         # plus this per word, so longer groups hold longer
+MIN_ON = 0.45          # after de-overlapping, anything shorter flashes and gets merged
 
 
 @dataclass
@@ -47,7 +48,8 @@ class Word:
     end: float
 
 
-KIT_PYTHON = Path.home() / ".local" / "share" / "short-video-kit" / "venv" / "bin" / "python"
+_VENV = Path.home() / ".local" / "share" / "short-video-kit" / "venv"
+KIT_PYTHON = _VENV / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 
 
 def ensure_deps() -> None:
@@ -205,7 +207,19 @@ def group(words: list[Word], per_group: int) -> list[tuple[float, float, str]]:
         nxt = groups[i + 1][0]
         if e > nxt:
             groups[i] = (s, max(s + 0.3, nxt - 0.02), t)
-    return groups
+
+    # A fast voice leaves some groups on screen for a blink ("á.", "hả?"). Fold any group shorter
+    # than MIN_ON into its predecessor, as long as the result stays short enough to read.
+    merged: list[tuple[float, float, str]] = []
+    for s, e, t in groups:
+        if merged:
+            ps, pe, pt = merged[-1]
+            short = (e - s) < MIN_ON or (pe - ps) < MIN_ON
+            if short and len((pt + " " + t).split()) <= per_group + 2:
+                merged[-1] = (ps, e, f"{pt} {t}")
+                continue
+        merged.append((s, e, t))
+    return merged
 
 
 def ts(sec: float) -> str:
@@ -224,6 +238,9 @@ def main() -> int:
     ap.add_argument("--lang", default="vi")
     ap.add_argument("--words", type=int, default=4, help="Words per caption group")
     ap.add_argument("--json", action="store_true", help="Print groups as JSON instead of SRT")
+    ap.add_argument("--words-out", type=Path,
+                    help="Also write word-level timings as JSON ([{text,start,end}]). "
+                         "plan_to_project.py uses them to anchor graphics and punch-ins to words.")
     args = ap.parse_args()
     ensure_deps()
 
@@ -240,7 +257,8 @@ def main() -> int:
             sys.exit(f"Script not found: {args.script}")
         # Emotion/audio tags such as [excited] or [laughs softly] direct the TTS but are never
         # spoken, so they must not become caption words — or worse, throw the alignment off.
-        script_text = re.sub(r"\[[^\]]*\]", " ", args.script.read_text(encoding="utf-8"))
+        # utf-8-sig: a BOM written by Windows editors would otherwise glue itself to word 1.
+        script_text = re.sub(r"\[[^\]]*\]", " ", args.script.read_text(encoding="utf-8-sig"))
         script_words = script_text.split()
         words = align(script_words, heard)
         matched = sum(1 for s, w in zip(script_words, words) if norm(s) == norm(w.text))
@@ -257,6 +275,12 @@ def main() -> int:
               "recognition errors. Pass --script to use your own wording.", file=sys.stderr)
 
     groups = group(words, args.words)
+
+    if args.words_out:
+        args.words_out.write_text(json.dumps(
+            [{"text": w.text, "start": round(w.start, 3), "end": round(w.end, 3)} for w in words],
+            ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"{args.words_out}  —  {len(words)} word timing(s)", file=sys.stderr)
 
     if args.json:
         print(json.dumps(

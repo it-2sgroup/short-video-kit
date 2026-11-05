@@ -40,7 +40,8 @@ Design to the conservative safe zone from `platform-specs.md` §6:
 | Right | 140 px |
 | Left | 60 px |
 
-Usable band on a 1080×1920 frame: **y = 250 → 1410**, **x = 60 → 940**.
+Usable band on a 1080×1920 frame: **y = 250 → 1410**, **x = 60 → 940** (and x ≤ 900 below y ≈ 700, where
+TikTok's action rail sits — the template's caption band is x ≈ 130–950, y ≈ 1190–1380).
 
 **Captions sit low-centre but above the bottom 510 px** — roughly y = 1150–1400. That clears
 TikTok's own caption, username, audio tag and product card.
@@ -51,6 +52,13 @@ Two placement rules worth stating explicitly:
   edges when the text is long. Use a full-width absolute container with `text-align: center`.
 - **Never place a caption over the product or over the stain** during the demo. The whole point of
   those seconds is that the viewer sees the transformation. Move the caption up, or drop it.
+
+---
+
+## Titles and labels
+
+Titles, labels and their styles (no boxes on product demos, the five title styles, fonts with
+Vietnamese support) are in `typography.md`. This file is about spoken captions.
 
 ---
 

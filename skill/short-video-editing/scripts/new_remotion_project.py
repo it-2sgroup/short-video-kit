@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""Create a render project from assets/remotion-template and (optionally) make 1080x1920 proxies.
+
+    python scripts/new_remotion_project.py ~/videos/saiza-render            # copy template only
+    python scripts/new_remotion_project.py DEST --install                    # + npm install (downloads ~300 MB)
+    python scripts/new_remotion_project.py DEST --proxies /path/to/raw_clips  # + ffmpeg proxies into public/clips
+
+Proxies: phone footage is usually 4K HEVC with rotation metadata; rendering from it is slow. This
+writes H.264 1080x1920 30fps, audio-free copies named <STEM>.mp4 (ffmpeg applies the rotation).
+Use --proxy-height 3840 when the edit punches in beyond ~1.15x (see references/camera-moves.md).
+
+Ask the user before --install: it downloads npm packages and Remotion's Chromium on first render.
+"""
+from __future__ import annotations
+
+import argparse
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "remotion-template"
+VIDEO_EXT = {".mov", ".mp4", ".m4v", ".mkv"}
+
+
+def make_proxies(src: Path, dest: Path, height: int) -> int:
+    dest.mkdir(parents=True, exist_ok=True)
+    width = height * 9 // 16
+    clips = sorted(p for p in src.rglob("*") if p.suffix.lower() in VIDEO_EXT)
+    for p in clips:
+        out = dest / f"{p.stem.upper()}.mp4"
+        if out.exists():
+            continue
+        print(f"proxy {p.name} -> {out.name}")
+        subprocess.run(
+            ["ffmpeg", "-loglevel", "error", "-y", "-i", str(p),
+             "-vf", f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},fps=30",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-an", str(out)],
+            check=True)
+    return len(clips)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Scaffold a Remotion render project for this kit.")
+    ap.add_argument("dest", type=Path)
+    ap.add_argument("--install", action="store_true", help="run npm install in the new project")
+    ap.add_argument("--proxies", type=Path, help="folder of raw clips to convert into public/clips")
+    ap.add_argument("--proxy-height", type=int, default=1920, choices=[1920, 3840])
+    a = ap.parse_args()
+
+    dest = a.dest.expanduser().resolve()
+    if dest.exists() and any(dest.iterdir()) and not (dest / "package.json").exists():
+        sys.exit(f"{dest} exists and is not a render project; choose an empty folder.")
+    if not (dest / "package.json").exists():
+        shutil.copytree(TEMPLATE, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("node_modules", "out"))
+        print(f"created {dest}")
+    for sub in ("public/clips", "public/audio"):
+        (dest / sub).mkdir(parents=True, exist_ok=True)
+
+    if a.proxies:
+        n = make_proxies(a.proxies.expanduser(), dest / "public" / "clips", a.proxy_height)
+        print(f"{n} clip(s) in {dest / 'public' / 'clips'}")
+
+    if a.install:
+        npm = shutil.which("npm")
+        if not npm:
+            sys.exit("npm not found: install Node 20+ first.")
+        subprocess.run([npm, "install"], cwd=dest, check=True)
+
+    print("next: put the voiceover in public/audio/, run plan_to_project.py --out "
+          f"{dest / 'project.json'}, then  npx remotion render src/index.ts Short out/video.mp4 --props=project.json")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

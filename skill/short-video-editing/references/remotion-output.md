@@ -1,152 +1,84 @@
 # Remotion Output
 
-Remotion renders React components to MP4. In this pipeline it is the **graphics layer** —
-captions, titles, counters, overlays, transitions — composited over footage that ffmpeg has
-already cut. It is not a replacement for ffmpeg: cutting and concatenating raw clips in Remotion
-is slow and awkward, and ffmpeg does it in one pass.
+The kit renders with a data-driven Remotion project: `assets/remotion-template`. The edit plan is
+compiled to `project.json`; one composition (`Short`) renders any video from it. Nobody edits React
+code to make a video — changing a video means changing the plan.
 
 ---
 
 ## Licence — read before building
 
-Remotion is **source-available, not open source**. From its `LICENSE.md`:
-
-> Free License applies to: *"an individual"* or *"a for-profit organization with **up to 3
-> employees**"*
-
-Above three employees a **Company License** is required: **$25/month per seat**, where a seat is
-*"per person who writes Remotion code themselves or using agentic coding tools."*
-
-That last clause matters and is easy to miss: **having an AI agent write the Remotion code still
-consumes a seat.** It is not a way around the licence.
-
-Confirm the organisation's headcount before starting. If it is over three and nobody has bought a
-seat, say so rather than shipping a licence liability. Sources: `remotion.dev/license`,
-`remotion.dev/docs/license/faq`.
+Remotion is **source-available, not open source**. Its `LICENSE.md` grants the free licence to
+*"an individual"* or *"a for-profit organization with up to 3 employees"*. Above that a Company
+License is **$25/month per seat**, a seat being *"per person who writes Remotion code themselves or
+using agentic coding tools"* — an AI agent writing Remotion code still consumes a seat. Confirm the
+headcount before building; if it is over three and nobody has a seat, say so. Sources:
+`remotion.dev/license`, `remotion.dev/docs/license/faq`.
 
 ---
 
-## Setup
+## Pipeline
 
 ```bash
-npx create-video@latest --blank my-video
-cd my-video && npm install
-npm run dev      # Remotion Studio, live preview
+# 1. Scaffold once per batch (ask before --install: it downloads npm packages + Chromium)
+python scripts/new_remotion_project.py ~/renders/saiza --install --proxies "/path/to/raw clips"
+cp voice.mp3 ~/renders/saiza/public/audio/kb7.mp3
+
+# 2. Captions + word timings (step 5 of SKILL.md)
+python scripts/align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json
+
+# 3. Compile the plan
+python scripts/plan_to_project.py edit-plan.md --out ~/renders/saiza/kb7.json \
+    --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera \
+    --punch-keywords "saiza,chai xanh"
+
+# 4. Look before rendering, then render
+cd ~/renders/saiza
+npx remotion still src/index.ts Short out/check.png --frame=45 --props=kb7.json
+npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json --codec=h264 --crf=18
 ```
 
-Requires Node 18+ and ffmpeg. Remotion downloads its own Chromium headless shell on first render.
+`npm run studio` opens Remotion Studio with `project.example.json`, a footage-free gallery of every
+component — the quickest way to see what each style looks like.
 
 ---
 
-## Composition shape for a 30-40s vertical short
+## Template layout
 
-```tsx
-// src/Root.tsx
-import { Composition } from "remotion";
-import { Short } from "./Short";
+| Path | Role |
+|---|---|
+| `src/project.ts` | The input contract (`Project`, `Scene`, `Overlay`, …). |
+| `src/theme.ts` | Design tokens: fonts, palette, layout zones, safe area, cart point, motion curves, camera limits. Change the look here. |
+| `src/engine/timeline.ts` | Scene layout with transitions centred on cuts; reading-time and dB helpers. |
+| `src/engine/camera.ts` | Push / pull / pan / hold + keyword punches, perceptual scale. |
+| `src/engine/transitions.tsx` | Transition registry (built-ins + `zoomThrough`, `blurDissolve`, `whip`). |
+| `src/engine/audio.tsx` | Voice, ducked music, SFX — outside the transitions so they never shift. |
+| `src/engine/Short.tsx` | The composition. |
+| `src/components/text/` | `Title` (5 styles), `Captions` (karaoke/plain), text primitives. |
+| `src/components/graphics/` | Callout, CheckList, Step, Price, CartPointer, Highlight, Sticker, Magnifier, Thumbs, Ranking, Progress, LowerThird. |
+| `src/components/registry.tsx` | Component names used in `project.json`; unknown names throw. |
 
-export const RemotionRoot = () => (
-  <Composition
-    id="Short"
-    component={Short}
-    durationInFrames={35 * 30}   // runtime x fps — derive, never hardcode a guess
-    fps={30}
-    width={1080}
-    height={1920}
-  />
-);
-```
-
-**Everything is driven by the frame number.** There is no wall clock, no CSS transition, no
-`setTimeout`. A component asks `useCurrentFrame()` and returns what the picture looks like at that
-frame. This is what makes renders deterministic and seekable, and it is the one mental shift that
-catches people coming from CSS animation.
-
-```tsx
-import { useCurrentFrame, useVideoConfig, interpolate, Sequence, OffthreadVideo, staticFile } from "remotion";
-
-export const Short = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const opacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
-  return (
-    <>
-      <Sequence from={0} durationInFrames={Math.round(2.2 * fps)}>
-        <OffthreadVideo src={staticFile("seg_01.mp4")} />
-      </Sequence>
-      <div style={{ opacity, position: "absolute", bottom: 560 }}>Cùng 1 cái áo</div>
-    </>
-  );
-};
-```
-
-Use `<OffthreadVideo>` rather than `<Video>` for footage during a render — it decodes frames with
-ffmpeg instead of relying on the browser's video element, which is both faster and avoids frames
-being skipped on seek.
+To add a component: write it under `components/graphics/` taking `{ov, dur, instant}`, read its
+content from `ov.props`, take every colour/size/curve from `theme.ts`, register it, and document
+its content keys in `layout-and-motion-graphics.md`. No video text in code.
 
 ---
 
-## Mapping the edit plan onto Remotion
+## Rules that keep renders correct
 
-The edit plan's scene table converts directly. A scene at `Start 10.0 / End 12.2` becomes:
+These follow Remotion's own agent rules (`remotion-dev/skills`, `remotion-best-practices`) [D]:
 
-```tsx
-<Sequence from={Math.round(10.0 * fps)} durationInFrames={Math.round(2.2 * fps)}>
-```
-
-Generate this from the plan rather than typing it. A small script that reads the markdown table
-and emits the `<Sequence>` list removes a whole class of off-by-one-frame errors, and keeps the
-plan as the single source of truth when timings change.
-
-Keep `fps` from `useVideoConfig()` instead of writing `30` inline — an fps change then does not
-silently desynchronise every scene.
-
----
-
-## Captions
-
-Feed the SRT produced by `scripts/align_captions.py`. Parse it once, then render each group as its
-own `<Sequence>`:
-
-```tsx
-{cues.map((c, i) => (
-  <Sequence key={i} from={Math.round(c.start * fps)}
-            durationInFrames={Math.round((c.end - c.start) * fps)}>
-    <CaptionPill text={c.text} />
-  </Sequence>
-))}
-```
-
-Safe zone on a 1080x1920 frame: keep captions inside **y 250-1410, x 60-940**. See
-`captions-and-text.md` for why, and `platform-specs.md` §6 for what occupies the rest.
-
----
-
-## Rendering
-
-```bash
-npx remotion render Short out/video.mp4 --codec=h264 --crf=18
-npx remotion still Short out/frame.png --frame=45      # check a moment before committing
-```
-
-Useful flags: `--concurrency` to trade RAM for speed, `--scale` for a fast low-res proof,
-`--frames=0-120` to render a range while iterating. Render a still first — a 35-second render
-to discover a caption is off-screen is an expensive way to find out.
-
----
-
-## Determinism
-
-The renderer screenshots each frame in headless Chromium. Anything that varies between frames
-for reasons other than the frame number breaks reproducibility:
-
-- No `Date.now()`, no `new Date()`, no unseeded `Math.random()` — Remotion patches `Math.random`
-  to be deterministic per composition, but seed anything else yourself.
-- No network fetches at render time. Put assets in `public/` and reference them with
-  `staticFile()`.
-- Load fonts via `@remotion/google-fonts` or `delayRender()`/`continueRender()`, so the frame is
-  not captured before the font has arrived. A caption that renders in a fallback face for the
-  first few frames is the usual symptom.
+- Everything animates from `useCurrentFrame()`. No CSS transitions/animations, no `Date.now()`,
+  no unseeded randomness.
+- Footage with `<OffthreadVideo>`; transform a **wrapper**, never the video element.
+- Scale animations use `interpolate(..., {output: "perceptual-scale"})`.
+- Fonts through `@remotion/google-fonts` with explicit weights and subsets (`latin` +
+  `vietnamese`), so no frame renders in a fallback face.
+- Assets in `public/`, referenced with `staticFile()`; no network fetches at render time.
+- Shader transitions and light leaks need `Config.setChromiumOpenGlRenderer("angle")` (set in
+  `remotion.config.ts`).
+- Render a still at every transition before a full render; a full 35 s render takes ~2 minutes on
+  the reference Windows machine, a still a few seconds.
 
 ---
 
@@ -154,12 +86,8 @@ for reasons other than the frame number breaks reproducibility:
 
 | Job | Tool |
 |---|---|
-| Cut clips to in/out points, concat, conform fps/resolution | **ffmpeg** (`footage-ingest.md` §4) |
-| Speed ramps, time compression on long waits | **ffmpeg** |
-| Audio mix: voiceover + music bed + ducking | **ffmpeg** |
-| Captions, titles, counters, overlays, animated graphics | **Remotion** |
-| Final mux of graphics over cut footage | **Remotion** (`<OffthreadVideo>`) or ffmpeg overlay |
-
-The practical order: ffmpeg produces clean segments → Remotion composites graphics and renders →
-ffmpeg muxes the finished audio if it was not embedded. Doing the cutting inside Remotion works
-but costs render time for something ffmpeg does near-instantly.
+| Proxies, conform fps/resolution, rotation | **ffmpeg** (`new_remotion_project.py --proxies`) |
+| Trimming the voiceover at pauses | **ffmpeg** (`atrim` + `concat`, cut points from `silencedetect`) |
+| Scene cuts, transitions, camera, graphics, captions, mix | **Remotion** |
+| Loudness check, scene-cut detection on the output | **ffmpeg** (`ebur128`, `select='gt(scene,0.3)'`) |
+| Handing to a human editor | `edit-plan.md` + `captions.srt` → CapCut / Premiere / DaVinci |

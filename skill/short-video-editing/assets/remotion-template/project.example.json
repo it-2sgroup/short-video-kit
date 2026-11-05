@@ -1,0 +1,33 @@
+{
+  "duration": 24,
+  "voice": null,
+  "captionStyle": "plain",
+  "scenes": [
+    { "clip": null, "in": 0, "start": 0, "end": 3, "type": "HOOK", "camera": { "move": "push" } },
+    { "clip": null, "in": 0, "start": 3, "end": 6.5, "type": "PROBLEM", "transition": { "type": "wipe" }, "camera": { "move": "pull" } },
+    { "clip": null, "in": 0, "start": 6.5, "end": 10, "type": "DEMO", "transition": { "type": "zoomThrough" }, "accent": "flash", "camera": { "move": "pan", "pan": [-0.06, 0] } },
+    { "clip": null, "in": 0, "start": 10, "end": 13.5, "type": "DEMO", "transition": { "type": "slide", "direction": "up" }, "camera": { "move": "push", "focus": [0.5, 0.4] } },
+    { "clip": null, "in": 0, "start": 13.5, "end": 17, "type": "REVEAL", "transition": { "type": "blurDissolve" }, "accent": "lightLeak", "camera": { "move": "hold" } },
+    { "clip": null, "in": 0, "start": 17, "end": 20.5, "type": "PROOF", "transition": { "type": "pushCut" }, "camera": { "move": "push" } },
+    { "clip": null, "in": 0, "start": 20.5, "end": 24, "type": "CTA-CLOSE", "transition": { "type": "iris" }, "camera": { "move": "pull" } }
+  ],
+  "punches": [{ "at": 11.6, "scale": 1.12 }],
+  "overlays": [
+    { "component": "title", "start": 0, "end": 3, "zone": "top", "props": { "style": "stack", "lines": ["Dòng dẫn nhỏ", "Tiêu đề lớn"], "accent": "lớn" } },
+    { "component": "title", "start": 3.2, "end": 6.3, "zone": "top", "tone": "before", "props": { "style": "outline", "lines": ["Nhãn kiểu viền chữ"], "sub": "dòng phụ trung thực" } },
+    { "component": "callout", "start": 3.4, "end": 6.3, "props": { "label": "Chú thích bộ phận", "target": [0.62, 0.55], "side": "left", "labelY": 0.47 } },
+    { "component": "title", "start": 6.7, "end": 9.8, "zone": "top", "props": { "style": "gradient", "lines": ["Dòng phụ", "Tiêu đề gradient"] } },
+    { "component": "step", "start": 10.2, "end": 13.3, "zone": "top", "props": { "n": 1, "text": "Bước đầu tiên" } },
+    { "component": "highlight", "start": 10.6, "end": 13.3, "props": { "shape": "circle", "target": [0.5, 0.55], "size": 0.14 } },
+    { "component": "title", "start": 13.7, "end": 16.8, "zone": "top", "props": { "style": "glass", "lines": ["và", "thẻ kính mờ"] } },
+    { "component": "checklist", "start": 13.9, "end": 16.8, "zone": "lower", "props": { "items": ["Ý thứ nhất", "Ý thứ hai", "Ý thứ ba"] } },
+    { "component": "title", "start": 17.2, "end": 20.3, "zone": "top", "props": { "style": "marker", "lines": ["Nhấn mạnh một từ"], "accent": "một từ" } },
+    { "component": "sticker", "start": 17.6, "end": 20.3, "props": { "text": "Sticker", "at": [0.72, 0.62] } },
+    { "component": "price", "start": 20.7, "end": 23.8, "zone": "lower", "props": { "value": 99000, "unit": "đ", "label": "Giá ví dụ", "old": "150.000đ" } },
+    { "component": "cart", "start": 21.4, "end": 24, "props": { "text": "Lời kêu gọi giỏ hàng" } }
+  ],
+  "captions": [
+    { "text": "Phụ đề lời nói", "start": 0.3, "end": 2.6 },
+    { "text": "nằm ở dải riêng", "start": 3.2, "end": 5.8 }
+  ]
+}

@@ -11,6 +11,12 @@ Every source surveyed agrees on the direction (faster cuts → higher completion
 precise percentages circulating in this field survive scrutiny, so treat the cadence as craft, not
 as a measured law.
 
+**Client correction (Nov 2026).** The first Remotion renders cut every 1.5–2s with hard cuts and the
+client rejected them: *"tốc độ chuyển cảnh nhìn nó chưa liên kết, cứ bị tách rời… tầm 3 đến 4s là
+chuyển cảnh… chuyển sao cho mượt hơn"*. A web search for evidence on "3–4s per scene" found nothing
+authoritative, so the 3–4s rhythm is recorded here as the **client's requirement**, and the 4s
+ceiling above remains the data-backed limit. The two fit together: 3–4s scenes, soft transitions.
+
 ---
 
 ## The cadence
@@ -19,8 +25,10 @@ as a measured law.
 |---|---|---|
 | Hook resolves | ≤ 3.0s | **Hard rule** — checked by `scripts/pacing_checker.py` |
 | Maximum scene length | 4.0s | **Hard rule** — checked |
-| Typical scene length | 2–3s | Target |
-| Hook beats | 1–2s each | Target |
+| Minimum scene length (non-hook) | 2.5s | **Hard rule** (client) — checked, `--min-scene` |
+| Typical scene length | 3–4s | Target (client requirement) |
+| Hook beats | ~1.5s each (min 1.2s) | Target |
+| Transition between scenes | ~0.4s soft (fade / slide / wipe), centred on the cut | Target (client requirement) |
 | Something changes visually | every 5–7s minimum | Floor |
 | Re-hook | once, around the midpoint | Target |
 
@@ -45,13 +53,13 @@ skeleton fits that window.
 
 | Phase | Timing | Purpose |
 |---|---|---|
-| **Hook** | 0–3s | Earn the next three seconds. 2–3 beats of 1–2s. |
-| **Problem** | 3–8s | Make the stake concrete. Name the garment and the stain. |
-| **Early CTA** | ~8–10s | Plant the cart reference once, lightly. |
-| **Demo** | 10–26s | The transformation. The longest phase; keep cutting inside it. |
-| **Re-hook** | ~18–20s | Reset attention mid-demo — a new angle, a second stain type, a surprising detail. |
-| **Reveal** | 26–32s | Pay off the hook. Hold slightly longer here; this is the shot people screenshot. |
-| **Close CTA** | 32–38s | Say it again, concretely, pointing at the real cart. |
+| **Hook** | 0–3s | Earn the next three seconds. 2 beats of ~1.5s (before → after). |
+| **Problem** | 3–9s | Make the stake concrete. Name the garment and the stain. 2 scenes of 3s. |
+| **Early CTA** | ~9–12s | Plant the cart reference once, lightly. |
+| **Re-hook** | ~12–15s | Product hero shot — a new beat of energy. |
+| **Demo** | 15–25s | The transformation. 3 scenes of 3–3.5s. |
+| **Reveal** | 25–31s | Pay off the hook. 2 scenes; this is the shot people screenshot. |
+| **Close CTA** | 31–38s | Say it again, concretely, pointing at the real cart. |
 
 **On the early CTA.** This is the best-evidenced creative recommendation available: Wistia's
 analysis of 14M+ videos found that sub-60s video converts best with the CTA in the first quarter,
@@ -65,13 +73,12 @@ and never tapped. An early, light cart mention is the cheapest insurance against
 
 ## Transitions
 
-### The default is a hard cut
+### Default: a short soft transition on every cut
 
-A straight cut is the right choice in the large majority of cases. Transitions that occupy many
-frames — dissolves, long wipes — waste a disproportionate share of a 35-second runtime and are
-harder to read at phone size.
-
-If you cannot articulate *why* a particular transition is there, cut instead.
+Hard cuts between unrelated clips read as *"cứ bị tách rời"* (disconnected) to the client. Join scenes
+with a ~0.4 s transition centred on the planned cut (`fade` by default, `slide`/`zoomThrough` on a
+change of beat, `wipe` for before → after). The catalogue, frame counts, the centred-cut maths and
+sound under transitions are in `transitions.md`.
 
 ### Transitions that earn their place
 
@@ -88,18 +95,19 @@ reads as two separate shots.
 
 ### Transitions to avoid
 
-Canned preset packs — spin, glitch, star wipe, cross-dissolve — read as template content. Beyond
-looking amateur on a small screen, heavy reliance on them edges toward the unoriginal-content
-territory that costs For You feed eligibility.
+Canned preset packs — spin, glitch, star wipe, flashy zoom — read as template content, look amateur on
+a small screen, and edge toward the unoriginal-content territory that costs For You feed
+eligibility. A plain short cross-dissolve is fine.
 
 ### The one place you must not cut
 
-**Do not cut between the "before" and the "after" of a demonstration.**
+**Never hide a cut between the "before" and the "after" of a demonstration.**
 
 A hidden cut across the reveal is exactly what makes a cleaning demo read as fake, and it is what
-TikTok's misleading-demonstration policy treats as creating a false impression. Hold the take.
-If the real process takes hours, speed-ramp it and label the compression on screen ("tua nhanh ×8",
-"sau 2 tiếng"). See `platform-specs.md` §2.
+TikTok's misleading-demonstration policy treats as creating a false impression. Hold the take when
+you can. When the process takes hours, show the same item in the same framing and label the
+compression on screen ("tua nhanh ×8", "sau 2 tiếng", "đã rút gọn thời gian"). See
+`platform-specs.md` §2.
 
 This is the rare case where the credible choice and the compliant choice are the same choice.
 
@@ -124,8 +132,8 @@ at a tidy structural boundary.
 ## Keeping within the rules when the footage fights you
 
 **The demo take is 12 seconds and cannot be cut.** Use punch-ins. One locked take becomes:
-wide 0–3s → punch to the stain 3–6s → back to wide 6–9s → tight on the result 9–12s. Four scenes,
-one take, no hidden cut across the reveal.
+wide 0–4s → punch to the stain 4–8s → tight on the result 8–12s. Three scenes of 4s, one take, no
+hidden cut across the reveal.
 
 **There is only one camera setup.** Vary scale rather than angle — wide, medium, macro are three
 distinct scenes from the same position. Add on-screen text changes as a fourth axis.

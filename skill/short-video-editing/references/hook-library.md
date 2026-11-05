@@ -28,7 +28,7 @@ away a third of the hook.
 **Structural requirements** (enforced by `scripts/pacing_checker.py`):
 - The hook resolves by **3.0 seconds**.
 - Frame 0 is never empty — it is the thumbnail in the feed.
-- Prefer **2–3 fast beats of 1–2s each** over one static 3s shot. Motion in the first second is
+- Prefer **two ~1.5s beats** (before → after, joined by a wipe) over one static 3s shot. Motion in the first second is
   itself a reason to keep watching.
 
 ---

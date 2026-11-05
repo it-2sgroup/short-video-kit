@@ -54,6 +54,36 @@ Tái hiện bằng `docs/niche-data-queries.sql`. Đo được:
 cắt trong skill là **thực hành nghề**, không phải số đo — skill gắn nhãn `[DATA]` / `[HYPOTHESIS]` để phân biệt.
 
 Quy tắc "cảnh ≤ 4 giây" và "hook ≤ 3 giây" đến từ thực hành short-form phổ biến, **không** rút ra từ dữ liệu này.
+Nhịp "3–4 giây một cảnh, chuyển cảnh mượt" là **yêu cầu của khách** (11/2026) — tìm trên web không có nguồn đo nào.
+
+## Kiến trúc dựng (11/2026)
+
+**Một bảng kế hoạch → `project.json` → một composition Remotion.** Không có nội dung video nào nằm trong
+code: đổi video là đổi kế hoạch. Lý do:
+- Kênh Mike Like Design (TikTok) chỉ ra rằng sửa video bằng cách gõ prompt cho từng thay đổi vừa lâu vừa tốn
+  token; một bộ skill/workflow cố định + dữ liệu là cách làm nhanh và rẻ.
+- `browser-use/video-use` (MIT) làm tương tự: tác tử làm việc trên transcript cấp từ chứ không trên khung hình.
+- `remotion-dev/skills` (quy tắc chính thức của Remotion cho tác tử AI): mọi chuyển động theo
+  `useCurrentFrame()`, transform trên lớp bọc, `perceptual-scale` khi phóng.
+
+Các thành phần đã chọn và nguồn tham khảo:
+
+| Phần | Lựa chọn | Nguồn |
+|---|---|---|
+| Chuyển cảnh | `@remotion/transitions` (fade, slide, wipe, iris, pushCut, flip, crossZoom) + 3 cái tự viết (zoomThrough, blurDissolve, whip); căn giữa điểm cắt để không lệch giọng | Tài liệu Remotion; HyperFrames (Apache-2.0) cho thông số whip/blur |
+| Chữ | Be Vietnam Pro + Playfair Display Italic (chữ nhấn) + Anton (số); 5 kiểu tiêu đề; không khung viền | Siêu dữ liệu Google Fonts (đã kiểm subset `vietnamese`); ảnh mẫu của kênh Mike Like Design |
+| Bố cục | Dải trên đầu / mặt bỏ trống / dải ngực / dải phụ đề; tránh thanh nút bên phải | Đo của bên thứ ba (TikTok không công bố); Remotion safe-zone overlay |
+| Góc máy | push/pull/pan/hold + punch-in theo từ khoá, phóng perceptual, không reset ở điểm cắt | StudioBinder, iart-ai/tiktok-video-skills (MIT), tài liệu Remotion |
+| Bắt nhịp | Neo đồ hoạ vào từ (`@"từ"`), cắt ở khoảng lặng, báo cáo đồng bộ tự động | Hướng dẫn phụ đề tiếng Việt của Netflix (17 ký tự/giây), video-use |
+
+`iart-ai` = bộ skill MIT `iart-ai/tiktok-video-skills` và `ecommerce-video-skills` (Remotion). Đã đọc, lấy
+thông số; không chép nguyên văn vì có vài con số không có nguồn ("87% quyết định trong 3 giây").
+
+**Đã kiểm thực tế trên máy Windows của dự án:** render shader (`crossZoom`, light leak) với GL `angle`; render
+đủ 33,7 giây với 12 cảnh, 17 lớp đồ hoạ, phụ đề karaoke; audio và hình dài bằng nhau.
+
+**Chưa kiểm:** chưa nghe/xem trọn video cuối trên điện thoại thật; vùng an toàn chưa đối chiếu bằng bài đăng
+thử; chưa render từ proxy 2160×3840 (punch-in > 1,15× sẽ mờ trên proxy 1080p).
 
 ## Kịch bản hiện hành của campaign đang chứa claim vi phạm
 
@@ -77,6 +107,9 @@ Câu hoàn tiền nằm trên **một trong những video doanh thu cao nhất**
 |---|---|
 | **Kinocut** (github.com/KyaniteLabs/kinocut) — MCP server bọc ffmpeg, 205 tool, Apache-2.0 | Có thật (243 sao). **Chưa cài, chưa thử.** Ứng viên nếu muốn lớp kiểm tra giữa Claude và ffmpeg |
 | auto-editor | Tự cắt đoạn im lặng. Hợp bước làm sạch footage thô. Chưa dùng |
+| browser-use/video-use (MIT) | Biên tập theo transcript, cắt ở khoảng lặng ≥ 400 ms. Đã lấy quy tắc; bước phiên âm của nó cần ElevenLabs Scribe (trả phí) |
+| heygen-com/hyperframes (Apache-2.0) | HTML + GSAP, không phải React. Lấy quy tắc chuyển động/phụ đề, không lấy code. Dự án HyperFrames cũ đã xoá khỏi repo |
+| remotion-dev/skills | Quy tắc chính thức cho tác tử; không thấy giấy phép nên chỉ tham chiếu, không chép |
 | MoviePy, editly, OpenTimelineIO | MoviePy chậm; editly bỏ bê từ 05/2025; OTIO chỉ khi cần xuất sang Premiere/DaVinci |
 
 ⚠️ Một kết quả tìm kiếm quảng cáo repo `kyanitelabs/mcp-video` "87 tool" — repo đó **không tồn tại** (API GitHub

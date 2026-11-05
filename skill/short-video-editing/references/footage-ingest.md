@@ -34,6 +34,37 @@ exceeds the height.
 
 ---
 
+## 1b. Budget the footage across ALL the videos it has to feed
+
+Raw footage is usually shot once and used for many scripts (the same bowl, bottles and garments cut
+into KB1, KB2, KB3…). Treat it as a budget:
+
+1. **Count the demand first.** How many scripts or videos are waiting? Ask if unknown. Plan for the
+   most the footage can support, not for one.
+2. **Catalogue by kind of moment, not by file.** Typical kinds: `BEFORE` (stain clearly visible),
+   `AFTER` (clean item lifted out), `POUR` (bottle in use), `HERO` (product in hand, label readable),
+   `SCRUB` (process), `PROBLEM` (dirty item held up). Note which are scarce. In the SAIZA footage the
+   product hero shot existed in one 13s clip while clear BEFORE/AFTER moments existed in a dozen.
+3. **Allocate before cutting.** Give every video its own source ranges. Rotate which clips a video
+   leans on so the videos do not look alike (video 1 opens on socks, video 2 on a tee, video 3 on a
+   shirt) while the scarce shots go where they carry the most weight.
+4. **Never reuse inside a video.** Two scenes from overlapping ranges of one clip read as a repeat even
+   with different crops. Keep at least 0.5s between used ranges of the same clip (transitions borrow
+   ~0.2s of handle on each side).
+5. **Keep a ledger.** Each plan's scene table already carries Source and In, so the plans are the
+   ledger. Run:
+
+   ```bash
+   python scripts/footage_overlap_checker.py plans/kb7.md plans/kb4.md --clips /path/to/clips
+   ```
+
+   It fails on any overlap within or between plans and prints the free ranges left per clip. Plan
+   the next video from that list. Run it every time a plan changes.
+6. **Say so when the budget runs out.** If the remaining footage cannot support another video without
+   repeats, tell the user and name what to shoot (pickups), rather than quietly repeating shots.
+
+---
+
 ## 2. Build a shot log
 
 Watch the clips and record where the usable moments actually sit. One row per usable moment, not

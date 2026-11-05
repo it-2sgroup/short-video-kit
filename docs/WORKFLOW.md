@@ -1,80 +1,89 @@
 # Luồng làm việc — từ clip thô tới video hoàn chỉnh
 
-Tất cả lệnh chạy từ thư mục `skill/short-video-editing/` (hoặc `~/.claude/skills/short-video-editing/` sau
-khi cài). Claude chạy các bước này tự động khi bạn nhờ; phần này để bạn hiểu và kiểm tra lại.
+Lệnh chạy từ `skill/short-video-editing/` (hoặc `~/.claude/skills/short-video-editing/` sau khi cài).
+Claude chạy các bước này khi bạn nhờ; tài liệu này để bạn hiểu và kiểm lại.
 
 ```
-clip thô ─► [1 soi] ─► [2 shot log] ─► [3 hook] ─► [4 timeline] ─► [5 kịch bản] ─► [6 giọng]
-                                                       │                              │
-                                                  pacing_checker                 align_captions
-                                                                                      │
-                                       [8 trộn tiếng + xuất] ◄─ [7 cắt + dựng đồ hoạ] ◄┘
-                                          ffmpeg                  ffmpeg  ─►  Remotion
+clip thô ─► [1 soi + chia ngân sách footage] ─► [2 hook] ─► [3 bảng Scenes] ─► [4 bảng Overlays]
+                                                                  │                 │
+voice ─► [5 phụ đề + thời gian từng từ] ─────────────────────────────┴─────────┐       │
+                                                                             ▼       ▼
+                                   [6 pacing_checker + footage_overlap_checker] ─► [7 plan_to_project]
+                                                                                       │ sync report
+                                                                       [8 still → render Remotion] ◄┘
 ```
-
-## Phân công công cụ
-
-| Việc | Công cụ | Vì sao |
-|---|---|---|
-| Soi, cắt, ghép, tăng tốc, trộn tiếng | **ffmpeg** | Một lệnh, gần như tức thì. Làm trong Remotion thì chậm và vụng |
-| Chữ, tiêu đề, bộ đếm, lớp phủ, chuyển cảnh | **Remotion** | Điều khiển bằng số khung hình → render lặp lại chính xác |
-| Giọng đọc | **ElevenLabs** | Chọn bởi người dùng |
-| Canh giờ cho chữ | **Whisper** (cục bộ) | Lấy *thời điểm* từ Whisper, *chữ* từ kịch bản |
 
 ## Các bước
 
-### 1. Soi clip thô
+### 1. Soi clip, chia ngân sách footage
 ```bash
 python3 scripts/inspect_footage.py /duong/dan/clips --log
 ```
-Báo thời lượng, độ phân giải, hướng, fps, có tiếng không, và **cảnh báo**: clip ngang (cần crop hoặc nền mờ),
-clip câm, định dạng lệch nhau, footage ít (dưới ~45s cho một video 30–40s). In kèm bảng shot log trống.
+Lập shot log theo **loại khoảnh khắc** (TRƯỚC, SAU, ĐỔ CHAI, CẦM SẢN PHẨM, VÒ, VẤN ĐỀ). Một lô footage phải
+nuôi **nhiều video nhất có thể**: chia khoảng nguồn cho từng video, không dùng lại đoạn nào
+(`references/footage-ingest.md` §1b).
 
-### 2. Lập shot log
-Xem clip, ghi **khoảnh khắc dùng được** (một dòng một khoảnh khắc, không phải một dòng một file). In/Out ở đây là
-timecode **trong file nguồn**. Chi tiết và ví dụ: `references/footage-ingest.md`.
+### 2. Chọn hook (0–3 giây)
+Có biến đổi nhìn thấy được → dùng (TRƯỚC → SAU trong 3 giây đầu); có social proof thật → dùng; nêu được vấn đề
+cụ thể → pain point; còn lại → giới thiệu sản phẩm. `references/hook-library.md`.
 
-### 3. Chọn hook (0–3 giây)
-Thứ tự ưu tiên: có biến đổi nhìn thấy được → dùng nó; có social proof thật → dùng; nêu được vấn đề cụ thể →
-pain point; còn lại → product reveal. Tránh hook "chuyên gia" và hook ra lệnh. `references/hook-library.md`.
+### 3. Bảng Scenes
+Dùng `assets/edit-plan-template.md`. Cảnh **3–4 giây** (ngoài hook), cắt **ở khoảng lặng của giọng**, không
+cắt giữa từ. Mỗi cảnh có cột **Transition** (`fade`, `slide up`, `wipe right +leak`, `zoomThrough +flash`…) và
+**Camera** (`push 1.0>1.08`, `pull`, `pan left 6%`, `hold`, hoặc để trống cho `--auto-camera`).
 
-### 4. Dựng timeline
-Dùng `assets/edit-plan-template.md`. Bảng cảnh có **Start/End** (vị trí trên timeline) và **Source/In** (timecode
-trong file nguồn) — hai con số khác nhau, nhầm là lỗi hay gặp nhất.
-```bash
-python3 scripts/pacing_checker.py edit-plan.md
-```
-Phải PASS mới giao. Kiểm: hook xong trước 3,0s · không cảnh nào quá 4,0s · không hở/chồng · tổng 25–45s.
+### 4. Bảng Overlays (chữ và đồ hoạ)
+Mỗi dòng một thành phần: `title` (5 kiểu: outline, stack, gradient, glass, marker), `callout`, `highlight`,
+`step`, `checklist`, `price`, `cart`, `sticker`, `progress`, `magnifier`, `thumbs`, `ranking`, `lowerThird`,
+cùng `punch` (phóng theo từ khoá) và `sfx`. Thời điểm có thể neo theo từ: `@"chai hồng"`.
+Quy tắc: không đè lên mặt, tránh thanh nút bên phải, không quá 2 thành phần thông tin cùng lúc, đổi kiểu tiêu
+đề giữa các nhịp, chữ trên màn hình nói điều **khác** lời đọc. `references/layout-and-motion-graphics.md`,
+`references/typography.md`.
 
-### 5. Viết kịch bản
-Ngân sách 150–170 từ cho 35 giây. **Soát từng câu theo bảng viết lại ở `references/platform-specs.md` §7 trước khi
-tổng hợp giọng** — sửa lời cấm sau khi đã có giọng là trả tiền hai lần.
-Một dòng một câu, lưu `script.txt`. Nhãn `[excited]`… được phép viết sẵn (xem bước 6).
-
-### 6. Giọng đọc + phụ đề
+### 5. Giọng đọc + phụ đề
 ```bash
 python3 scripts/make_voiceover.py --quota                              # gói + credit còn lại
-python3 scripts/make_voiceover.py --list-voices                        # chọn voice_id
 python3 scripts/make_voiceover.py script.txt --voice <id> --dry-run    # tính phí, không tiêu
 python3 scripts/make_voiceover.py script.txt --voice <id> --out audio/
-python3 scripts/align_captions.py audio/voice_full.mp3 --script script.txt --out captions.srt
+python3 scripts/align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json
 ```
-Chi tiết model, nhãn cảm xúc, chi phí: `references/voiceover-and-captions.md`. **Luôn truyền `--script`** cho
-`align_captions.py`.
+Soát claim theo `references/platform-specs.md` §7 **trước khi** tạo giọng. Giọng có sẵn quá dài → cắt ở khoảng
+lặng thật (`ffmpeg silencedetect`), bỏ trọn câu và ghi rõ câu nào.
 
-### 7. Cắt và dựng
-Từ shot log: ffmpeg cắt từng đoạn (re-encode để cắt đúng khung hình), ghép, rồi Remotion dựng chữ/đồ hoạ lên
-trên. Lệnh mẫu: `references/footage-ingest.md` §4 và `references/remotion-output.md`.
+### 6. Kiểm kế hoạch
+```bash
+python3 scripts/pacing_checker.py edit-plan.md
+python3 scripts/footage_overlap_checker.py kb7/edit-plan.md kb4/edit-plan.md --clips /duong/dan/clips
+```
 
-### 8. Trộn tiếng và kiểm cuối
-Giọng ở mức đầy đủ, nhạc nền thấp hơn giọng 15–25 dB, tắt nhạc ngay trước và trong lúc lộ kết quả.
-**Nhạc phải lấy từ Commercial Music Library của TikTok** (tài khoản doanh nghiệp). Khi đăng: **bật "Disclose
-commercial content"** — dựng không cứu được hai thứ này.
+### 7. Biên dịch kế hoạch
+```bash
+python3 scripts/plan_to_project.py edit-plan.md --out du-an-render/kb7.json \
+    --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera \
+    --punch-keywords "saiza,chai xanh"
+```
+Đọc **sync report**: điểm cắt rơi giữa từ, chữ hiện/tắt sát điểm cắt, đồ hoạ lấn thanh nút, hai thành phần
+chồng cùng vùng, phụ đề nhấp nháy.
 
-## Quy tắc cứng (nằm trong SKILL.md, được `pacing_checker.py` kiểm bằng máy)
+### 8. Render
+```bash
+python3 scripts/new_remotion_project.py ~/renders/saiza --install --proxies "/duong/dan/clips"   # một lần
+cd ~/renders/saiza
+npx remotion still src/index.ts Short out/kiemtra.png --frame=45 --props=kb7.json
+npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json --codec=h264 --crf=18
+```
+`npm run studio` mở bộ mẫu `project.example.json` để xem mọi kiểu chữ và đồ hoạ khi chưa có footage.
 
-1. Hook xong trong 3 giây đầu — hình + chữ + tiếng, mỗi kênh một việc khác nhau.
-2. Không cảnh nào quá 4 giây. Cảnh hook nên 1–2 giây.
+### 9. Kiểm cuối
+Xem bảng khung hình (mỗi cảnh một khung + giữa mỗi chuyển cảnh), nghe trọn video. Nhạc phải từ Commercial
+Music Library của TikTok; khi đăng bật **"Disclose commercial content"**.
+
+## Quy tắc cứng (trong SKILL.md, máy kiểm)
+
+1. Hook xong trong 3 giây đầu (hình + chữ + tiếng, mỗi kênh một việc).
+2. Cảnh 3–4 giây: không quá 4, ngoài hook không dưới 2,5.
 3. Mọi kế hoạch có timestamp từng cảnh.
-4. Tổng 25–45s, lý tưởng 30–40s.
+4. Tổng 25–45 giây, lý tưởng 30–40.
 5. Soát claim thương mại trước khi giao.
+6. Một lô footage nuôi nhiều video; không đoạn nào dùng hai lần.
+7. Đồ hoạ tôn trọng khung hình: không đè mặt, không vào vùng giao diện TikTok, phụ đề có dải riêng.

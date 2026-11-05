@@ -1,235 +1,189 @@
 ---
 name: short-video-editing
-description: Plan, script and assemble short vertical product videos (TikTok Shop, Reels, Shorts) of 25-45 seconds — timestamped edit plans, hooks, SRT captions, voiceover, and renderable compositions. Use this whenever someone asks to make, edit, cut, script, storyboard or improve a short-form video, a product review, an affiliate/KOC/UGC video, a TikTok Shop video, a Reel or a Short — and also when they ask for a shot list, a video hook, burned-in captions, a before/after product demo, or want to know why their videos get no views. Apply it even when the request sounds like a small one ("just add captions", "make this snappier", "write me a TikTok script"), because the pacing and commercial-claim rules it enforces apply to all of those.
+description: Plan, script and assemble short vertical product videos (TikTok Shop, Reels, Shorts) of 25-45 seconds — timestamped edit plans, hooks, captions, voiceover, motion graphics, virtual camera moves, transitions and a data-driven Remotion render. Use this whenever someone asks to make, edit, cut, script, storyboard or improve a short-form video, a product review, an affiliate/KOC/UGC video, a TikTok Shop video, a Reel or a Short — and also when they ask for a shot list, a video hook, burned-in captions, kinetic text, motion graphics, transitions, a before/after product demo, several videos from one batch of raw footage, or want to know why their videos get no views. Apply it even when the request sounds small ("just add captions", "make this snappier", "write me a TikTok script"), because the pacing, layout and commercial-claim rules it enforces apply to all of those.
 ---
 
 # Short Video Editing
 
 Build short vertical product videos that get distributed, convert, and survive platform review.
 
-The core insight behind this skill, measured on 16,242 real TikTok Shop videos: **reach is almost
-always the bottleneck, not persuasion.** The top 20% of videos by views earned 95% of all revenue,
-while the bottom 80% averaged 171 views — and when those low-reach videos did reach someone, they
-converted at the same rate. Their problem was never the sales pitch. It was that nobody saw them.
-
-Distribution follows early retention, and early retention follows the hook and the cut rhythm.
-That is why the hard rules below are about the first three seconds and scene length, and not about
-how thoroughly the product is explained.
+The core insight, measured on 16,242 real TikTok Shop videos: **reach is almost always the
+bottleneck, not persuasion.** The top 20% of videos by views earned 95% of all revenue, while the
+bottom 80% averaged 171 views — and when those low-reach videos did reach someone, they converted at
+the same rate. Distribution follows early retention, and early retention follows the hook, the cut
+rhythm and how the frame keeps moving. That is why the hard rules are about the first three seconds,
+scene length and layout, not about how thoroughly the product is explained.
 
 ---
 
 ## Hard rules
 
-These are non-negotiable and are checked mechanically. Do not deliver a plan that breaks them.
+Checked mechanically. Do not deliver a plan that breaks them.
 
-**1. The hook resolves within the first 3 seconds.**
-The opening must combine three channels doing three *different* jobs: an arresting visual,
-on-screen text stating the promise, and audio that starts a thought the viewer needs to finish.
-A silent title card throws away a third of the hook. Frame 0 is the feed thumbnail — never empty.
+**1. The hook resolves within the first 3 seconds.** Three channels doing three different jobs: an
+arresting visual (ideally the before → after itself), on-screen text stating the promise, and audio
+that starts a thought. Frame 0 is the feed thumbnail — never empty.
 
-**2. No scene runs longer than 4 seconds.**
-A static shot past four seconds is a natural exit point, and an exit kills distribution. Hook
-scenes should be faster still — 1–2 seconds each. A "scene change" is any of: a new shot, a
-different angle, a punch-in, a B-roll cutaway, a substantial text change, or a visible speed ramp.
-This means one locked take can legitimately become four scenes without extra shooting.
+**2. Scenes last 3–4 s: never longer than 4, never shorter than 2.5 outside the hook.** Past 4 s a
+static shot is an exit point (reference data). Cuts every 1.5–2 s felt jerky to the client
+(*"bị ngắt"*), so the working rhythm is 3–4 s, joined by soft transitions. The hook is the
+exception: two ~1.5 s beats. (4 s ceiling: data. 3 s target: client house style.)
 
-**3. Every plan carries explicit timestamps.**
-Rule 2 is unverifiable without them. Use the table in `assets/edit-plan-template.md`, which
-`scripts/pacing_checker.py` parses directly.
+**3. Every plan carries explicit timestamps** in the table of `assets/edit-plan-template.md`, which
+the scripts parse.
 
-**4. Runtime lands in 25–45 seconds, ideally 30–40.**
-In the reference data, click-through rate and sale rate both peaked in the 35–44s band, and
-sub-25s videos were worst on every measure. Proven creators made a sub-25s video about 1% of the
-time. If asked for a 15-second cut, push back and explain why.
+**4. Runtime lands in 25–45 s, ideally 30–40.** CTR and sale rate peaked at 35–44 s; sub-25 s was
+worst on every measure. Push back on 15-second requests.
 
-**5. Check commercial claims before delivering.**
-For cleaning, laundry, cosmetic and health-adjacent products, most moderation risk is in the words,
-not the footage. Read `references/platform-specs.md` and run the checklist. This is not optional
-polish — undisclosed or non-compliant content gets demoted, removed, or costs the account.
+**5. Check commercial claims before delivering.** For cleaning, laundry, cosmetic and health-adjacent
+products most moderation risk is in the words. Run the checklist in `references/platform-specs.md`.
+
+**6. One batch of raw footage feeds as many videos as it can; no stretch is used twice.** Plan the
+batch, give every video its own source ranges, never repeat a moment inside a video, and spend scarce
+shots (product hero, clean "after") where they matter most.
+`scripts/footage_overlap_checker.py` enforces it.
+
+**7. Graphics respect the frame.** Nothing over a face; nothing in TikTok's UI zones (y < 220,
+y > 1400, x > 900 below y ≈ 700); captions keep their own band; at most two informational elements
+at once; no text in boxes on product demos (client rule). See
+`references/layout-and-motion-graphics.md`.
 
 ---
 
 ## Workflow
 
 ### 1. Establish the brief
+Know the product and category, the creator, the footage (or whether it must be shot), the product
+card URL, the platform, and **how many videos this footage must feed**. Regulated category → read
+`references/platform-specs.md` now.
 
-Before planning, know: the product and its category, the creator/account, the available footage
-(or whether it must be shot), the product card URL, and the target platform.
-
-If the product is in a regulated category — cleaning, cosmetics, supplements, health — read
-`references/platform-specs.md` now rather than after writing the script.
-
-**If raw clips already exist, inspect them before planning anything.** A timeline written against
-imagined footage usually survives contact with the real files only in outline. Run:
-
+**Inspect raw clips before planning anything:**
 ```bash
 python scripts/inspect_footage.py /path/to/clips --log
 ```
-
-It reports duration, resolution, orientation, frame rate and audio presence per clip, and flags
-landscape sources, silent clips, mixed formats and thin coverage. Then read
-`references/footage-ingest.md` for how to build a shot log, carry source timecodes into the plan,
-and emit an ffmpeg cut list. Source in/out points and timeline positions are different numbers;
-the plan needs both or the editor has to guess.
+Then build a shot log by kind of moment (BEFORE, AFTER, POUR, HERO, SCRUB, PROBLEM) and budget it
+across the batch — `references/footage-ingest.md` §1b.
 
 ### 2. Choose the hook
-
-Read `references/hook-library.md`. Work in this order, because it fails fast:
-
-1. Does the footage contain a visible transformation? Use it — best structural fit, needs no claim.
-2. Is there genuine social proof (real comment volume, real sales rank)? Use it — compliant, and
-   own-sales claims are the one superlative platforms permit.
-3. Can you name the problem specifically — this garment, this stain, this moment? Use a pain point.
-4. Otherwise: product reveal, strengthened with an open loop on the second beat.
-
-Avoid authority framing ("as an expert…") and bare commands ("buy now") — both rank worst in the
-only hook dataset with a disclosed methodology.
+`references/hook-library.md`. In order: a visible transformation → genuine social proof → a specific
+pain point → product reveal with an open loop. Avoid authority framing and bare commands.
 
 ### 3. Draft the timeline
-
-Use `assets/edit-plan-template.md`. The default skeleton for a 30–40s review:
+`assets/edit-plan-template.md`. Default skeleton for 30–40 s:
 
 | Phase | Timing | Purpose |
 |---|---|---|
-| Hook | 0–3s | 2–3 beats of 1–2s |
-| Problem | 3–8s | Make the stake concrete |
-| Early CTA | ~8–10s | Plant the cart once, lightly |
-| Demo | 10–26s | The transformation; keep cutting inside it |
-| Re-hook | ~18–20s | Reset attention mid-demo |
-| Reveal | 26–32s | Pay off the hook; hold slightly longer |
-| Close CTA | 32–38s | Repeat concretely, pointing at the real cart |
+| Hook | 0–3 s | Two ~1.5 s beats: BEFORE → AFTER joined by a wipe |
+| Problem | 3–9 s | Make the stake concrete: 2 scenes of ~3 s |
+| Early CTA | ~9–12 s | Plant the cart once (arrow toward the real basket) |
+| Re-hook | ~12–15 s | Product hero shot, new energy |
+| Demo | 15–25 s | The transformation: 3 scenes of 3–3.5 s |
+| Reveal | 25–31 s | Pay off the hook; hold the result |
+| Close CTA | 31–38 s | Repeat concretely, pointing at the real cart |
 
-The early CTA is deliberate. Roughly 40% of videos in the reference data recorded zero
-click-through — watched and never tapped. Wistia's analysis of 14M+ videos found sub-60s video
-converts best with the CTA in the first quarter. (Caveat: hosted business video, not TikTok.)
+Choose cut points **on pauses in the voice**, never inside a word (`references/sync-and-timing.md`).
+Give every scene a transition (`references/transitions.md`) and a camera move, or leave Camera blank
+for `--auto-camera` (`references/camera-moves.md`).
 
-See `references/pacing-and-transitions.md` for transition choices and for what to do when the
-footage fights the rules.
+### 4. Design the graphics layer
+Fill the plan's **Overlays** table: title styles (`references/typography.md`), callouts, steps,
+checklists, prices, the cart pointer and so on (`references/layout-and-motion-graphics.md`). Anchor
+graphics to words with `@"phrase"` so they land on the voice. Vary title styles (3–4 per video),
+never the same style twice in a row, one accent word per title. On-screen text must say something
+**different** from the voiceover.
 
-### 4. Write and synthesize the voiceover
-
-Commerce pace runs about 4.5–5 words per second, so a 35-second video supports roughly **150–170
-words** including pauses. Write to that budget rather than trimming after synthesis.
-
-Check every line against the rewrite table in `references/platform-specs.md` §7 **before**
-synthesizing — fixing a prohibited claim afterwards means paying for the synthesis twice.
-
+### 5. Write and synthesize the voiceover
+Commerce pace is ~4.5–5 words/s: **150–170 words** for 35 s. Check every line against
+`references/platform-specs.md` §7 before synthesizing.
 ```bash
 python scripts/make_voiceover.py --quota                              # plan + credits left
 python scripts/make_voiceover.py script.txt --voice <id> --dry-run    # price it, spend nothing
 python scripts/make_voiceover.py script.txt --voice <id> --out audio/
 ```
+Vietnamese needs a model that lists Vietnamese (default `eleven_turbo_v2_5`; `eleven_multilingual_v2`
+does not). Free-plan audio is non-commercial forever — tell the user before spending credits on
+something they cannot ship. Details: `references/voiceover-and-captions.md`.
 
-Uses ElevenLabs, one audio file per script line so a single line can be redone cheaply. The key
-comes from the environment or `~/.config/short-video-kit/env` — never the command line.
+A supplied voice that is too long: trim at real pauses (`ffmpeg silencedetect`, then `atrim` +
+`concat`), drop whole sentences, and say which ones.
 
-Two checks before any real synthesis, both learned the hard way:
-- **The model must list Vietnamese.** The default is `eleven_turbo_v2_5`. `eleven_multilingual_v2`
-  does *not* support Vietnamese despite its name.
-- **The free plan is non-commercial.** ElevenLabs states free-plan audio "cannot be used for any
-  commercial purpose", and that stays true even if you upgrade later. A product or client video
-  needs audio generated during a paid subscription. Run `--quota`; if the plan is `free`, tell the
-  user before spending credits on something they cannot ship.
-
-See `references/voiceover-and-captions.md` for models, `[emotion]` tags (only `eleven_v3`
-interprets them) and credit costs.
-
-### 5. Build the captions
-
+### 6. Captions and word timings
 ```bash
-python scripts/align_captions.py audio/voice_full.mp3 --script script.txt --out captions.srt
+python scripts/align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json
 ```
+Whisper supplies the timing; the script supplies the words (Whisper mishears Vietnamese: "túi xách"
+→ "tui sách"). If the audio does not match the written script, transcribe it, correct the spelling
+by hand and align against that. `references/captions-and-text.md`.
 
-**Whisper supplies the timing; the script supplies the words.** Whisper mishears Vietnamese — on
-this project's own voiceover it produced "mua tui sách" for "mua túi xách" and "kiểu gián" for
-"kiểu dáng". Invisible in a transcript, glaring burned onto a video. Because we wrote the script
-ourselves, the spelling is already known and should never come from recognition. Passing
-`--script` is what makes that happen.
-
-Read `references/captions-and-text.md` for style. Key points: burn them in, 2–4 words per group,
-one group on screen at a time, minimum display of 0.5s + 0.3s per word, and keep them inside the
-safe zone (y 250–1410, x 60–940 on a 1080×1920 frame).
-
-On-screen text should say something **different** from the voiceover — procedural detail, evidence
-labels, keywords for search. The aligned SRT is the spoken track; title cards and labels are
-written separately in the plan.
-
-### 6. Run the pacing checker
-
+### 7. Check the plan
 ```bash
-python scripts/pacing_checker.py path/to/edit-plan.md
+python scripts/pacing_checker.py edit-plan.md
+python scripts/footage_overlap_checker.py plans/*.md --clips /path/to/clips   # whole batch
 ```
+Errors block delivery; paste the pacing output into the plan.
 
-It validates the hook deadline, the 4-second ceiling, timeline continuity and runtime, and exits
-non-zero on failure. Fix errors before moving on; warnings are advisory. Paste the output into the
-plan.
+### 8. Assemble
+- **Remotion (default)** — `references/remotion-output.md`. Scaffold once with
+  `scripts/new_remotion_project.py`, compile with `scripts/plan_to_project.py` (prints a sync
+  report: cuts inside words, text on cuts, UI-zone collisions, zone overlaps, flashing captions),
+  render stills at every transition, then render. Licence: free only up to 3 employees.
+- **Human editor** (CapCut, Premiere, DaVinci) — the edit plan plus `captions.srt`.
 
-### 7. Assemble
-
-Pick the output that matches how the video will actually be finished:
-
-- **Remotion** (automated render) — graphics over ffmpeg-cut footage; see
-  `references/remotion-output.md`. Check the licence section first: free only for individuals and
-  companies of up to 3 employees.
-- **Human editor** (CapCut, Premiere, DaVinci) — deliver the edit plan plus `captions.srt`
-- **ffmpeg** (scripted assembly) — cut list, concat, overlay and burn-in commands are in
-  `references/footage-ingest.md` §4
-
-### 8. Verify before delivering
-
-Walk the compliance checklist in the template. For a before/after demo specifically, confirm:
-locked camera, constant lighting, **no cut across the reveal**, and any time compression labelled
-on screen.
+### 9. Verify before delivering
+Look at a contact sheet of stills (one per scene plus each transition centre). Confirm the
+compliance checklist; for a before/after demo: same item, same framing, **time compression labelled
+on screen**, staged stains labelled. Check `ffprobe` durations of video and audio match the plan.
 
 ---
 
 ## Reference files
 
-Read these as the task requires rather than all at once.
+Read as the task requires, not all at once.
 
 | File | Read it when |
 |---|---|
-| `references/niche-winning-patterns.md` | **Read first for a cleaning/household product.** What the real campaign data shows about duration, CTR, creator effects and where leverage actually is. |
-| `references/platform-specs.md` | Writing any script or claim; working in a regulated category; checking safe zones. Contains a banned-phrasing → compliant-phrasing rewrite table. |
-| `references/hook-library.md` | Choosing or writing the opening. Archetype ranking plus written Vietnamese examples. |
-| `references/pacing-and-transitions.md` | Building the timeline; choosing transitions; when footage won't fit the rules. |
-| `references/captions-and-text.md` | Writing captions, placing text, generating SRT or word-level timings. |
-| `references/audio-and-music.md` | Mixing, music licensing, voiceover pacing and TTS practicalities. |
-| `references/remotion-output.md` | Rendering programmatically with Remotion. Read the licence section before building. |
-| `references/voiceover-and-captions.md` | ElevenLabs voiceover and Whisper-aligned captions. |
-| `references/footage-ingest.md` | Planning around clips that already exist: inspect, shot-log, cut list. |
+| `references/niche-winning-patterns.md` | **First, for a cleaning/household product.** What the campaign data shows about duration, CTR, creators. |
+| `references/platform-specs.md` | Writing any script or claim; regulated categories; before/after rules; the rewrite table. |
+| `references/hook-library.md` | Choosing or writing the opening. |
+| `references/pacing-and-transitions.md` | Cadence, structure, re-hooks, footage that fights the rules. |
+| `references/transitions.md` | Choosing transitions; the centred-cut maths; shader transitions on Windows; SFX. |
+| `references/camera-moves.md` | Push/pull/pan/hold, keyword punch-ins, avoiding jerky zooms. |
+| `references/typography.md` | Fonts with Vietnamese support, the five title styles, captions vs titles. |
+| `references/layout-and-motion-graphics.md` | Safe zones, layout per content type, the component catalogue, density. |
+| `references/sync-and-timing.md` | Cutting on pauses, anchoring graphics to words, music ducking, beat sync, verification. |
+| `references/captions-and-text.md` | Caption grouping, placement, SRT. |
+| `references/footage-ingest.md` | Inspecting clips, shot log, budgeting footage across several videos. |
+| `references/voiceover-and-captions.md` | ElevenLabs voiceover and Whisper alignment. |
+| `references/audio-and-music.md` | Mixing, music licensing, diegetic sound. |
+| `references/remotion-output.md` | The render pipeline and template layout. Read the licence section first. |
 
 ---
 
 ## Output format
 
-Deliver these, in this order:
+Deliver, in this order:
 
-1. **`edit-plan.md`** — the filled template, with a passing checker result pasted in.
-2. **`captions.srt`** — standard SRT, importable by CapCut, Premiere and DaVinci.
-3. **Shot list** — only if footage needs to be captured.
-4. **Assembly artefact** — a Remotion composition, ffmpeg commands, or editor instructions.
+1. **`edit-plan.md`** — Scenes and Overlays tables, passing `pacing_checker.py` (output pasted in).
+2. **`captions.srt`** (+ `words.json` when rendering).
+3. **Shot list** — only if footage must be captured (include "leave space above the head and below
+   the chin for graphics").
+4. **Assembly artefact** — `project.json` + rendered MP4, or editor instructions.
 
-Then state plainly, in the user's language: the runtime, the scene count, the hook chosen and why,
-and anything in the brief you had to change for compliance. If you removed a claim the client
-asked for, say which one and cite the rule — do not quietly drop it.
+Then state plainly, in the user's language: runtime, scene count, the hook and why, what the sync
+report still flags, anything changed for compliance (name the removed claim and the rule), and what
+was not verified (e.g. "not listened to end-to-end").
 
 ---
 
 ## Honesty about evidence
 
-This skill mixes two kinds of knowledge, and they should not be presented as equivalent.
+**Measured** on the reference dataset: the duration/CTR relationship, reach-not-persuasion, creator
+concentration, weak caption signals. Yours to assert.
 
-**Measured** on the reference dataset: the duration/CTR relationship, the reach-not-persuasion
-finding, creator concentration, and the weak caption signals. These are yours to assert.
+**Documented**: platform policy (binding), Remotion APIs, font subsets, licence terms.
 
-**Craft convention**: the 2–4 second cut rhythm, hook archetypes, transition choices, mix levels.
-Widely agreed, but the precise percentages circulating in this field are largely unsourced — two
-of the most-cited statistics in short-form video advice turned out on inspection to be fabricated
-or misattributed. Present these as informed practice, not as measurement.
-
-**Platform policy** is documented and authoritative. Treat it as binding.
-
-If someone asks whether a particular hook type will perform better for their product, the honest
-answer is usually that the data does not say — hook type is not recorded in any dataset here. Say
-so, then recommend based on structural fit and test it.
+**Craft convention or client preference**: the 3–4 s rhythm, transition and camera choices, title
+styles, layout bands, mix levels. Present these as informed practice, not measurement — two of the
+most-cited statistics in short-form advice turned out to be fabricated or misattributed. If asked
+whether a hook or style will perform better, the honest answer is usually that the data does not
+say; recommend on structural fit and test it.

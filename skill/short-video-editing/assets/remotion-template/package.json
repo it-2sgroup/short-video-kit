@@ -1,0 +1,31 @@
+{
+  "name": "short-video-remotion",
+  "version": "2.0.0",
+  "description": "Data-driven Remotion renderer for short vertical product videos (project.json in, MP4 out).",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "scripts": {
+    "studio": "remotion studio",
+    "typecheck": "tsc --noEmit",
+    "still": "remotion still src/index.ts Short",
+    "render": "remotion render src/index.ts Short --codec=h264 --crf=18"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "@remotion/google-fonts": "4.0.540",
+    "@remotion/light-leaks": "4.0.540",
+    "@remotion/paths": "4.0.540",
+    "@remotion/transitions": "4.0.540",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.540"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/web": "0.0.166",
+    "typescript": "5.9.3"
+  }
+}

@@ -6,6 +6,9 @@
 #   ./setup.sh --no-model         skip the Whisper model (it then downloads on first use)
 #   ./setup.sh --no-skill         do not install the skill into ~/.claude/skills
 #   ./setup.sh --set-key          type the ElevenLabs key (hidden) and store it, then exit
+#   ./setup.sh --package          build dist/short-video-editing.skill (for the Claude desktop app), then exit
+#
+# Works in bash on macOS, Linux and Windows (Git Bash): the venv's bin/ or Scripts/ is detected.
 #
 # Everything lands under $HOME (venv, key, model, skill), never in this folder, so the folder can
 # be moved or deleted afterwards without breaking the install. Override HOME for a trial run:
@@ -18,13 +21,14 @@ VENV="$SHARE/venv"
 MODEL_DIR="$HOME/.cache/short-video-kit/models"
 KEYDIR="$HOME/.config/short-video-kit"; KEYFILE="$KEYDIR/env"
 
-INSTALL_SKILL=1; GET_MODEL=1; GET_FFMPEG=0; SET_KEY=0
+INSTALL_SKILL=1; GET_MODEL=1; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0
 for a in "$@"; do
   case "$a" in
     --no-skill) INSTALL_SKILL=0 ;;
     --no-model) GET_MODEL=0 ;;
     --download-ffmpeg) GET_FFMPEG=1 ;;
     --set-key) SET_KEY=1 ;;
+    --package) PACKAGE=1 ;;
     -h|--help) sed -n '2,/^set -euo/{/^set -euo/!p}' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $a (try --help)" >&2; exit 2 ;;
   esac
@@ -48,18 +52,43 @@ if [[ $SET_KEY -eq 1 ]]; then
   exit 0
 fi
 
+# A real Python 3 (on Windows "python3" can be the Microsoft Store stub, which fails to run).
+PY=""; for cand in python3 python; do
+  if command -v "$cand" >/dev/null 2>&1 && "$cand" -c 'import sys' >/dev/null 2>&1; then PY="$cand"; break; fi
+done
+
+# ------------------------------------------------------------------ --package (and exit)
+if [[ $PACKAGE -eq 1 ]]; then
+  [[ -n "$PY" ]] || { echo "python not found" >&2; exit 1; }
+  mkdir -p "$KIT/dist"
+  "$PY" - "$KIT/skill/short-video-editing" "$KIT/dist/short-video-editing.skill" << 'PY'
+import sys, zipfile, pathlib
+src, out = pathlib.Path(sys.argv[1]), sys.argv[2]
+skip = {"evals", "__pycache__", "node_modules"}
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    for p in sorted(src.rglob("*")):
+        rel = p.relative_to(src.parent)
+        if p.is_file() and not skip.intersection(rel.parts):
+            z.write(p, rel.as_posix())
+print(f"wrote {out}")
+PY
+  exit 0
+fi
+
 # ------------------------------------------------------------------ 1. Python + venv
 step "1/6  Python environment"
-command -v python3 >/dev/null || { bad "python3 not found. Install Python 3.10 or newer."; exit 1; }
-PYV=$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')
-python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' \
-  && ok "python3 $PYV" || { bad "python3 $PYV is too old (need 3.10+)"; exit 1; }
-if [[ ! -x "$VENV/bin/python" ]]; then
-  mkdir -p "$SHARE"; python3 -m venv "$VENV" && ok "created venv at $VENV" \
+[[ -n "$PY" ]] || { bad "Python not found. Install Python 3.10 or newer."; exit 1; }
+PYV=$("$PY" -c 'import sys; print("%d.%d" % sys.version_info[:2])')
+"$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' \
+  && ok "$PY $PYV" || { bad "$PY $PYV is too old (need 3.10+)"; exit 1; }
+vbin() { if [[ -d "$VENV/Scripts" ]]; then echo "$VENV/Scripts"; else echo "$VENV/bin"; fi; }
+if [[ ! -d "$VENV" ]]; then
+  mkdir -p "$SHARE"; "$PY" -m venv "$VENV" && ok "created venv at $VENV" \
     || { bad "could not create a venv (on Debian/Ubuntu: sudo apt install python3-venv)"; exit 1; }
 else ok "venv already exists"; fi
-"$VENV/bin/pip" install --quiet --upgrade pip >/dev/null 2>&1 || true
-if "$VENV/bin/pip" install --quiet -r "$KIT/requirements.txt"; then
+VBIN="$(vbin)"
+"$VBIN/python" -m pip install --quiet --upgrade pip >/dev/null 2>&1 || true
+if "$VBIN/python" -m pip install --quiet -r "$KIT/requirements.txt"; then
   ok "installed $(grep -v '^#' "$KIT/requirements.txt" | grep -v '^$' | tr '\n' ' ')"
 else bad "pip install failed (needs internet)"; PROBLEMS=$((PROBLEMS+1)); fi
 
@@ -123,7 +152,7 @@ elif [[ $GET_MODEL -eq 0 ]]; then
 else
   echo "      downloading Systran/faster-whisper-small from Hugging Face (~460 MB)…"
   [[ -t 1 ]] || export HF_HUB_DISABLE_PROGRESS_BARS=1   # same reason as the curl bar above
-  if "$VENV/bin/python" - "$MODEL_DIR/faster-whisper-small" << 'PY'
+  if "$VBIN/python" - "$MODEL_DIR/faster-whisper-small" << 'PY'
 import sys
 from huggingface_hub import snapshot_download
 snapshot_download("Systran/faster-whisper-small", local_dir=sys.argv[1],
@@ -148,8 +177,8 @@ fi
 # ------------------------------------------------------------------ 5. Node (Remotion)
 step "5/6  Node.js (needed only for Remotion rendering)"
 if command -v node >/dev/null; then
-  NV=$(node -v | sed 's/^v//'); [[ ${NV%%.*} -ge 18 ]] && ok "node $NV" || warn "node $NV is older than 18; Remotion needs 18+"
-else warn "node not found. Install Node 18+ before using Remotion."; fi
+  NV=$(node -v | sed 's/^v//'); [[ ${NV%%.*} -ge 20 ]] && ok "node $NV" || warn "node $NV is older than 20; the render template needs 20.19+"
+else warn "node not found. Install Node 20+ before rendering (scripts/new_remotion_project.py)."; fi
 
 # ------------------------------------------------------------------ 6. Skill
 step "6/6  Claude skill"
@@ -159,7 +188,7 @@ if [[ $INSTALL_SKILL -eq 1 ]]; then
   cp -r "$KIT/skill/short-video-editing" "$DEST"; rm -rf "$DEST/evals"
   ok "installed to $DEST"
   echo "      Start a NEW Claude Code session so it loads the skill."
-  echo "      Claude desktop app: open skill/short-video-editing.skill and click Save skill."
+  echo "      Claude desktop app: ./setup.sh --package, then open dist/short-video-editing.skill and click Save skill."
 else warn "skipped (--no-skill)"; fi
 
 echo

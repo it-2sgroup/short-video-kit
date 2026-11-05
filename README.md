@@ -1,108 +1,203 @@
 # short-video-kit
 
-Bộ công cụ dựng video ngắn TikTok Shop (30–40s) cùng Claude: nhận brief hoặc **video thô**, ra kế hoạch
-dựng có timestamp, giọng đọc, phụ đề khớp từng chữ, và kiểm tra tự động các quy tắc nhịp cắt.
+Tooling for producing short vertical product videos (TikTok Shop, Reels, Shorts; 30–40 s) with
+Claude: a Claude Code skill that plans and checks the edit, Python utilities for footage, voiceover
+and captions, and a data-driven Remotion template that renders the final video.
 
-## ⚠️ Đọc 3 điều này trước
+> **Private repository.** `docs/` and `skill/short-video-editing/references/niche-winning-patterns.md`
+> contain real campaign figures and creator handles. Do not make this repository public.
 
-**1. Key ElevenLabs KHÔNG nằm trong git** (`.gitignore` chặn `.env*`). Trên máy mới chạy `./setup.sh --set-key`
-và gõ key (ẩn, không hiện ra màn hình). **Không bao giờ** dán key vào khung chat với Claude. Không có key cũ trong
-tay thì tạo key mới ở elevenlabs.io → Developers → API Keys. Repo này phải để **private**: `docs/` có số GMV thật
-và tên KOC.
+## Contents
 
-**2. ElevenLabs gói Free không dùng thương mại được — và hiện đã hết credit.**
-Chính trang trợ giúp của ElevenLabs ghi: *"The free plan does not include a commercial license and cannot be
-used for any commercial purpose"*, và âm thanh tạo ngoài gói trả phí **không thể dùng thương mại kể cả sau
-khi nâng cấp**. Tài khoản này đang là `free`, **còn 1/10.000 credit, reset 12/11/2026**.
-→ Giọng đọc cho video bán hàng/khách hàng phải tạo **trong lúc đang có gói trả phí**.
-Chạy `python3 skill/short-video-editing/scripts/make_voiceover.py --quota` để xem tình trạng hiện tại.
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project structure](#project-structure)
+- [Testing](#testing)
+- [Licensing and third-party terms](#licensing-and-third-party-terms)
+- [Known limitations](#known-limitations)
+- [Contributing](#contributing)
 
-**3. Remotion miễn phí chỉ cho cá nhân hoặc công ty tối đa 3 nhân viên.** Trên mức đó: $25/ghế/tháng, và để
-Claude viết code Remotion **vẫn tính là một ghế**. Công ty hiện 2 người nên đủ điều kiện — kiểm tra lại khi
-team lớn lên.
+## Overview
 
-## Cài trên máy mới (qua git)
+An edit is described once, as a Markdown **edit plan** (a Scenes table and an Overlays table). The
+plan is checked by scripts, compiled into `project.json`, and rendered by a single Remotion
+composition. No video content is written into code, so changing a video means changing its plan,
+not prompting an AI to rewrite components.
+
+```
+raw clips ─► inspect / shot log ─► edit plan ─► checkers ─► plan_to_project ─► Remotion render
+voiceover ─► align_captions (captions.srt + words.json) ───────────┘
+```
+
+## Features
+
+- **Pacing rules enforced in code**: hook within 3 s; 3–4 s scenes (never > 4 s, never < 2.5 s
+  outside the hook); 25–45 s runtime (`pacing_checker.py`).
+- **Footage budgeting across videos**: one batch of raw clips feeds many videos with no reused range
+  (`footage_overlap_checker.py`, which also lists the footage still free).
+- **Word-accurate Vietnamese captions**: timing from Whisper, spelling from the script; word-level
+  timings for karaoke captions and word-anchored graphics (`align_captions.py`).
+- **Sync report**: flags cuts inside words, text appearing on a cut, graphics under TikTok's UI, zone
+  collisions and flashing captions (`plan_to_project.py`).
+- **Render template** (`assets/remotion-template`):
+  - 11 transitions, each centred on the planned cut so the voiceover never drifts, plus flash and
+    light-leak accents;
+  - a virtual camera (push, pull, pan, hold, keyword punch-ins) with perceptual easing that never
+    resets on a cut;
+  - five title styles (outline, stack with serif-italic accent, gradient, frosted glass, marker) with
+    fonts verified for Vietnamese;
+  - twelve motion-graphic components (callouts with leader lines, steps, checklists, count-up price,
+    cart pointer, hand-drawn highlights, stickers, magnifier, thumbnail recap, ranking podium,
+    progress bar, lower third);
+  - karaoke captions, music ducked under speech, SFX cues.
+- **Commercial-claim guidance** for TikTok Shop (banned phrasing and compliant rewrites) and
+  before/after demonstration rules.
+- **ElevenLabs voiceover** with quota checks that refuse to spend credits the plan cannot cover.
+
+## Requirements
+
+| Component | Version | Needed for |
+|---|---|---|
+| Python | 3.10+ | All scripts |
+| ffmpeg / ffprobe | any recent | Inspection, proxies, audio trimming |
+| Node.js | 20.19+ | Rendering with Remotion |
+| bash | macOS/Linux shell, or Git Bash on Windows | `setup.sh`, `selftest.sh` |
+| Claude Code | current | Using the skill |
+| ElevenLabs account | optional | Synthesising voiceovers |
+
+## Installation
 
 ```bash
-# 1. Lấy mã nguồn. Repo private nên máy mới phải đăng nhập GitHub trước (một trong hai cách):
-gh auth login && gh repo clone <chủ-sở-hữu>/short-video-kit        # cách 1: GitHub CLI
-git clone git@github.com:<chủ-sở-hữu>/short-video-kit.git           # cách 2: SSH key đã thêm vào GitHub
+gh repo clone <owner>/short-video-kit
 cd short-video-kit
-
-# 2. Để Claude tự cài — mở Claude Code TRONG thư mục này rồi nói "cài đặt":
-claude "Đọc CLAUDE.md và cài đặt bộ kit này"
+./setup.sh                  # venv, Python deps, Whisper model (~460 MB), skill install
+./setup.sh --set-key        # optional: store the ElevenLabs key (typed hidden)
+./selftest.sh               # 7 groups of checks, no credits spent
 ```
 
-Claude Code **tự đọc `CLAUDE.md`** khi mở thư mục, trong đó ghi sẵn từng bước: chạy `setup.sh`, xử lý ffmpeg, nhắc bạn
-nhập key bằng `--set-key`, chạy `selftest.sh`. Muốn tự cài bằng tay:
+`setup.sh` installs everything under `$HOME` (venv in `~/.local/share/short-video-kit`, model in
+`~/.cache/short-video-kit`, key in `~/.config/short-video-kit/env`, skill in
+`~/.claude/skills/short-video-editing`) and can be re-run safely. Options: `--download-ffmpeg`
+(Linux static build), `--no-model`, `--no-skill`, `--package` (builds
+`dist/short-video-editing.skill` for the Claude desktop app).
+
+**Windows:** run the scripts from Git Bash. Install prerequisites with
+`winget install Python.Python.3.12 OpenJS.NodeJS.LTS Gyan.FFmpeg`. If the venv lives elsewhere, set
+`SVK_PYTHON` to its `python.exe` and `WHISPER_MODEL_DIR` to the folder containing
+`faster-whisper-small/`.
+
+Start a new Claude Code session after installing so the skill is loaded.
+
+## Usage
+
+### With Claude
+
+The skill activates when you ask for a short video, for example:
+
+> Here are the raw clips in `~/clips/saiza` and the voiceover `kb7.mp3`. Make a 35-second TikTok Shop
+> video for the SAIZA stain remover combo, and keep enough footage for three more videos.
+
+Claude inspects the clips, budgets the footage, writes the edit plan, runs the checkers, compiles the
+project and renders, reporting what the sync report still flags.
+
+### Command line
 
 ```bash
-./setup.sh --download-ffmpeg    # bỏ cờ này nếu máy đã có ffmpeg (apt/brew install ffmpeg)
-./setup.sh --set-key            # gõ key ElevenLabs (ẩn)
-./selftest.sh                   # 5 nhóm kiểm tra, không tốn credit
+cd skill/short-video-editing
+
+# 1. Footage
+python scripts/inspect_footage.py /path/to/clips --log
+
+# 2. Captions and word timings
+python scripts/align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json
+
+# 3. Checks
+python scripts/pacing_checker.py edit-plan.md
+python scripts/footage_overlap_checker.py plan-a.md plan-b.md --clips /path/to/clips
+
+# 4. Render project (once per batch; --install downloads npm packages and Chromium)
+python scripts/new_remotion_project.py ~/renders/batch --install --proxies /path/to/clips
+cp voice.mp3 ~/renders/batch/public/audio/kb7.mp3
+
+# 5. Compile and render
+python scripts/plan_to_project.py edit-plan.md --out ~/renders/batch/kb7.json \
+    --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera
+cd ~/renders/batch
+npx remotion still src/index.ts Short out/check.png --frame=45 --props=kb7.json
+npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json
 ```
 
-`setup.sh` chạy lại nhiều lần được. Nó tải ~460MB model Whisper (Hugging Face) và, nếu bạn thêm
-`--download-ffmpeg`, ~40MB ffmpeg tĩnh (johnvansickle.com, có kiểm checksum). Mọi thứ cài vào `$HOME`,
-không vào thư mục repo.
+`npm run studio` in a render project opens `project.example.json`, a footage-free gallery of every
+title style and component.
 
-**Bản git KHÔNG chứa** `bin/`, `models/`, `.env.local` — quá nặng (GitHub chặn file >100MB) hoặc bí mật.
-Máy không có mạng thì dùng file nén `short-video-kit.tar.gz` (có sẵn ffmpeg + model, nhưng **chứa key thật** —
-xem cảnh báo trong file đó).
+The edit-plan format is documented in `skill/short-video-editing/assets/edit-plan-template.md`;
+the full workflow (in Vietnamese) in `docs/WORKFLOW.md`.
 
-Yêu cầu máy: Python 3.10+, Node 18+ (chỉ khi render Remotion), `xz` nếu dùng `--download-ffmpeg`.
+## Project structure
 
-## Dùng với Claude
+```
+.
+├── CLAUDE.md                      Agent instructions for this repository
+├── docs/
+│   ├── WORKFLOW.md                Step-by-step workflow (Vietnamese)
+│   ├── DECISIONS.md               Tool choices, pitfalls, sources, licence notes
+│   └── niche-data-queries.sql     Reproduces every campaign figure used by the skill
+├── samples/                       Fixtures used by selftest.sh
+├── setup.sh · selftest.sh · requirements.txt · .env.example
+└── skill/short-video-editing/
+    ├── SKILL.md                   Rules and workflow loaded by Claude
+    ├── references/                Topic guides (pacing, transitions, camera, typography,
+    │                              layout and motion graphics, sync, captions, voiceover,
+    │                              audio, platform policy, hooks, campaign data, Remotion)
+    ├── scripts/                   inspect_footage, make_voiceover, align_captions,
+    │                              pacing_checker, footage_overlap_checker,
+    │                              plan_to_project, new_remotion_project
+    ├── assets/
+    │   ├── edit-plan-template.md  The plan format
+    │   └── remotion-template/     Render project: theme, engine, components
+    └── evals/                     Evaluation cases for the skill
+```
 
-Skill tự kích hoạt khi bạn nhờ làm video ngắn. Ví dụ câu lệnh:
+## Testing
 
-> *Đây là 5 clip thô trong `~/clips/saiza`. Dựng video TikTok Shop 35 giây cho bộ tẩy mốc SAIZA, KOC memamnuoicon.*
+`./selftest.sh` runs seven groups without spending ElevenLabs credits: tool availability, footage
+inspection, pacing rules, caption alignment (spelling preserved), the ElevenLabs key (read-only),
+plan compilation, and footage-reuse detection. Template changes are verified with
+`npx tsc --noEmit` and stills rendered at transition frames.
 
-> *Kiểm tra kịch bản này có câu nào vi phạm chính sách TikTok Shop không, rồi sửa lại.*
+## Licensing and third-party terms
 
-> *Có voice-over rồi (`audio/voice_full.mp3`) và kịch bản (`script.txt`) — làm phụ đề SRT.*
+This repository is proprietary and unlicensed for redistribution. Third-party terms that affect use:
 
-Claude sẽ soi clip → lập shot log → chọn hook → dựng timeline (kiểm bằng `pacing_checker`) → viết VO →
-giọng đọc → phụ đề → xuất kế hoạch + SRT + lệnh ffmpeg. Chi tiết từng bước: `docs/WORKFLOW.md`.
-
-Nếu Claude desktop app không thấy skill: mở `skill/short-video-editing.skill` rồi bấm **Save skill**.
-
-## Trong thư mục có gì
-
-| Đường dẫn | Nội dung |
+| Dependency | Terms |
 |---|---|
-| `skill/short-video-editing/` | Skill (nguồn). `SKILL.md` + 9 tài liệu tham chiếu + 4 script + mẫu kế hoạch |
-| `skill/short-video-editing.skill` | Gói cài sẵn của chính skill đó |
-| `docs/WORKFLOW.md` | Luồng làm việc từng bước, kèm lệnh |
-| `docs/DECISIONS.md` | Vì sao chọn từng công cụ, các bẫy đã gặp, nguồn |
-| `docs/niche-data-queries.sql` | Câu SQL tái hiện mọi số liệu trong skill (16.242 video SAIZA) |
-| `docs/eval-results/` | Kết quả kiểm thử skill (xem mục "Chưa làm" bên dưới) |
-| `docs/memory-notes.md` | Ghi chú Claude lưu về dự án này |
-| `CLAUDE.md` | Hướng dẫn cho Claude tự cài đặt trên máy mới |
-| `setup.sh` · `selftest.sh` | Cài đặt và kiểm tra |
-| `samples/` | Dữ liệu mẫu cho `selftest.sh` |
-| `legacy-hyperframes/` | Dự án cũ (HyperFrames + edge-tts), chỉ để tham khảo. Bản trên git bỏ `aff-video/` |
+| Remotion | Free for individuals and companies of up to 3 employees; otherwise $25/month per seat, and an AI agent writing Remotion code counts as a seat ([licence](https://www.remotion.dev/license)). |
+| ElevenLabs | Free-plan audio cannot be used commercially, including after upgrading. |
+| Google Fonts used by the template | SIL Open Font License. |
+| faster-whisper | MIT. |
+| Music on TikTok Shop content | TikTok Commercial Music Library or an explicit commercial licence only. |
 
-## Chưa làm / chưa kiểm chứng
+Design references: `remotion-dev/skills`, `iart-ai/tiktok-video-skills` (MIT),
+`browser-use/video-use` (MIT), `heygen-com/hyperframes` (Apache-2.0). Rules were adapted; no code
+was copied. Details in `docs/DECISIONS.md`.
 
-Nói rõ để máy mới không tưởng nhầm là đã xong:
+## Known limitations
 
-- **Chưa dựng thử dự án Remotion nào.** Skill có tài liệu `remotion-output.md` nhưng chưa có dự án Remotion
-  chạy được. Hai video đã render đều làm bằng HyperFrames (cũ). Bước đầu tiên nên làm trên máy mới.
-- **Chưa kiểm thử lại skill sau khi đổi stack.** 15/15 vs 8/15 trong `docs/eval-results/` là điểm của phiên bản
-  *trước* khi thêm bước soi clip, ElevenLabs, Whisper và Remotion.
-- **Chưa thử `eleven_v3` / `eleven_v4`** (hết credit giữa chừng). Chỉ `eleven_turbo_v2_5` được xác nhận chạy.
-  Nhãn cảm xúc `[excited]`… chỉ có tác dụng với dòng v3, nên kịch bản Adam có nhãn chưa nghe thử đúng ý đồ.
-- **Chưa đánh giá độ tự nhiên của giọng tiếng Việt.** Giọng `premade` là giọng tiếng Anh nói tiếng Việt; Whisper
-  nghe ra được nhưng chất lượng phát âm phải nghe bằng tai. Giọng Việt chuyên nghiệp trong tài khoản (Ethan,
-  `EcENCamMHdzIoMysqdsv`) cần gói trả phí mới gọi qua API được.
+- TikTok does not publish UI safe-zone pixels; the template uses conservative third-party
+  measurements. Confirm with a private test post.
+- Renders from 1080×1920 proxies soften above ~1.15× zoom; use `--proxy-height 3840` for heavy
+  punch-ins.
+- Shader transitions (`crossZoom`) and light leaks need WebGL (`angle` renderer); verified on
+  Windows, not yet on macOS/Linux.
+- The skill's evaluation cases were updated for the current rules but have not been re-run.
 
-## Sự cố thường gặp
+## Contributing
 
-| Triệu chứng | Cách xử lý |
-|---|---|
-| `faster-whisper is not installed` | Chạy `./setup.sh` |
-| `HTTP 402 … library voices` | Gói Free chỉ dùng được giọng `premade`. `make_voiceover.py --list-voices` |
-| `Not enough credits` | `--quota` xem ngày reset. Script từ chối **trước** khi tiêu, không mất gì |
-| `ffmpeg/ffprobe not found` | `./setup.sh --download-ffmpeg` (Linux), hoặc `apt install ffmpeg` / `brew install ffmpeg` |
-| Phụ đề sai chính tả | Phải truyền `--script`. Không có nó, chữ lấy từ Whisper, vốn nghe sai tiếng Việt |
+- Keep the repository clean: no unused files or dead code, and no video content in the template.
+- New visual style → `theme.ts`. New graphic → a component in `components/graphics/`, registered in
+  `registry.tsx` and documented in `references/layout-and-motion-graphics.md`.
+- Run `./selftest.sh` after changing the skill, and read `git status` before every commit; secrets
+  and media are ignored but must never be forced in.

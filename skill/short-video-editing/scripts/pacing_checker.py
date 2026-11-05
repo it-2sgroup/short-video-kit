@@ -7,7 +7,8 @@ so it is worth catching on paper rather than after a render.
 
 Rules checked:
   1. The hook must be established within the first 3.0 seconds.
-  2. No scene may run longer than 4.0 seconds (hook scenes may be shorter; that is encouraged).
+  2. No scene may run longer than 4.0 seconds, and outside the hook none may be shorter than
+     2.5 seconds (client wants a cut about every 3-4s; hook beats of 1.2s+ are allowed).
   3. Scenes must tile the timeline with no gaps and no overlaps.
   4. Total runtime should land in the target window (default 25-45s, ideal 30-40s).
 
@@ -32,6 +33,12 @@ from pathlib import Path
 
 HOOK_DEADLINE = 3.0
 MAX_SCENE = 4.0
+# Client requirement (Phuong, 2026-11): outside the hook, a scene should last about 3-4s. Cuts every
+# 1.5-2s read as "bị ngắt" (jerky) and the transitions had no time to look smooth. Hook scenes are
+# the one place a shorter beat is allowed, because the before/after must land in the first 3s.
+MIN_SCENE = 2.5          # hard floor for non-hook scenes
+PREFERRED_MIN_SCENE = 3.0
+HOOK_MIN_SCENE = 1.2
 DEFAULT_MIN_RUNTIME = 25.0
 DEFAULT_MAX_RUNTIME = 45.0
 IDEAL_MIN, IDEAL_MAX = 30.0, 40.0
@@ -179,7 +186,16 @@ def parse_plan(text: str) -> tuple[list[Scene], list[str]]:
     return scenes, problems
 
 
-def check(scenes: list[Scene], min_runtime: float, max_runtime: float) -> Report:
+def is_hook(s: Scene) -> bool:
+    """A HOOK-typed scene (not RE-HOOK). With no type column, anything inside the hook window."""
+    kind = s.kind.strip().upper()
+    if kind:
+        return kind == "HOOK"
+    return s.start < HOOK_DEADLINE - EPSILON
+
+
+def check(scenes: list[Scene], min_runtime: float, max_runtime: float,
+          min_scene: float = MIN_SCENE) -> Report:
     report = Report(scenes=scenes)
 
     if not scenes:
@@ -187,6 +203,23 @@ def check(scenes: list[Scene], min_runtime: float, max_runtime: float) -> Report
         return report
 
     ordered = sorted(scenes, key=lambda s: s.start)
+
+    # Rule: outside the hook, scenes last at least min_scene (client: cut every ~3-4s).
+    for s in ordered:
+        if s.duration <= 0:
+            continue
+        if is_hook(s):
+            if s.duration < HOOK_MIN_SCENE - EPSILON:
+                report.errors.append(
+                    f"Hook scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s. "
+                    f"Even hook beats need {HOOK_MIN_SCENE:g}s to read."
+                )
+        elif s.duration < min_scene - EPSILON:
+            report.errors.append(
+                f"Scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s; outside the "
+                f"hook a scene must last at least {min_scene:g}s (aim for 3-4s). Merge it with a "
+                "neighbour or hold the shot longer — cuts this fast feel jerky."
+            )
 
     # Rule: each scene must have positive length, and none may exceed MAX_SCENE.
     for s in ordered:
@@ -219,7 +252,7 @@ def check(scenes: list[Scene], min_runtime: float, max_runtime: float) -> Report
     if len(hook_scenes) < 2:
         report.warnings.append(
             f"Only {len(hook_scenes)} scene in the first {HOOK_DEADLINE:g}s. Hooks usually hold "
-            "better with 2-3 fast beats (1-2s each) rather than one static shot."
+            "better with two ~1.5s beats (before -> after) rather than one static shot."
         )
 
     # Rule: scenes must tile the timeline.
@@ -254,11 +287,22 @@ def check(scenes: list[Scene], min_runtime: float, max_runtime: float) -> Report
         )
 
     # Advisory: average scene length is a decent proxy for whether the edit feels alive.
-    avg = sum(s.duration for s in ordered) / len(ordered)
-    if avg > 3.5:
+    body = [s for s in ordered if not is_hook(s)] or ordered
+    avg = sum(s.duration for s in body) / len(body)
+    if avg > 3.8:
         report.warnings.append(
-            f"Average scene is {avg:.1f}s. Nothing is broken, but the edit will feel slow — "
-            "most scenes should land in the 2-3s range with only a few at the 4s limit."
+            f"Average non-hook scene is {avg:.1f}s. The edit will feel slow; aim for 3-3.7s."
+        )
+    elif avg < PREFERRED_MIN_SCENE - EPSILON:
+        report.warnings.append(
+            f"Average non-hook scene is {avg:.1f}s. The client asked for a cut about every 3-4s; "
+            "this will read as choppy."
+        )
+    short = [s for s in body if s.duration < PREFERRED_MIN_SCENE - EPSILON]
+    if short:
+        report.warnings.append(
+            "Scenes under 3s (allowed, but check they look smooth): "
+            + ", ".join(f"#{s.index} {s.duration:.1f}s" for s in short)
         )
 
     return report
@@ -305,6 +349,8 @@ def main() -> int:
     ap.add_argument("plan", type=Path, help="Path to the edit plan markdown file")
     ap.add_argument("--min", type=float, default=DEFAULT_MIN_RUNTIME, help="Minimum runtime (s)")
     ap.add_argument("--max", type=float, default=DEFAULT_MAX_RUNTIME, help="Maximum runtime (s)")
+    ap.add_argument("--min-scene", type=float, default=MIN_SCENE,
+                    help="Minimum length (s) of a non-hook scene (default 2.5; aim for 3-4)")
     ap.add_argument("--json", action="store_true", help="Emit JSON instead of text")
     args = ap.parse_args()
 
@@ -314,7 +360,7 @@ def main() -> int:
 
     text = args.plan.read_text(encoding="utf-8")
     scenes, parse_problems = parse_plan(text)
-    report = check(scenes, args.min, args.max)
+    report = check(scenes, args.min, args.max, args.min_scene)
     report.errors = parse_problems + report.errors
 
     if args.json:
