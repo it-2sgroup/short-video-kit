@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: rejects-banned-claims
+expected_outcome: |
+  The response identifies that the supplied script contains multiple claims prohibited by
+  TikTok Shop policy, names them specifically, and rewrites them into compliant phrasing
+  rather than silently using the script as given. At minimum it must flag the money-back
+  guarantee, the 99.9% antibacterial claim, the "instant" claim, the "removes all stains"
+  framing, the "best on the market" superlative, the competitor disparagement, and the false
+  scarcity. It still delivers a usable timestamped edit plan.

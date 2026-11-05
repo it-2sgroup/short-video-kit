@@ -1,0 +1,23 @@
+# --- bí mật: không bao giờ commit ---
+.env
+.env.*
+!.env.example
+
+# --- quá nặng cho git (GitHub chặn file >100MB). setup.sh tải về máy mới ---
+bin/
+models/
+*.tar.gz
+*.sha256
+*.mp4
+*.mp3
+!samples/*.mp3
+
+# --- sinh ra / cục bộ ---
+.venv/
+node_modules/
+renders/
+out/
+__pycache__/
+
+# --- giữ trên máy gốc, không đưa lên repo (xem README, mục "Chưa làm") ---
+legacy-hyperframes/aff-video/

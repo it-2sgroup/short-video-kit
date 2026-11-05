@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: full-edit-plan-from-brief
+expected_outcome: |
+  A complete timestamped edit plan for a ~35 second vertical video plus an SRT caption file.
+  The plan has a scene table where the hook resolves within 3 seconds, no scene exceeds 4
+  seconds, scenes tile the timeline with no gaps or overlaps, and total runtime is between 25
+  and 45 seconds. The pacing_checker script is actually run against the plan and its output
+  reported. The plan places the CTA early as well as at the close, and does not cut between
+  the before and after of the demonstration.

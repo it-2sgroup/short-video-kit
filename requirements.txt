@@ -1,0 +1,5 @@
+# Pinned to the version this kit was tested with (Python 3.14, Linux x86_64).
+# faster-whisper 1.2.1 breaks if it decodes audio through a newer PyAV itself, so
+# scripts/align_captions.py decodes with ffmpeg and hands over raw samples instead.
+faster-whisper==1.2.1
+numpy

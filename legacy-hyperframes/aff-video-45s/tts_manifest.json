@@ -1,0 +1,920 @@
+[
+  {
+    "index": 0,
+    "text": "Ủa, mọi người ơi! Có ai giống mình không? Mua túi xách online mà lúc nào cũng lo nhận hàng không giống hình?",
+    "file": "line_00.mp3",
+    "words": [
+      {
+        "text": "Ủa",
+        "offset": 0.105791,
+        "duration": 0.301333
+      },
+      {
+        "text": "mọi",
+        "offset": 0.541083,
+        "duration": 0.256666
+      },
+      {
+        "text": "người",
+        "offset": 0.79775,
+        "duration": 0.3125
+      },
+      {
+        "text": "ơi",
+        "offset": 1.11025,
+        "duration": 0.256708
+      },
+      {
+        "text": "Có",
+        "offset": 2.142875,
+        "duration": 0.15625
+      },
+      {
+        "text": "ai",
+        "offset": 2.299125,
+        "duration": 0.189708
+      },
+      {
+        "text": "giống",
+        "offset": 2.488833,
+        "duration": 0.223208
+      },
+      {
+        "text": "mình",
+        "offset": 2.712041,
+        "duration": 0.245541
+      },
+      {
+        "text": "không",
+        "offset": 2.957583,
+        "duration": 0.256708
+      },
+      {
+        "text": "Mua",
+        "offset": 3.984375,
+        "duration": 0.145083
+      },
+      {
+        "text": "túi",
+        "offset": 4.129458,
+        "duration": 0.18975
+      },
+      {
+        "text": "xách",
+        "offset": 4.319208,
+        "duration": 0.234375
+      },
+      {
+        "text": "online",
+        "offset": 4.553583,
+        "duration": 0.412916
+      },
+      {
+        "text": "mà",
+        "offset": 4.9665,
+        "duration": 0.178583
+      },
+      {
+        "text": "lúc",
+        "offset": 5.145083,
+        "duration": 0.167416
+      },
+      {
+        "text": "nào",
+        "offset": 5.3125,
+        "duration": 0.223208
+      },
+      {
+        "text": "cũng",
+        "offset": 5.535708,
+        "duration": 0.15625
+      },
+      {
+        "text": "lo",
+        "offset": 5.691958,
+        "duration": 0.18975
+      },
+      {
+        "text": "nhận",
+        "offset": 5.881708,
+        "duration": 0.212041
+      },
+      {
+        "text": "hàng",
+        "offset": 6.09375,
+        "duration": 0.234375
+      },
+      {
+        "text": "không",
+        "offset": 6.328125,
+        "duration": 0.18975
+      },
+      {
+        "text": "giống",
+        "offset": 6.517875,
+        "duration": 0.178541
+      },
+      {
+        "text": "hình",
+        "offset": 6.696416,
+        "duration": 0.279
+      }
+    ]
+  },
+  {
+    "index": 1,
+    "text": "Nhưng mà lần này... mình phải nói thật là chiếc túi này khiến mình bất ngờ luôn!",
+    "file": "line_01.mp3",
+    "words": [
+      {
+        "text": "Nhưng",
+        "offset": 0.116958,
+        "duration": 0.18975
+      },
+      {
+        "text": "mà",
+        "offset": 0.306708,
+        "duration": 0.145083
+      },
+      {
+        "text": "lần",
+        "offset": 0.451791,
+        "duration": 0.189708
+      },
+      {
+        "text": "này",
+        "offset": 0.6415,
+        "duration": 0.290166
+      },
+      {
+        "text": "mình",
+        "offset": 0.931708,
+        "duration": 0.212041
+      },
+      {
+        "text": "phải",
+        "offset": 1.14375,
+        "duration": 0.15625
+      },
+      {
+        "text": "nói",
+        "offset": 1.3,
+        "duration": 0.18975
+      },
+      {
+        "text": "thật",
+        "offset": 1.48975,
+        "duration": 0.200875
+      },
+      {
+        "text": "là",
+        "offset": 1.690625,
+        "duration": 0.15625
+      },
+      {
+        "text": "chiếc",
+        "offset": 1.846875,
+        "duration": 0.18975
+      },
+      {
+        "text": "túi",
+        "offset": 2.036625,
+        "duration": 0.167375
+      },
+      {
+        "text": "này",
+        "offset": 2.204,
+        "duration": 0.245541
+      },
+      {
+        "text": "khiến",
+        "offset": 2.449541,
+        "duration": 0.18975
+      },
+      {
+        "text": "mình",
+        "offset": 2.639291,
+        "duration": 0.245541
+      },
+      {
+        "text": "bất",
+        "offset": 2.884833,
+        "duration": 0.178541
+      },
+      {
+        "text": "ngờ",
+        "offset": 3.063375,
+        "duration": 0.234375
+      },
+      {
+        "text": "luôn",
+        "offset": 3.29775,
+        "duration": 0.256708
+      }
+    ]
+  },
+  {
+    "index": 2,
+    "text": "Ban đầu, mình chỉ định mua thử thôi, vì thấy kiểu dáng khá xinh mà giá cũng vừa túi tiền.",
+    "file": "line_02.mp3",
+    "words": [
+      {
+        "text": "Ban",
+        "offset": 0.128125,
+        "duration": 0.15625
+      },
+      {
+        "text": "đầu",
+        "offset": 0.284375,
+        "duration": 0.301333
+      },
+      {
+        "text": "mình",
+        "offset": 0.775458,
+        "duration": 0.189708
+      },
+      {
+        "text": "chỉ",
+        "offset": 0.965166,
+        "duration": 0.12275
+      },
+      {
+        "text": "định",
+        "offset": 1.087958,
+        "duration": 0.189708
+      },
+      {
+        "text": "mua",
+        "offset": 1.277666,
+        "duration": 0.15625
+      },
+      {
+        "text": "thử",
+        "offset": 1.433916,
+        "duration": 0.200875
+      },
+      {
+        "text": "thôi",
+        "offset": 1.634833,
+        "duration": 0.323666
+      },
+      {
+        "text": "vì",
+        "offset": 2.170541,
+        "duration": 0.15625
+      },
+      {
+        "text": "thấy",
+        "offset": 2.326791,
+        "duration": 0.200875
+      },
+      {
+        "text": "kiểu",
+        "offset": 2.527666,
+        "duration": 0.18975
+      },
+      {
+        "text": "dáng",
+        "offset": 2.717416,
+        "duration": 0.223208
+      },
+      {
+        "text": "khá",
+        "offset": 2.940625,
+        "duration": 0.178583
+      },
+      {
+        "text": "xinh",
+        "offset": 3.119208,
+        "duration": 0.234375
+      },
+      {
+        "text": "mà",
+        "offset": 3.353583,
+        "duration": 0.145083
+      },
+      {
+        "text": "giá",
+        "offset": 3.498666,
+        "duration": 0.234375
+      },
+      {
+        "text": "cũng",
+        "offset": 3.733041,
+        "duration": 0.189708
+      },
+      {
+        "text": "vừa",
+        "offset": 3.92275,
+        "duration": 0.212041
+      },
+      {
+        "text": "túi",
+        "offset": 4.134833,
+        "duration": 0.200875
+      },
+      {
+        "text": "tiền",
+        "offset": 4.335708,
+        "duration": 0.3125
+      }
+    ]
+  },
+  {
+    "index": 3,
+    "text": "Ai ngờ nhận hàng về, mở ra xem... ôi trời, nhìn bên ngoài còn đẹp hơn mình tưởng!",
+    "file": "line_03.mp3",
+    "words": [
+      {
+        "text": "Ai",
+        "offset": 0.116958,
+        "duration": 0.133916
+      },
+      {
+        "text": "ngờ",
+        "offset": 0.250875,
+        "duration": 0.200875
+      },
+      {
+        "text": "nhận",
+        "offset": 0.451791,
+        "duration": 0.223208
+      },
+      {
+        "text": "hàng",
+        "offset": 0.675,
+        "duration": 0.212041
+      },
+      {
+        "text": "về",
+        "offset": 0.887041,
+        "duration": 0.323666
+      },
+      {
+        "text": "mở",
+        "offset": 1.400458,
+        "duration": 0.200875
+      },
+      {
+        "text": "ra",
+        "offset": 1.601333,
+        "duration": 0.167416
+      },
+      {
+        "text": "xem",
+        "offset": 1.76875,
+        "duration": 0.357125
+      },
+      {
+        "text": "ôi",
+        "offset": 2.125875,
+        "duration": 0.212041
+      },
+      {
+        "text": "trời",
+        "offset": 2.337958,
+        "duration": 0.368291
+      },
+      {
+        "text": "nhìn",
+        "offset": 2.918291,
+        "duration": 0.200875
+      },
+      {
+        "text": "bên",
+        "offset": 3.119208,
+        "duration": 0.145083
+      },
+      {
+        "text": "ngoài",
+        "offset": 3.264291,
+        "duration": 0.212041
+      },
+      {
+        "text": "còn",
+        "offset": 3.476333,
+        "duration": 0.178583
+      },
+      {
+        "text": "đẹp",
+        "offset": 3.654916,
+        "duration": 0.167416
+      },
+      {
+        "text": "hơn",
+        "offset": 3.822333,
+        "duration": 0.212041
+      },
+      {
+        "text": "mình",
+        "offset": 4.034375,
+        "duration": 0.200875
+      },
+      {
+        "text": "tưởng",
+        "offset": 4.23525,
+        "duration": 0.3125
+      }
+    ]
+  },
+  {
+    "index": 4,
+    "text": "Túi có form dáng gọn gàng, nhìn thanh lịch, mà vẫn đựng được khá nhiều đồ. Điện thoại, ví tiền, son và mấy món linh tinh đều có thể mang theo.",
+    "file": "line_04.mp3",
+    "words": [
+      {
+        "text": "Túi",
+        "offset": 0.128125,
+        "duration": 0.15625
+      },
+      {
+        "text": "có",
+        "offset": 0.284375,
+        "duration": 0.18975
+      },
+      {
+        "text": "form",
+        "offset": 0.474125,
+        "duration": 0.223208
+      },
+      {
+        "text": "dáng",
+        "offset": 0.697333,
+        "duration": 0.234375
+      },
+      {
+        "text": "gọn",
+        "offset": 0.931708,
+        "duration": 0.200875
+      },
+      {
+        "text": "gàng",
+        "offset": 1.132583,
+        "duration": 0.323666
+      },
+      {
+        "text": "nhìn",
+        "offset": 1.657125,
+        "duration": 0.234375
+      },
+      {
+        "text": "thanh",
+        "offset": 1.8915,
+        "duration": 0.15625
+      },
+      {
+        "text": "lịch",
+        "offset": 2.04775,
+        "duration": 0.18975
+      },
+      {
+        "text": "mà",
+        "offset": 2.416083,
+        "duration": 0.189708
+      },
+      {
+        "text": "vẫn",
+        "offset": 2.605791,
+        "duration": 0.167416
+      },
+      {
+        "text": "đựng",
+        "offset": 2.773208,
+        "duration": 0.200875
+      },
+      {
+        "text": "được",
+        "offset": 2.974125,
+        "duration": 0.178541
+      },
+      {
+        "text": "khá",
+        "offset": 3.152666,
+        "duration": 0.212041
+      },
+      {
+        "text": "nhiều",
+        "offset": 3.36475,
+        "duration": 0.189708
+      },
+      {
+        "text": "đồ",
+        "offset": 3.554458,
+        "duration": 0.267875
+      },
+      {
+        "text": "Điện",
+        "offset": 4.587041,
+        "duration": 0.212041
+      },
+      {
+        "text": "thoại",
+        "offset": 4.799125,
+        "duration": 0.334833
+      },
+      {
+        "text": "ví",
+        "offset": 5.301333,
+        "duration": 0.167416
+      },
+      {
+        "text": "tiền",
+        "offset": 5.46875,
+        "duration": 0.368291
+      },
+      {
+        "text": "son",
+        "offset": 6.037958,
+        "duration": 0.3125
+      },
+      {
+        "text": "và",
+        "offset": 6.350458,
+        "duration": 0.133916
+      },
+      {
+        "text": "mấy",
+        "offset": 6.484375,
+        "duration": 0.18975
+      },
+      {
+        "text": "món",
+        "offset": 6.674125,
+        "duration": 0.200875
+      },
+      {
+        "text": "linh",
+        "offset": 6.875,
+        "duration": 0.18975
+      },
+      {
+        "text": "tinh",
+        "offset": 7.06475,
+        "duration": 0.234375
+      },
+      {
+        "text": "đều",
+        "offset": 7.299125,
+        "duration": 0.189708
+      },
+      {
+        "text": "có",
+        "offset": 7.488833,
+        "duration": 0.15625
+      },
+      {
+        "text": "thể",
+        "offset": 7.645083,
+        "duration": 0.212041
+      },
+      {
+        "text": "mang",
+        "offset": 7.857125,
+        "duration": 0.223208
+      },
+      {
+        "text": "theo",
+        "offset": 8.080375,
+        "duration": 0.279
+      }
+    ]
+  },
+  {
+    "index": 5,
+    "text": "Đi học, đi làm hay đi cà phê đều hợp hết, phối đồ nào cũng xinh!",
+    "file": "line_05.mp3",
+    "words": [
+      {
+        "text": "Đi",
+        "offset": 0.128125,
+        "duration": 0.133916
+      },
+      {
+        "text": "học",
+        "offset": 0.262041,
+        "duration": 0.223208
+      },
+      {
+        "text": "đi",
+        "offset": 0.686166,
+        "duration": 0.133916
+      },
+      {
+        "text": "làm",
+        "offset": 0.820083,
+        "duration": 0.234375
+      },
+      {
+        "text": "hay",
+        "offset": 1.054458,
+        "duration": 0.145083
+      },
+      {
+        "text": "đi",
+        "offset": 1.199541,
+        "duration": 0.178583
+      },
+      {
+        "text": "cà",
+        "offset": 1.378125,
+        "duration": 0.178583
+      },
+      {
+        "text": "phê",
+        "offset": 1.556708,
+        "duration": 0.267833
+      },
+      {
+        "text": "đều",
+        "offset": 1.824541,
+        "duration": 0.200875
+      },
+      {
+        "text": "hợp",
+        "offset": 2.025458,
+        "duration": 0.189708
+      },
+      {
+        "text": "hết",
+        "offset": 2.215166,
+        "duration": 0.245541
+      },
+      {
+        "text": "phối",
+        "offset": 2.628125,
+        "duration": 0.200875
+      },
+      {
+        "text": "đồ",
+        "offset": 2.829,
+        "duration": 0.15625
+      },
+      {
+        "text": "nào",
+        "offset": 2.98525,
+        "duration": 0.234375
+      },
+      {
+        "text": "cũng",
+        "offset": 3.219625,
+        "duration": 0.178583
+      },
+      {
+        "text": "xinh",
+        "offset": 3.398208,
+        "duration": 0.279
+      }
+    ]
+  },
+  {
+    "index": 6,
+    "text": "Nếu bạn cũng đang tìm một chiếc túi xách vừa đẹp, vừa tiện dụng mà giá cả hợp lý...",
+    "file": "line_06.mp3",
+    "words": [
+      {
+        "text": "Nếu",
+        "offset": 0.128125,
+        "duration": 0.15625
+      },
+      {
+        "text": "bạn",
+        "offset": 0.284375,
+        "duration": 0.200875
+      },
+      {
+        "text": "cũng",
+        "offset": 0.48525,
+        "duration": 0.15625
+      },
+      {
+        "text": "đang",
+        "offset": 0.6415,
+        "duration": 0.18975
+      },
+      {
+        "text": "tìm",
+        "offset": 0.83125,
+        "duration": 0.167416
+      },
+      {
+        "text": "một",
+        "offset": 0.998666,
+        "duration": 0.145083
+      },
+      {
+        "text": "chiếc",
+        "offset": 1.14375,
+        "duration": 0.178583
+      },
+      {
+        "text": "túi",
+        "offset": 1.322333,
+        "duration": 0.167416
+      },
+      {
+        "text": "xách",
+        "offset": 1.48975,
+        "duration": 0.212041
+      },
+      {
+        "text": "vừa",
+        "offset": 1.701791,
+        "duration": 0.189708
+      },
+      {
+        "text": "đẹp",
+        "offset": 1.8915,
+        "duration": 0.223208
+      },
+      {
+        "text": "vừa",
+        "offset": 2.326791,
+        "duration": 0.167416
+      },
+      {
+        "text": "tiện",
+        "offset": 2.494208,
+        "duration": 0.189708
+      },
+      {
+        "text": "dụng",
+        "offset": 2.683916,
+        "duration": 0.223208
+      },
+      {
+        "text": "mà",
+        "offset": 2.907125,
+        "duration": 0.167416
+      },
+      {
+        "text": "giá",
+        "offset": 3.074541,
+        "duration": 0.212041
+      },
+      {
+        "text": "cả",
+        "offset": 3.286625,
+        "duration": 0.189708
+      },
+      {
+        "text": "hợp",
+        "offset": 3.476333,
+        "duration": 0.200875
+      },
+      {
+        "text": "lý",
+        "offset": 3.67725,
+        "duration": 0.290166
+      }
+    ]
+  },
+  {
+    "index": 7,
+    "text": "Thì thử bấm vào giỏ hàng xem em này nhé!",
+    "file": "line_07.mp3",
+    "words": [
+      {
+        "text": "Thì",
+        "offset": 0.116958,
+        "duration": 0.145083
+      },
+      {
+        "text": "thử",
+        "offset": 0.262041,
+        "duration": 0.200875
+      },
+      {
+        "text": "bấm",
+        "offset": 0.462958,
+        "duration": 0.223208
+      },
+      {
+        "text": "vào",
+        "offset": 0.686166,
+        "duration": 0.200875
+      },
+      {
+        "text": "giỏ",
+        "offset": 0.887041,
+        "duration": 0.18975
+      },
+      {
+        "text": "hàng",
+        "offset": 1.076791,
+        "duration": 0.223208
+      },
+      {
+        "text": "xem",
+        "offset": 1.3,
+        "duration": 0.290166
+      },
+      {
+        "text": "em",
+        "offset": 1.590166,
+        "duration": 0.178583
+      },
+      {
+        "text": "này",
+        "offset": 1.76875,
+        "duration": 0.245541
+      },
+      {
+        "text": "nhé",
+        "offset": 2.014291,
+        "duration": 0.234375
+      }
+    ]
+  },
+  {
+    "index": 8,
+    "text": "Nhớ xem kỹ hình ảnh, kích thước và thông tin sản phẩm trước khi đặt mua nha!",
+    "file": "line_08.mp3",
+    "words": [
+      {
+        "text": "Nhớ",
+        "offset": 0.116958,
+        "duration": 0.15625
+      },
+      {
+        "text": "xem",
+        "offset": 0.273208,
+        "duration": 0.245541
+      },
+      {
+        "text": "kỹ",
+        "offset": 0.51875,
+        "duration": 0.200875
+      },
+      {
+        "text": "hình",
+        "offset": 0.719625,
+        "duration": 0.200875
+      },
+      {
+        "text": "ảnh",
+        "offset": 0.920541,
+        "duration": 0.301333
+      },
+      {
+        "text": "kích",
+        "offset": 1.400458,
+        "duration": 0.167416
+      },
+      {
+        "text": "thước",
+        "offset": 1.567875,
+        "duration": 0.212041
+      },
+      {
+        "text": "và",
+        "offset": 1.779916,
+        "duration": 0.200875
+      },
+      {
+        "text": "thông",
+        "offset": 1.980791,
+        "duration": 0.167416
+      },
+      {
+        "text": "tin",
+        "offset": 2.148208,
+        "duration": 0.15625
+      },
+      {
+        "text": "sản",
+        "offset": 2.304458,
+        "duration": 0.18975
+      },
+      {
+        "text": "phẩm",
+        "offset": 2.494208,
+        "duration": 0.234375
+      },
+      {
+        "text": "trước",
+        "offset": 2.728583,
+        "duration": 0.189708
+      },
+      {
+        "text": "khi",
+        "offset": 2.918291,
+        "duration": 0.145083
+      },
+      {
+        "text": "đặt",
+        "offset": 3.063375,
+        "duration": 0.18975
+      },
+      {
+        "text": "mua",
+        "offset": 3.253125,
+        "duration": 0.145083
+      },
+      {
+        "text": "nha",
+        "offset": 3.398208,
+        "duration": 0.3125
+      }
+    ]
+  }
+]

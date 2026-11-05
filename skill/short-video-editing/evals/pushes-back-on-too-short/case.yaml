@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: pushes-back-on-too-short
+expected_outcome: |
+  The response pushes back on the 15-second request with the specific evidence that sub-25s
+  videos had the lowest click-through and sale rate of any duration band, and that CTR peaked
+  in the 35-44s band. It recommends 30-40 seconds instead. It does not simply comply and
+  produce a 15-second plan without comment, nor does it refuse outright to help.

@@ -1,0 +1,165 @@
+# Voiceover and Captions
+
+The pipeline is: **script → ElevenLabs → audio → Whisper → timings → SRT**, with one rule that
+makes the whole thing work — **Whisper supplies the timing, the script supplies the words.**
+
+---
+
+## Why not just use Whisper's transcript
+
+Running Whisper over this project's own Vietnamese voiceover produced:
+
+| Spoken | Whisper heard |
+|---|---|
+| mua **túi xách** | mua *tui sách* |
+| thấy **kiểu dáng** | thấy *kiểu gián* |
+
+Both are plausible-looking Vietnamese. Neither is what was said. In a transcript that is a minor
+annoyance; burned onto a video at 44px it is the first thing a viewer notices, and it makes the
+brand look careless.
+
+The fix is structural rather than a better model: **we already know the exact words**, because we
+wrote them and sent them to the TTS. So the script is the source of truth for text, and Whisper is
+used only to find out *when* each word was spoken. `scripts/align_captions.py` does this — it
+matches Whisper's word sequence against the script's word sequence and keeps the script's
+spelling.
+
+Matching is done on diacritic-stripped, lowercased skeletons, because that is exactly where
+Vietnamese recognition errors cluster (`dang`/`gian`, `xach`/`sach`). A misheard word still aligns
+to the right position; only its spelling is replaced.
+
+---
+
+## 1. Write the script to a word budget
+
+Commerce pace runs about 4.5–5 words per second. A 35-second video supports roughly **150–170
+words** including pauses. Write to the budget rather than trimming after synthesis — re-cutting
+audio to fit is slower and sounds worse than writing shorter in the first place.
+
+One line per VO line, one line per file:
+
+```
+Ủa, mọi người ơi! Có ai giống mình không?
+Nhưng mà lần này... mình phải nói thật là chiếc túi này khiến mình bất ngờ luôn!
+```
+
+Check every line against the rewrite table in `platform-specs.md` §7 before synthesizing. Fixing
+a prohibited claim after the voiceover exists means paying for the synthesis twice.
+
+---
+
+## 2. Synthesize with ElevenLabs
+
+```bash
+python scripts/make_voiceover.py --quota                          # plan, credits, reset date
+python scripts/make_voiceover.py --list-voices                    # id, category, language
+python scripts/make_voiceover.py script.txt --voice <id> --dry-run   # cost check, spends nothing
+python scripts/make_voiceover.py script.txt --voice <id> --out audio/
+```
+
+Key lookup order: environment variable, `--env-file`, then `~/.config/short-video-kit/env`
+(`setup.sh` installs the last one so it works from any folder). **Never put the key on the command
+line** — it lands in shell history and in process listings.
+
+### Two things that will bite if ignored
+
+**1. Pick a model that actually speaks Vietnamese.** `eleven_multilingual_v2` — the obvious
+default, and what an earlier draft of this file recommended — lists 29 languages and **not
+Vietnamese**. Checked against `GET /v1/models`:
+
+| Model | Vietnamese | Notes |
+|---|---|---|
+| `eleven_turbo_v2_5` | yes | **Default.** Verified: accepts stability/similarity/speed, works on the free plan. ~0.5 credit/char |
+| `eleven_flash_v2_5` | yes | Faster/cheaper; quality not compared |
+| `eleven_v3` | yes | Interprets `[emotion]` audio tags. 1 credit/char. Stability is coarse on this family — not verified here |
+| `eleven_v4`, `eleven_v4_turbo` | yes | Newest; not tested here (no credits left at the time) |
+| `eleven_multilingual_v2`, `eleven_turbo_v2`, `eleven_flash_v2` | **no** | Do not use for Vietnamese |
+
+Re-check with `GET /v1/models` when this matters — the list changes. Look for `vi` in each model's
+`languages`.
+
+**2. The free plan cannot be used commercially.** ElevenLabs' own help article states: *"The free
+plan does not include a commercial license and cannot be used for any commercial purpose."* Audio
+made outside a paid subscription *"(before or after) cannot be used commercially"* — upgrading later
+does not retroactively license it. Free-plan audio is fine for drafts and timing tests; an
+affiliate or client video needs audio generated **during a paid subscription**. `make_voiceover.py`
+prints this warning whenever it sees a free-tier key.
+
+Also on the free plan: **only `premade` voices work through the API.** Library voices (including
+the professional Vietnamese voice in this account) return HTTP 402. `--list-voices` shows each
+voice's category.
+
+### Emotion tags
+
+Scripts written for the Adam workflow carry tags like `[gasp][excited]` and `[laughs softly]`.
+Only the **v3 family interprets them**; every other model reads them out loud as words. So
+`make_voiceover.py` strips them for non-v3 models and says so, and `align_captions.py` always
+strips them from caption text, since a tag directs the voice but is never spoken. Use
+`--keep-tags` only for a model known to support them.
+
+### Spending credits safely
+
+`--dry-run` prices the script against your balance and refuses to start if it cannot finish —
+otherwise a run that dies on line 7 of 9 has spent credits on a take you cannot use. A 35-second
+script is about 750 characters: roughly 380 credits on turbo, 750 on v3.
+
+One file per line is deliberate: re-synthesizing one line is cheap, a whole take is not. The
+concatenation step inserts the pauses, so pacing is tuned without another API call.
+
+Settings worth understanding rather than copying:
+- `--stability` (0.45) — lower is more expressive and varies between runs; higher is flatter and
+  more consistent.
+- `--speed` (1.06) — 1.0 often sounds flat for commerce. Past about 1.15 it sounds rushed, which
+  undercuts the honest-neighbour register these videos rely on.
+- `--gap` (0.22s) and `--intro` (0.6s) shape pacing.
+
+`voice_manifest.json` records the voice, model, speed, plan and the exact text sent per line.
+
+## 3. Align captions
+
+```bash
+python scripts/align_captions.py audio/voice_full.mp3 --script script.txt --out captions.srt
+```
+
+Options:
+- `--model` — `small` is the default and handles clean TTS audio well (about 16s to process 50s of
+  audio on CPU). Use `medium` for speech over music or noisy room tone.
+- `--words` — words per caption group. Default 4; use 2–3 for high-energy cuts, 4–6 for calm ones.
+- `--json` — print the groups instead of writing SRT, for checking the alignment.
+
+The script reports how many words it heard against how many the script contains, and warns when
+fewer than 60% of heard words appear in the script — which means either the wrong script was
+passed, or recognition failed badly enough to distrust the timings.
+
+Without `--script` it falls back to Whisper's raw text and says so. Only do that when transcribing
+audio you did not generate, such as a creator's own recording.
+
+Caption groups get a minimum display of **0.5s + 0.3s per word**, so a four-word group holds at
+least 1.7s. Groups are trimmed if they would overrun the next one.
+
+---
+
+## 4. Mix
+
+```bash
+# voice at full level, music bed 15-25 dB below it
+ffmpeg -i voice_full.mp3 -i music.mp3 -filter_complex \
+  "[1:a]volume=0.12,afade=t=out:st=33:d=2[bed];[0:a][bed]amix=inputs=2:duration=first:normalize=0" \
+  -ar 44100 final_mix.mp3
+```
+
+See `audio-and-music.md` for levels, ducking and where to cut the music entirely. Music must come
+from a cleared source — `platform-specs.md` §5 covers the Commercial Music Library requirement for
+business accounts.
+
+---
+
+## Alternative: ElevenLabs timestamps
+
+ElevenLabs also exposes a timestamps variant of the TTS endpoint, which returns character-level
+timings alongside the audio and therefore has no recognition error at all. It is a reasonable
+substitute for step 3 when the audio is used exactly as synthesized.
+
+Whisper alignment is kept as the default here because it keeps working when the audio is edited
+after synthesis — trimmed, re-paced, or spliced with a creator's own recording — where
+synthesis-time timestamps no longer correspond to the finished track.
