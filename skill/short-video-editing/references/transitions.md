@@ -30,6 +30,16 @@ Cadence for the client's 3–4 s scenes [C]: 3–4 transition types per video, o
 (hook → problem → product → proof → CTA). Never spin, glitch or star-wipe packs — they read as
 templates and cheapen a product.
 
+### When the client says "chuyển cảnh chưa mượt"
+
+1. Check scene lengths first: 3–4 s outside the hook. Cuts every 1.5–2 s are what read as jerky; no
+   transition fixes that (`pacing_checker.py` warns under 3 s).
+2. Make `fade` or `blurDissolve` the dominant type and lengthen it (`fade 18f`). Drop `whip`,
+   `pushCut`, `crossZoom` and `+flash`; keep at most one `zoomThrough` at the hook → problem boundary.
+3. Cut on a pause in the voice (`sync-and-timing.md`), so picture and speech change together.
+4. Let the camera move continue through the cut instead of resetting it (`camera-moves.md`).
+5. Re-render and look at the contact sheet, then play it: smoothness shows only in motion.
+
 ---
 
 ## The timing maths [D]

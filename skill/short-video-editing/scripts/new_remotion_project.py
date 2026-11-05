@@ -4,6 +4,11 @@
     python scripts/new_remotion_project.py ~/videos/saiza-render            # copy template only
     python scripts/new_remotion_project.py DEST --install                    # + npm install (downloads ~300 MB)
     python scripts/new_remotion_project.py DEST --proxies /path/to/raw_clips  # + ffmpeg proxies into public/clips
+    python scripts/new_remotion_project.py DEST --update                      # re-copy the template over DEST
+
+A render project is a copy of the template, so a template fix does not reach it by itself. --update
+replaces the template's files (src/, config, package.json) and keeps public/, node_modules/, out/ and
+your own *.json projects. Local edits to the template's files are overwritten.
 
 Proxies: phone footage is usually 4K HEVC with rotation metadata; rendering from it is slow. This
 writes H.264 1080x1920 30fps, audio-free copies named <STEM>.mp4 (ffmpeg applies the rotation).
@@ -44,6 +49,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Scaffold a Remotion render project for this kit.")
     ap.add_argument("dest", type=Path)
     ap.add_argument("--install", action="store_true", help="run npm install in the new project")
+    ap.add_argument("--update", action="store_true", help="re-copy the template over an existing render project")
     ap.add_argument("--proxies", type=Path, help="folder of raw clips to convert into public/clips")
     ap.add_argument("--proxy-height", type=int, default=1920, choices=[1920, 3840])
     a = ap.parse_args()
@@ -51,9 +57,10 @@ def main() -> int:
     dest = a.dest.expanduser().resolve()
     if dest.exists() and any(dest.iterdir()) and not (dest / "package.json").exists():
         sys.exit(f"{dest} exists and is not a render project; choose an empty folder.")
-    if not (dest / "package.json").exists():
-        shutil.copytree(TEMPLATE, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("node_modules", "out"))
-        print(f"created {dest}")
+    exists = (dest / "package.json").exists()
+    if not exists or a.update:
+        shutil.copytree(TEMPLATE, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("node_modules", "out", "public"))
+        print(f"{'updated' if exists else 'created'} {dest}")
     for sub in ("public/clips", "public/audio"):
         (dest / sub).mkdir(parents=True, exist_ok=True)
 

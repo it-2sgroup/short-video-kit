@@ -68,6 +68,10 @@ To add a component: write it under `components/graphics/` taking `{ov, dur, inst
 content from `ov.props`, take every colour/size/curve from `theme.ts`, register it, and document
 its content keys in `layout-and-motion-graphics.md`. No video text in code.
 
+A render project is a **copy** of the template. After changing the template, bring existing projects
+along with `python scripts/new_remotion_project.py <render dir> --update` (replaces `src/` and the
+config files; keeps `public/`, `node_modules/` and your `*.json` projects).
+
 ---
 
 ## Rules that keep renders correct

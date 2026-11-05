@@ -108,8 +108,11 @@ does not). Free-plan audio is non-commercial forever — tell the user before sp
 something they cannot ship. Details: `references/voiceover-and-captions.md`.
 
 **A supplied voice (no synthesis)** is the usual case when the user hands over a recording:
-1. Over 45 s? `python scripts/trim_voice.py voice.mp3 --silences` lists the pauses; keep ranges with
-   `--keep 0-3.8,8.3-16.1 --out short.mp3`. Drop whole sentences only, and tell the user which.
+1. Several voice files? Match by the video's name and ask when it is ambiguous. Length decides the
+   rest: 30–40 s is right, 40–45 s is allowed (say it is long), over 45 s must be trimmed, under 25 s
+   needs a word with the user (rule 4). `python scripts/trim_voice.py voice.mp3 --silences` lists the
+   pauses; keep ranges with `--keep 0-3.8,8.3-16.1 --out short.mp3`. Drop whole sentences only, and
+   tell the user which.
 2. Run `align_captions.py` **without** `--script` for a draft transcript, correct it by hand until it
    matches what is actually said (supplied voices rarely match the written script), save it as
    `script.txt`, then align again with `--script`.
@@ -126,7 +129,7 @@ by hand and align against that. `references/captions-and-text.md`.
 ### 7. Check the plan
 ```bash
 python scripts/pacing_checker.py edit-plan.md
-python scripts/footage_overlap_checker.py plans/*.md --clips /path/to/clips   # whole batch
+python scripts/footage_overlap_checker.py plans/kb7.md plans/kb4.md plans/kb9.md --clips /path/to/clips   # every plan of the batch, named
 ```
 Errors block delivery; paste the pacing output into the plan.
 

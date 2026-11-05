@@ -61,7 +61,10 @@ into KB1, KB2, KB3…). Treat it as a budget:
    ```
 
    It fails on any overlap within or between plans and prints the free ranges left per clip. Plan
-   the next video from that list. Run it every time a plan changes.
+   the next video from that list. Run it every time a plan changes. It reads only the Scenes
+   tables, so keep every plan file (a `project.json` cannot rebuild one) and name them all; it does
+   not see clips pulled in by `thumbs` or `magnifier` overlays, so draw those from ranges the same
+   video already shows.
 6. **Say so when the budget runs out.** If the remaining footage cannot support another video without
    repeats, tell the user and name what to shoot (pickups), rather than quietly repeating shots.
 

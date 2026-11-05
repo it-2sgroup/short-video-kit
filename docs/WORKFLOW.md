@@ -6,6 +6,9 @@ Claude chạy các bước này khi bạn nhờ; tài liệu này để bạn hi
 **Trước khi bắt đầu, trên mọi máy:** `./setup.sh --check` (Windows: chạy bash của Git Bash). Thiếu gì thì
 `./setup.sh`; sau mỗi lần `git pull` chạy lại `./setup.sh` để bản skill đã cài khớp với repo.
 
+**Python:** trong tài liệu `python3` nghĩa là Python 3 bất kỳ. Trên Windows dùng `python` hoặc
+`~/.local/share/short-video-kit/venv/Scripts/python.exe` (lệnh `python3` có thể là bản giả của Microsoft Store).
+
 **Gói giao việc điển hình:** PDF kịch bản (KB4, KB7…) + thư mục clip thô + thư mục giọng mẫu + độ dài 30–40 s.
 Làm theo đúng thứ tự dưới đây; file làm việc để **ngoài repo**:
 
@@ -77,7 +80,7 @@ báo người dùng; không tự ý sửa lời đã thu.
 ### 6. Kiểm kế hoạch
 ```bash
 python3 scripts/pacing_checker.py edit-plan.md
-python3 scripts/footage_overlap_checker.py kb7/edit-plan.md kb4/edit-plan.md --clips /duong/dan/clips
+python3 scripts/footage_overlap_checker.py kb7/edit-plan.md kb4/edit-plan.md kb9/edit-plan.md --clips /duong/dan/clips
 ```
 
 ### 7. Biên dịch kế hoạch

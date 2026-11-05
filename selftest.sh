@@ -98,6 +98,10 @@ echo "10. new_remotion_project.py scaffolds a render project"
 "$PY" "$S/new_remotion_project.py" "$TMP/render" >/dev/null 2>&1
 if [[ -f "$TMP/render/package.json" && -f "$TMP/render/src/index.ts" && -d "$TMP/render/public/clips" ]]; then
   pass "template copied, public/clips and public/audio ready"
+  echo "// local edit" >> "$TMP/render/src/theme.ts"; echo keep > "$TMP/render/public/clips/mine.txt"
+  "$PY" "$S/new_remotion_project.py" "$TMP/render" --update >/dev/null 2>&1
+  ! grep -q "local edit" "$TMP/render/src/theme.ts" && [[ -f "$TMP/render/public/clips/mine.txt" ]] \
+    && pass "--update restores the template files and keeps public/" || fail "--update did not behave"
   "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/render/project.json" \
     --voice audio/none.mp3 2>&1 | grep -q "not in .*clips/" \
     && pass "plan_to_project reports clips and voice missing from public/" || fail "missing assets were not reported"

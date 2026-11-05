@@ -50,7 +50,8 @@ another drive and set these two variables for the user.
 Follow `docs/WORKFLOW.md` (Vietnamese) and the skill's `SKILL.md`. In short, for "make video KBn from
 this script PDF, this clip folder and this voice":
 
-1. `./setup.sh --check`, then read the script (PDF → text) into one `script.txt` per video.
+1. `./setup.sh --check`, then read the script into one `script.txt` per video (a PDF: open it with the
+   Read tool, `pages` up to 20 at a time, and copy the spoken lines; no PDF library is installed).
 2. See the footage: `contact_sheet.py CLIPS_DIR --out overview.png`, `inspect_footage.py CLIPS_DIR --log`;
    build a shot log and **budget the batch** (every video gets its own source ranges).
 3. Voice: supplied → `trim_voice.py` if over 45 s, transcribe, correct the script **by hand** to match
@@ -89,7 +90,13 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
   (set in the template's `remotion.config.ts`).
 - iPhone footage is 4K HEVC with rotation metadata: render from ffmpeg proxies
   (`new_remotion_project.py --proxies`), not the originals.
-- White text vanishes on white fabric: use the `outline` title style over white garments, not `gradient`.
+- White text vanishes on white fabric: over white garments use the `outline` or `marker` title style, not
+  `gradient` or `stack` (white→sky fills). Check every title on the contact sheet.
+- Edit-plan tables are the footage ledger: keep every `edit-plan.md`, and pass them all (named, no
+  shell glob) to `footage_overlap_checker.py`. A `project.json` cannot rebuild a lost plan.
+- A render project is a **copy** of the template: after the template changes, run
+  `new_remotion_project.py <render dir> --update` (replaces `src/` and config, keeps `public/`,
+  `node_modules/` and your `*.json` projects).
 - Don't sum `video_metrics_daily` in the campaign database; it repeats on a 7-day cycle.
 - Windows PowerShell 5.1: `python -I` ignores `PYTHONIOENCODING`, use `python -X utf8`; the `python3`
   command may be the Microsoft Store stub (use the venv's `Scripts\python.exe`); a program installed by
