@@ -51,7 +51,7 @@ cắt giữa từ. Mỗi cảnh có cột **Transition** (`fade`, `slide up`, `w
 
 ### 4. Bảng Overlays (chữ và đồ hoạ)
 Mỗi dòng một thành phần: `title` (5 kiểu: outline, stack, gradient, glass, marker), `callout`, `highlight`,
-`step`, `checklist`, `price`, `cart`, `sticker`, `progress`, `magnifier`, `thumbs`, `ranking`, `lowerThird`,
+`step`, `checklist`, `price`, `cart`, `sticker`, `progress`, `magnifier`, `thumbs`, `compare`, `ranking`, `lowerThird`,
 cùng `punch` (phóng theo từ khoá) và `sfx`. Thời điểm có thể neo theo từ: `@"chai hồng"`.
 Quy tắc: không đè lên mặt, tránh thanh nút bên phải, không quá 2 thành phần thông tin cùng lúc, đổi kiểu tiêu
 đề giữa các nhịp, chữ trên màn hình nói điều **khác** lời đọc. `references/layout-and-motion-graphics.md`,

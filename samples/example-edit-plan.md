@@ -29,3 +29,4 @@
 | 7 | 23.7 | 26.9 | title | top | after | style=gradient; lines=Sau 2 tiếng |
 | 8 | 27.2 | 30.4 | checklist | upper | – | items=Chai hồng / Ngâm 2 tiếng / Xả nước |
 | 9 | 30.7 | 33.5 | cart | upper | – | text=Giỏ hàng ở góc trái |
+| 10 | 27.4 | 30.3 | compare | top | – | before=clip_05@2.0; after=clip_05@14.0; zoom=1.3; note=Cùng một cái áo · sau 2 tiếng ngâm (đã rút gọn thời gian) |

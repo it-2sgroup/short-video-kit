@@ -22,12 +22,13 @@ Overlays table:  Start | End | Component | Zone | Tone | Content
     End    seconds, +2.5 (duration), auto (reading time), @"word" (end of that word),
            or cut (3 frames before the next scene cut)
     Component  any key of the template registry: title, callout, checklist, step, price, cart,
-           highlight, sticker, magnifier, thumbs, ranking, progress, lowerThird,
+           highlight, sticker, magnifier, thumbs, compare, ranking, progress, lowerThird,
            plus two pseudo-components: punch (camera punch-in) and sfx (sound cue)
     Content  key=value pairs separated by ';'. Lists use ' / ', points use 'x,y' (0..1).
            e.g.  style=stack; lines=đợi vừa lâu / vừa tốn token; accent=token
                  label=2 cổng USB-C; target=0.42,0.55; side=left
                  cards=IMG_0326@40:Áo thun / IMG_0330@17:Tất     (thumbs)
+                 before=IMG_0327@1.6; after=IMG_0327@27.6; zoom=1.4   (compare: TRƯỚC/SAU card)
                  items=Claude#1 / Manus#1 / ChatGPT#2           (ranking)
 
 It also prints a sync report: cuts inside words, text appearing or vanishing on a cut, graphics in
@@ -45,7 +46,7 @@ from pathlib import Path
 FPS = 30
 LEAD = 3 / FPS  # graphics land 3 frames before their word
 KNOWN = {"title", "callout", "checklist", "step", "price", "cart", "highlight", "sticker",
-         "magnifier", "thumbs", "ranking", "progress", "lowerThird", "punch", "sfx"}
+         "magnifier", "thumbs", "compare", "ranking", "progress", "lowerThird", "punch", "sfx"}
 CANON = {t.lower(): t for t in ["fade", "slide", "wipe", "iris", "pushCut", "zoomThrough",
                                  "blurDissolve", "whip", "flip", "crossZoom", "cut"]}
 DIRS = {"left", "right", "up", "down"}
@@ -195,6 +196,12 @@ def parse_content(component: str, raw: str) -> dict:
             if m:
                 out.append({"clip": Path(m.group(1)).stem.upper(), "at": float(m.group(2)), "caption": (m.group(3) or "").strip()})
         props["cards"] = out
+    if component == "compare":
+        for side in ("before", "after"):
+            m = re.match(r"(\S+)@([\d.]+)$", str(props.get(side, "")))
+            if not m:
+                sys.exit(f"compare needs {side}=CLIP@seconds (a frame of a clip already shown in this video)")
+            props[side] = {"clip": Path(m.group(1)).stem.upper(), "at": float(m.group(2))}
     if component == "ranking":
         items = props.get("items", [])
         items = [items] if isinstance(items, str) else items
@@ -294,10 +301,11 @@ def auto_sfx(scenes, overlays, cfg, manual, offset_db=0.0):
         name = ev["sceneStart"].get(f"{prev['type']}>{s['type']}", ev["sceneStart"].get(f"*>{s['type']}", name))
         if name:
             cand.append((0, cut, name))
-    for o in overlays:  # "title:stack" (component:style) wins over "title"
-        name = ev["overlay"].get(f"{o['component']}:{o['props'].get('style')}") or ev["overlay"].get(o["component"])
-        if name:
-            cand.append((1, o["start"], name))
+    for o in overlays:  # "title:stack" (component:style) wins over "title"; a value may be {sound, offset}
+        entry = ev["overlay"].get(f"{o['component']}:{o['props'].get('style')}") or ev["overlay"].get(o["component"])
+        if entry:
+            name, offset = (entry["sound"], entry.get("offset", 0.0)) if isinstance(entry, dict) else (entry, 0.0)
+            cand.append((1, o["start"] + offset, name))
     kept = [m["at"] for m in manual]
     cues = []
     for _, t, name in sorted(cand, key=lambda c: (c[0], c[1])):
@@ -343,11 +351,12 @@ def report(scenes, overlays, captions, words):
     for o in overlays:
         if o["component"] in ("punch", "sfx"):
             continue
-        z = o.get("zone", "top")
-        for p in busy.get(z, []):
-            if o["start"] < p["end"] and p["start"] < o["end"] and o["component"] not in ("callout", "highlight", "sticker", "cart"):
-                warns.append(f"{o['component']} at {o['start']:.2f}s overlaps {p['component']} in zone '{z}'")
-        busy.setdefault(z, []).append(o)
+        # the compare card is tall: its note line reaches into the lower zone as well
+        for z in [o.get("zone", "top")] + (["lower"] if o["component"] == "compare" else []):
+            for p in busy.get(z, []):
+                if o["start"] < p["end"] and p["start"] < o["end"] and o["component"] not in ("callout", "highlight", "sticker", "cart"):
+                    warns.append(f"{o['component']} at {o['start']:.2f}s overlaps {p['component']} in zone '{z}'")
+            busy.setdefault(z, []).append(o)
     return warns
 
 
@@ -358,6 +367,8 @@ def missing_assets(project: dict, public: Path) -> list[str]:
         p = o["props"]
         if o["component"] == "magnifier" and "clip" in p:
             need.add(f"clips/{p['clip']}.mp4")
+        if o["component"] == "compare":
+            need.update(f"clips/{p[s]['clip']}.mp4" for s in ("before", "after"))
         need.update(f"clips/{c['clip']}.mp4" for c in p.get("cards", []) if isinstance(c, dict) and "clip" in c)
     need.update(x for x in (project["voice"], (project["music"] or {}).get("src")) if x)
     need.update(c["src"] for c in project["sfx"] if c.get("src"))

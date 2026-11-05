@@ -88,6 +88,7 @@ chỉ mục `references/` và phần "trung thực về bằng chứng" (đâu l
 | `niche-winning-patterns.md` | Đầu tiên với hàng gia dụng/tẩy rửa: số liệu thật trên 16.242 video (thời lượng, CTR, tập trung vào top creator). *Chứa số liệu nội bộ, repo phải để private.* |
 | `platform-specs.md` | Viết kịch bản/claim; bảng "câu cấm → câu thay thế"; luật before/after; vùng an toàn. |
 | `hook-library.md` | Chọn hoặc viết 3 giây đầu; xếp hạng kiểu hook; ví dụ tiếng Việt. |
+| `before-after.md` | Cách dựng TRƯỚC/SAU cho tẩy vết bẩn: kỹ thuật editor trên thế giới dùng, thẻ `compare`, chọn cặp khung hình, cảnh báo chính sách quảng cáo của TikTok. |
 | `pacing-and-transitions.md` | Nhịp, cấu trúc video, re-hook, xử lý footage không khớp luật. |
 | `transitions.md` | Danh mục 11 chuyển cảnh, toán học căn giữa điểm cắt, chuyển cảnh shader trên Windows, công thức "chưa mượt". |
 | `camera-moves.md` | Push/pull/pan/hold, phóng theo từ khóa, cách tránh "khựng". |
@@ -152,7 +153,7 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | `src/components/registry.tsx` | Tên thành phần dùng trong `project.json`; tên lạ sẽ báo lỗi. |
 | `src/components/anim.ts` | Hàm hoạt họa dùng chung (vào/ra, spring, vừa khung). |
 | `src/components/text/` | `Title.tsx` (5 kiểu: outline, stack, gradient, glass, marker), `Captions.tsx` (karaoke/plain), `primitives.tsx` (chữ viền, chữ gradient, chữ trồi qua mặt nạ). |
-| `src/components/graphics/` | 12 thành phần: `Callout`, `Lists` (checklist, step), `Price`, `Pointers` (mũi tên giỏ hàng, vòng khoanh, sticker), `Media` (kính lúp, hàng thumbnail), `Ranking`, `Bars` (thanh tiến trình, thẻ tên). |
+| `src/components/graphics/` | 13 thành phần: `Callout`, `Lists` (checklist, step), `Price`, `Pointers` (mũi tên giỏ hàng, vòng khoanh, sticker), `Media` (kính lúp, hàng thumbnail, **thẻ so sánh TRƯỚC/SAU `compare`**), `Ranking`, `Bars` (thanh tiến trình, thẻ tên). |
 
 ## 8. Nằm ngoài repo (do `setup.sh` và quá trình làm việc tạo ra)
 

@@ -49,9 +49,9 @@ voiceover ─► align_captions (captions.srt + words.json) ──────�
     resets on a cut;
   - five title styles (outline, stack with serif-italic accent, gradient, frosted glass, marker) with
     fonts verified for Vietnamese;
-  - twelve motion-graphic components (callouts with leader lines, steps, checklists, count-up price,
-    cart pointer, hand-drawn highlights, stickers, magnifier, thumbnail recap, ranking podium,
-    progress bar, lower third);
+  - thirteen motion-graphic components (callouts with leader lines, steps, checklists, count-up price,
+    cart pointer, hand-drawn highlights, stickers, magnifier, thumbnail recap, before/after compare
+    card, ranking podium, progress bar, lower third);
   - karaoke captions, music ducked under speech, sound-effect cues.
 - **Sound design**: `--auto-sfx` places licence-safe sound effects (CC0 recordings plus sounds
   synthesized with ffmpeg) on moving transitions and selected graphics from an editable table

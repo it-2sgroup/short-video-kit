@@ -78,6 +78,8 @@ The transformation *is* the product. Show it immediately, then earn the right to
 > **Text:** "Nửa trái ngâm rồi, nửa phải chưa"
 > **VO:** "Cùng một cái áo, cùng một chỗ nha."
 
+How the reveal later in the video repeats the proof (the `compare` card) is in `before-after.md`.
+
 The split-half version is worth reaching for. It removes the "they swapped the shirt" suspicion
 entirely, and because it is self-evidencing it also sidesteps the misleading-demonstration rules.
 

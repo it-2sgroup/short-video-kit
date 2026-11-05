@@ -78,6 +78,13 @@ products, where it is banned outright in listings). But it is regulated on three
 | No artificial enhancement | Enforcement precedent includes hidden wires enhancing a toy's apparent performance. | [P] FTC |
 | AI-generated demos | Demos showing instant or unrealistic effects via AI are prohibited; substantially AI-edited content must be disclosed. | [P] ads.tiktok.com |
 
+**Paid promotion is stricter.** TikTok's ad policy states that ads and landing pages must not include
+"product effect comparisons, such as before-and-after results" (example: wrinkles disappearing with a
+cream) [P] ads.tiktok.com help article "Misleading and false content". It does not say whether this
+reaches organic posts, and an older SMB policy PDF suggests a disclaimer instead, so treat the
+current help article as controlling. If the video will be boosted or run as an ad, ask the user first;
+a version without the compare card and the TRƯỚC/SAU labels may be needed (`before-after.md`).
+
 **The useful insight:** the things that make a demo *believable* to a viewer are the same things
 that make it *compliant*. An unbroken take, a locked frame, constant lighting, visible hands, a
 control half left untreated, and an honestly imperfect final result all serve both goals at once.

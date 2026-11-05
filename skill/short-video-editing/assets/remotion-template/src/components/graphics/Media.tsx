@@ -1,8 +1,9 @@
-// Graphics that show footage: a magnifier lens on a detail, and a recap row of frozen thumbnails.
+// Graphics that show footage: a magnifier lens on a detail, a recap row of frozen thumbnails, and
+// the before/after comparison card.
 import React from "react";
 import { AbsoluteFill, Freeze, OffthreadVideo, interpolate, staticFile, useVideoConfig } from "remotion";
 import type { Overlay } from "../../project";
-import { frame as size, palette, zones } from "../../theme";
+import { compare, frame as size, motion, palette, safe, toneColor, zones } from "../../theme";
 import { clamp, smooth, useEnterExit } from "../anim";
 import { OutlineText } from "../text/primitives";
 
@@ -53,6 +54,161 @@ export const Magnifier: React.FC<Base> = ({ ov, dur, instant }) => {
   );
 };
 
+type Point = [number, number];
+export type CompareProps = {
+  before: { clip: string; at: number };
+  after: { clip: string; at: number };
+  mode?: "side" | "slider" | "stack"; // side: two panels; slider: left/right divider; stack: top/bottom divider
+  beforeLabel?: string;
+  afterLabel?: string;
+  note?: string; // honest label under the card, e.g. "sau 1-2 tiếng ngâm · đã rút gọn thời gian"
+  focus?: Point; // point of the source frame (0..1) shown at the centre of each side's area
+  beforeFocus?: Point; // overrides focus for the BEFORE side (the stain is rarely where the clean cloth is)
+  afterFocus?: Point;
+  zoom?: number; // 1 = the whole frame fits the area; 1.5 magnifies the stain
+};
+
+// One frozen frame of a clip, scaled so that `focus` lands on (cx, cy) inside a w x h window and
+// the window is always filled (the frame is never dragged past its edge).
+const Still: React.FC<{ clip: string; at: number; focus: Point; zoom: number; cx: number; cy: number; w: number; h: number }> = ({ clip, at, focus, zoom, cx, cy, w, h }) => {
+  const { fps } = useVideoConfig();
+  const W = Math.max(w * zoom, w, (h * size.width) / size.height);
+  const H = (W * size.height) / size.width;
+  const left = Math.min(0, Math.max(w - W, cx - focus[0] * W));
+  const top = Math.min(0, Math.max(h - H, cy - focus[1] * H));
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      <div style={{ position: "absolute", width: W, height: H, left, top }}>
+        <Freeze frame={0}>
+          <OffthreadVideo src={staticFile(`clips/${clip}.mp4`)} startFrom={Math.round(at * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </Freeze>
+      </div>
+    </div>
+  );
+};
+
+const Handle: React.FC<{ rotate?: number }> = ({ rotate = 0 }) => (
+  <div
+    style={{
+      width: compare.handle,
+      height: compare.handle,
+      borderRadius: "50%",
+      background: palette.white,
+      boxShadow: "0 8px 22px rgba(0,0,0,0.45)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      rotate: `${rotate}deg`,
+    }}
+  >
+    <svg width={44} height={44} viewBox="0 0 44 44">
+      <path d="M16 12 L6 22 L16 32 M28 12 L38 22 L28 32" fill="none" stroke={palette.navy} strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </div>
+);
+
+export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
+  const p = (ov.props ?? {}) as CompareProps;
+  const { frame, enter, exit } = useEnterExit(dur, { instant });
+  const mode = p.mode ?? "side";
+  const b = compare.border;
+  const total = safe.right - safe.left; // outer width of the whole graphic
+  const h = compare.height; // picture height inside the border
+  const zoom = p.zoom ?? 1;
+  const fb = p.beforeFocus ?? p.focus ?? [0.5, 0.5];
+  const fa = p.afterFocus ?? p.focus ?? [0.5, 0.5];
+  const start = instant ? 0 : compare.holdFrames;
+  const sweep = interpolate(frame, [start, start + compare.sweepFrames], [0, 1], { ...clamp, easing: motion.easeInOut });
+  const afterIn = interpolate(sweep, [0.45, 0.9], [0, 1], clamp);
+  const top = zones[ov.zone ?? "top"];
+  const frameStyle: React.CSSProperties = {
+    position: "absolute",
+    top,
+    height: h + 2 * b,
+    borderRadius: compare.radius,
+    overflow: "hidden",
+    border: `${b}px solid ${palette.white}`,
+    boxSizing: "border-box",
+    boxShadow: "0 20px 54px rgba(0,0,0,0.5)",
+  };
+  const label = (text: string, color: string, pos: React.CSSProperties, opacity: number, width: number, align: "left" | "right" = "left") => (
+    <div style={{ position: "absolute", ...pos, opacity, width }}>
+      <OutlineText size={58} weight={900} color={color} align={align}>{text}</OutlineText>
+    </div>
+  );
+  const beforeText = p.beforeLabel ?? "TRƯỚC";
+  const afterText = p.afterLabel ?? "SAU";
+  const scrim = <div style={{ position: "absolute", inset: 0, background: `rgba(8,16,36,${compare.scrim})`, opacity: enter }} />;
+  const note = p.note ? (
+    <div style={{ position: "absolute", left: safe.left, width: total, top: top + h + 2 * b + 22, opacity: Math.min(enter, exit) }}>
+      <OutlineText size={40} weight={700}>{p.note}</OutlineText>
+    </div>
+  ) : null;
+
+  if (mode === "side") {
+    const gap = 24;
+    const outer = (total - gap) / 2;
+    const iw = outer - 2 * b;
+    const panel = (side: "before" | "after", left: number, opacity: number, shift: number) => (
+      <div style={{ ...frameStyle, left, width: outer, opacity, translate: `${shift}px 0` }}>
+        <Still {...p[side]} focus={side === "before" ? fb : fa} zoom={zoom} cx={iw / 2} cy={h / 2} w={iw} h={h} />
+        {side === "before"
+          ? label(beforeText, toneColor.before, { left: 18, top: 16 }, 1, iw - 36)
+          : label(afterText, toneColor.after, { left: 18, top: 16 }, afterIn, iw - 36)}
+      </div>
+    );
+    return (
+      <AbsoluteFill style={{ opacity: exit }}>
+        {scrim}
+        {panel("before", safe.left, enter, (1 - enter) * -40)}
+        {panel("after", safe.left + outer + gap, Math.min(enter, interpolate(sweep, [0, 0.6], [0, 1], clamp)), (1 - sweep) * 90)}
+        <div style={{ position: "absolute", left: safe.left + outer + gap / 2 - compare.handle / 2, top: top + b + h / 2 - compare.handle / 2, opacity: afterIn }}>
+          <Handle />
+        </div>
+        {note}
+      </AbsoluteFill>
+    );
+  }
+
+  // slider / stack: one card, BEFORE on top of AFTER, clipped at the divider.
+  const stack = mode === "stack";
+  const iw = total - 2 * b;
+  const d = 1 - (1 - compare.settle) * sweep; // share of the card still showing BEFORE
+  const centre = (side: "before" | "after"): Point => {
+    const t = side === "before" ? compare.settle / 2 : (1 + compare.settle) / 2; // middle of that side's final area
+    return stack ? [iw / 2, t * h] : [t * iw, h / 2];
+  };
+  const still = (side: "before" | "after") => {
+    const [cx, cy] = centre(side);
+    return <Still {...p[side]} focus={side === "before" ? fb : fa} zoom={zoom} cx={cx} cy={cy} w={iw} h={h} />;
+  };
+  return (
+    <AbsoluteFill style={{ opacity: exit }}>
+      {scrim}
+      <div style={{ ...frameStyle, left: safe.left, width: total, opacity: enter, scale: String(0.94 + 0.06 * enter) }}>
+        {still("after")}
+        <div style={{ position: "absolute", inset: 0, clipPath: stack ? `inset(0 0 ${(1 - d) * 100}% 0)` : `inset(0 ${(1 - d) * 100}% 0 0)` }}>{still("before")}</div>
+        <div
+          style={{
+            position: "absolute",
+            background: palette.white,
+            boxShadow: "0 0 18px rgba(0,0,0,0.45)",
+            ...(stack ? { left: 0, right: 0, top: d * h - compare.divider / 2, height: compare.divider } : { top: 0, bottom: 0, left: d * iw - compare.divider / 2, width: compare.divider }),
+          }}
+        />
+        <div style={{ position: "absolute", left: (stack ? iw / 2 : d * iw) - compare.handle / 2, top: (stack ? d * h : h / 2) - compare.handle / 2 }}>
+          <Handle rotate={stack ? 90 : 0} />
+        </div>
+        {label(beforeText, toneColor.before, { left: 24, top: 18 }, 1, iw / 2 - 30)}
+        {stack
+          ? label(afterText, toneColor.after, { left: 24, bottom: 18 }, afterIn, iw / 2 - 30)
+          : label(afterText, toneColor.after, { right: 24, top: 18 }, afterIn, iw / 2 - 30, "right")}
+      </div>
+      {note}
+    </AbsoluteFill>
+  );
+};
+
 export type ThumbsProps = { cards: { clip: string; at: number; caption?: string }[] };
 
 export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
@@ -69,8 +225,8 @@ export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
           return (
             <div key={i} style={{ width: 286, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, translate: `0 ${(1 - k) * 40}px`, opacity: k }}>
               <div style={{ width: 286, height: 266, borderRadius: 22, overflow: "hidden", border: `5px solid ${palette.white}`, boxShadow: "0 10px 26px rgba(0,0,0,0.38)" }}>
-                <Freeze frame={Math.round(c.at * fps)}>
-                  <OffthreadVideo src={staticFile(`clips/${c.clip}.mp4`)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <Freeze frame={0}>
+                  <OffthreadVideo src={staticFile(`clips/${c.clip}.mp4`)} startFrom={Math.round(c.at * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </Freeze>
               </div>
               {c.caption ? (

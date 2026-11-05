@@ -81,7 +81,7 @@ pain point → product reveal with an open loop. Avoid authority framing and bar
 | Early CTA | ~9–12 s | Plant the cart once (arrow toward the real basket) |
 | Re-hook | ~12–15 s | Product hero shot, new energy |
 | Demo | 15–25 s | The transformation: 3 scenes of 3–3.5 s |
-| Reveal | 25–31 s | Pay off the hook; hold the result |
+| Reveal | 25–31 s | Pay off the hook; hold the result; follow the lift with the TRƯỚC/SAU `compare` card (`references/before-after.md`) |
 | Close CTA | 31–38 s | Repeat concretely, pointing at the real cart |
 
 Choose cut points **on pauses in the voice**, never inside a word (`references/sync-and-timing.md`).
@@ -159,6 +159,7 @@ Read as the task requires, not all at once.
 | `references/niche-winning-patterns.md` | **First, for a cleaning/household product.** What the campaign data shows about duration, CTR, creators. |
 | `references/platform-specs.md` | Writing any script or claim; regulated categories; before/after rules; the rewrite table. |
 | `references/hook-library.md` | Choosing or writing the opening. |
+| `references/before-after.md` | Showing the result of a stain remover: techniques editors use, the `compare` card, choosing the BEFORE/AFTER pair, the ads-policy warning. |
 | `references/pacing-and-transitions.md` | Cadence, structure, re-hooks, footage that fights the rules. |
 | `references/transitions.md` | Choosing transitions; the centred-cut maths; shader transitions on Windows; SFX. |
 | `references/camera-moves.md` | Push/pull/pan/hold, keyword punch-ins, avoiding jerky zooms. |

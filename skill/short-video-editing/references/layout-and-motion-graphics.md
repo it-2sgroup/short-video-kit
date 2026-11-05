@@ -56,6 +56,7 @@ go. Put it on the shot list.
 | `progress` | Bar fills across its life | `label` | Time passing ("Ngâm 1–2 tiếng · đã rút gọn thời gian") |
 | `magnifier` | Lens showing a 2.2× crop of a clip | `clip, in, target, at, zoom, diameter` | Fine detail (texture, fine print); keep the camera still meanwhile |
 | `thumbs` | Row of up to 3 frozen frames with captions | `cards=CLIP@sec:caption / …` | Recap at the end |
+| `compare` | BEFORE and AFTER frames of the same garment, TRƯỚC/SAU labels, the AFTER arriving over a dark scrim | `before=CLIP@sec; after=CLIP@sec; mode=side/slider/stack; beforeFocus, afterFocus, zoom; note` | The reveal (zone `top`, ≥ 2.5 s, note stays clear of `lower`); frames from ranges already shown; see `before-after.md` |
 | `ranking` | Glossy tiles on podiums | `items=Label#rank / …` | Listicles only; no third-party logos without rights |
 | `lowerThird` | Name bar | `name, role` | Creator/brand ID, 2–3 s |
 

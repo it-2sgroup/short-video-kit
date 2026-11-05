@@ -63,7 +63,7 @@ component — the quickest way to see what each style looks like.
 | `src/engine/audio.tsx` | Voice, ducked music, SFX — outside the transitions so they never shift. |
 | `src/engine/Short.tsx` | The composition. |
 | `src/components/text/` | `Title` (5 styles), `Captions` (karaoke/plain), text primitives. |
-| `src/components/graphics/` | Callout, CheckList, Step, Price, CartPointer, Highlight, Sticker, Magnifier, Thumbs, Ranking, Progress, LowerThird. |
+| `src/components/graphics/` | Callout, CheckList, Step, Price, CartPointer, Highlight, Sticker, Magnifier, Thumbs, Compare, Ranking, Progress, LowerThird. |
 | `src/components/registry.tsx` | Component names used in `project.json`; unknown names throw. |
 
 To add a component: write it under `components/graphics/` taking `{ov, dur, instant}`, read its

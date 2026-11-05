@@ -49,6 +49,11 @@ export const zones: Record<Zone, number> = {
 export const captionTop = 1190; // spoken captions live in their own band
 export const cartPoint = { x: 300, y: 1440 }; // where TikTok Shop's yellow basket sits (approx.)
 
+// Before/after card (components/graphics/Media.tsx). It sits in the `top` zone, inside the safe
+// width; frames are in 30 fps frames. `settle` is where the divider stops: 0.5 shows both halves.
+// `scrim` dims the footage behind the card so the comparison does not blend into it.
+export const compare = { height: 720, radius: 28, border: 6, divider: 6, handle: 84, holdFrames: 8, sweepFrames: 20, settle: 0.5, scrim: 0.55 };
+
 export const motion = {
   easeOut: Easing.bezier(0.16, 1, 0.3, 1), // default entrance
   easeInOut: Easing.bezier(0.65, 0, 0.35, 1), // transitions, sweeps

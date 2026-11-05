@@ -58,7 +58,7 @@ Graphics and titles, on their own timeline. See `references/layout-and-motion-gr
   that word.
 - **End** — seconds, `+2.5`, `auto` (reading time), `@"word"`, or `cut` (3 frames before the next cut).
 - **Component** — `title`, `callout`, `highlight`, `step`, `checklist`, `price`, `cart`, `sticker`,
-  `progress`, `magnifier`, `thumbs`, `ranking`, `lowerThird`, plus `punch` (camera punch-in) and
+  `progress`, `magnifier`, `thumbs`, `compare` (TRƯỚC/SAU), `ranking`, `lowerThird`, plus `punch` (camera punch-in) and
   `sfx` (a hand-placed sound cue, `src=sfx/riser.wav; volumeDb=-12`; `--auto-sfx` adds the rest).
 - **Zone** — `top`, `upper`, `center`, `lower` (or `–`). **Tone** — `neutral`, `before`, `after`,
   `cta`, `product`.

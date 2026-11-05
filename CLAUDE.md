@@ -92,6 +92,11 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
   (`new_remotion_project.py --proxies`), not the originals.
 - White text vanishes on white fabric: over white garments use the `outline` or `marker` title style, not
   `gradient` or `stack` (white→sky fills). Check every title on the contact sheet.
+- Before/after: the reveal gets a `compare` card (TRƯỚC/SAU frames of the same garment from ranges
+  already on screen, with an honest time note); TikTok's **ad** policy bars before-and-after
+  comparisons, so ask whether the video will be boosted. Details: `references/before-after.md`.
+- Remotion: show a still of a clip with `startFrom` and `<Freeze frame={0}>`; `Freeze frame={N}` with a
+  large N inside a short overlay shows the wrong moment.
 - Sound effects: only CC0 or self-made sounds go into `assets/sfx/` (row in `SOURCES.md` for each file);
   never the meme sounds in `@remotion/sfx` (`vine-boom`, `windows-xp-error`, `bruh`: no licence stated).
   Nothing across the reveal. A tool cannot hear: say whether you listened. Details:

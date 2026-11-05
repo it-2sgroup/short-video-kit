@@ -66,8 +66,9 @@ echo "6. plan_to_project.py compiles a plan into project.json"
 if "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/project.json" \
      --auto-camera >"$TMP/p2p.log" 2>&1 \
    && "$PY" -c "import json,sys; p=json.load(open(sys.argv[1],encoding='utf-8')); \
-sys.exit(0 if len(p['scenes'])==11 and len(p['overlays'])==9 and all('camera' in s for s in p['scenes']) else 1)" "$TMP/project.json"; then
-  pass "11 scenes, 9 overlays, every scene has a camera move"
+sys.exit(0 if len(p['scenes'])==11 and len(p['overlays'])==10 and all('camera' in s for s in p['scenes']) \
+  and any(o['component']=='compare' and o['props']['before']['clip']=='CLIP_05' for o in p['overlays']) else 1)" "$TMP/project.json"; then
+  pass "11 scenes, 10 overlays (one before/after compare), every scene has a camera move"
 else
   fail "plan_to_project output wrong"; tail -4 "$TMP/p2p.log" | sed 's/^/        /'
 fi

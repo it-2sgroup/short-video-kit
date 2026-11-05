@@ -30,7 +30,9 @@ export const Captions: React.FC<{ captions: Caption[]; words: Word[]; mode: "kar
       <OutlineText size={74} weight={800}>
         {groupWords.length
           ? groupWords.map((w, i) => {
-              const active = t >= w.start && t < w.end + 0.05;
+              // Only one word is active at a time: the next word's start ends this one, so two scaled
+              // neighbours never squeeze the space between them to nothing ("chocombo").
+              const active = t >= w.start && t < Math.min(w.end + 0.05, groupWords[i + 1]?.start ?? Infinity);
               // Real spaces between words (not margins): the active word's scale must not eat them.
               return (
                 <React.Fragment key={i}>
