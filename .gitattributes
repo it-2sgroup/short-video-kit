@@ -1,0 +1,9 @@
+# Text files are LF on every machine. Without this, Git for Windows (autocrlf=true by default) checks
+# the shell scripts out with CRLF and bash can fail on them.
+* text=auto eol=lf
+
+*.mp3 binary
+*.mp4 binary
+*.png binary
+*.jpg binary
+*.skill binary

@@ -57,10 +57,13 @@ Know the product and category, the creator, the footage (or whether it must be s
 card URL, the platform, and **how many videos this footage must feed**. Regulated category → read
 `references/platform-specs.md` now.
 
-**Inspect raw clips before planning anything:**
+**Inspect and look at raw clips before planning anything:**
 ```bash
 python scripts/inspect_footage.py /path/to/clips --log
+python scripts/contact_sheet.py /path/to/clips --out clips.png   # one row of frames per clip: open the PNG(s)
 ```
+Run the scripts from this skill's folder (`~/.claude/skills/short-video-editing` once installed);
+`align_captions.py` re-launches itself in the kit's venv, the rest need only Python 3 and ffmpeg.
 Then build a shot log by kind of moment (BEFORE, AFTER, POUR, HERO, SCRUB, PROBLEM) and budget it
 across the batch — `references/footage-ingest.md` §1b.
 
@@ -104,8 +107,13 @@ Vietnamese needs a model that lists Vietnamese (default `eleven_turbo_v2_5`; `el
 does not). Free-plan audio is non-commercial forever — tell the user before spending credits on
 something they cannot ship. Details: `references/voiceover-and-captions.md`.
 
-A supplied voice that is too long: trim at real pauses (`ffmpeg silencedetect`, then `atrim` +
-`concat`), drop whole sentences, and say which ones.
+**A supplied voice (no synthesis)** is the usual case when the user hands over a recording:
+1. Over 45 s? `python scripts/trim_voice.py voice.mp3 --silences` lists the pauses; keep ranges with
+   `--keep 0-3.8,8.3-16.1 --out short.mp3`. Drop whole sentences only, and tell the user which.
+2. Run `align_captions.py` **without** `--script` for a draft transcript, correct it by hand until it
+   matches what is actually said (supplied voices rarely match the written script), save it as
+   `script.txt`, then align again with `--script`.
+3. Read the voice for claims the plan cannot repeat (`references/platform-specs.md` §7) and flag them.
 
 ### 6. Captions and word timings
 ```bash
@@ -130,7 +138,8 @@ Errors block delivery; paste the pacing output into the plan.
 - **Human editor** (CapCut, Premiere, DaVinci) — the edit plan plus `captions.srt`.
 
 ### 9. Verify before delivering
-Look at a contact sheet of stills (one per scene plus each transition centre). Confirm the
+Look at a contact sheet of the render (`python scripts/contact_sheet.py out/video.mp4 --project
+project.json --out sheet.png`: the middle of every scene plus every cut). Confirm the
 compliance checklist; for a before/after demo: same item, same framing, **time compression labelled
 on screen**, staged stains labelled. Check `ffprobe` durations of video and audio match the plan.
 

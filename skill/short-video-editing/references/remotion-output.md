@@ -36,7 +36,13 @@ python scripts/plan_to_project.py edit-plan.md --out ~/renders/saiza/kb7.json \
 cd ~/renders/saiza
 npx remotion still src/index.ts Short out/check.png --frame=45 --props=kb7.json
 npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json --codec=h264 --crf=18
+
+# 5. Look at the result (scene middles + every cut), then check durations with ffprobe
+python <skill>/scripts/contact_sheet.py out/kb7.mp4 --project kb7.json --out out/sheet.png
 ```
+
+`plan_to_project.py` lists any clip, voice or music file the project needs that is not yet under
+`public/` when `--out` sits inside the render project, so a missing asset shows up before the render.
 
 `npm run studio` opens Remotion Studio with `project.example.json`, a footage-free gallery of every
 component — the quickest way to see what each style looks like.
@@ -87,7 +93,8 @@ These follow Remotion's own agent rules (`remotion-dev/skills`, `remotion-best-p
 | Job | Tool |
 |---|---|
 | Proxies, conform fps/resolution, rotation | **ffmpeg** (`new_remotion_project.py --proxies`) |
-| Trimming the voiceover at pauses | **ffmpeg** (`atrim` + `concat`, cut points from `silencedetect`) |
+| Trimming the voiceover at pauses | **ffmpeg** via `scripts/trim_voice.py` (`atrim` + `concat`, cut points from `silencedetect`) |
+| Looking at footage or at the render | **ffmpeg** via `scripts/contact_sheet.py` |
 | Scene cuts, transitions, camera, graphics, captions, mix | **Remotion** |
 | Loudness check, scene-cut detection on the output | **ffmpeg** (`ebur128`, `select='gt(scene,0.3)'`) |
 | Handing to a human editor | `edit-plan.md` + `captions.srt` → CapCut / Premiere / DaVinci |

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Set up short-video-kit on this machine. Safe to run more than once.
 #
+#   ./setup.sh --check            report what is installed and what is missing, change nothing
 #   ./setup.sh                    full setup
 #   ./setup.sh --download-ffmpeg  also fetch a static ffmpeg if none is installed (Linux, ~40 MB)
 #   ./setup.sh --no-model         skip the Whisper model (it then downloads on first use)
@@ -18,12 +19,13 @@ set -euo pipefail
 KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SHARE="$HOME/.local/share/short-video-kit"
 VENV="$SHARE/venv"
-MODEL_DIR="$HOME/.cache/short-video-kit/models"
+MODEL_DIR="${WHISPER_MODEL_DIR:-$HOME/.cache/short-video-kit/models}"   # same override align_captions.py reads
 KEYDIR="$HOME/.config/short-video-kit"; KEYFILE="$KEYDIR/env"
 
-INSTALL_SKILL=1; GET_MODEL=1; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0
+INSTALL_SKILL=1; GET_MODEL=1; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0; CHECK=0
 for a in "$@"; do
   case "$a" in
+    --check) CHECK=1 ;;
     --no-skill) INSTALL_SKILL=0 ;;
     --no-model) GET_MODEL=0 ;;
     --download-ffmpeg) GET_FFMPEG=1 ;;
@@ -57,6 +59,37 @@ PY=""; for cand in python3 python; do
   if command -v "$cand" >/dev/null 2>&1 && "$cand" -c 'import sys' >/dev/null 2>&1; then PY="$cand"; break; fi
 done
 
+# ------------------------------------------------------------------ --check (and exit)
+# Honours the same overrides the scripts do: SVK_PYTHON (venv python) and WHISPER_MODEL_DIR.
+if [[ $CHECK -eq 1 ]]; then
+  VPY=""; for cand in "${SVK_PYTHON:-}" "$VENV/bin/python" "$VENV/Scripts/python.exe"; do
+    if [[ -n "$cand" && -x "$cand" ]]; then VPY="$cand"; break; fi
+  done
+  py_ok()     { [[ -n "$PY" ]] && "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)'; }
+  venv_ok()   { [[ -n "$VPY" ]] && "$VPY" -c 'import faster_whisper'; }
+  ffmpeg_ok() { command -v ffmpeg && command -v ffprobe; }
+  model_ok()  { [[ -f "$MODEL_DIR/faster-whisper-small/model.bin" ]]; }
+  node_ok()   { command -v node && [[ "$(node -v | sed 's/^v//; s/\..*//')" -ge 20 ]]; }
+  skill_ok()  { diff -rq -x evals -x __pycache__ "$KIT/skill/short-video-editing" "$HOME/.claude/skills/short-video-editing"; }
+  MISSING=0
+  chk() { local label="$1" hint="$2"; shift 2
+    if "$@" >/dev/null 2>&1; then ok "$label"; else bad "$label  ->  $hint"; MISSING=$((MISSING+1)); fi; }
+  step "short-video-kit on this machine (nothing is changed)"
+  chk "Python 3.10+"                        "install Python 3.10+ (Windows: winget install Python.Python.3.12)" py_ok
+  chk "kit venv with faster-whisper"        "run ./setup.sh" venv_ok
+  chk "ffmpeg and ffprobe on PATH"          "macOS: brew install ffmpeg | Ubuntu: sudo apt install ffmpeg | Windows: winget install Gyan.FFmpeg, then open a NEW terminal" ffmpeg_ok
+  chk "Whisper model"                       "run ./setup.sh (downloads ~460 MB: ask the user first)" model_ok
+  chk "Node 20+ (rendering only)"           "install Node 20+ (Windows: winget install OpenJS.NodeJS.LTS, then open a NEW terminal)" node_ok
+  chk "skill installed and identical to this repo" "run ./setup.sh (after every git pull), then start a NEW Claude Code session" skill_ok
+  if [[ -f "$KEYFILE" || -n "${ELEVENLABS_API_KEY:-}" ]]; then ok "ElevenLabs key present (value not shown)"
+  elif [[ -f "$KIT/.env.local" ]] && grep -q '^ELEVENLABS_API_KEY=.\+' "$KIT/.env.local"; then
+    ok "ElevenLabs key found in .env.local (value not shown; ./setup.sh installs it for every folder)"
+  else warn "no ElevenLabs key. Optional: only needed to synthesize a voice; a supplied voice works without it. ./setup.sh --set-key"; fi
+  echo
+  if [[ $MISSING -eq 0 ]]; then printf '\033[1mEverything required is in place.\033[0m Verify with ./selftest.sh\n'; exit 0; fi
+  printf '\033[1;33m%d item(s) missing.\033[0m Run ./setup.sh (it fixes what it can and says what it cannot).\n' "$MISSING"; exit 1
+fi
+
 # ------------------------------------------------------------------ --package (and exit)
 if [[ $PACKAGE -eq 1 ]]; then
   [[ -n "$PY" ]] || { echo "python not found" >&2; exit 1; }
@@ -77,7 +110,7 @@ fi
 
 # ------------------------------------------------------------------ 1. Python + venv
 step "1/6  Python environment"
-[[ -n "$PY" ]] || { bad "Python not found. Install Python 3.10 or newer."; exit 1; }
+[[ -n "$PY" ]] || { bad "Python not found. Install Python 3.10 or newer (Windows: winget install Python.Python.3.12, then open a NEW terminal)."; exit 1; }
 PYV=$("$PY" -c 'import sys; print("%d.%d" % sys.version_info[:2])')
 "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' \
   && ok "$PY $PYV" || { bad "$PY $PYV is too old (need 3.10+)"; exit 1; }
@@ -133,6 +166,7 @@ if [[ $missing -eq 1 ]]; then
     bad "ffmpeg/ffprobe not found."
     echo "      macOS:   brew install ffmpeg"
     echo "      Ubuntu:  sudo apt install ffmpeg"
+    echo "      Windows: winget install Gyan.FFmpeg   (then open a NEW terminal so PATH updates)"
     echo "      No sudo: ./setup.sh --download-ffmpeg   (static build from johnvansickle.com, ~40 MB)"
     PROBLEMS=$((PROBLEMS+1))
   fi
@@ -145,7 +179,7 @@ step "3/6  Whisper model"
 if [[ -f "$MODEL_DIR/faster-whisper-small/model.bin" ]]; then
   ok "model already present"
 elif [[ -f "$KIT/models/faster-whisper-small/model.bin" ]]; then
-  mkdir -p "$HOME/.cache/short-video-kit"; ln -sfn "$KIT/models" "$MODEL_DIR"
+  mkdir -p "$(dirname "$MODEL_DIR")"; ln -sfn "$KIT/models" "$MODEL_DIR"
   ok "linked bundled model (works offline; keep this folder in place)"
 elif [[ $GET_MODEL -eq 0 ]]; then
   warn "skipped (--no-model); it will download the first time captions are aligned"
@@ -178,7 +212,7 @@ fi
 step "5/6  Node.js (needed only for Remotion rendering)"
 if command -v node >/dev/null; then
   NV=$(node -v | sed 's/^v//'); [[ ${NV%%.*} -ge 20 ]] && ok "node $NV" || warn "node $NV is older than 20; the render template needs 20.19+"
-else warn "node not found. Install Node 20+ before rendering (scripts/new_remotion_project.py)."; fi
+else warn "node not found. Install Node 20+ before rendering (Windows: winget install OpenJS.NodeJS.LTS)."; fi
 
 # ------------------------------------------------------------------ 6. Skill
 step "6/6  Claude skill"

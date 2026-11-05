@@ -316,6 +316,19 @@ def report(scenes, overlays, captions, words):
     return warns
 
 
+def missing_assets(project: dict, public: Path) -> list[str]:
+    """Files the render will ask for (relative to public/) that are not there yet."""
+    need = {f"clips/{s['clip']}.mp4" for s in project["scenes"] if s["clip"]}
+    for o in project["overlays"]:
+        p = o["props"]
+        if o["component"] == "magnifier" and "clip" in p:
+            need.add(f"clips/{p['clip']}.mp4")
+        need.update(f"clips/{c['clip']}.mp4" for c in p.get("cards", []) if isinstance(c, dict) and "clip" in c)
+    need.update(x for x in (project["voice"], (project["music"] or {}).get("src")) if x)
+    need.update(c["src"] for c in project["sfx"] if c.get("src"))
+    return sorted(f for f in need if not (public / f).is_file())
+
+
 # ----------------------------------------------------------------------------- main
 def main() -> int:
     ap = argparse.ArgumentParser(description="Compile an edit plan into a Remotion project.json")
@@ -413,6 +426,9 @@ def main() -> int:
     print(f"wrote {a.out}: {len(scenes)} scenes, {len(overlays)} overlays, {len(project['punches'])} punch-ins, "
           f"{len(captions)} captions, {project['duration']}s")
     warns = report(scenes, overlays, captions, words)
+    public = a.out.resolve().parent / "public"
+    if public.is_dir():  # only when --out sits inside a render project (see new_remotion_project.py)
+        warns += [f"not in {public}: {f}" for f in missing_assets(project, public)]
     print("Sync report: " + ("clean" if not warns else f"{len(warns)} warning(s)"))
     for w in warns:
         print(f"  ! {w}")

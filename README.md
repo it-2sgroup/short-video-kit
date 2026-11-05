@@ -73,9 +73,11 @@ voiceover ─► align_captions (captions.srt + words.json) ──────�
 ```bash
 gh repo clone <owner>/short-video-kit
 cd short-video-kit
+./setup.sh --check          # what is installed and what is missing; changes nothing
 ./setup.sh                  # venv, Python deps, Whisper model (~460 MB), skill install
 ./setup.sh --set-key        # optional: store the ElevenLabs key (typed hidden)
-./selftest.sh               # 7 groups of checks, no credits spent
+./selftest.sh               # 10 groups of checks, no credits spent
+./selftest.sh --render      # also typecheck the template and render one still (downloads ~300 MB once)
 ```
 
 `setup.sh` installs everything under `$HOME` (venv in `~/.local/share/short-video-kit`, model in
@@ -84,12 +86,15 @@ cd short-video-kit
 (Linux static build), `--no-model`, `--no-skill`, `--package` (builds
 `dist/short-video-editing.skill` for the Claude desktop app).
 
-**Windows:** run the scripts from Git Bash. Install prerequisites with
-`winget install Python.Python.3.12 OpenJS.NodeJS.LTS Gyan.FFmpeg`. If the venv lives elsewhere, set
-`SVK_PYTHON` to its `python.exe` and `WHISPER_MODEL_DIR` to the folder containing
-`faster-whisper-small/`.
+**Windows:** run `setup.sh` and `selftest.sh` from Git Bash. Install prerequisites with
+`winget install Git.Git Python.Python.3.12 OpenJS.NodeJS.LTS Gyan.FFmpeg` and open a new terminal so
+PATH refreshes. If the venv lives elsewhere, set `SVK_PYTHON` to its `python.exe` and
+`WHISPER_MODEL_DIR` to the folder containing `faster-whisper-small/`.
 
-Start a new Claude Code session after installing so the skill is loaded.
+**Moving to another computer:** clone the repository, run `./setup.sh --check`, then `./setup.sh`, then
+start a new Claude Code session. Claude reads `CLAUDE.md` and the skill from the repository, so it follows
+the same rules and workflow; nothing depends on a chat or a local memory. After every `git pull`, re-run
+`./setup.sh` so the installed skill matches the repository.
 
 ## Usage
 
@@ -110,8 +115,11 @@ cd skill/short-video-editing
 
 # 1. Footage
 python scripts/inspect_footage.py /path/to/clips --log
+python scripts/contact_sheet.py /path/to/clips --out clips.png        # one row of frames per clip
 
-# 2. Captions and word timings
+# 2. Voice and captions (a supplied recording: list pauses, keep ranges, then align)
+python scripts/trim_voice.py voice.mp3 --silences
+python scripts/trim_voice.py voice.mp3 --keep 0-3.8,8.3-16.1 --out voice_short.mp3
 python scripts/align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json
 
 # 3. Checks
@@ -128,6 +136,7 @@ python scripts/plan_to_project.py edit-plan.md --out ~/renders/batch/kb7.json \
 cd ~/renders/batch
 npx remotion still src/index.ts Short out/check.png --frame=45 --props=kb7.json
 npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json
+python <skill>/scripts/contact_sheet.py out/kb7.mp4 --project kb7.json --out out/sheet.png   # look at it
 ```
 
 `npm run studio` in a render project opens `project.example.json`, a footage-free gallery of every
@@ -152,8 +161,8 @@ the full workflow (in Vietnamese) in `docs/WORKFLOW.md`.
     ├── references/                Topic guides (pacing, transitions, camera, typography,
     │                              layout and motion graphics, sync, captions, voiceover,
     │                              audio, platform policy, hooks, campaign data, Remotion)
-    ├── scripts/                   inspect_footage, make_voiceover, align_captions,
-    │                              pacing_checker, footage_overlap_checker,
+    ├── scripts/                   inspect_footage, contact_sheet, trim_voice, make_voiceover,
+    │                              align_captions, pacing_checker, footage_overlap_checker,
     │                              plan_to_project, new_remotion_project
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
@@ -163,10 +172,11 @@ the full workflow (in Vietnamese) in `docs/WORKFLOW.md`.
 
 ## Testing
 
-`./selftest.sh` runs seven groups without spending ElevenLabs credits: tool availability, footage
+`./selftest.sh` runs ten groups without spending ElevenLabs credits: tool availability, footage
 inspection, pacing rules, caption alignment (spelling preserved), the ElevenLabs key (read-only),
-plan compilation, and footage-reuse detection. Template changes are verified with
-`npx tsc --noEmit` and stills rendered at transition frames.
+plan compilation, footage-reuse detection, voice trimming, contact sheets and render-project scaffolding
+(including the missing-asset report). `./selftest.sh --render [DIR]` adds an 11th group: typecheck the
+template and render a still. Template changes are also checked by eye on stills at transition frames.
 
 ## Licensing and third-party terms
 

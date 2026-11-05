@@ -26,9 +26,8 @@ whole edit without touching the plan.
   (sentence ends).
 - Never cut inside a word (the sync report flags any cut between `start+2f` and `end−2f`).
 - No pause nearby: cut 0–2 frames before a stressed word.
-- Find pauses with the word gaps in `words.json`, or
-  `ffmpeg -i vo.wav -af silencedetect=noise=-35dB:d=0.12 -f null -` (the ffmpeg defaults, −60 dB/2 s,
-  are far too coarse).
+- Find pauses with the word gaps in `words.json`, or `python scripts/trim_voice.py voice.mp3
+  --silences --min 0.12` (silencedetect at −35 dB; the ffmpeg defaults, −60 dB/2 s, are far too coarse).
 - J-cut/L-cut (sound leads or trails the picture by 4–8 frames) apply to clips with their own
   audio; a continuous voiceover makes them unnecessary.
 
@@ -70,8 +69,9 @@ flags anything within 3 frames of a cut.
 1. **Static:** `plan_to_project.py` sync report (cuts inside words, text on cuts, right-rail
    collisions, zone overlaps, flashing captions) and `pacing_checker.py`.
 2. **Stills** at cut−1 / cut / cut+1, every transition centre and every overlay entrance+3:
-   `npx remotion still src/index.ts Short out/f.png --frame=N --props=project.json`, tiled with
-   `ffmpeg -vf tile` into a contact sheet and looked at.
+   `npx remotion still src/index.ts Short out/f.png --frame=N --props=project.json`, or for the whole
+   render `python scripts/contact_sheet.py out/video.mp4 --project project.json --out sheet.png`
+   (scene middles + every cut), and **look at it**.
 3. **Rendered file:** `ffmpeg -vf "select='gt(scene,0.3)',showinfo"` lists detected cuts, which
    should match the plan within ±1 frame; `ffprobe` duration equals the plan runtime; audio and video
    durations agree.

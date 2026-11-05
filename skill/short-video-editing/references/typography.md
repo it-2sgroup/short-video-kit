@@ -55,7 +55,7 @@ mất tự nhiên"*. Contrast comes from, in order of preference:
 |---|---|---|---|
 | `outline` | Tone-coloured heavy text, dark outline, optional white sub-line | Default for product demos and honest labels ("TRƯỚC", "SAU KHI NGÂM · đã rút gọn thời gian") | Fade + 24px rise, 10f |
 | `stack` | Small lead line (64px/500) over a huge heavy line (≈2.5×, 900, white→sky gradient); one **accent** word in serif italic gradient | Hooks, product name, the key point | Lead fades up; main line rises through a mask (spring, 14f, +4f); accent blurs in (12f, +10f) |
-| `gradient` | Heavy white→sky gradient, soft shadow, no outline | Verdicts, reveals over calm footage | Lines rise through masks, 3f stagger, settle from 1.04 scale |
+| `gradient` | Heavy white→sky gradient, soft shadow, no outline | Verdicts, reveals over calm, **dark or mid-tone** footage — never over white fabric, where the white fill vanishes (use `outline` there) | Lines rise through masks, 3f stagger, settle from 1.04 scale |
 | `glass` | Light frosted card, navy→royal gradient main line, small lead word | Section titles over busy footage, closing card | Card springs 0.92→1 and rises 40px; text rises inside |
 | `marker` | Heavy outlined words; the **accent** gets a highlighter block that sweeps in and turns the word to ink | Naming the problem ("Vết ố"), a key spec | Text rises; block sweeps left→right over 12f from +10f |
 

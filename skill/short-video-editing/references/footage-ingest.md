@@ -26,7 +26,9 @@ then flags the problems that are expensive to find late:
 | **Mixed frame rates / resolutions** | Conform before cutting, or the render inherits judder and scaling artefacts. |
 | **Total source under ~45s** | There is almost no room to choose moments. Expect to reuse shots via punch-ins (which is legitimate — see rule 2) or to ask for pickups. |
 
-`--log` prints a blank shot-log table to fill in.
+`--log` prints a blank shot-log table to fill in. The numbers do not show what is *in* the clips, so
+also run `python scripts/contact_sheet.py /path/to/clips --out clips.png` and open the PNG(s): one row
+per clip, frames evenly spaced, with the timestamps printed. Build the shot log from that.
 
 A clip shot on a phone may carry rotation metadata rather than rotated pixels. The script accounts
 for this and marks it; do not conclude such a clip needs reframing just because the raw width

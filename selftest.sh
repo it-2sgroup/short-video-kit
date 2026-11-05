@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Verify the kit works on this machine. Spends no ElevenLabs credits.
-#   ./selftest.sh
+#   ./selftest.sh                  groups 1-10 (a few seconds each; group 4 loads the Whisper model)
+#   ./selftest.sh --render [DIR]   also group 11: typecheck the Remotion template and render one still in
+#                                  DIR (default: a temp folder). Without node_modules in DIR this runs
+#                                  npm install, which downloads packages and Chromium (~300 MB): ask first.
 set -uo pipefail
 KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 S="$KIT/skill/short-video-editing/scripts"
@@ -12,6 +15,8 @@ for cand in "${SVK_PYTHON:-}" "$VENV/bin/python" "$VENV/Scripts/python.exe" pyth
 done
 [[ -n "$PY" ]] || { echo "No working Python found; run ./setup.sh first." >&2; exit 1; }
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+RENDER=0; RENDER_DIR="$TMP/render"
+if [[ "${1:-}" == "--render" ]]; then RENDER=1; RENDER_DIR="${2:-$TMP/render}"; fi
 FAIL=0
 pass() { printf '  \033[32mPASS\033[0m  %s\n' "$*"; }
 fail() { printf '  \033[31mFAIL\033[0m  %s\n' "$*"; FAIL=$((FAIL+1)); }
@@ -73,6 +78,42 @@ echo "7. footage_overlap_checker.py"
 printf '| # | Start | End | Source | In |\n|---|---|---|---|---|\n| 1 | 0 | 3 | a.mp4 | 1.0 |\n| 2 | 3 | 6 | a.mp4 | 2.0 |\n' > "$TMP/dup.md"
 "$PY" "$S/footage_overlap_checker.py" "$TMP/dup.md" >/dev/null 2>&1 \
   && fail "a reused range was NOT caught" || pass "a reused range is caught"
+
+echo "8. trim_voice.py finds a pause and cuts there"
+ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='if(between(t,1,2),0,sin(2*PI*440*t))':d=3:s=44100" "$TMP/v.mp3" 2>/dev/null
+"$PY" "$S/trim_voice.py" "$TMP/v.mp3" --silences 2>&1 | grep -q "cut at 1.5" \
+  && pass "the 1 s pause is found, midpoint 1.5 s" || fail "trim_voice --silences missed the pause"
+"$PY" "$S/trim_voice.py" "$TMP/v.mp3" --keep 0-1,2-3 --out "$TMP/k.mp3" 2>&1 | grep -Eq "wrote .*: (1\.9|2\.0|2\.1)[0-9]*s" \
+  && pass "keeping 0-1 and 2-3 gives a ~2 s file" || fail "trim_voice --keep produced the wrong length"
+
+echo "9. contact_sheet.py"
+printf '{"scenes":[{"start":0,"end":1.5},{"start":1.5,"end":3.0}]}' > "$TMP/mini.json"
+"$PY" "$S/contact_sheet.py" "$TMP/clip.mp4" --project "$TMP/mini.json" --out "$TMP/sheet.png" 2>&1 | grep -q "3 frames" \
+  && [[ -s "$TMP/sheet.png" ]] && pass "3 frames (2 scene middles + 1 cut) tiled into a PNG" || fail "contact_sheet produced no sheet"
+mkdir "$TMP/clips" && cp "$TMP/clip.mp4" "$TMP/clips/"
+"$PY" "$S/contact_sheet.py" "$TMP/clips" --out "$TMP/clips.png" 2>&1 | grep -q "1 clip(s)" \
+  && [[ -s "$TMP/clips.png" ]] && pass "a folder of raw clips becomes one row per clip" || fail "folder mode produced no sheet"
+
+echo "10. new_remotion_project.py scaffolds a render project"
+"$PY" "$S/new_remotion_project.py" "$TMP/render" >/dev/null 2>&1
+if [[ -f "$TMP/render/package.json" && -f "$TMP/render/src/index.ts" && -d "$TMP/render/public/clips" ]]; then
+  pass "template copied, public/clips and public/audio ready"
+  "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/render/project.json" \
+    --voice audio/none.mp3 2>&1 | grep -q "not in .*clips/" \
+    && pass "plan_to_project reports clips and voice missing from public/" || fail "missing assets were not reported"
+else fail "scaffold incomplete"; fi
+
+if [[ $RENDER -eq 1 ]]; then
+  echo "11. Remotion render (--render)"
+  command -v node >/dev/null 2>&1 || fail "node not found (need 20+)"
+  [[ -f "$RENDER_DIR/package.json" ]] || "$PY" "$S/new_remotion_project.py" "$RENDER_DIR" >/dev/null 2>&1
+  if (cd "$RENDER_DIR" && { [[ -d node_modules ]] || npm install --no-audit --no-fund; } && npm run typecheck) >"$TMP/tsc.log" 2>&1; then
+    pass "dependencies in place and the template typechecks"
+  else fail "npm install / typecheck failed"; tail -5 "$TMP/tsc.log" | sed 's/^/        /'; fi
+  if (cd "$RENDER_DIR" && npx remotion still src/index.ts Short "$TMP/still.png" --frame=30) >"$TMP/still.log" 2>&1 \
+     && [[ -s "$TMP/still.png" ]]; then pass "rendered a still of the example project"
+  else fail "remotion still failed"; tail -5 "$TMP/still.log" | sed 's/^/        /'; fi
+fi
 
 echo
 [[ $FAIL -eq 0 ]] && printf '\033[1;32mAll checks passed.\033[0m\n' || { printf '\033[1;31m%d check(s) failed.\033[0m\n' "$FAIL"; exit 1; }

@@ -132,10 +132,30 @@ fewer than 60% of heard words appear in the script — which means either the wr
 passed, or recognition failed badly enough to distrust the timings.
 
 Without `--script` it falls back to Whisper's raw text and says so. Only do that when transcribing
-audio you did not generate, such as a creator's own recording.
+audio you did not generate, such as a creator's own recording — see "A supplied voice" below.
 
 Caption groups get a minimum display of **0.5s + 0.3s per word**, so a four-word group holds at
 least 1.7s. Groups are trimmed if they would overrun the next one.
+
+---
+
+## A supplied voice (a recording instead of synthesis)
+
+When the client or creator hands over a recording, skip step 2 and work like this:
+
+1. **Too long?** The ceiling is 45 s. `python scripts/trim_voice.py voice.mp3 --silences` lists every
+   pause with a midpoint to cut at; `--keep 0-3.8,8.3-16.1,... --out short.mp3` joins the ranges you
+   keep. Cut between sentences only, drop whole sentences, and tell the user exactly which ones.
+2. **Draft transcript.** `align_captions.py short.mp3 --out draft.srt` (no `--script`) gives Whisper's
+   text. It mishears Vietnamese and recordings rarely match the written script, so read the draft
+   while listening to the sentences that look odd, and correct it by hand.
+3. **Save the corrected text as `script.txt`** (one sentence per line, UTF-8) and align again with
+   `--script script.txt --words-out words.json`. Now the spelling is yours and the timing is Whisper's.
+4. **Scan the voice for claims** the on-screen text must not repeat (`platform-specs.md` §7) and list
+   them for the user; a recorded line cannot be silently changed.
+
+Supplied voices are often fast (≈5 words/s): the aligner merges caption groups shorter than 0.45 s, and
+the plan compiler still reports a few that remain — that is the voice, not an error.
 
 ---
 
