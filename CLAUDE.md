@@ -106,7 +106,9 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
 
 ## Read next
 
-`README.md` → `docs/WORKFLOW.md` → `docs/DECISIONS.md` → `skill/short-video-editing/SKILL.md`.
+`README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
+`skill/short-video-editing/SKILL.md`. Adding, renaming or removing a file or script means updating
+`docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
 
 ## Working in this repo
 

@@ -143,7 +143,8 @@ python <skill>/scripts/contact_sheet.py out/kb7.mp4 --project kb7.json --out out
 title style and component.
 
 The edit-plan format is documented in `skill/short-video-editing/assets/edit-plan-template.md`;
-the full workflow (in Vietnamese) in `docs/WORKFLOW.md`.
+the full workflow (in Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map of the repository, the tools
+and the techniques it uses (in Vietnamese) in `docs/CAU-TRUC.md`.
 
 ## Project structure
 
@@ -152,6 +153,7 @@ the full workflow (in Vietnamese) in `docs/WORKFLOW.md`.
 ├── CLAUDE.md                      Agent instructions for this repository
 ├── docs/
 │   ├── WORKFLOW.md                Step-by-step workflow (Vietnamese)
+│   ├── CAU-TRUC.md                Every folder and file, tools and techniques (Vietnamese)
 │   ├── DECISIONS.md               Tool choices, pitfalls, sources, licence notes
 │   └── niche-data-queries.sql     Reproduces every campaign figure used by the skill
 ├── samples/                       Fixtures used by selftest.sh
