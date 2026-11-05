@@ -39,11 +39,15 @@ else
 fi
 
 echo "5. make_voiceover.py (read-only, no credits)"
-if python3 "$S/make_voiceover.py" --quota >"$TMP/q.log" 2>&1; then
-  pass "key accepted by ElevenLabs"; sed 's/^/        /' "$TMP/q.log" | head -3
+python3 "$S/make_voiceover.py" --quota >"$TMP/q.log" 2>&1; RC=$?
+if [[ $RC -eq 0 ]]; then
+  pass "ElevenLabs accepted the key and returned the plan"; sed 's/^/        /' "$TMP/q.log" | head -3
+elif grep -q "invalid" "$TMP/q.log"; then
+  fail "a key is installed but ElevenLabs REJECTS it — re-enter with ./setup.sh --set-key"
+elif grep -q "not found" "$TMP/q.log"; then
+  skip "no key installed yet (run ./setup.sh --set-key)"
 else
-  if grep -q "not found" "$TMP/q.log"; then skip "no key installed"; else
-    skip "could not reach ElevenLabs (offline, or key rejected)"; sed 's/^/        /' "$TMP/q.log" | head -2; fi
+  skip "key could not be verified (offline, or it cannot read the plan)"; sed 's/^/        /' "$TMP/q.log" | head -2
 fi
 
 echo

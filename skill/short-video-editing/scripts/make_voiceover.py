@@ -103,15 +103,22 @@ def subscription(key: str) -> dict | None:
     """Plan and credit balance, or None if the key cannot read it (restricted keys)."""
     try:
         return api("/user/subscription", key)
-    except (ApiError, urllib.error.URLError):
+    except ApiError as e:
+        if "invalid_api_key" in e.detail:
+            raise            # a rejected key is an error, not "could not read the plan"
+        return None          # e.g. the key lacks user_read: cannot tell, so say nothing
+    except urllib.error.URLError:
         return None
 
 
-def show_quota(key: str) -> None:
+def show_quota(key: str) -> bool:
+    """Print plan and credits. Returns False when the plan could not be read, so the caller
+    does not report an unverified key as a working one."""
     sub = subscription(key)
     if not sub:
-        print("Could not read the subscription (the key may lack user_read permission).")
-        return
+        print("Could not read the subscription (offline, or the key lacks user_read). "
+              "The key is NOT verified.")
+        return False
     used, limit = sub.get("character_count", 0), sub.get("character_limit", 0)
     print(f"plan      : {sub.get('tier')}")
     print(f"credits   : {limit - used} left of {limit}")
@@ -122,6 +129,7 @@ def show_quota(key: str) -> None:
         print("\nFree plan: ElevenLabs states it 'does not include a commercial license and "
               "cannot be used for any commercial purpose'. Audio made outside a paid "
               "subscription stays non-commercial even after upgrading.")
+    return True
 
 
 def list_voices(key: str) -> None:
@@ -184,6 +192,8 @@ def explain(e: ApiError) -> str:
                 "Pick a 'premade' voice (see --list-voices) or upgrade the plan.")
     if "quota_exceeded" in d:
         return "Out of credits. Run --quota to see the balance and reset date."
+    if "invalid_api_key" in d:
+        return "ElevenLabs says this API key is invalid. Re-enter it with ./setup.sh --set-key."
     if e.code == 401:
         return "The key was rejected. Check it is current and has text-to-speech permission."
     return str(e)
@@ -214,8 +224,7 @@ def main() -> int:
 
     try:
         if args.quota:
-            show_quota(key)
-            return 0
+            return 0 if show_quota(key) else 3
         if args.list_voices:
             list_voices(key)
             return 0
@@ -240,7 +249,10 @@ def main() -> int:
     est = math.ceil(chars * CREDITS_PER_CHAR.get(args.model, 1.0))
     print(f"{len(texts)} line(s), {chars} characters, ~{est} credits on {args.model}", file=sys.stderr)
 
-    sub = subscription(key)
+    try:
+        sub = subscription(key)
+    except ApiError as e:
+        sys.exit(explain(e))
     tier = sub.get("tier") if sub else None
     if sub:
         left = sub.get("character_limit", 0) - sub.get("character_count", 0)
