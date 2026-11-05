@@ -91,9 +91,12 @@ One whoosh per transition, not stacked. SFX sell punch-ins and whip pans; layere
 they turn the video into a template.
 
 Useful set for a product demo:
-- Short noise sweep on punch-ins and text pops
-- A soft click or pop when the product card is referenced
+- Short noise sweep on moving transitions and punch-ins
+- A soft click or pop when the product card or the cart arrow appears
 - Nothing at all across the reveal — let the diegetic sound carry it
+
+Licensed sources, the sound bank, the event map, levels and timing are in `sound-design.md`;
+`plan_to_project.py --auto-sfx` applies them.
 
 ---
 

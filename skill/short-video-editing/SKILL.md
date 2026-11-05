@@ -138,6 +138,8 @@ Errors block delivery; paste the pacing output into the plan.
   `scripts/new_remotion_project.py`, compile with `scripts/plan_to_project.py` (prints a sync
   report: cuts inside words, text on cuts, UI-zone collisions, zone overlaps, flashing captions),
   render stills at every transition, then render. Licence: free only up to 3 employees.
+  Add `--auto-sfx` for sound effects on transitions and graphics (`references/sound-design.md`):
+  licence-safe sounds only, nothing across the reveal, and say whether you listened to the result.
 - **Human editor** (CapCut, Premiere, DaVinci) — the edit plan plus `captions.srt`.
 
 ### 9. Verify before delivering
@@ -167,6 +169,7 @@ Read as the task requires, not all at once.
 | `references/footage-ingest.md` | Inspecting clips, shot log, budgeting footage across several videos. |
 | `references/voiceover-and-captions.md` | ElevenLabs voiceover and Whisper alignment. |
 | `references/audio-and-music.md` | Mixing, music licensing, diegetic sound. |
+| `references/sound-design.md` | Sound effects: licence-safe sources, the sound bank, which sound on which event, levels and timing. |
 | `references/remotion-output.md` | The render pipeline and template layout. Read the licence section first. |
 
 ---

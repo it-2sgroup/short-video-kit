@@ -57,8 +57,8 @@ this script PDF, this clip folder and this voice":
 3. Voice: supplied → `trim_voice.py` if over 45 s, transcribe, correct the script **by hand** to match
    what is said, `align_captions.py`. No supplied voice → ElevenLabs (after `--quota`).
 4. Write `edit-plan.md` (Scenes + Overlays), cut **on pauses in the voice**, scenes 3–4 s.
-5. `pacing_checker.py`, `footage_overlap_checker.py` (all plans together), `plan_to_project.py` (read the
-   sync report), render, then `contact_sheet.py VIDEO --project …` and **look** at it.
+5. `pacing_checker.py`, `footage_overlap_checker.py` (all plans together), `plan_to_project.py` with
+   `--auto-camera --auto-sfx` (read the sync report), render, then `contact_sheet.py VIDEO --project …` and **look** at it.
 6. Report in Vietnamese: runtime, scenes, hook, what the sync report still flags, claims in the supplied
    voice that need the human, and what was **not** verified (never say "listened" unless it was).
 
@@ -92,6 +92,10 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
   (`new_remotion_project.py --proxies`), not the originals.
 - White text vanishes on white fabric: over white garments use the `outline` or `marker` title style, not
   `gradient` or `stack` (white→sky fills). Check every title on the contact sheet.
+- Sound effects: only CC0 or self-made sounds go into `assets/sfx/` (row in `SOURCES.md` for each file);
+  never the meme sounds in `@remotion/sfx` (`vine-boom`, `windows-xp-error`, `bruh`: no licence stated).
+  Nothing across the reveal. A tool cannot hear: say whether you listened. Details:
+  `references/sound-design.md`.
 - Edit-plan tables are the footage ledger: keep every `edit-plan.md`, and pass them all (named, no
   shell glob) to `footage_overlap_checker.py`. A `project.json` cannot rebuild a lost plan.
 - A render project is a **copy** of the template: after the template changes, run

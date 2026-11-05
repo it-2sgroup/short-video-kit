@@ -52,7 +52,10 @@ voiceover ─► align_captions (captions.srt + words.json) ──────�
   - twelve motion-graphic components (callouts with leader lines, steps, checklists, count-up price,
     cart pointer, hand-drawn highlights, stickers, magnifier, thumbnail recap, ranking podium,
     progress bar, lower third);
-  - karaoke captions, music ducked under speech, SFX cues.
+  - karaoke captions, music ducked under speech, sound-effect cues.
+- **Sound design**: `--auto-sfx` places licence-safe sound effects (CC0 recordings plus sounds
+  synthesized with ffmpeg) on moving transitions and selected graphics from an editable table
+  (`assets/sfx/sfx-map.json`), thinned so they never crowd the voice; nothing across the reveal.
 - **Commercial-claim guidance** for TikTok Shop (banned phrasing and compliant rewrites) and
   before/after demonstration rules.
 - **ElevenLabs voiceover** with quota checks that refuse to spend credits the plan cannot cover.
@@ -76,7 +79,7 @@ cd short-video-kit
 ./setup.sh --check          # what is installed and what is missing; changes nothing
 ./setup.sh                  # venv, Python deps, Whisper model (~460 MB), skill install
 ./setup.sh --set-key        # optional: store the ElevenLabs key (typed hidden)
-./selftest.sh               # 10 groups of checks, no credits spent
+./selftest.sh               # 11 groups of checks, no credits spent
 ./selftest.sh --render      # also typecheck the template and render one still (downloads ~300 MB once)
 ```
 
@@ -132,7 +135,7 @@ cp voice.mp3 ~/renders/batch/public/audio/kb7.mp3
 
 # 5. Compile and render
 python scripts/plan_to_project.py edit-plan.md --out ~/renders/batch/kb7.json \
-    --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera
+    --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera --auto-sfx
 cd ~/renders/batch
 npx remotion still src/index.ts Short out/check.png --frame=45 --props=kb7.json
 npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json
@@ -164,20 +167,21 @@ and the techniques it uses (in Vietnamese) in `docs/CAU-TRUC.md`.
     │                              layout and motion graphics, sync, captions, voiceover,
     │                              audio, platform policy, hooks, campaign data, Remotion)
     ├── scripts/                   inspect_footage, contact_sheet, trim_voice, make_voiceover,
-    │                              align_captions, pacing_checker, footage_overlap_checker,
-    │                              plan_to_project, new_remotion_project
+    │                              make_sfx, align_captions, pacing_checker,
+    │                              footage_overlap_checker, plan_to_project, new_remotion_project
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
+    │   ├── sfx/                   CC0 sound effects, their sources, the event → sound table
     │   └── remotion-template/     Render project: theme, engine, components
     └── evals/                     Evaluation cases for the skill
 ```
 
 ## Testing
 
-`./selftest.sh` runs ten groups without spending ElevenLabs credits: tool availability, footage
+`./selftest.sh` runs eleven groups without spending ElevenLabs credits: tool availability, footage
 inspection, pacing rules, caption alignment (spelling preserved), the ElevenLabs key (read-only),
-plan compilation, footage-reuse detection, voice trimming, contact sheets and render-project scaffolding
-(including the missing-asset report). `./selftest.sh --render [DIR]` adds an 11th group: typecheck the
+plan compilation, footage-reuse detection, voice trimming, contact sheets, render-project scaffolding
+(including the missing-asset report) and sound effects. `./selftest.sh --render [DIR]` adds a 12th group: typecheck the
 template and render a still. Template changes are also checked by eye on stills at transition frames.
 
 ## Licensing and third-party terms
@@ -189,6 +193,7 @@ This repository is proprietary and unlicensed for redistribution. Third-party te
 | Remotion | Free for individuals and companies of up to 3 employees; otherwise $25/month per seat, and an AI agent writing Remotion code counts as a seat ([licence](https://www.remotion.dev/license)). |
 | ElevenLabs | Free-plan audio cannot be used commercially, including after upgrading. |
 | Google Fonts used by the template | SIL Open Font License. |
+| Sound effects in `assets/sfx` | Five recordings under CC0 (sources in `assets/sfx/SOURCES.md`); the rest are synthesized by `make_sfx.py`. Add only CC0 or self-made sounds. |
 | faster-whisper | MIT. |
 | Music on TikTok Shop content | TikTok Commercial Music Library or an explicit commercial licence only. |
 

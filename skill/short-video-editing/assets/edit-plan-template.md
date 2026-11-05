@@ -2,7 +2,7 @@
 
 > Fill this in, then run:
 > `python scripts/pacing_checker.py <this-file>`
-> `python scripts/plan_to_project.py <this-file> --out project.json --voice audio/x.mp3 --captions captions.srt --words words.json`
+> `python scripts/plan_to_project.py <this-file> --out project.json --voice audio/x.mp3 --captions captions.srt --words words.json --auto-camera --auto-sfx`
 > Keep the column headers: the scripts find columns by name.
 
 **Product:** [name]
@@ -59,7 +59,7 @@ Graphics and titles, on their own timeline. See `references/layout-and-motion-gr
 - **End** — seconds, `+2.5`, `auto` (reading time), `@"word"`, or `cut` (3 frames before the next cut).
 - **Component** — `title`, `callout`, `highlight`, `step`, `checklist`, `price`, `cart`, `sticker`,
   `progress`, `magnifier`, `thumbs`, `ranking`, `lowerThird`, plus `punch` (camera punch-in) and
-  `sfx` (sound cue).
+  `sfx` (a hand-placed sound cue, `src=sfx/riser.wav; volumeDb=-12`; `--auto-sfx` adds the rest).
 - **Zone** — `top`, `upper`, `center`, `lower` (or `–`). **Tone** — `neutral`, `before`, `after`,
   `cta`, `product`.
 - **Content** — `key=value; key=value`. Lists: ` / `. Points: `x,y` as fractions of the frame.

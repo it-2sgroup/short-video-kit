@@ -51,7 +51,7 @@ short-video-kit/
 | `CLAUDE.md` | Chỉ dẫn cho Claude: kiểm tra máy đầu phiên, các bước cài đặt, quy trình khi người dùng nhờ dựng video, việc phải hỏi người dùng (tải về, gói ElevenLabs, giấy phép Remotion), các bài học đã trả giá. |
 | `README.md` | Tổng quan, yêu cầu hệ thống, cài đặt (có Windows), cách dùng, giấy phép bên thứ ba, hạn chế đã biết. |
 | `setup.sh` | Cài mọi thứ vào `$HOME`: venv Python, thư viện, mô hình Whisper (~460 MB), khóa ElevenLabs (nếu có `.env.local`), chép skill vào `~/.claude/skills`. Chạy lại an toàn. Tùy chọn: `--check` (chỉ báo cáo), `--set-key` (nhập khóa ẩn), `--no-model`, `--no-skill`, `--download-ffmpeg` (Linux), `--package` (đóng gói `.skill` cho app desktop). |
-| `selftest.sh` | 10 nhóm kiểm tra không tốn credit (công cụ, soi clip, luật nhịp, căn phụ đề, khóa ElevenLabs, biên dịch kế hoạch, trùng footage, cắt giọng, bảng khung hình, dựng khung dự án). `--render [DIR]` thêm nhóm 11: typecheck template và render một ảnh tĩnh. |
+| `selftest.sh` | 11 nhóm kiểm tra không tốn credit (công cụ, soi clip, luật nhịp, căn phụ đề, khóa ElevenLabs, biên dịch kế hoạch, trùng footage, cắt giọng, bảng khung hình, dựng khung dự án, hiệu ứng âm thanh). `--render [DIR]` thêm nhóm 12: typecheck template và render một ảnh tĩnh. |
 | `requirements.txt` | `faster-whisper==1.2.1` và `numpy`. |
 | `.env.example` | Chỉ có dòng `ELEVENLABS_API_KEY=`. Khóa thật nằm ở `.env.local` (bị `.gitignore` chặn) hoặc `~/.config/short-video-kit/env`. |
 | `.gitignore` | Chặn khóa (`.env*`), media (`*.mp4`, `*.mp3`), `models/`, `bin/`, `dist/`, `node_modules/`, `out/`, `renders/`. |
@@ -98,6 +98,7 @@ chỉ mục `references/` và phần "trung thực về bằng chứng" (đâu l
 | `footage-ingest.md` | Soi clip, shot log, chia ngân sách footage cho nhiều video, xuất danh sách cắt ffmpeg. |
 | `voiceover-and-captions.md` | ElevenLabs (mô hình, thẻ cảm xúc, chi phí), căn phụ đề, **giọng có sẵn**. |
 | `audio-and-music.md` | Trộn âm, bản quyền nhạc, tiếng hiện trường. |
+| `sound-design.md` | Hiệu ứng âm thanh (SFX): nguồn nào dùng được về bản quyền, bộ âm thanh của kit, tiếng nào cho sự kiện nào, mức âm lượng, thời điểm đặt, cách kiểm tra. |
 | `remotion-output.md` | Giấy phép Remotion, pipeline render, bố cục template, quy tắc để render đúng. |
 
 ### 6.3 `scripts/` — công cụ dòng lệnh
@@ -110,18 +111,20 @@ lại chỉ cần Python 3 và ffmpeg.
 | `inspect_footage.py` | Đọc thuộc tính thật của clip (thời lượng, độ phân giải, xoay, fps, có tiếng không), cảnh báo clip ngang, thiếu tiếng, lệch định dạng; `--log` in bảng shot log trống. | thư mục clip → báo cáo |
 | `contact_sheet.py` | Ảnh tổng hợp khung hình: một hàng cho mỗi clip thô; hoặc giữa mỗi cảnh + mỗi điểm cắt của video đã render. | clip/video → `.png` |
 | `trim_voice.py` | `--silences` liệt kê chỗ lặng và điểm cắt; `--keep a-b,c-d` nối các đoạn giữ lại. | giọng → giọng ngắn hơn |
+| `make_sfx.py` | Tự tạo 6 tiếng hiệu ứng (pop, tick, ding, thud, swoosh, riser) bằng ffmpeg: không tải gì, không vướng bản quyền; đỉnh −3 dB như các file CC0. | thư mục → `.wav` |
 | `make_voiceover.py` | Tạo giọng bằng ElevenLabs, mỗi dòng một file; `--quota`, `--dry-run` (không tiêu credit), từ chối chạy nếu không đủ credit. | `script.txt` → `.mp3` + `voice_manifest.json` |
 | `align_captions.py` | Whisper cho **thời gian**, kịch bản cho **chữ**; gộp nhóm phụ đề quá ngắn; `--words-out` ghi thời gian từng từ. | giọng + script → `captions.srt`, `words.json` |
 | `pacing_checker.py` | Cổng kiểm tra luật nhịp (hook, cảnh ≤ 4 s và ≥ 2,5 s ngoài hook, liền mạch, tổng thời lượng). Thoát 1 nếu vi phạm. | `edit-plan.md` → báo cáo |
 | `footage_overlap_checker.py` | Biến mỗi cảnh thành khoảng nguồn `[In, In+độ dài]` và báo trùng/sát nhau trong và giữa các plan; `--clips` liệt kê đoạn còn trống. | các `edit-plan.md` → báo cáo |
-| `plan_to_project.py` | Biên dịch kế hoạch thành `project.json`; tự gán camera (`--auto-camera`), phóng theo từ khóa (`--punch-keywords`); in **báo cáo bắt nhịp**; báo thiếu file trong `public/`. | `edit-plan.md` + SRT + words → `project.json` |
-| `new_remotion_project.py` | Tạo dự án render từ template; `--proxies` làm bản proxy ffmpeg; `--install` chạy npm; `--update` chép lại template vào dự án cũ. | → thư mục dự án |
+| `plan_to_project.py` | Biên dịch kế hoạch thành `project.json`; tự gán camera (`--auto-camera`), phóng theo từ khóa (`--punch-keywords`); in **báo cáo bắt nhịp**; `--auto-sfx` thêm hiệu ứng âm thanh theo `sfx-map.json`; báo thiếu file (clip, giọng, nhạc, SFX) trong `public/`. | `edit-plan.md` + SRT + words → `project.json` |
+| `new_remotion_project.py` | Tạo dự án render từ template; `--proxies` làm bản proxy ffmpeg; `--install` chạy npm; `--update` chép lại template vào dự án cũ; luôn đặt bộ SFX vào `public/sfx/`. | → thư mục dự án |
 
 ### 6.4 `assets/`
 
 | Đường dẫn | Chức năng |
 |---|---|
 | `edit-plan-template.md` | Mẫu kế hoạch dựng: bảng **Scenes** (Start, End, Source, In, Type, Transition, Camera, Shot, Audio), bảng **Overlays** (Start, End, Component, Zone, Tone, Content), danh sách soát tuân thủ. |
+| `sfx/` | Bộ hiệu ứng âm thanh: 5 file ghi âm CC0 (`whoosh`, `whip`, `switch`, `mouse-click`, `shutter-modern`), `SOURCES.md` (tác giả, nguồn, giấy phép từng file), `sfx-map.json` (tiếng nào cho sự kiện nào, mức dB, độ dẫn trước). |
 | `remotion-template/` | Dự án Remotion điều khiển bằng dữ liệu (mục 7). |
 
 ### 6.5 `evals/` — bộ ca kiểm tra skill
@@ -205,7 +208,10 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
     thành phần chồng cùng vùng, nhóm phụ đề nhấp nháy, thiếu file trong `public/`.
 11. **Kiểm bằng mắt.** `contact_sheet.py` cho ảnh giữa mỗi cảnh + mỗi điểm cắt; đây là nơi lộ lỗi như chữ trắng chìm
     trên áo trắng hay vòng khoanh lệch.
-12. **Kiểm tra máy mới.** `setup.sh --check`, `selftest.sh` (10 nhóm), thử sạch trên bản clone mới với `HOME` trống,
+12. **Kiểm tra máy mới.** `setup.sh --check`, `selftest.sh` (11 nhóm), thử sạch trên bản clone mới với `HOME` trống,
     và một Claude không có ngữ cảnh đọc thử repo để tìm chỗ thiếu.
-13. **Giữ repo sạch.** Không file thừa, không code chết, không nội dung video trong template; khóa, media, mô hình và
+13. **Hiệu ứng âm thanh theo bảng.** Mỗi tiếng có mức dB và "độ dẫn" (`lead`) đo từ đỉnh của file để đỉnh rơi đúng
+    điểm cắt; chuyển cảnh trượt/quét có tiếng vút, chuyển cảnh mờ và khoảnh khắc lộ kết quả để im; tối đa 2 tiếng
+    trong 3 giây và cách nhau ≥ 0,2 giây. Chỉ dùng âm thanh CC0 hoặc tự tạo bằng ffmpeg (`make_sfx.py`).
+14. **Giữ repo sạch.** Không file thừa, không code chết, không nội dung video trong template; khóa, media, mô hình và
     thư mục làm việc luôn nằm ngoài git.

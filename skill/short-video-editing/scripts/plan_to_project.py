@@ -6,7 +6,8 @@ the same tables. Nothing about a video is typed into code.
 
     python scripts/plan_to_project.py plan.md --voice audio/kb7.mp3 \
         --captions captions.srt --words words.json --out remotion/project.json \
-        [--auto-camera] [--punch-keywords "saiza,chai hồng,100"] [--caption-style karaoke]
+        [--auto-camera] [--punch-keywords "saiza,chai hồng,100"] [--caption-style karaoke] \
+        [--auto-sfx [--sfx-map table.json] [--sfx-gain -3]]
 
 Scenes table (columns by name, any order; extra columns are ignored):
   Start | End | Source | In | Type | Transition | Camera
@@ -276,6 +277,40 @@ def auto_punches(words, keywords, cuts, existing, limit=6):
     return out
 
 
+# ----------------------------------------------------------------------------- sound design
+DEFAULT_SFX_MAP = Path(__file__).resolve().parent.parent / "assets" / "sfx" / "sfx-map.json"
+
+
+def auto_sfx(scenes, overlays, cfg, manual, offset_db=0.0):
+    """Sound cues from assets/sfx/sfx-map.json: transitions (an accent beats the transition type; a
+    `sceneStart` entry "A>B" or "*>B" beats both, and null means silence, e.g. across the reveal), and
+    graphic entrances. Cues you wrote by hand (`manual`) always stay; the rest are thinned so sounds
+    never crowd each other: minGap apart, at most maxInWindow per window."""
+    sounds, ev, rules = cfg["sounds"], cfg["events"], cfg["rules"]
+    cand = []  # (priority, time, sound)
+    for k, s in enumerate(scenes[1:], 1):
+        prev, cut = scenes[k - 1], s["start"]
+        name = ev["accent"].get(s.get("accent")) or ev["transition"].get(s.get("transition", {}).get("type", "fade"))
+        name = ev["sceneStart"].get(f"{prev['type']}>{s['type']}", ev["sceneStart"].get(f"*>{s['type']}", name))
+        if name:
+            cand.append((0, cut, name))
+    for o in overlays:  # "title:stack" (component:style) wins over "title"
+        name = ev["overlay"].get(f"{o['component']}:{o['props'].get('style')}") or ev["overlay"].get(o["component"])
+        if name:
+            cand.append((1, o["start"], name))
+    kept = [m["at"] for m in manual]
+    cues = []
+    for _, t, name in sorted(cand, key=lambda c: (c[0], c[1])):
+        near = [a for a in kept if abs(a - t) < rules["window"] / 2]
+        if t < rules["notBefore"] or any(abs(a - t) < rules["minGap"] for a in kept) or len(near) >= rules["maxInWindow"]:
+            continue
+        snd = sounds[name]
+        kept.append(t)
+        cues.append({"src": snd["file"], "at": round(max(0.0, t - snd["lead"]), 3),
+                     "volumeDb": round(snd["gainDb"] + offset_db, 1)})
+    return sorted(cues, key=lambda c: c["at"])
+
+
 # ----------------------------------------------------------------------------- sync report
 def report(scenes, overlays, captions, words):
     warns = []
@@ -341,6 +376,9 @@ def main() -> int:
     ap.add_argument("--caption-style", default="karaoke", choices=["karaoke", "plain", "none"])
     ap.add_argument("--auto-camera", action="store_true", help="fill blank Camera cells with varied moves")
     ap.add_argument("--punch-keywords", default="", help="comma-separated words/phrases to punch in on")
+    ap.add_argument("--auto-sfx", action="store_true", help="add sound effects on transitions and graphics (assets/sfx/sfx-map.json)")
+    ap.add_argument("--sfx-map", type=Path, default=DEFAULT_SFX_MAP, help="sound-design table to use with --auto-sfx")
+    ap.add_argument("--sfx-gain", type=float, default=0.0, help="dB added to every automatic sound effect")
     a = ap.parse_args()
 
     tabs = tables(a.plan.read_text(encoding="utf-8-sig"))
@@ -403,6 +441,8 @@ def main() -> int:
         overlays.append(o)
 
     punches += auto_punches(words, a.punch_keywords.split(","), cuts, punches)
+    if a.auto_sfx:
+        sfx += auto_sfx(scenes, overlays, json.loads(a.sfx_map.read_text(encoding="utf-8")), sfx, a.sfx_gain)
 
     if problems:
         for p in problems:
@@ -424,7 +464,7 @@ def main() -> int:
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(project, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"wrote {a.out}: {len(scenes)} scenes, {len(overlays)} overlays, {len(project['punches'])} punch-ins, "
-          f"{len(captions)} captions, {project['duration']}s")
+          f"{len(project['sfx'])} sound cues, {len(captions)} captions, {project['duration']}s")
     warns = report(scenes, overlays, captions, words)
     public = a.out.resolve().parent / "public"
     if public.is_dir():  # only when --out sits inside a render project (see new_remotion_project.py)

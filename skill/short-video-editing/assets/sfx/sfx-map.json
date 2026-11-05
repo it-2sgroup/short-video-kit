@@ -1,0 +1,36 @@
+{
+  "about": "Which sound plays on which event, and how loud. Read by plan_to_project.py --auto-sfx; edit this file to change the sound design, not the script. gainDb is applied to a file whose peak is -3 dBFS (the voice peaks around -4.5 dBFS), so -10 puts a sound's peak about 8 dB under the voice. lead is the seconds the file starts BEFORE its event, so its loudest moment (or first click) lands on it.",
+  "sounds": {
+    "swoosh":         { "file": "sfx/swoosh.wav",         "gainDb": -10, "lead": 0.30 },
+    "whoosh":         { "file": "sfx/whoosh.wav",         "gainDb": -9,  "lead": 0.08 },
+    "whip":           { "file": "sfx/whip.wav",           "gainDb": -9,  "lead": 0.03 },
+    "thud":           { "file": "sfx/thud.wav",           "gainDb": -10, "lead": 0.0 },
+    "riser":          { "file": "sfx/riser.wav",          "gainDb": -12, "lead": 0.95 },
+    "pop":            { "file": "sfx/pop.wav",            "gainDb": -12, "lead": 0.0 },
+    "tick":           { "file": "sfx/tick.wav",           "gainDb": -15, "lead": 0.0 },
+    "ding":           { "file": "sfx/ding.wav",           "gainDb": -14, "lead": 0.0 },
+    "switch":         { "file": "sfx/switch.wav",         "gainDb": -12, "lead": 0.12 },
+    "mouse-click":    { "file": "sfx/mouse-click.wav",    "gainDb": -12, "lead": 0.12 },
+    "shutter-modern": { "file": "sfx/shutter-modern.wav", "gainDb": -10, "lead": 0.21 }
+  },
+  "events": {
+    "transition": {
+      "fade": null, "blurDissolve": null, "cut": null,
+      "slide": "swoosh", "wipe": "swoosh", "whip": "whip", "zoomThrough": "whoosh",
+      "flip": "whoosh", "iris": "pop", "pushCut": "thud", "crossZoom": "riser"
+    },
+    "accent": { "flash": "thud" },
+    "sceneStart": { "HOOK>HOOK": "shutter-modern", "*>REVEAL": null },
+    "overlay": {
+      "title:stack": "pop", "title:glass": "pop", "highlight": "pop", "sticker": "pop",
+      "step": "switch", "checklist": "tick",
+      "cart": "mouse-click", "thumbs": "shutter-modern", "price": "ding", "ranking": "ding"
+    }
+  },
+  "rules": {
+    "minGap": 0.2,
+    "window": 3.0,
+    "maxInWindow": 2,
+    "notBefore": 0.1
+  }
+}

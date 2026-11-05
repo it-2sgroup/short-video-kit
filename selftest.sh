@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Verify the kit works on this machine. Spends no ElevenLabs credits.
-#   ./selftest.sh                  groups 1-10 (a few seconds each; group 4 loads the Whisper model)
-#   ./selftest.sh --render [DIR]   also group 11: typecheck the Remotion template and render one still in
+#   ./selftest.sh                  groups 1-11 (a few seconds each; group 4 loads the Whisper model)
+#   ./selftest.sh --render [DIR]   also group 12: typecheck the Remotion template and render one still in
 #                                  DIR (default: a temp folder). Without node_modules in DIR this runs
 #                                  npm install, which downloads packages and Chromium (~300 MB): ask first.
 set -uo pipefail
@@ -105,10 +105,25 @@ if [[ -f "$TMP/render/package.json" && -f "$TMP/render/src/index.ts" && -d "$TMP
   "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/render/project.json" \
     --voice audio/none.mp3 2>&1 | grep -q "not in .*clips/" \
     && pass "plan_to_project reports clips and voice missing from public/" || fail "missing assets were not reported"
+  [[ $(ls "$TMP/render/public/sfx"/*.wav 2>/dev/null | wc -l) -eq 11 ]] \
+    && pass "11 sound effects installed in public/sfx" || fail "public/sfx is incomplete"
 else fail "scaffold incomplete"; fi
 
+echo "11. sound effects: make_sfx.py and plan_to_project.py --auto-sfx"
+"$PY" "$S/make_sfx.py" "$TMP/sfx" >"$TMP/sfx.log" 2>&1 && [[ $(ls "$TMP/sfx"/*.wav | wc -l) -eq 6 ]] \
+  && pass "6 sounds synthesized with ffmpeg" || { fail "make_sfx failed"; tail -3 "$TMP/sfx.log" | sed 's/^/        /'; }
+if "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/sfx.json" --auto-sfx >/dev/null 2>&1 \
+   && "$PY" -c "
+import json, sys, pathlib
+cues = json.load(open(sys.argv[1], encoding='utf-8'))['sfx']
+have = {p.stem for p in pathlib.Path(sys.argv[2]).glob('*.wav')} | {p.stem for p in pathlib.Path(sys.argv[3]).glob('*.wav')}
+ok = cues and all(pathlib.PurePosixPath(c['src']).stem in have and c['at'] >= 0 for c in cues)
+sys.exit(0 if ok else 1)" "$TMP/sfx.json" "$KIT/skill/short-video-editing/assets/sfx" "$TMP/sfx"; then
+  pass "automatic cues exist and every one names a sound in the bank"
+else fail "--auto-sfx produced no cues, or a cue names a missing sound"; fi
+
 if [[ $RENDER -eq 1 ]]; then
-  echo "11. Remotion render (--render)"
+  echo "12. Remotion render (--render)"
   command -v node >/dev/null 2>&1 || fail "node not found (need 20+)"
   [[ -f "$RENDER_DIR/package.json" ]] || "$PY" "$S/new_remotion_project.py" "$RENDER_DIR" >/dev/null 2>&1
   if (cd "$RENDER_DIR" && { [[ -d node_modules ]] || npm install --no-audit --no-fund; } && npm run typecheck) >"$TMP/tsc.log" 2>&1; then

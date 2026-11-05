@@ -87,8 +87,12 @@ python3 scripts/footage_overlap_checker.py kb7/edit-plan.md kb4/edit-plan.md kb9
 ```bash
 python3 scripts/plan_to_project.py edit-plan.md --out du-an-render/kb7.json \
     --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera \
-    --punch-keywords "saiza,chai xanh"
+    --punch-keywords "saiza,chai xanh" --auto-sfx
 ```
+`--auto-sfx` thêm hiệu ứng âm thanh theo bảng `assets/sfx/sfx-map.json`: chuyển cảnh trượt/quét có tiếng vút, cảnh
+BEFORE → AFTER có tiếng chụp ảnh, mũi tên giỏ hàng có tiếng click, bước đánh số có tiếng bấm; chuyển cảnh mờ dần
+và khoảnh khắc lộ kết quả để im (xem `references/sound-design.md`). Chỉ dùng âm thanh CC0 hoặc tự tạo. Sau khi
+render phải **nghe thật** trước khi giao.
 Đọc **sync report**: điểm cắt rơi giữa từ, chữ hiện/tắt sát điểm cắt, đồ hoạ lấn thanh nút, hai thành phần
 chồng cùng vùng, phụ đề nhấp nháy.
 

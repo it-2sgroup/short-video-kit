@@ -73,12 +73,12 @@ everywhere.
 
 ## Sound under transitions
 
-Whooshes sit 14–18 dB under the voice (`volumeDb: -16`), placed so the **peak** lands on the cut
-(add an `sfx` row at the cut time minus the file's peak offset, typically 3–8 frames).
-Licence-safe sources [D]: Mixkit SFX (free commercial, no attribution), Pixabay (free, no
-redistribution of the raw files), Freesound **CC0 only**. Do not use meme sounds of unclear rights
-(vine-boom etc.) in commercial TikTok Shop videos.
+`plan_to_project.py --auto-sfx` puts one sound on each moving transition (`slide`/`wipe` → swoosh,
+`whip` → whip, `zoomThrough`/`flip` → whoosh, `pushCut` and `+flash` → thud), none on `fade` and
+`blurDissolve`, and none across the reveal. The file starts before the cut so its peak lands on it.
+Which sounds are licence-safe, the level and the timing rules: `sound-design.md`. Do not use meme
+sounds (vine-boom and the like) in commercial TikTok Shop videos.
 
 Sources: remotion.dev/docs/transitions (+ presentations, timings, custom presentations,
 audio-transitions, html-in-canvas); remotion-dev/skills `transitions.md`; HyperFrames transition
-recipes (whip 0.13–0.3 s, blur swap, dip); Mixkit/Pixabay licence pages.
+recipes (whip 0.13–0.3 s, blur swap, dip).

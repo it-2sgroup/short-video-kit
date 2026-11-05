@@ -30,7 +30,7 @@ python scripts/align_captions.py voice.mp3 --script script.txt --out captions.sr
 # 3. Compile the plan
 python scripts/plan_to_project.py edit-plan.md --out ~/renders/saiza/kb7.json \
     --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera \
-    --punch-keywords "saiza,chai xanh"
+    --punch-keywords "saiza,chai xanh" --auto-sfx
 
 # 4. Look before rendering, then render
 cd ~/renders/saiza
@@ -41,8 +41,10 @@ npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json --codec=h264
 python <skill>/scripts/contact_sheet.py out/kb7.mp4 --project kb7.json --out out/sheet.png
 ```
 
-`plan_to_project.py` lists any clip, voice or music file the project needs that is not yet under
-`public/` when `--out` sits inside the render project, so a missing asset shows up before the render.
+`plan_to_project.py` lists any clip, voice, music or sound-effect file the project needs that is not yet
+under `public/` when `--out` sits inside the render project, so a missing asset shows up before the
+render. The scaffold puts the sound effects in `public/sfx/` (recorded CC0 files from `assets/sfx/` plus
+the ones `make_sfx.py` synthesizes).
 
 `npm run studio` opens Remotion Studio with `project.example.json`, a footage-free gallery of every
 component — the quickest way to see what each style looks like.

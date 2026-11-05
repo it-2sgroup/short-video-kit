@@ -7,8 +7,9 @@
     python scripts/new_remotion_project.py DEST --update                      # re-copy the template over DEST
 
 A render project is a copy of the template, so a template fix does not reach it by itself. --update
-replaces the template's files (src/, config, package.json) and keeps public/, node_modules/, out/ and
-your own *.json projects. Local edits to the template's files are overwritten.
+replaces the template's files (src/, config, package.json) and the sound effects in public/sfx, and keeps
+the rest of public/, node_modules/, out/ and your own *.json projects. Local edits to the template's
+files are overwritten.
 
 Proxies: phone footage is usually 4K HEVC with rotation metadata; rendering from it is slow. This
 writes H.264 1080x1920 30fps, audio-free copies named <STEM>.mp4 (ffmpeg applies the rotation).
@@ -24,8 +25,19 @@ import subprocess
 import sys
 from pathlib import Path
 
-TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "remotion-template"
+SKILL = Path(__file__).resolve().parent.parent
+TEMPLATE = SKILL / "assets" / "remotion-template"
 VIDEO_EXT = {".mov", ".mp4", ".m4v", ".mkv"}
+
+
+def install_sfx(dest: Path) -> None:
+    """public/sfx = the recorded CC0 files from assets/sfx + the ones make_sfx.py synthesizes."""
+    out = dest / "public" / "sfx"
+    out.mkdir(parents=True, exist_ok=True)
+    for f in (SKILL / "assets" / "sfx").glob("*.wav"):
+        shutil.copy2(f, out / f.name)
+    r = subprocess.run([sys.executable, str(SKILL / "scripts" / "make_sfx.py"), str(out)], capture_output=True, text=True)
+    print(f"sound effects in {out}" if r.returncode == 0 else f"could not synthesize sound effects (is ffmpeg on PATH?):\n{r.stderr.strip()}")
 
 
 def make_proxies(src: Path, dest: Path, height: int) -> int:
@@ -63,6 +75,8 @@ def main() -> int:
         print(f"{'updated' if exists else 'created'} {dest}")
     for sub in ("public/clips", "public/audio"):
         (dest / sub).mkdir(parents=True, exist_ok=True)
+    if not exists or a.update:
+        install_sfx(dest)
 
     if a.proxies:
         n = make_proxies(a.proxies.expanduser(), dest / "public" / "clips", a.proxy_height)
