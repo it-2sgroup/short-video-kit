@@ -75,7 +75,10 @@ download_ffmpeg() {
   base="https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-$arch-static.tar.xz"
   dest="$SHARE/bin"; tmp="$(mktemp -d)"; mkdir -p "$dest"
   echo "      downloading $base"
-  curl -fL --retry 3 --progress-bar -o "$tmp/ff.tar.xz" "$base" || { bad "download failed"; rm -rf "$tmp"; return 1; }
+  # A progress bar is only useful on a terminal. Captured by a script or by Claude it becomes
+  # thousands of characters of noise, so fall back to quiet mode (errors still show).
+  local quiet=-sS; [[ -t 1 ]] && quiet=--progress-bar
+  curl -fL --retry 3 $quiet -o "$tmp/ff.tar.xz" "$base" || { bad "download failed"; rm -rf "$tmp"; return 1; }
   if curl -fsSL -o "$tmp/ff.md5" "$base.md5"; then
     want=$(cut -d' ' -f1 "$tmp/ff.md5"); got=$(md5sum "$tmp/ff.tar.xz" | cut -d' ' -f1)
     [[ "$want" == "$got" ]] || { bad "checksum mismatch (expected $want, got $got) — not installed"; rm -rf "$tmp"; return 1; }
@@ -119,6 +122,7 @@ elif [[ $GET_MODEL -eq 0 ]]; then
   warn "skipped (--no-model); it will download the first time captions are aligned"
 else
   echo "      downloading Systran/faster-whisper-small from Hugging Face (~460 MB)…"
+  [[ -t 1 ]] || export HF_HUB_DISABLE_PROGRESS_BARS=1   # same reason as the curl bar above
   if "$VENV/bin/python" - "$MODEL_DIR/faster-whisper-small" << 'PY'
 import sys
 from huggingface_hub import snapshot_download
