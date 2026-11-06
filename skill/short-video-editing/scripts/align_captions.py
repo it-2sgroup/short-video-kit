@@ -178,6 +178,32 @@ def align(script_words: list[str], heard: list[Word]) -> list[Word]:
     return [w for w in out if w is not None]
 
 
+def snap_to_silences(words: list[Word], audio: Path) -> int:
+    """Whisper sometimes stretches a word across a pause ("Vừa" 24.74-25.50 s when the voice is silent
+    until 25.3 s), so the caption shows before the speech. Measure the real silences (>= 0.2 s at -35 dB)
+    and pull any word that overlaps one back to the sound: a word that starts in a pause starts when the
+    pause ends; a word that ends in a pause ends when it begins. Returns how many words moved."""
+    log = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(audio), "-af",
+                          "silencedetect=noise=-35dB:d=0.2", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", log)]
+    ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", log)]
+    moved = 0
+    for a, b in zip(starts, ends):
+        for w in words:
+            if not (w.start < b - 0.02 and w.end > a + 0.02):
+                continue                      # no overlap with this pause
+            if a - 0.02 <= w.start < b:       # starts inside the pause (or spans it, leading edge)
+                if w.end - b >= 0.08:
+                    w.start, moved = b, moved + 1
+            elif w.start < a:                 # starts before the pause
+                if a - w.start >= 0.08:
+                    w.end, moved = a, moved + 1
+                elif w.end - b >= 0.08:
+                    w.start, moved = b, moved + 1
+    return moved
+
+
 def group(words: list[Word], per_group: int) -> list[tuple[float, float, str]]:
     """Chunk words into caption groups, breaking at sentence ends as well as the word limit."""
     groups: list[tuple[float, float, str]] = []
@@ -273,6 +299,10 @@ def main() -> int:
         words = heard
         print("! No --script given, so captions use Whisper's raw text, which contains "
               "recognition errors. Pass --script to use your own wording.", file=sys.stderr)
+
+    moved = snap_to_silences(words, args.audio)
+    if moved:
+        print(f"Snapped {moved} word edge(s) out of measured pauses.", file=sys.stderr)
 
     groups = group(words, args.words)
 

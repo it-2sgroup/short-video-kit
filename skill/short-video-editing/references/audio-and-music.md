@@ -22,6 +22,18 @@ risk.
 
 **Default:** original voiceover as the primary audio, with a cleared library track low in the bed.
 
+### Finding a track when the Commercial Music Library is out of reach
+
+The library lives inside TikTok, so a render cannot fetch from it. A licence-safe stand-in, tested
+2026-11-06: **OpenGameArt** tracks whose page says `License(s): CC0` (commercial use, no credit). Search
+`art-search-advanced?keys=lofi&field_art_type_tid[]=12&field_art_licenses_tid[]=4`, open each page, confirm
+CC0 and read the author, then download the file linked from the page (`/sites/default/files/<name>`). Pixabay
+answered 403 to scripted requests and the Internet Archive search returned an error, so neither is a script
+route. Keep a `SOURCES.md` beside the tracks (title, author, URL, licence). Cut the track to the video's length,
+normalise to about −16 LUFS and add a short fade in and a 2 s fade out before it goes under the voice
+(`music` in the project, e.g. `volumeDb −11`, `duckDb −6`). Say that a tool cannot hear whether the track suits
+the video, and that the human may still swap in a Commercial Music Library track when posting.
+
 ---
 
 ## Levels

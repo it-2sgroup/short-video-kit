@@ -137,6 +137,12 @@ audio you did not generate, such as a creator's own recording — see "A supplie
 Caption groups get a minimum display of **0.5s + 0.3s per word**, so a four-word group holds at
 least 1.7s. Groups are trimmed if they would overrun the next one.
 
+Whisper sometimes stretches a word across a pause (it timed "Vừa" 0.5 s before the voice said it, and the
+caption showed early). After aligning, `align_captions.py` measures the real silences (≥ 0.2 s at −35 dB) and
+pulls any word that overlaps one back to the sound; it prints "Snapped N word edge(s)". The cuts the sync report
+still flags inside a word are then usually a pause that Whisper's timing hides: check it with
+`trim_voice.py --silences` before moving the cut.
+
 ---
 
 ## A supplied voice (a recording instead of synthesis)
