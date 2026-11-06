@@ -2,21 +2,21 @@
 //   outline  - coloured fill + dark outline. Default for product demos (client-approved look).
 //   stack    - small lead line over a huge heavy line; one accent word in serif italic gradient.
 //   gradient - big heavy white->sky gradient title with soft shadow, no outline.
-//   glass    - frosted light card with navy->royal gradient text. For busy footage only.
+//   glass    - frosted light card with a dark gradient main line (navy->royal, or brown->vermilion in the warm theme). For busy footage only.
 //   marker   - heavy outline text with a highlighter sweep behind the accent word.
 import React from "react";
 import { AbsoluteFill, interpolate, useVideoConfig } from "remotion";
 import type { Overlay } from "../../project";
-import { fonts, palette, toneColor, zones } from "../../theme";
+import { fonts, palette, titleColors, toneColor, zones } from "../../theme";
 import { clamp, fitSize, smooth, useEnterExit } from "../anim";
 import { GradientText, MaskRise, OutlineText, splitAccent } from "./primitives";
 
 export type TitleStyle = "outline" | "stack" | "gradient" | "glass" | "marker";
 export type TitleProps = { style?: TitleStyle; lines: string[]; accent?: string; sub?: string };
 
-const SKY = `${palette.white} 0%, ${palette.white} 40%, #C4DBFF 100%`;
-const ACCENT = `#FFFFFF 0%, #E3EEFF 45%, #8FB8FF 100%`;
-const NAVY = `#0B1F4D 0%, ${palette.royal} 100%`;
+const SKY = titleColors.sky;
+const ACCENT = titleColors.accent;
+const NAVY = titleColors.glassText;
 
 export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = ({ ov, dur, instant }) => {
   const { fps } = useVideoConfig();
@@ -107,9 +107,9 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
           width: Math.min(width, 740),
           padding: "20px 34px 24px",
           borderRadius: 32,
-          background: "linear-gradient(160deg, rgba(255,255,255,0.93), rgba(226,236,250,0.86))",
-          border: "1.5px solid rgba(255,255,255,0.75)",
-          boxShadow: "0 20px 60px rgba(10,30,80,0.28)",
+          background: titleColors.glassBg,
+          border: titleColors.glassBorder,
+          boxShadow: titleColors.glassShadow,
           scale: String(interpolate(card, [0, 1], [0.92, 1])),
           translate: `0 ${(1 - card) * 40}px`,
           opacity: card,
@@ -119,7 +119,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
         }}
       >
         {lead ? (
-          <div style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 32, color: "#1B2A4A" }}>{lead}</div>
+          <div style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 32, color: titleColors.glassLead }}>{lead}</div>
         ) : null}
         <MaskRise progress={rise}>
           <GradientText size={fitSize(main, 740 - 68, 84, 50)} weight={900} angle={90} stops={NAVY} tracking="-0.04em" shadow={false}>

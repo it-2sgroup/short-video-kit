@@ -21,6 +21,7 @@ Ask the user before --install: it downloads npm packages and Remotion's Chromium
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
@@ -58,11 +59,26 @@ def make_proxies(src: Path, dest: Path, height: int) -> int:
     return len(clips)
 
 
+def set_theme(dest: Path, theme: str) -> None:
+    """Rewrite the one `const THEME: ThemeName = "..."` line of the project's theme.ts."""
+    path = dest / "src" / "theme.ts"
+    text = path.read_text(encoding="utf8")
+    new, n = re.subn(r'(const THEME: ThemeName = )"\w+"', lambda m: f'{m.group(1)}"{theme}"', text, count=1)
+    if n != 1:
+        sys.exit(f"could not find the THEME line in {path}")
+    path.write_text(new, encoding="utf8", newline="\n")
+    print(f"theme: {theme}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Scaffold a Remotion render project for this kit.")
     ap.add_argument("dest", type=Path)
     ap.add_argument("--install", action="store_true", help="run npm install in the new project")
     ap.add_argument("--update", action="store_true", help="re-copy the template over an existing render project")
+    ap.add_argument("--theme", choices=["cool", "warm"],
+                    help="colour theme written into the project's src/theme.ts: cool = kit default (white and sky blue), "
+                         "warm = ivory, gold and torii red for amber, wood or candle-lit footage such as restaurants. "
+                         "--update re-copies the template, so repeat --theme then")
     ap.add_argument("--proxies", type=Path, help="folder of raw clips to convert into public/clips")
     ap.add_argument("--proxy-height", type=int, default=2880, choices=[1920, 2880, 3840],
                     help="proxy height in pixels: 2880 (default) stays sharp to ~1.5x zoom, 1920 is smaller and faster, 3840 sharp to 2x")
@@ -75,6 +91,8 @@ def main() -> int:
     if not exists or a.update:
         shutil.copytree(TEMPLATE, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("node_modules", "out", "public"))
         print(f"{'updated' if exists else 'created'} {dest}")
+    if a.theme:
+        set_theme(dest, a.theme)
     for sub in ("public/clips", "public/audio"):
         (dest / sub).mkdir(parents=True, exist_ok=True)
     if not exists or a.update:

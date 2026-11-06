@@ -122,7 +122,7 @@ lại chỉ cần Python 3 và ffmpeg.
 | `pacing_checker.py` | Cổng kiểm tra luật nhịp (hook, cảnh ≤ 4 s và ≥ 2,5 s ngoài hook, liền mạch, tổng thời lượng). Thoát 1 nếu vi phạm. | `edit-plan.md` → báo cáo |
 | `footage_overlap_checker.py` | Biến mỗi cảnh thành khoảng nguồn `[In, In+độ dài]` và báo trùng/sát nhau trong và giữa các plan; `--clips` liệt kê đoạn còn trống. | các `edit-plan.md` → báo cáo |
 | `plan_to_project.py` | Biên dịch kế hoạch thành `project.json`; tự gán camera (`--auto-camera`), phóng theo từ khóa (`--punch-keywords`); in **báo cáo bắt nhịp**; `--auto-sfx` thêm hiệu ứng âm thanh theo `sfx-map.json`; báo thiếu file (clip, giọng, nhạc, SFX) trong `public/`. | `edit-plan.md` + SRT + words → `project.json` |
-| `new_remotion_project.py` | Tạo dự án render từ template; `--proxies` làm bản proxy ffmpeg; `--install` chạy npm; `--update` chép lại template vào dự án cũ; luôn đặt bộ SFX vào `public/sfx/`. | → thư mục dự án |
+| `new_remotion_project.py` | Tạo dự án render từ template; `--proxies` làm bản proxy ffmpeg; `--install` chạy npm; `--theme cool|warm` chọn bảng màu (xem `src/theme.ts`); `--update` chép lại template vào dự án cũ (lặp lại `--theme`); luôn đặt bộ SFX vào `public/sfx/`. | → thư mục dự án |
 
 ### 6.4 `assets/`
 
@@ -149,7 +149,7 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | `project.example.json` | Thư viện mẫu không cần footage: đủ kiểu chữ và đồ họa; mở bằng `npm run studio`. |
 | `src/index.ts` · `src/Root.tsx` | Đăng ký composition; độ dài lấy từ `duration` và `fps` trong dữ liệu (`calculateMetadata`). |
 | `src/project.ts` | **Hợp đồng dữ liệu**: kiểu `Project`, `Scene`, `Overlay`, `Caption`, `Word`, `Camera`… |
-| `src/theme.ts` | **Mọi token thiết kế**: font, bảng màu, vùng bố cục, điểm giỏ hàng (112, 1677; đo từ ảnh chụp màn hình TikTok thật), đường cong chuyển động, giới hạn camera, thông số thẻ so sánh. Đổi diện mạo ở đây. |
+| `src/theme.ts` | **Mọi token thiết kế**: font, **hai bảng màu** (`cool` mặc định: trắng và xanh da trời; `warm`: trắng ngà, vàng, đỏ torii, nâu, hợp footage nhà hàng tông ấm; một dòng `THEME` quyết định), màu chữ tiêu đề (`titleColors`), vùng bố cục, điểm giỏ hàng (112, 1677; đo từ ảnh chụp màn hình TikTok thật), đường cong chuyển động, giới hạn camera, thông số thẻ so sánh. Đổi diện mạo ở đây. |
 | `src/engine/timeline.ts` | Dàn cảnh với chuyển cảnh **căn giữa điểm cắt**, để giọng không bị lệch. |
 | `src/engine/transitions.tsx` | Bảng chuyển cảnh: có sẵn của Remotion + `zoomThrough`, `blurDissolve`, `whip`. |
 | `src/engine/camera.ts` | Camera ảo: push, pull, pan, hold, phóng theo từ khóa. |

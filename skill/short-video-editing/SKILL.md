@@ -156,6 +156,7 @@ Errors block delivery; paste the pacing output into the plan.
   `scripts/new_remotion_project.py`, compile with `scripts/plan_to_project.py` (prints a sync
   report: cuts inside words, text on cuts, UI-zone collisions, zone overlaps, flashing captions),
   render stills at every transition, then render. Licence: free only up to 3 employees.
+  Warm footage (amber, wood, restaurants) → scaffold with `--theme warm` (`references/typography.md`).
   Add `--auto-sfx` for sound effects on transitions and graphics (`references/sound-design.md`):
   licence-safe sounds only, nothing across the reveal, and say whether you listened to the result.
 - **Human editor** (CapCut, Premiere, DaVinci) — the edit plan plus `captions.srt`.

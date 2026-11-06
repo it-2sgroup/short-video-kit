@@ -18,23 +18,66 @@ export const fonts = {
   number: number.fontFamily, // Anton: prices and counters
 };
 
-export const palette = {
-  white: "#FFFFFF",
-  ice: "#DCE7F4",
-  sky: "#A8D0FF",
-  royal: "#2F64E0",
-  navy: "#15224C",
-  ink: "#0B1020",
-  shadow: "rgba(10,25,60,0.45)",
-};
+// Colour theme. "cool" is the kit default (white and sky blue); "warm" suits amber, wood and candle-lit
+// footage such as Japanese restaurants (ivory text, gold accents, torii-red and brown cards).
+// Switch with `new_remotion_project.py DEST --theme warm`, which rewrites this one line.
+type ThemeName = "cool" | "warm";
+const THEME: ThemeName = "cool";
+
+const themes = {
+  cool: {
+    palette: {
+      white: "#FFFFFF",
+      ice: "#DCE7F4",
+      sky: "#A8D0FF",
+      royal: "#2F64E0",
+      navy: "#15224C",
+      ink: "#0B1020",
+      shadow: "rgba(10,25,60,0.45)",
+    },
+    tones: { before: "#FF7A6E", after: "#4AE3A4", cta: "#FFD23F", product: "#FF8FC2" },
+    title: {
+      sky: "#FFFFFF 0%, #FFFFFF 40%, #C4DBFF 100%", // `gradient` and `stack` main line
+      accent: "#FFFFFF 0%, #E3EEFF 45%, #8FB8FF 100%", // accent word
+      glassText: "#0B1F4D 0%, #2F64E0 100%", // `glass` main line
+      glassLead: "#1B2A4A",
+      glassBg: "linear-gradient(160deg, rgba(255,255,255,0.93), rgba(226,236,250,0.86))",
+      glassBorder: "1.5px solid rgba(255,255,255,0.75)",
+      glassShadow: "0 20px 60px rgba(10,30,80,0.28)",
+    },
+  },
+  warm: {
+    palette: {
+      white: "#FFF6E4", // warm ivory: all light text and borders
+      ice: "#F1DFC0", // pale parchment: secondary text
+      sky: "#F3C06A", // gold: gradient ends, progress
+      royal: "#B8322A", // torii vermilion: badges, accents
+      navy: "#4A2415", // deep brown: dark text on light cards
+      ink: "#1C0F08", // espresso: outlines and ink-on-gold text
+      shadow: "rgba(40,16,4,0.5)",
+    },
+    tones: { before: "#E8735A", after: "#F3C06A", cta: "#F6B94A", product: "#E8896B" },
+    title: {
+      sky: "#FFF6E4 0%, #FFF6E4 40%, #F7D9A0 100%",
+      accent: "#FFF1D0 0%, #F6C46A 50%, #E39A3B 100%",
+      glassText: "#4A1A10 0%, #B8322A 100%",
+      glassLead: "#4A2415",
+      glassBg: "linear-gradient(160deg, rgba(255,247,230,0.94), rgba(243,224,188,0.88))",
+      glassBorder: "1.5px solid rgba(255,238,205,0.8)",
+      glassShadow: "0 20px 60px rgba(60,25,5,0.32)",
+    },
+  },
+} as const;
+
+export const palette = themes[THEME].palette;
 
 export const toneColor: Record<Tone, string> = {
   neutral: palette.white,
-  before: "#FF7A6E",
-  after: "#4AE3A4",
-  cta: "#FFD23F",
-  product: "#FF8FC2",
+  ...themes[THEME].tones,
 };
+
+// Title colour tokens (components/text/Title.tsx): gradient stops and the glass card.
+export const titleColors = themes[THEME].title;
 
 // Layout for a 1080x1920 frame. TikTok publishes no organic UI pixels; these bands are the
 // conservative union of third-party measurements (see references/layout-and-motion-graphics.md).

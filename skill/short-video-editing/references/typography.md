@@ -86,6 +86,19 @@ consecutive beats; one accent word per title.
 
 ---
 
+## Colour themes
+
+The template ships two palettes in `theme.ts`, switched by one `THEME` line (`new_remotion_project.py DEST
+--theme warm`, repeated after every `--update`). **`cool`** (default) is white text with sky-blue gradients and a
+navy/royal glass card. **`warm`** is ivory text, gold accents and highlighter, and a cream glass card with a
+brown-to-vermilion main line: use it when the footage is amber, wooden or candle-lit (Japanese restaurants,
+cafes), where blue and teal accents clash with the picture. Captions follow the theme automatically (ivory text,
+espresso outline, gold karaoke word). Callout, compare and ranking cards still use their own cool tones; if a video
+needs them in the warm theme, add tokens to `theme.ts` the way `titleColors` does. The warm theme was requested by
+the client for the Kiiro Sushi videos (Nov 2026): the skill's blue look did not suit that footage.
+
+---
+
 ## Captions vs titles
 
 | | Captions (spoken words) | Titles (designed) |
