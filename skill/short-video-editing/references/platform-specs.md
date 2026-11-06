@@ -63,6 +63,9 @@ caught up. Do not propagate it into new scripts, and say so plainly if asked to.
 
 ---
 
+Originality, reuse and duplicate-content rules (reposting other people's clips, near-identical videos,
+Douyin footage, posting limits) are in `Chính sách.md`.
+
 ## 2. Before/after demonstration rules
 
 Before/after is **permitted** for cleaning products (unlike acne, whitening and anti-hair-loss

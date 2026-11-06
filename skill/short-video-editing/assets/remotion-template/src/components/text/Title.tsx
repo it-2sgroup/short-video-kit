@@ -28,7 +28,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
   const rise = instant ? 1 : smooth(frame, fps, 4, 14);
   const accentIn = instant ? 1 : smooth(frame, fps, 10, 12);
   const top = zones[ov.zone ?? "top"];
-  const width = ov.zone === "lower" || ov.zone === "center" ? 820 : 960; // keep clear of the right rail
+  const width = ov.zone === "lower" || ov.zone === "center" ? 820 : 900; // keep clear of the right rail
 
   const lead = lines.length > 1 ? lines[0] : undefined;
   const main = lines[lines.length - 1] ?? "";
@@ -53,8 +53,8 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
     ) : null;
 
   const subLine = p.sub ? (
-    <div style={{ opacity: enter, marginTop: 14 }}>
-      <OutlineText size={40} weight={700}>
+    <div style={{ opacity: enter, marginTop: 8 }}>
+      <OutlineText size={32} weight={700}>
         {p.sub}
       </OutlineText>
     </div>
@@ -62,12 +62,12 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
 
   let body: React.ReactNode;
   if (style === "stack") {
-    const size = fitSize(main, width, 160, 90);
+    const size = fitSize(main, width, 112, 68);
     body = (
       <>
         {lead ? (
-          <div style={{ opacity: enter, translate: `0 ${(1 - enter) * 24}px`, alignSelf: "flex-start", marginLeft: 40 }}>
-            <GradientText size={64} weight={500} stops={`${palette.white}, ${palette.white}`}>
+          <div style={{ opacity: enter, translate: `0 ${(1 - enter) * 24}px`, alignSelf: "flex-start", marginLeft: 24 }}>
+            <GradientText size={40} weight={500} stops={`${palette.white}, ${palette.white}`}>
               {lead}
             </GradientText>
           </div>
@@ -93,7 +93,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
     body = lines.map((line, i) => (
       <MaskRise key={i} progress={instant ? 1 : smooth(frame, fps, 4 + i * 3, 15)}>
         <div style={{ scale: String(interpolate(frame, [0, 20], [1.04, 1], clamp)) }}>
-          <GradientText size={i === lines.length - 1 ? fitSize(line, width, 150, 80) : 64} weight={i === lines.length - 1 ? 900 : 700} stops={SKY} tracking="-0.04em">
+          <GradientText size={i === lines.length - 1 ? fitSize(line, width, 104, 62) : 42} weight={i === lines.length - 1 ? 900 : 700} stops={SKY} tracking="-0.04em">
             {line}
           </GradientText>
         </div>
@@ -104,9 +104,9 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
     body = (
       <div
         style={{
-          width,
-          padding: "40px 48px",
-          borderRadius: 40,
+          width: Math.min(width, 740),
+          padding: "20px 34px 24px",
+          borderRadius: 32,
           background: "linear-gradient(160deg, rgba(255,255,255,0.93), rgba(226,236,250,0.86))",
           border: "1.5px solid rgba(255,255,255,0.75)",
           boxShadow: "0 20px 60px rgba(10,30,80,0.28)",
@@ -119,10 +119,10 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
         }}
       >
         {lead ? (
-          <div style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 46, color: "#1B2A4A" }}>{lead}</div>
+          <div style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 32, color: "#1B2A4A" }}>{lead}</div>
         ) : null}
         <MaskRise progress={rise}>
-          <GradientText size={fitSize(main, width - 96, 120, 64)} weight={900} angle={90} stops={NAVY} tracking="-0.04em" shadow={false}>
+          <GradientText size={fitSize(main, 740 - 68, 84, 50)} weight={900} angle={90} stops={NAVY} tracking="-0.04em" shadow={false}>
             {main}
           </GradientText>
         </MaskRise>
@@ -130,7 +130,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
     );
   } else if (style === "marker") {
     const sweep = instant ? 1 : interpolate(frame, [10, 22], [0, 1], clamp);
-    const size = fitSize(main, width, 110, 64);
+    const size = fitSize(main, width, 80, 54);
     body = (
       <MaskRise progress={rise}>
         <div style={{ fontFamily: fonts.sans, fontWeight: 900, fontSize: size, display: "flex", gap: Math.round(size * 0.22), justifyContent: "center", flexWrap: "wrap" }}>
@@ -161,12 +161,12 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
       </MaskRise>
     );
   } else {
-    const size = fitSize(main, width, 88, 56);
+    const size = fitSize(main, width, 76, 50);
     body = (
       <>
         {lead ? (
           <div style={{ opacity: enter }}>
-            <OutlineText size={48} weight={700}>{lead}</OutlineText>
+            <OutlineText size={38} weight={700}>{lead}</OutlineText>
           </div>
         ) : null}
         <div style={{ opacity: enter, translate: `0 ${(1 - enter) * 24}px` }}>
@@ -184,7 +184,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
         style={{
           position: "absolute",
           top,
-          left: 60,
+          left: (1080 - width) / 2,
           width,
           display: "flex",
           flexDirection: "column",

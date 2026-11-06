@@ -80,7 +80,8 @@ consecutive beats; one accent word per title.
 
 - Titles 88–160px (auto-fitted to width by `fitSize`), labels ≥ 40px, nothing under 36px [C].
 - At most ~14 characters on the big line; 2–6 words per title.
-- Titles live in the **top band** (y ≈ 270–560); keep x ≤ 900 below y ≈ 700 (TikTok's right rail).
+- Titles live in the **top strip** (y ≈ 236–420, `theme.zones`), at most two lines and ~190 px tall, so
+  the centre of the frame stays free for the footage; keep x ≤ 900 below y ≈ 700 (TikTok's right rail).
 - Never over a face. See `layout-and-motion-graphics.md` for the bands.
 
 ---
@@ -90,8 +91,8 @@ consecutive beats; one accent word per title.
 | | Captions (spoken words) | Titles (designed) |
 |---|---|---|
 | Source | `align_captions.py` (timing from Whisper, words from the script) | The plan's Overlays table |
-| Font | Be Vietnam Pro 800, 74px, outline | Mixed weights, accent serif |
-| Place | Own band, y ≈ 1190 | Top band |
+| Font | Be Vietnam Pro 800, 58px, outline (≤ 2 lines, x 90–890) | Mixed weights, accent serif |
+| Place | Lower third, y ≈ 1340 (`theme.captionTop`); 120 px higher while the cart arrow shows | Top strip |
 | Motion | 4-frame fade per group; **karaoke**: the spoken word turns yellow and scales 1.08 | Choreographed entrance/exit |
 
 Keep the caption highlight colour different from title accents. Don't animate a title entrance and a

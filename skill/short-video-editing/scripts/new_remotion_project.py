@@ -12,8 +12,9 @@ the rest of public/, node_modules/, out/ and your own *.json projects. Local edi
 files are overwritten.
 
 Proxies: phone footage is usually 4K HEVC with rotation metadata; rendering from it is slow. This
-writes H.264 1080x1920 30fps, audio-free copies named <STEM>.mp4 (ffmpeg applies the rotation).
-Use --proxy-height 3840 when the edit punches in beyond ~1.15x (see references/camera-moves.md).
+writes H.264 30fps, audio-free copies named <STEM>.mp4 (ffmpeg applies the rotation), 1620x2880 by
+default so camera moves up to ~1.5x stay sharp. Use --proxy-height 1920 for fast drafts (soft past
+~1.15x) or 3840 for zooms up to 2x (see references/camera-moves.md).
 
 Ask the user before --install: it downloads npm packages and Remotion's Chromium on first render.
 """
@@ -63,7 +64,8 @@ def main() -> int:
     ap.add_argument("--install", action="store_true", help="run npm install in the new project")
     ap.add_argument("--update", action="store_true", help="re-copy the template over an existing render project")
     ap.add_argument("--proxies", type=Path, help="folder of raw clips to convert into public/clips")
-    ap.add_argument("--proxy-height", type=int, default=1920, choices=[1920, 3840])
+    ap.add_argument("--proxy-height", type=int, default=2880, choices=[1920, 2880, 3840],
+                    help="proxy height in pixels: 2880 (default) stays sharp to ~1.5x zoom, 1920 is smaller and faster, 3840 sharp to 2x")
     a = ap.parse_args()
 
     dest = a.dest.expanduser().resolve()

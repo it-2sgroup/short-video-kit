@@ -77,6 +77,17 @@ python3 scripts/align_captions.py voice_short.mp3 --script script.txt --out capt
 Đọc giọng để tìm câu có claim không được lặp lại trên màn hình ("sạch tinh", "tiết kiệm tiền trăm tiền triệu"…) và
 báo người dùng; không tự ý sửa lời đã thu.
 
+### 5b. Lô nhiều video: chia cảnh và footage bằng công cụ
+Khi một lô footage phải nuôi nhiều video, đừng chia tay. Lập **thư viện shot** (`assets/shot-library.example.json`: mỗi
+đoạn một loại shot, điểm hành động `focus`, cỡ cảnh `size`), rồi cho mỗi video:
+```bash
+python3 scripts/suggest_cuts.py words.json --json > cuts.json        # cắt đúng chỗ lặng của giọng, cảnh 2,5–4 s
+python3 scripts/plan_scenes.py --library library.json --cuts cuts.json --kinds "…" --types "…" \
+    --used kb4/edit-plan.md kb7/edit-plan.md --seed 3                 # Source/In không trùng, Camera theo loại shot
+```
+`plan_scenes.py` thoát 1 khi không còn đoạn trống cho một cảnh: đó là lúc footage đã hết, hãy báo con số thay vì cho
+lặp (`references/Chính sách.md`).
+
 ### 6. Kiểm kế hoạch
 ```bash
 python3 scripts/pacing_checker.py edit-plan.md
@@ -123,5 +134,9 @@ chữ đè lên mặt hay vật. Nghe trọn video. Nhạc phải từ Commercia
 3. Mọi kế hoạch có timestamp từng cảnh.
 4. Tổng 25–45 giây, lý tưởng 30–40.
 5. Soát claim thương mại trước khi giao.
-6. Một lô footage nuôi nhiều video; không đoạn nào dùng hai lần.
+6. Một lô footage nuôi nhiều video **không dùng lại**; không đoạn nào dùng hai lần. Mỗi video cần khoảng 42 giây
+   nguồn riêng, nên số video tối đa = tổng giây nguồn ÷ 42.
 7. Đồ hoạ tôn trọng khung hình: không đè mặt, không vào vùng giao diện TikTok, phụ đề có dải riêng.
+8. Cảnh quay phải của mình hoặc có giấy phép; không ghép video của người khác (Douyin, TikTok…) khi chưa có giấy
+   phép thương mại bằng văn bản; không tạo "thêm video" bằng cách xáo trộn cùng một nguồn. Đọc
+   `references/Chính sách.md` trước khi lập kế hoạch cho một lô video.

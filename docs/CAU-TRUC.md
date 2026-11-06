@@ -77,8 +77,9 @@ short-video-kit/
 
 ### 6.1 `SKILL.md`
 
-Điểm vào mà Claude nạp. Gồm 7 **quy tắc cứng** (hook trong 3 giây; cảnh 3–4 giây; có mốc thời gian; 25–45 giây; soát
-claim; một lô footage nuôi nhiều video không dùng lại đoạn nào; đồ họa tôn trọng khung hình), quy trình 9 bước, bảng
+Điểm vào mà Claude nạp. Gồm 8 **quy tắc cứng** (hook trong 3 giây; cảnh 3–4 giây; có mốc thời gian; 25–45 giây; soát
+claim; một lô footage nuôi nhiều video không dùng lại đoạn nào; đồ họa tôn trọng khung hình; cảnh quay của mình hoặc
+có giấy phép, không xáo trộn một nguồn thành nhiều video), quy trình 9 bước, bảng
 chỉ mục `references/` và phần "trung thực về bằng chứng" (đâu là số liệu đo, đâu là quy ước nghề).
 
 ### 6.2 `references/` — tri thức theo chủ đề
@@ -86,6 +87,7 @@ chỉ mục `references/` và phần "trung thực về bằng chứng" (đâu l
 | File | Khi nào đọc |
 |---|---|
 | `niche-winning-patterns.md` | Đầu tiên với hàng gia dụng/tẩy rửa: số liệu thật trên 16.242 video (thời lượng, CTR, tập trung vào top creator). *Chứa số liệu nội bộ, repo phải để private.* |
+| `Chính sách.md` | **Đọc trước khi lập kế hoạch một lô video hoặc dùng cảnh không phải của mình:** TikTok, TikTok Shop và Douyin coi gì là nội dung không gốc, lặp, vi phạm bản quyền; nguồn hiện có làm được bao nhiêu video; kết luận về việc crawl Douyin; cách đi hợp lệ để có số lượng lớn. |
 | `platform-specs.md` | Viết kịch bản/claim; bảng "câu cấm → câu thay thế"; luật before/after; vùng an toàn. |
 | `hook-library.md` | Chọn hoặc viết 3 giây đầu; xếp hạng kiểu hook; ví dụ tiếng Việt. |
 | `before-after.md` | Cách dựng TRƯỚC/SAU cho tẩy vết bẩn: kỹ thuật editor trên thế giới dùng, thẻ `compare`, chọn cặp khung hình, cảnh báo chính sách quảng cáo của TikTok. |
@@ -115,6 +117,8 @@ lại chỉ cần Python 3 và ffmpeg.
 | `make_sfx.py` | Tự tạo 6 tiếng hiệu ứng (pop, tick, ding, thud, swoosh, riser) bằng ffmpeg: không tải gì, không vướng bản quyền; đỉnh −3 dB như các file CC0. | thư mục → `.wav` |
 | `make_voiceover.py` | Tạo giọng bằng ElevenLabs, mỗi dòng một file; `--quota`, `--dry-run` (không tiêu credit), từ chối chạy nếu không đủ credit. | `script.txt` → `.mp3` + `voice_manifest.json` |
 | `align_captions.py` | Whisper cho **thời gian**, kịch bản cho **chữ**; gộp nhóm phụ đề quá ngắn; `--words-out` ghi thời gian từng từ. | giọng + script → `captions.srt`, `words.json` |
+| `suggest_cuts.py` | Gợi ý điểm cắt cảnh từ `words.json`: cắt đúng chỗ lặng của giọng, không cắt giữa từ, cảnh 2,5–4 s, nhịp hook ngắn (quy hoạch động); `--prefer` ưu tiên chỗ đổi shot. | `words.json` → bảng/`cuts.json` |
+| `plan_scenes.py` | Điền cột Source/In của bảng Scenes từ **thư viện shot** sao cho không đoạn nào dùng hai lần (trong và giữa các video), chọn Transition và Camera theo loại shot; thoát 1 khi footage hết. | `library.json` + `cuts.json` → bảng Scenes |
 | `pacing_checker.py` | Cổng kiểm tra luật nhịp (hook, cảnh ≤ 4 s và ≥ 2,5 s ngoài hook, liền mạch, tổng thời lượng). Thoát 1 nếu vi phạm. | `edit-plan.md` → báo cáo |
 | `footage_overlap_checker.py` | Biến mỗi cảnh thành khoảng nguồn `[In, In+độ dài]` và báo trùng/sát nhau trong và giữa các plan; `--clips` liệt kê đoạn còn trống. | các `edit-plan.md` → báo cáo |
 | `plan_to_project.py` | Biên dịch kế hoạch thành `project.json`; tự gán camera (`--auto-camera`), phóng theo từ khóa (`--punch-keywords`); in **báo cáo bắt nhịp**; `--auto-sfx` thêm hiệu ứng âm thanh theo `sfx-map.json`; báo thiếu file (clip, giọng, nhạc, SFX) trong `public/`. | `edit-plan.md` + SRT + words → `project.json` |
@@ -125,6 +129,7 @@ lại chỉ cần Python 3 và ffmpeg.
 | Đường dẫn | Chức năng |
 |---|---|
 | `edit-plan-template.md` | Mẫu kế hoạch dựng: bảng **Scenes** (Start, End, Source, In, Type, Transition, Camera, Shot, Audio), bảng **Overlays** (Start, End, Component, Zone, Tone, Content), danh sách soát tuân thủ. |
+| `shot-library.example.json` | Mẫu thư viện shot cho `plan_scenes.py`: mỗi đoạn một loại shot (`kind`), điểm hành động (`focus`), cỡ cảnh (`size`). |
 | `sfx/` | Bộ hiệu ứng âm thanh: 5 file ghi âm CC0 (`whoosh`, `whip`, `switch`, `mouse-click`, `shutter-modern`), `SOURCES.md` (tác giả, nguồn, giấy phép từng file), `sfx-map.json` (tiếng nào cho sự kiện nào, mức dB, độ dẫn trước). |
 | `remotion-template/` | Dự án Remotion điều khiển bằng dữ liệu (mục 7). |
 

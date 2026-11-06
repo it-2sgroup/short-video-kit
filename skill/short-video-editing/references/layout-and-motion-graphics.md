@@ -14,11 +14,19 @@ template uses the conservative union [C]:
 | Region | Pixels | Use |
 |---|---|---|
 | Hard no-go | y < 220, y > 1400, and x > 900 when y > 700 | TikTok tabs, caption/username, action rail (the product bar starts at y ≈ 1640; the cart arrow is the one graphic allowed below 1400) |
-| Top band | y ≈ 270–560 (`zone: top`) | Hook titles, steps, cards, podiums |
-| Upper | y ≈ 560–820 (`zone: upper`) | Secondary titles, CTA text, lists when the chest band is busy |
-| Center | y ≈ 860 (`zone: center`) | Only over hands/products — never over a face |
-| Chest band | y ≈ 1010–1180 (`zone: lower`) | Prices, checklists, lower thirds |
-| Caption band | y ≈ 1190–1380 | Spoken captions only |
+| Top strip | y ≈ 236–420 (`zone: top`) | Hook titles, steps, cards: hugging the top edge of the safe area |
+| Upper | y ≈ 470 (`zone: upper`) | Rare secondary title when the top strip is taken |
+| Center | y ≈ 860 (`zone: center`) | Only a callout or highlight on the product itself, short |
+| Lower | y ≈ 1230 (`zone: lower`) | Progress label, a price: close to the captions, never in the middle |
+| Caption band | y ≈ 1340 (58 px, ≤ 2 lines, x 90–890) | Spoken captions only; lifted 120 px while a `cart` overlay is on |
+
+**Viewer-first rule (why the zones moved).** The picture is the reason people stay; text is the
+reason they understand. With the old zones (titles at y 270–560, captions at y 1190) text blocks sat
+close to the middle and covered the stain, the pour and the lift, so viewers read subtitles instead of
+watching. Now the middle ~900 px (y ≈ 420–1330) belongs to the footage: titles are one strip at the
+top edge, captions one short block just above the bottom no-go, and nothing else stands between them
+except a callout or circle *on* the subject. Check every video on a contact sheet: the stain, the
+pour and the lifted garment must be fully visible in the frame's centre in every scene.
 | Cart anchor | (112, 1677) | Centre of the yellow bag tile of TikTok Shop's product bar (below). Point at it; never draw a fake cart |
 
 **Where the product bar really is** (measured, not estimated). On a 1284×2778 iPhone screenshot of the

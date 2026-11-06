@@ -149,7 +149,12 @@ def parse_transition(raw: str):
 def parse_camera(raw: str):
     if not raw or raw in "-–":
         return None
-    cam, parts = {}, raw.replace(",", " , ").split()
+    cam = {}
+    roll = re.search(r"roll\s+(-?[\d.]+)\s*>\s*(-?[\d.]+)", raw)  # degrees, e.g. roll -1>1
+    if roll:
+        cam["roll"] = [float(roll.group(1)), float(roll.group(2))]
+        raw = raw.replace(roll.group(0), " ")
+    parts = raw.replace(",", " , ").split()
     cam["move"] = parts[0].lower() if parts[0].lower() in {"push", "pull", "pan", "hold"} else "push"
     rng = re.search(r"([\d.]+)\s*>\s*([\d.]+)", raw)
     if rng:
@@ -157,7 +162,7 @@ def parse_camera(raw: str):
     if cam["move"] == "pan":
         d = next((p for p in parts if p.lower() in DIRS), "left")
         pct = re.search(r"(\d+(?:\.\d+)?)%", raw)
-        a = float(pct.group(1)) / 100 if pct else 0.06
+        a = float(pct.group(1)) / 100 if pct else 0.08
         cam["pan"] = {"left": [-a, 0], "right": [a, 0], "up": [0, -a], "down": [0, a]}[d]
     foc = re.search(r"focus\s+([\d.]+)\s*,\s*([\d.]+)", raw)
     if foc:
@@ -248,24 +253,26 @@ def read_srt(path: Path):
 
 # ----------------------------------------------------------------------------- auto direction
 def auto_camera(scenes):
-    """Vary the virtual camera: alternate push/pull, change scale tier every 2-3 scenes."""
+    """Fill blank Camera cells with moves big enough to be seen, varied in size and direction.
+    Rules (references/camera-moves.md): never the same move twice in a row; alternate shot sizes
+    (wide ~1.0, medium ~1.15, close ~1.3); close shots push, results pull back to reveal; some
+    scenes lean (roll). Cells you write by hand are left alone."""
     pattern = [
-        {"move": "push", "from": 1.0, "to": 1.07},
-        {"move": "push", "from": 1.06, "to": 1.14},
-        {"move": "pull", "from": 1.16, "to": 1.02},
-        {"move": "pan", "pan": [-0.05, 0]},
-        {"move": "push", "from": 1.0, "to": 1.08},
-        {"move": "pan", "pan": [0.05, 0]},
-        {"move": "pull", "from": 1.12, "to": 1.0},
+        {"move": "push", "from": 1.0, "to": 1.18},                      # wide, push in
+        {"move": "pan", "pan": [-0.08, 0], "from": 1.16, "to": 1.24},   # medium, drift left while closing in
+        {"move": "pull", "from": 1.3, "to": 1.05},                       # close, pull out
+        {"move": "push", "from": 1.14, "to": 1.34, "roll": [-1.0, 1.0]},  # medium to close with a lean
+        {"move": "pan", "pan": [0.08, 0], "from": 1.16, "to": 1.24},
+        {"move": "pull", "from": 1.26, "to": 1.0},
     ]
     k = 0
     for s in scenes:
         if s.get("camera"):
             continue
-        if s.get("type") in ("REVEAL",):
-            s["camera"] = {"move": "hold", "from": 1.03}  # let the result read; no motion fighting it
+        if s.get("type") == "REVEAL":
+            s["camera"] = {"move": "pull", "from": 1.22, "to": 1.0}  # open out onto the finished result
         elif s.get("type") == "CTA-CLOSE":
-            s["camera"] = {"move": "push", "from": 1.0, "to": 1.05}  # calm, room for the cart arrow
+            s["camera"] = {"move": "push", "from": 1.0, "to": 1.1}  # calm, room for the cart arrow
         else:
             s["camera"] = dict(pattern[k % len(pattern)])
             k += 1

@@ -38,15 +38,25 @@ worst on every measure. Push back on 15-second requests.
 **5. Check commercial claims before delivering.** For cleaning, laundry, cosmetic and health-adjacent
 products most moderation risk is in the words. Run the checklist in `references/platform-specs.md`.
 
-**6. One batch of raw footage feeds as many videos as it can; no stretch is used twice.** Plan the
-batch, give every video its own source ranges, never repeat a moment inside a video, and spend scarce
-shots (product hero, clean "after") where they matter most.
+**6. One batch of raw footage feeds as many videos as it can *without reuse*; no stretch is used twice.**
+Plan the batch, give every video its own source ranges, never repeat a moment inside a video, and spend
+scarce shots (product hero, clean "after") where they matter most. A video needs about 42 s of fresh
+footage, so the batch size is capped by footage ÷ 42 s.
 `scripts/footage_overlap_checker.py` enforces it.
 
 **7. Graphics respect the frame.** Nothing over a face; nothing in TikTok's UI zones (y < 220,
 y > 1400, x > 900 below y ≈ 700); captions keep their own band; at most two informational elements
-at once; no text in boxes on product demos (client rule). See
-`references/layout-and-motion-graphics.md`.
+at once; no text in boxes on product demos (client rule). **The footage owns the middle of the frame**:
+titles hug the top edge (y ≈ 236–420), captions sit in the lower third (y ≈ 1340, 58 px, ≤ 2 lines), and
+nothing but a callout on the subject stands between them, so the viewer watches the stain, the pour and the
+lift instead of reading subtitles. Check it on a contact sheet. See `references/layout-and-motion-graphics.md`.
+
+**8. Footage is owned or licensed, and videos are not reshuffles of each other.** Never use other
+people's videos (Douyin, TikTok, YouTube, competitors) without a written commercial licence, and never
+make "more videos" by reordering the same clips: TikTok Shop names that as repetitive content. Default
+`r = 1` (no source range in two videos of a batch); when the footage cannot reach the batch size, say so
+with the numbers and propose shooting or licensed creators. Read `references/Chính sách.md` before
+planning a batch.
 
 ---
 
@@ -86,7 +96,12 @@ pain point → product reveal with an open loop. Avoid authority framing and bar
 
 Choose cut points **on pauses in the voice**, never inside a word (`references/sync-and-timing.md`).
 Give every scene a transition (`references/transitions.md`) and a camera move, or leave Camera blank
-for `--auto-camera` (`references/camera-moves.md`).
+for `--auto-camera` (`references/camera-moves.md`). A move nobody notices is wasted: ≥ ~12% scale change or
+~8% pan, aimed at the action with `focus`, shot size alternating wide → medium → close (pull on the lifted
+garment, push on the stain and the pour, slow pan on a soaking bowl, an occasional `roll` lean).
+For a batch, `suggest_cuts.py` picks the cuts on pauses and `plan_scenes.py` fills Source/In from a shot
+library without reusing a range and chooses the camera from what each shot shows
+(`references/footage-ingest.md` §1b).
 
 ### 4. Design the graphics layer
 Fill the plan's **Overlays** table: title styles (`references/typography.md`), callouts, steps,
@@ -160,12 +175,13 @@ Read as the task requires, not all at once.
 | File | Read it when |
 |---|---|
 | `references/niche-winning-patterns.md` | **First, for a cleaning/household product.** What the campaign data shows about duration, CTR, creators. |
+| `references/Chính sách.md` | **Before any batch of videos or any footage that is not the user's own:** what TikTok, TikTok Shop and Douyin treat as unoriginal, repetitive or infringing; how many videos the footage supports; the verdict on Douyin crawling; what to do instead. |
 | `references/platform-specs.md` | Writing any script or claim; regulated categories; before/after rules; the rewrite table. |
 | `references/hook-library.md` | Choosing or writing the opening. |
 | `references/before-after.md` | Showing the result of a stain remover: techniques editors use, the `compare` card, choosing the BEFORE/AFTER pair, the ads-policy warning. |
 | `references/pacing-and-transitions.md` | Cadence, structure, re-hooks, footage that fights the rules. |
 | `references/transitions.md` | Choosing transitions; the centred-cut maths; shader transitions on Windows; SFX. |
-| `references/camera-moves.md` | Push/pull/pan/hold, keyword punch-ins, avoiding jerky zooms. |
+| `references/camera-moves.md` | Visible push/pull/pan/roll, the shot-size ladder, focus on the action, keyword punch-ins, 2880 proxies, avoiding jerky zooms. |
 | `references/typography.md` | Fonts with Vietnamese support, the five title styles, captions vs titles. |
 | `references/layout-and-motion-graphics.md` | Safe zones, layout per content type, the component catalogue, density. |
 | `references/sync-and-timing.md` | Cutting on pauses, anchoring graphics to words, music ducking, beat sync, verification. |

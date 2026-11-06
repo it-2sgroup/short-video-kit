@@ -26,6 +26,7 @@ export type Camera = {
   to?: number; // scale at scene end
   focus?: [number, number]; // 0..1 point that stays put while scaling (product, face)
   pan?: [number, number]; // pan distance as a fraction of the frame, e.g. [-0.08, 0]
+  roll?: [number, number]; // tilt in degrees from scene start to end, e.g. [-1.2, 1.2] (adds a handheld lean)
 };
 
 export type Scene = {

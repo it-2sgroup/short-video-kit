@@ -81,6 +81,31 @@ printf '| # | Start | End | Source | In |\n|---|---|---|---|---|\n| 1 | 0 | 3 | 
 "$PY" "$S/footage_overlap_checker.py" "$TMP/dup.md" >/dev/null 2>&1 \
   && fail "a reused range was NOT caught" || pass "a reused range is caught"
 
+echo "7b. suggest_cuts.py and plan_scenes.py (cuts on pauses, footage never reused)"
+"$PY" - "$TMP" <<'PYEOF'
+import json, sys
+tmp = sys.argv[1]
+words, t = [], 0.0
+for i in range(60):  # 60 words, a pause every 6th: ~24 s of speech
+    words.append({"text": f"w{i}", "start": round(t, 2), "end": round(t + 0.3, 2)})
+    t += 0.3 + (0.45 if i % 6 == 5 else 0.05)
+json.dump(words, open(f"{tmp}/w.json", "w"))
+json.dump({"gap": 0.5, "spans": [
+    {"clip": "A", "kind": "SOAK", "start": 0, "end": 60, "focus": [0.5, 0.5], "size": "medium"},
+    {"clip": "B", "kind": "SOAK", "start": 0, "end": 60, "focus": [0.5, 0.5], "size": "medium"}]}, open(f"{tmp}/lib.json", "w"))
+PYEOF
+"$PY" "$S/suggest_cuts.py" "$TMP/w.json" --json > "$TMP/cuts.json" 2>"$TMP/cuts.err" \
+  && "$PY" -c "import json,sys; c=json.load(open(sys.argv[1])); sys.exit(0 if len(c)>=5 and all(1.2<=x['end']-x['start']<=4.0 for x in c) else 1)" "$TMP/cuts.json" \
+  && pass "scene cuts: every scene 1.2-4.0 s" || { fail "suggest_cuts output wrong"; sed 's/^/        /' "$TMP/cuts.err" | head -3; }
+N=$("$PY" -c "import json,sys; print(len(json.load(open(sys.argv[1]))))" "$TMP/cuts.json" 2>/dev/null || echo 0)
+KINDS=$(printf 'SOAK,%.0s' $(seq 1 "$N")); KINDS=${KINDS%,}; TYPES=$(printf 'DEMO,%.0s' $(seq 1 "$N")); TYPES=${TYPES%,}
+"$PY" "$S/plan_scenes.py" --library "$TMP/lib.json" --cuts "$TMP/cuts.json" --kinds "$KINDS" --types "$TYPES" > "$TMP/scenes.md" 2>"$TMP/scenes.err" \
+  && "$PY" "$S/footage_overlap_checker.py" "$TMP/scenes.md" >/dev/null 2>&1 \
+  && pass "plan_scenes filled $N scenes and the overlap checker finds no reuse" || { fail "plan_scenes output reused or missing footage"; sed 's/^/        /' "$TMP/scenes.err" | head -3; }
+"$PY" "$S/plan_scenes.py" --library "$TMP/lib.json" --cuts "$TMP/cuts.json" --kinds "$KINDS" --types "$TYPES" --used "$TMP/scenes.md" > "$TMP/scenes2.md" 2>/dev/null \
+  && "$PY" "$S/footage_overlap_checker.py" "$TMP/scenes.md" "$TMP/scenes2.md" >/dev/null 2>&1 \
+  && pass "a second video planned with --used shares no range with the first" || fail "second video reused footage of the first"
+
 echo "8. trim_voice.py finds a pause and cuts there"
 ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='if(between(t,1,2),0,sin(2*PI*440*t))':d=3:s=44100" "$TMP/v.mp3" 2>/dev/null
 "$PY" "$S/trim_voice.py" "$TMP/v.mp3" --silences 2>&1 | grep -q "cut at 1.5" \

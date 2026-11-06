@@ -41,8 +41,11 @@ exceeds the height.
 Raw footage is usually shot once and used for many scripts (the same bowl, bottles and garments cut
 into KB1, KB2, KB3…). Treat it as a budget:
 
-1. **Count the demand first.** How many scripts or videos are waiting? Ask if unknown. Plan for the
-   most the footage can support, not for one.
+1. **Count the demand first, then the supply.** How many scripts or videos are waiting? Ask if unknown.
+   Each 12-scene video needs about **42 s of fresh footage** (12 × 3 s plus the 0.5 s gaps), so total raw
+   seconds ÷ 42 is the most videos the footage can carry without reuse (587 s of source → about 14). If the
+   demand is larger, **stop and report the shortfall** (`Chính sách.md` §4.1 has the table for 200–300
+   videos); reshuffling clips into "new" videos is the repetitive-content pattern TikTok Shop penalises.
 2. **Catalogue by kind of moment, not by file.** Typical kinds: `BEFORE` (stain clearly visible),
    `AFTER` (clean item lifted out), `POUR` (bottle in use), `HERO` (product in hand, label readable),
    `SCRUB` (process), `PROBLEM` (dirty item held up). Note which are scarce. In the SAIZA footage the
@@ -65,6 +68,22 @@ into KB1, KB2, KB3…). Treat it as a budget:
    tables, so keep every plan file (a `project.json` cannot rebuild one) and name them all; it does
    not see clips pulled in by `thumbs` or `magnifier` overlays, so draw those from ranges the same
    video already shows.
+   **Let the tools do the allocation.** Write a *shot library* (`assets/shot-library.example.json`): one
+   span per stretch of a clip where one kind of shot holds (`kind`: STAIN, POUR_PINK, SOAK, SOAK_STAINED,
+   LIFT, WIDE…; `focus`: where the action is, 0–1; `size`: wide / medium / close). Then per video:
+
+   ```bash
+   python scripts/suggest_cuts.py words.json --json --prefer 8.4,15.2 > cuts.json   # cuts on pauses, 2.5–4 s
+   python scripts/plan_scenes.py --library library.json --cuts cuts.json \
+       --kinds "STAIN@IMG_0329,LIFT@IMG_0329,SOAK|POUR_PINK,..." --types "HOOK,HOOK,DEMO,..." \
+       --used kb4/edit-plan.md kb7/edit-plan.md --reserve IMG_0330:STAIN,IMG_0330:LIFT --seed 3
+   ```
+
+   `plan_scenes.py` fills Source/In so no range is used twice (0.5 s kept between), chooses Transition and a
+   content-aware Camera from the span, and exits 1 when a scene cannot be filled: that is the signal the
+   footage has run out (`ANY` at the end of a `--kinds` list accepts any leftover kind). `--reserve` keeps
+   the before/after pair clips of a later video free; `KIND@CLIP` pins a scene to one clip so a before/after
+   pair shows the same garment. Run the overlap checker afterwards anyway.
 6. **Say so when the budget runs out.** If the remaining footage cannot support another video without
    repeats, tell the user and name what to shoot (pickups), rather than quietly repeating shots.
 

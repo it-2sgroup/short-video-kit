@@ -40,13 +40,16 @@ export const toneColor: Record<Tone, string> = {
 // conservative union of third-party measurements (see references/layout-and-motion-graphics.md).
 export const frame = { width: 1080, height: 1920 };
 export const safe = { left: 60, right: 900, top: 220, bottom: 1400 }; // right rail covers x > 900
+// Viewer-first layout: text hugs the top and bottom edges and leaves the middle ~45% of the frame
+// (y 420-1330) to the footage. The top strip starts just under TikTok's status/tabs (y 220).
 export const zones: Record<Zone, number> = {
-  top: 270, // head-room band: hook titles, steps, cards
-  upper: 560,
+  top: 236, // title / hook / steps / thumbs strip: the only text above the action
+  upper: 470, // secondary text when the top strip is taken (checklist)
   center: 860, // only over hands/products, never over a face
-  lower: 1010, // chest band: prices, checklists, lower thirds
+  lower: 1230, // a bar just above the captions (progress)
 };
-export const captionTop = 1190; // spoken captions live in their own band
+export const captionTop = 1340; // spoken captions: lower third, above TikTok's product bar (y 1644)
+export const captions = { size: 58, left: 90, right: 190, lift: 120 }; // right 190 keeps clear of the action rail; lift = shift while the cart arrow shows
 // Centre of the yellow shopping-bag tile in TikTok Shop's product bar, in frame pixels. Measured on a
 // 1284x2778 iPhone screenshot of the feed (tile x 48-107, y 2180-2239; tab bar starts at y 2530, so the
 // video fills 1284x2530 and a 1080x1920 frame is scaled 1.3177 and cropped 69.5 px each side). The bar
@@ -56,7 +59,8 @@ export const cartPoint = { x: 112, y: 1677 };
 // Before/after card (components/graphics/Media.tsx). It sits in the `top` zone, inside the safe
 // width; frames are in 30 fps frames. `settle` is where the divider stops: 0.5 shows both halves.
 // `scrim` dims the footage behind the card so the comparison does not blend into it.
-export const compare = { height: 720, radius: 28, border: 6, divider: 6, handle: 84, holdFrames: 8, sweepFrames: 20, settle: 0.5, scrim: 0.55 };
+export const compare = { height: 620, radius: 28, border: 6, divider: 6, handle: 76, holdFrames: 8, sweepFrames: 20, settle: 0.5, scrim: 0.5 };
+export const thumb = { width: 250, height: 232 }; // the three-photo strip: small, so the footage stays visible
 
 export const motion = {
   easeOut: Easing.bezier(0.16, 1, 0.3, 1), // default entrance
@@ -70,14 +74,16 @@ export const motion = {
   exitFrames: 8, // exits are shorter than entrances
 };
 
+// A move must be big enough to be SEEN: at least ~12% scale change over a scene, ~7% pan. Keep the
+// total scale under source_px / output_px: 1920-tall proxies soften past ~1.15, 2880-tall proxies stay
+// sharp to 1.5, 3840-tall to 2.0 (new_remotion_project.py --proxy-height).
 export const camera = {
-  defaultPush: [1.0, 1.06] as [number, number],
-  defaultPull: [1.14, 1.0] as [number, number],
-  punchScale: 1.12,
+  defaultPush: [1.0, 1.16] as [number, number],
+  defaultPull: [1.24, 1.0] as [number, number],
+  defaultPan: 0.08, // share of the frame travelled by a pan
+  punchScale: 1.15,
   punchFrames: 6,
-  // Keep total scale under source_px / output_px: 1080p proxies blur past ~1.15,
-  // 2160x3840 sources stay sharp to 2.0.
-  maxScale: 1.6,
+  maxScale: 1.7,
 };
 
 export const textShadow = `drop-shadow(0 6px 18px ${palette.shadow}) drop-shadow(0 2px 4px rgba(0,0,0,0.35))`;

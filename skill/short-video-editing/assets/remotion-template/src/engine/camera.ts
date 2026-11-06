@@ -1,7 +1,7 @@
-// Virtual camera. Each scene gets one continuous move (push, pull, pan or hold) evaluated over the
-// WHOLE scene including its transition handles, so motion never resets on a cut. Keyword
-// punch-ins multiply on top and stay until the scene ends (a punch that springs back reads as a
-// glitch). Scale is interpolated perceptually so equal time = equal apparent zoom.
+// Virtual camera. Each scene gets one continuous move (push, pull, pan or hold, optionally with a
+// slow roll) evaluated over the WHOLE scene including its transition handles, so motion never resets
+// on a cut. Keyword punch-ins multiply on top and stay until the scene ends (a punch that springs
+// back reads as a glitch). Scale is interpolated perceptually so equal time = equal apparent zoom.
 import { interpolate, spring } from "remotion";
 import type { Camera } from "../project";
 import { camera as tokens, frame as frameSize, motion } from "../theme";
@@ -36,16 +36,21 @@ export const cameraStyle = (
     scale *= 1 + (p.scale - 1) * k;
   }
 
-  const [px, py] = cam?.move === "pan" ? cam.pan ?? [-0.06, 0] : [0, 0];
-  // A pan needs spare image on the side it travels to; never reveal the frame edge.
-  scale = Math.max(scale, 1 + 2 * Math.max(Math.abs(px), Math.abs(py)));
+  const [px, py] = cam?.move === "pan" ? cam.pan ?? [-tokens.defaultPan, 0] : [0, 0];
+  const progress = interpolate(frame, [0, duration], [0, 1], { ...clamp, easing: motion.camera });
+  const [r0, r1] = cam?.roll ?? [0, 0];
+  const roll = r0 + (r1 - r0) * progress;
+  // A pan needs spare image on the side it travels to, and a roll needs spare image in the corners
+  // (cos + sin * 16/9 for a 9:16 frame); never reveal the frame edge.
+  const rad = (Math.max(Math.abs(r0), Math.abs(r1)) * Math.PI) / 180;
+  scale = Math.max(scale, 1 + 2 * Math.max(Math.abs(px), Math.abs(py)), Math.cos(rad) + Math.sin(rad) * (16 / 9));
   scale = Math.min(scale, tokens.maxScale);
 
-  const progress = interpolate(frame, [0, duration], [0, 1], { ...clamp, easing: motion.camera });
   const [fx, fy] = cam?.focus ?? [0.5, 0.5];
   return {
     transformOrigin: `${fx * 100}% ${fy * 100}%`,
     translate: `${px * progress * frameSize.width}px ${py * progress * frameSize.height}px`,
+    rotate: roll ? `${roll}deg` : undefined,
     scale: String(scale),
   };
 };

@@ -22,6 +22,7 @@ headcount before building; if it is over three and nobody has a seat, say so. So
 ```bash
 # 1. Scaffold once per batch (ask before --install: it downloads npm packages + Chromium)
 python scripts/new_remotion_project.py ~/renders/saiza --install --proxies "/path/to/raw clips"
+# proxies are 1620x2880 by default so camera moves up to ~1.5x stay sharp (--proxy-height 1920 = fast drafts)
 cp voice.mp3 ~/renders/saiza/public/audio/kb7.mp3
 
 # 2. Captions + word timings (step 5 of SKILL.md)

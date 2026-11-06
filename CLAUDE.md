@@ -53,7 +53,8 @@ this script PDF, this clip folder and this voice":
 1. `./setup.sh --check`, then read the script into one `script.txt` per video (a PDF: open it with the
    Read tool, `pages` up to 20 at a time, and copy the spoken lines; no PDF library is installed).
 2. See the footage: `contact_sheet.py CLIPS_DIR --out overview.png`, `inspect_footage.py CLIPS_DIR --log`;
-   build a shot log and **budget the batch** (every video gets its own source ranges).
+   build a shot log and **budget the batch** (every video gets its own source ranges; check the capacity
+   against the batch size first, `references/Chính sách.md` §4.1).
 3. Voice: supplied → `trim_voice.py` if over 45 s, transcribe, correct the script **by hand** to match
    what is said, `align_captions.py`. No supplied voice → ElevenLabs (after `--quota`).
 4. Write `edit-plan.md` (Scenes + Overlays), cut **on pauses in the voice**, scenes 3–4 s.
@@ -65,6 +66,27 @@ this script PDF, this clip folder and this voice":
 Keep work files **outside this repo** (e.g. `<work>/kb7/{script.txt,voice.mp3,captions.srt,words.json,
 edit-plan.md}` and one render project `<work>/render`); only the toolkit lives here.
 
+## Footage rights and duplicate content — read `references/Chính sách.md` first
+
+Before planning **any batch** of videos, and before using **any footage that is not the user's own or
+licensed**, read `skill/short-video-editing/references/Chính sách.md` (also in the installed skill). Short
+version, with the evidence in that file:
+
+- **Never download, crawl, cut or splice other people's videos** (Douyin, TikTok, YouTube, a competitor's) into
+  product videos without a **written commercial licence**. Douyin's terms forbid commercial use and
+  scraping; TikTok removes or demotes reused content and bans repeat infringers. Never run or adapt
+  `crawl-video-douyin`-style download → re-dub → re-post pipelines for ads.
+- **Reshuffling one source into many videos is the pattern TikTok Shop names as repetitive content**
+  ("re-posting the same video at high volume with only order of clips changed"). Changing music, voice or
+  background does not fix it. The default is **no source range reused across videos of a batch**
+  (`footage_overlap_checker.py` over all plans). The current 17 clips (9.8 min) support about **14** videos at
+  that rule; 200–300 would need roughly 140–210 minutes of usable footage. When the footage runs out,
+  stop and say so with these numbers and propose shooting more, hiring KOCs with licences, or consented
+  customer video; do not reshuffle.
+- The footage must show **the advertised product's own result**; never another product's.
+- Ask the market and check its posting limits (Vietnam's rules were not found; US and Malaysia limits are in
+  the file).
+
 ## Decisions that belong to the human — do not make them silently
 
 - **ElevenLabs plan.** Free-plan audio is not licensed for commercial use, ever. Run `--quota` and say
@@ -72,6 +94,8 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
 - **Remotion licence.** Free only for individuals or companies of up to 3 employees; $25/seat/month
   above that, and an AI writing Remotion code still counts as a seat.
 - **Any download** (packages, models, binaries, stock media). Name it, its source and size; wait for yes.
+- **Third-party footage of any kind**, and **how many videos** a batch should have when the footage cannot
+  support it: put the numbers to the user (see the rights section above); never decide by reshuffling.
 - **Trimming a supplied voiceover** or dropping a claim: say exactly which sentences/claims.
 - **Claims already inside a supplied voice** ("sạch tinh", "tiết kiệm tiền trăm tiền triệu", "Hết lại
   tiếc đó!"): flag them against `references/platform-specs.md`; keep the on-screen text clear of them.
@@ -100,6 +124,13 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
 - Before/after: the reveal gets a `compare` card (TRƯỚC/SAU frames of the same garment from ranges
   already on screen, with an honest time note); TikTok's **ad** policy bars before-and-after
   comparisons, so ask whether the video will be boosted. Details: `references/before-after.md`.
+- Viewer-first layout (client feedback, Nov 2026): titles hug the top edge (y 236–420), captions are the
+  lower third (y ≈ 1340, 58 px, ≤ 2 lines), the middle ~900 px belongs to the footage. Title/caption blocks
+  in the middle made viewers read instead of watch. Camera moves must be visible (≥ ~12% scale or ~8% pan,
+  `focus` on the action, shot size alternating); render from 2880-tall proxies so the zoom stays sharp.
+  Overlay targets (`highlight`, `callout`) are in screen space: re-check them on a still after the camera changes.
+- Batches: `suggest_cuts.py` (cuts on pauses) + `plan_scenes.py` (non-overlapping footage from a shot library)
+  make the allocation; `plan_scenes.py` exiting 1 means the footage ran out: report the shortfall.
 - Remotion: show a still of a clip with `startFrom` and `<Freeze frame={0}>`; `Freeze frame={N}` with a
   large N inside a short overlay shows the wrong moment.
 - Sound effects: only CC0 or self-made sounds go into `assets/sfx/` (row in `SOURCES.md` for each file);
@@ -121,7 +152,8 @@ edit-plan.md}` and one render project `<work>/render`); only the toolkit lives h
 ## Read next
 
 `README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
-`skill/short-video-editing/SKILL.md`. Adding, renaming or removing a file or script means updating
+`skill/short-video-editing/SKILL.md` → `skill/short-video-editing/references/Chính sách.md` (content-rights and
+duplicate-content policy). Adding, renaming or removing a file or script means updating
 `docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
 
 ## Working in this repo

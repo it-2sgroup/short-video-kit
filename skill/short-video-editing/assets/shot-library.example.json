@@ -1,0 +1,11 @@
+{
+  "gap": 0.5,
+  "spans": [
+    {"clip": "CLIP_A", "kind": "WIDE",  "start": 0.0,  "end": 3.0,  "focus": [0.45, 0.62], "size": "wide"},
+    {"clip": "CLIP_A", "kind": "STAIN", "start": 3.3,  "end": 6.4,  "focus": [0.50, 0.33], "size": "close"},
+    {"clip": "CLIP_A", "kind": "POUR_PINK", "start": 6.5, "end": 10.8, "focus": [0.42, 0.50], "size": "close"},
+    {"clip": "CLIP_A", "kind": "SOAK",  "start": 10.9, "end": 15.0, "focus": [0.55, 0.55], "size": "medium"},
+    {"clip": "CLIP_B", "kind": "SOAK_STAINED", "start": 0.0, "end": 8.0, "focus": [0.50, 0.50], "size": "medium"},
+    {"clip": "CLIP_B", "kind": "LIFT",  "start": 8.5,  "end": 13.0, "focus": [0.50, 0.40], "size": "medium"}
+  ]
+}

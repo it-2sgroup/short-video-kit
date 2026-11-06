@@ -85,7 +85,7 @@ def main():
             if c1 != c2:
                 continue
             gap = max(a1, a2) - min(b1, b2)  # negative = overlap
-            if gap < a.gap:
+            if gap < a.gap - 1e-6:  # tolerance: 0.5 s margins computed from decimals land at 0.49999…
                 problems += 1
                 kind = "OVERLAP" if gap < 0 else "TOO CLOSE"
                 print(f"{kind:9} {c1}: {p1} scene {s1} [{a1:.1f}-{b1:.1f}]  vs  {p2} scene {s2} [{a2:.1f}-{b2:.1f}]"

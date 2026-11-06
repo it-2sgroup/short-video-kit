@@ -3,7 +3,7 @@
 import React from "react";
 import { AbsoluteFill, Freeze, OffthreadVideo, interpolate, staticFile, useVideoConfig } from "remotion";
 import type { Overlay } from "../../project";
-import { compare, frame as size, motion, palette, safe, toneColor, zones } from "../../theme";
+import { compare, frame as size, motion, palette, safe, thumb as THUMB, toneColor, zones } from "../../theme";
 import { clamp, smooth, useEnterExit } from "../anim";
 import { OutlineText } from "../text/primitives";
 
@@ -133,7 +133,7 @@ export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
   };
   const label = (text: string, color: string, pos: React.CSSProperties, opacity: number, width: number, align: "left" | "right" = "left") => (
     <div style={{ position: "absolute", ...pos, opacity, width }}>
-      <OutlineText size={58} weight={900} color={color} align={align}>{text}</OutlineText>
+      <OutlineText size={48} weight={900} color={color} align={align}>{text}</OutlineText>
     </div>
   );
   const beforeText = p.beforeLabel ?? "TRƯỚC";
@@ -141,7 +141,7 @@ export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
   const scrim = <div style={{ position: "absolute", inset: 0, background: `rgba(8,16,36,${compare.scrim})`, opacity: enter }} />;
   const note = p.note ? (
     <div style={{ position: "absolute", left: safe.left, width: total, top: top + h + 2 * b + 22, opacity: Math.min(enter, exit) }}>
-      <OutlineText size={40} weight={700}>{p.note}</OutlineText>
+      <OutlineText size={32} weight={700}>{p.note}</OutlineText>
     </div>
   ) : null;
 
@@ -214,7 +214,6 @@ export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
 // it the cards follow each other every 4 frames. `focus`/`zoom` frame the stain inside the small card.
 export type ThumbsProps = { cards: { clip: string; at: number; caption?: string; delay?: number; focus?: Point; zoom?: number }[] };
 
-const THUMB = { width: 286, height: 266 };
 
 export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
   const { fps } = useVideoConfig();
@@ -235,7 +234,7 @@ export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
               </div>
               {c.caption ? (
                 <div style={{ opacity: cap }}>
-                  <OutlineText size={36} weight={800} lineHeight={1.05}>{c.caption}</OutlineText>
+                  <OutlineText size={30} weight={800} lineHeight={1.05}>{c.caption}</OutlineText>
                 </div>
               ) : null}
             </div>

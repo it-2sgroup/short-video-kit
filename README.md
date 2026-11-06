@@ -59,6 +59,9 @@ voiceover ─► align_captions (captions.srt + words.json) ──────�
   (`assets/sfx/sfx-map.json`), thinned so they never crowd the voice; nothing across the reveal.
 - **Commercial-claim guidance** for TikTok Shop (banned phrasing and compliant rewrites) and
   before/after demonstration rules.
+- **Content-rights and duplicate-content policy** (`references/Chính sách.md`, in Vietnamese): what TikTok,
+  TikTok Shop and Douyin treat as unoriginal, repetitive or infringing; how many videos a given amount of
+  footage supports without reuse; why other people's videos must not be crawled and spliced in.
 - **ElevenLabs voiceover** with quota checks that refuse to spend credits the plan cannot cover.
 
 ## Requirements
@@ -166,12 +169,15 @@ and the techniques it uses (in Vietnamese) in `docs/CAU-TRUC.md`.
     ├── SKILL.md                   Rules and workflow loaded by Claude
     ├── references/                Topic guides (pacing, transitions, camera, typography,
     │                              layout and motion graphics, sync, captions, voiceover,
-    │                              audio, platform policy, hooks, campaign data, Remotion)
+    │                              audio, platform policy, content-rights policy (Chính sách.md),
+    │                              hooks, campaign data, Remotion)
     ├── scripts/                   inspect_footage, contact_sheet, trim_voice, make_voiceover,
     │                              make_sfx, align_captions, pacing_checker,
-    │                              footage_overlap_checker, plan_to_project, new_remotion_project
+    │                              footage_overlap_checker, suggest_cuts, plan_scenes,
+    │                              plan_to_project, new_remotion_project
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
+    │   ├── shot-library.example.json  Shot library format for plan_scenes.py
     │   ├── sfx/                   CC0 sound effects, their sources, the event → sound table
     │   └── remotion-template/     Render project: theme, engine, components
     └── evals/                     Evaluation cases for the skill
@@ -181,7 +187,7 @@ and the techniques it uses (in Vietnamese) in `docs/CAU-TRUC.md`.
 
 `./selftest.sh` runs eleven groups without spending ElevenLabs credits: tool availability, footage
 inspection, pacing rules, caption alignment (spelling preserved), the ElevenLabs key (read-only),
-plan compilation, footage-reuse detection, voice trimming, contact sheets, render-project scaffolding
+plan compilation, footage-reuse detection (plus cut suggestion and reuse-free scene allocation), voice trimming, contact sheets, render-project scaffolding
 (including the missing-asset report) and sound effects. `./selftest.sh --render [DIR]` adds a 12th group: typecheck the
 template and render a still. Template changes are also checked by eye on stills at transition frames.
 

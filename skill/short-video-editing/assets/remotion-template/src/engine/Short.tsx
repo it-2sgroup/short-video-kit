@@ -5,7 +5,7 @@ import { AbsoluteFill, OffthreadVideo, Sequence, interpolate, staticFile, useCur
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { LightLeak } from "@remotion/light-leaks";
 import type { Project, Scene } from "../project";
-import { motion, palette } from "../theme";
+import { captions, motion, palette } from "../theme";
 import { resolveOverlay } from "../components/registry";
 import { Captions } from "../components/text/Captions";
 import { cameraStyle, type ScenePunch } from "./camera";
@@ -43,7 +43,16 @@ const Flash: React.FC = () => {
 
 export const Short: React.FC<Project> = (project) => {
   const { fps, width, height } = useVideoConfig();
+  const frame = useCurrentFrame();
   const slots = layoutScenes(project.scenes, fps);
+  // The cart arrow owns the bottom-left corner: lift the captions while it is on screen.
+  const lift = (project.overlays ?? [])
+    .filter((o) => o.component === "cart")
+    .reduce((m, o) => {
+      const a = toFrames(o.start, fps);
+      const b = toFrames(o.end, fps);
+      return Math.max(m, interpolate(frame, [a - 4, a + 4, b - 4, b + 4], [0, captions.lift, captions.lift, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+    }, 0);
   const punchFrames = (project.punches ?? []).map((p) => ({ frame: toFrames(p.at, fps), scale: p.scale ?? 1.12 }));
 
   const series: React.ReactNode[] = [];
@@ -100,7 +109,7 @@ export const Short: React.FC<Project> = (project) => {
       })}
 
       {project.captionStyle !== "none" && project.captions?.length ? (
-        <Captions captions={project.captions} words={project.words ?? []} mode={project.captionStyle === "plain" ? "plain" : "karaoke"} />
+        <Captions captions={project.captions} words={project.words ?? []} mode={project.captionStyle === "plain" ? "plain" : "karaoke"} lift={lift} />
       ) : null}
 
       <Soundtrack voice={project.voice} music={project.music} sfx={project.sfx} words={project.words} fps={fps} />

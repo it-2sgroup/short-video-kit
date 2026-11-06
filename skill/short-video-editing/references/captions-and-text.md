@@ -41,10 +41,13 @@ Design to the conservative safe zone from `platform-specs.md` §6:
 | Left | 60 px |
 
 Usable band on a 1080×1920 frame: **y = 250 → 1410**, **x = 60 → 940** (and x ≤ 900 below y ≈ 700, where
-TikTok's action rail sits — the template's caption band is x ≈ 130–950, y ≈ 1190–1380).
+TikTok's action rail sits — the template's caption block is x ≈ 90–890, starts at y ≈ 1340, is 58 px and
+at most two lines).
 
-**Captions sit low-centre but above the bottom 510 px** — roughly y = 1150–1400. That clears
-TikTok's own caption, username, audio tag and product card.
+**Captions sit in the lower third, as low as the safe zone allows** (start y ≈ 1340, ≈ 120 px tall), so
+the middle of the frame stays clear for the footage. That clears TikTok's own caption, username, audio
+tag and product card. Big captions in the middle pull the viewer's eye off the demo: keep them small
+(58 px) and short (2–4 words a group).
 
 Two placement rules worth stating explicitly:
 

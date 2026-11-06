@@ -19,7 +19,7 @@ export const CartPointer: React.FC<Base> = ({ ov, dur, instant }) => {
   const k = instant ? 1 : pop(frame, fps, 0);
   const bob = Math.sin((frame / 15) * Math.PI * 2) * 9;
   const tip = { x: cartPoint.x, y: cartPoint.y - 58 }; // just above the bag tile
-  const tail = { x: tip.x + 170, y: tip.y - 150 };
+  const tail = { x: tip.x + 120, y: tip.y - 100 }; // short: the captions are lifted clear while it shows
   const curve = `M ${tail.x} ${tail.y} Q ${tip.x} ${tail.y} ${tip.x} ${tip.y}`; // leaves leftward, lands pointing down
   const head = `M ${tip.x - 40} ${tip.y - 46} L ${tip.x} ${tip.y} L ${tip.x + 40} ${tip.y - 46}`;
   const draw = evolvePath(instant ? 1 : interpolate(frame, [0, 12], [0, 1], clamp), curve);
@@ -27,9 +27,9 @@ export const CartPointer: React.FC<Base> = ({ ov, dur, instant }) => {
   return (
     <AbsoluteFill style={{ opacity: exit }}>
       {p.text ? (
-        // The label sits right above the arrow's start unless a zone is given.
-        <div style={{ position: "absolute", top: ov.zone ? zones[ov.zone] : tail.y - 88, left: 105, width: 700, scale: String(k), transformOrigin: "left center" }}>
-          <OutlineText size={60} weight={900} color={toneColor.cta} align="left">{p.text}</OutlineText>
+        // The label sits to the right of the arrow's start unless a zone is given.
+        <div style={{ position: "absolute", top: ov.zone ? zones[ov.zone] : tail.y - 32, left: tail.x + 26, width: 600, scale: String(k), transformOrigin: "left center" }}>
+          <OutlineText size={50} weight={900} color={toneColor.cta} align="left">{p.text}</OutlineText>
         </div>
       ) : null}
       <svg width={size.width} height={size.height} style={{ position: "absolute", inset: 0, translate: `0px ${bob}px`, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.45))" }}>
