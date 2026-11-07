@@ -66,7 +66,7 @@ if [[ $CHECK -eq 1 ]]; then
     if [[ -n "$cand" && -x "$cand" ]]; then VPY="$cand"; break; fi
   done
   py_ok()     { [[ -n "$PY" ]] && "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)'; }
-  venv_ok()   { [[ -n "$VPY" ]] && "$VPY" -c 'import faster_whisper'; }
+  venv_ok()   { [[ -n "$VPY" ]] && "$VPY" -c 'import faster_whisper, numpy'; }
   ffmpeg_ok() { command -v ffmpeg && command -v ffprobe; }
   model_ok()  { [[ -f "$MODEL_DIR/faster-whisper-small/model.bin" ]]; }
   node_ok()   { command -v node && [[ "$(node -v | sed 's/^v//; s/\..*//')" -ge 20 ]]; }
@@ -81,10 +81,14 @@ if [[ $CHECK -eq 1 ]]; then
   chk "Whisper model"                       "run ./setup.sh (downloads ~460 MB: ask the user first)" model_ok
   chk "Node 20+ (rendering only)"           "install Node 20+ (Windows: winget install OpenJS.NodeJS.LTS, then open a NEW terminal)" node_ok
   chk "skill installed and identical to this repo" "run ./setup.sh (after every git pull), then start a NEW Claude Code session" skill_ok
+  DOCTOR="$KIT/skill/short-video-editing/scripts/doctor.py"
+  deep_ok()   { [[ -n "$PY" ]] && "$PY" "$DOCTOR" --only ffmpeg; }
+  chk "ffmpeg has every filter and encoder the scripts call" "run: python skill/short-video-editing/scripts/doctor.py --only ffmpeg (names what is missing and the build to install)" deep_ok
   if [[ -f "$KEYFILE" || -n "${ELEVENLABS_API_KEY:-}" ]]; then ok "ElevenLabs key present (value not shown)"
   elif [[ -f "$KIT/.env.local" ]] && grep -q '^ELEVENLABS_API_KEY=.\+' "$KIT/.env.local"; then
     ok "ElevenLabs key found in .env.local (value not shown; ./setup.sh installs it for every folder)"
   else warn "no ElevenLabs key. Optional: only needed to synthesize a voice; a supplied voice works without it. ./setup.sh --set-key"; fi
+  [[ -n "$PY" ]] && "$PY" "$DOCTOR" --only disk | grep -E '^\s+!' || true
   echo
   if [[ $MISSING -eq 0 ]]; then printf '\033[1mEverything required is in place.\033[0m Verify with ./selftest.sh\n'; exit 0; fi
   printf '\033[1;33m%d item(s) missing.\033[0m Run ./setup.sh (it fixes what it can and says what it cannot).\n' "$MISSING"; exit 1
@@ -174,6 +178,14 @@ if [[ $missing -eq 1 ]]; then
     warn "~/.local/bin is not on PATH. Add:  export PATH=\"\$HOME/.local/bin:\$PATH\"" ;; esac
 fi
 
+# The scripts call specific filters (vidstab, zscale, haldclut, afftdn, ...); a distro build can lack some.
+export PATH="$HOME/.local/bin:$PATH"
+if command -v ffmpeg >/dev/null 2>&1; then
+  DOCTOR="$KIT/skill/short-video-editing/scripts/doctor.py"
+  if "$PY" "$DOCTOR" --only ffmpeg >/dev/null 2>&1; then ok "ffmpeg has every filter and encoder the scripts call"
+  else bad "this ffmpeg lacks something the scripts call:"; "$PY" "$DOCTOR" --only ffmpeg | grep -E '✗|->' | sed 's/^/      /'; PROBLEMS=$((PROBLEMS+1)); fi
+fi
+
 # ------------------------------------------------------------------ 3. Whisper model
 step "3/6  Whisper model"
 if [[ -f "$MODEL_DIR/faster-whisper-small/model.bin" ]]; then
@@ -213,6 +225,9 @@ step "5/6  Node.js (needed only for Remotion rendering)"
 if command -v node >/dev/null; then
   NV=$(node -v | sed 's/^v//'); [[ ${NV%%.*} -ge 20 ]] && ok "node $NV" || warn "node $NV is older than 20; the render template needs 20.19+"
 else warn "node not found. Install Node 20+ before rendering (Windows: winget install OpenJS.NodeJS.LTS)."; fi
+
+# Remember where this repo is, so a new chat on this machine (even outside the repo) can find setup.sh.
+mkdir -p "$SHARE"; printf '%s\n' "$KIT" > "$SHARE/repo-path"
 
 # ------------------------------------------------------------------ 6. Skill
 step "6/6  Claude skill"

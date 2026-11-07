@@ -55,7 +55,28 @@ the video will be boosted as an ad (no before/after in ads).
 ## Workflow
 
 Run scripts from this skill's folder (`~/.claude/skills/short-video-editing` once installed). They
-need Python 3 and ffmpeg; `align_captions.py` re-launches itself in the kit's venv.
+need Python 3 and a full ffmpeg; `align_captions.py` and `suggest_cuts.py --music` re-launch themselves
+in the kit's venv.
+
+### 0. Is this machine ready? (first time in a chat, and whenever a tool is "not found")
+
+```bash
+python scripts/doctor.py          # changes nothing; names every missing item and how to install it
+```
+
+It checks Python, the venv (faster-whisper, numpy), ffmpeg **and the filters the scripts call**
+(vidstab, zscale, haldclut, afftdn, …), the Whisper model, Node (rendering only), the ElevenLabs key
+(presence only) and free disk. If something required is missing, set it up before any video work:
+
+- The kit repo is on this machine (doctor prints its path) → `cd <repo> && ./setup.sh`, then
+  `./selftest.sh`. On a machine without it: `gh auth login --web && gh auth setup-git`, clone
+  `https://github.com/it-2sgroup/short-video-kit.git`, read its `CLAUDE.md` (the setup steps), run `./setup.sh`.
+  Windows: through Git Bash.
+- **Ask before any download or install** (Whisper model ~460 MB, ffmpeg, npm + Chromium ~300 MB) and name
+  it. Never ask for the ElevenLabs key in chat: the user runs `./setup.sh --set-key` themselves.
+- Show doctor's real output; a failure is never "probably fine". Low disk space is a stop sign for a
+  4K batch, not a footnote.
+- A new chat must be started after the skill is installed or updated so it loads.
 
 ### 1. Analyse the footage and the request, choose the playbook
 

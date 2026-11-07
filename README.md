@@ -179,7 +179,7 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
     │                              (Chính sách.md), hooks, cutting and pacing, transitions, camera, image processing,
     │                              typography, layout and motion graphics, captions, sync, footage ingest, voiceover,
     │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion
-    ├── scripts/                   playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
+    ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
     │                              make_voiceover, make_sfx, align_captions, suggest_cuts, plan_scenes, pacing_checker,
     │                              footage_overlap_checker, plan_to_project, new_remotion_project
     ├── assets/

@@ -13,7 +13,10 @@ skill), not in someone's head.
 
 ## First thing in every session
 
-Run `./setup.sh --check` (changes nothing; lists what is installed and what is missing). On Windows run
+Run `./setup.sh --check` (changes nothing; lists what is installed and what is missing). For the deep
+check run `python skill/short-video-editing/scripts/doctor.py`: it also tests every ffmpeg filter the scripts
+call (vidstab, zscale, haldclut, afftdn…), numpy in the venv, and free disk. The same script ships inside the
+skill, so a chat opened **outside** this repo can run it too (SKILL.md step 0). On Windows run
 bash through Git Bash — `& "C:\Program Files\Git\bin\bash.exe" ./setup.sh --check` from PowerShell. If
 anything is missing, or the skill copy is out of date after a `git pull`, follow the setup steps below.
 
@@ -39,8 +42,11 @@ Do these in order. Show real output; never summarise a failure as success.
 4. **Rendering needs Node 20+.** `./selftest.sh --render [DIR]` typechecks the template and renders one
    still; without `node_modules` in DIR it runs `npm install` (npm packages + Remotion's Chromium,
    ~300 MB), so ask first.
-5. **Run `./selftest.sh`** and report each PASS / FAIL / SKIP (a SKIP on group 5 is fine without a key).
-6. Confirm `~/.claude/skills/short-video-editing/SKILL.md` exists and tell the user to start a **new**
+5. **Run `python skill/short-video-editing/scripts/doctor.py`** and read all of it: a build of ffmpeg without
+   libvidstab or libzimg passes "ffmpeg on PATH" and then fails mid-encode. Fix every `✗`; low disk space is a
+   stop sign for 4K work (put the venv, model and work folders on another drive).
+6. **Run `./selftest.sh`** and report each PASS / FAIL / SKIP (a SKIP on group 5 is fine without a key).
+7. Confirm `~/.claude/skills/short-video-editing/SKILL.md` exists and tell the user to start a **new**
    Claude Code session so the skill loads.
 
 Machine-specific locations are overridable: `SVK_PYTHON` (the venv's python), `WHISPER_MODEL_DIR`

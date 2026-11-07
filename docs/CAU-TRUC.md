@@ -121,11 +121,12 @@ Tám playbook: `product-demo` (+`unboxing`, `listicle`), `real-estate` (+`voiceo
 
 ### 6.4 `scripts/` — công cụ dòng lệnh
 
-Chạy từ thư mục skill. Chỉ `align_captions.py` cần venv (nó tự khởi chạy lại trong venv của bộ công cụ); phần còn
-lại chỉ cần Python 3 và ffmpeg.
+Chạy từ thư mục skill. `align_captions.py` và `suggest_cuts.py --music` cần venv (chúng tự khởi chạy lại trong venv của
+bộ công cụ); phần còn lại chỉ cần Python 3 và ffmpeg (bản đủ bộ lọc: `doctor.py` kiểm tra).
 
 | Script | Việc làm | Vào → Ra |
 |---|---|---|
+| `doctor.py` | **Chạy đầu tiên trên máy mới.** Kiểm tra mọi thứ skill cần: Python, venv (faster-whisper, numpy), ffmpeg và từng bộ lọc/encoder mà script gọi (vidstab, zscale, haldclut, afftdn…), mô hình Whisper, Node, khoá ElevenLabs (không in giá trị), dung lượng ổ đĩa; nói rõ thiếu gì và cách cài theo hệ điều hành. Không đổi gì; `--json`, `--only NHÓM`. Chỉ dùng thư viện chuẩn. | máy → báo cáo, mã thoát 0/1 |
 | `playbook.py` | Nạp playbook (kể cả biến thể `id:variant`); `list`, `show`, `suggest` (xếp hạng playbook theo lời yêu cầu + số đo footage), `skeleton` (khung kế hoạch đúng luật thể loại, từ `cuts.json` nếu có), `check` (kiểm mọi playbook; selftest chạy). Các script khác import nó. | yêu cầu/plan → playbook |
 | `inspect_footage.py` | Đọc thuộc tính thật của clip (thời lượng, độ phân giải, xoay, fps, tiếng, HDR), cảnh báo clip ngang, thiếu tiếng, lệch định dạng; `--log` in shot log trống; `--measure` đo độ sáng, ám màu (trên điểm ảnh trung tính), nhiễu, rung/di chuyển camera (vid.stab), có người nói, rồi đề xuất hiệu chỉnh; `--json FILE` ghi `analysis.json`. | thư mục clip → báo cáo / `analysis.json` |
 | `prepare_footage.py` | Làm proxy: chuyển HDR, khung 9:16, khử nhiễu, chống rung 2 lượt, sửa méo/căn thẳng (`--fix`), 30 hoặc 60 fps (`--slowmo`), cân trắng + phơi sáng + grade của playbook gộp vào một LUT 3D, làm nét nhẹ; `correction: shared` cho cùng một hiệu chỉnh mọi clip; ghi `corrections.json`. | clip thô → `public/clips/*.mp4` |
