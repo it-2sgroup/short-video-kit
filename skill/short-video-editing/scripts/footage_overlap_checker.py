@@ -3,9 +3,9 @@
 
 One folder of raw clips usually has to feed SEVERAL videos. The expensive mistake is spending the
 best moments on the first video and then repeating them in the next, or repeating a moment inside
-one video. This reads the scene table of each edit plan (columns Start, End, Source, In), turns every
-scene into a source interval [In, In + (End - Start)] and reports any overlap, inside one plan and
-across plans.
+one video. This reads the scene table of each edit plan (columns Start, End, Source, In, and Speed when
+present), turns every scene into a source interval [In, In + (End - Start) x average speed] and reports
+any overlap, inside one plan and across plans. A scene at 2x reads twice its length of footage.
 
     python scripts/footage_overlap_checker.py plan_a.md plan_b.md [--gap 0.5] [--clips DIR]
 
@@ -22,6 +22,30 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+
+def parse_speed(cell: str):
+    """Speed cell -> (speed, ramp): blank = (None, None); "2x" or "0.5" = (2.0, None);
+    "ramp 1>2.5>1" = (None, [1.0, 2.5, 1.0])."""
+    cell = (cell or "").strip().lower().replace("×", "x")
+    if not cell or cell in "-–":
+        return None, None
+    m = re.fullmatch(r"ramp\s+([\d.]+(?:\s*>\s*[\d.]+)+)", cell)
+    if m:
+        return None, [float(x) for x in m.group(1).split(">")]
+    m = re.fullmatch(r"([\d.]+)\s*x?", cell)
+    if m and float(m.group(1)) > 0:
+        return float(m.group(1)), None
+    raise ValueError(f"cannot read speed '{cell}' (write 2x, 0.5x or ramp 1>2.5>1)")
+
+
+def speed_factor(cell: str) -> float:
+    """Average speed of a scene: source seconds read per timeline second. A ramp's points are spread
+    evenly and eased symmetrically between, so each segment averages the mean of its two ends."""
+    speed, ramp = parse_speed(cell)
+    if ramp:
+        return sum((a + b) / 2 for a, b in zip(ramp, ramp[1:])) / (len(ramp) - 1)
+    return speed or 1.0
 
 
 def parse_plan(path: Path):
@@ -42,7 +66,11 @@ def parse_plan(path: Path):
             src, in_t = cells[header["source"]], float(cells[header["in"]])
         except (ValueError, KeyError, IndexError):
             continue
-        rows.append({"scene": n, "src": Path(src).stem.upper(), "a": in_t, "b": in_t + (end - start)})
+        try:
+            factor = speed_factor(cells[header["speed"]]) if "speed" in header and header["speed"] < len(cells) else 1.0
+        except ValueError as e:
+            sys.exit(f"{path}: scene {n}: {e}")
+        rows.append({"scene": n, "src": Path(src).stem.upper(), "a": in_t, "b": round(in_t + (end - start) * factor, 3)})
     return rows
 
 

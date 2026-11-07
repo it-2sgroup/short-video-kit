@@ -2,28 +2,35 @@
 """Compile an edit plan (markdown) into the project.json rendered by assets/remotion-template.
 
 The plan stays the single source of truth: pacing_checker.py and footage_overlap_checker.py read
-the same tables. Nothing about a video is typed into code.
+the same tables. Nothing about a video is typed into code. What depends on the kind of video (default
+caption style, the auto-camera pattern, sound-design overrides, graphics to avoid) comes from the plan's
+playbook (`**Playbook:**` line, or --playbook).
 
-    python scripts/plan_to_project.py plan.md --voice audio/kb7.mp3 \
-        --captions captions.srt --words words.json --out remotion/project.json \
-        [--auto-camera] [--punch-keywords "saiza,chai hồng,100"] [--caption-style karaoke] \
+    python scripts/plan_to_project.py plan.md --voice audio/v1.mp3 \
+        --captions captions.srt --words words.json --out render/v1.json \
+        [--auto-camera [--analysis analysis.json]] [--punch-keywords "tên sản phẩm,100"] \
+        [--caption-style karaoke|pop|plain|none] [--music audio/track.mp3] \
         [--auto-sfx [--sfx-map table.json] [--sfx-gain -3]]
 
 Scenes table (columns by name, any order; extra columns are ignored):
-  Start | End | Source | In | Type | Transition | Camera
+  Start | End | Source | In | Type | Transition | Camera | Speed
     Transition  fade | slide [left|right|up|down] | wipe [dir] | iris | pushCut | zoomThrough |
                 blurDissolve | whip [dir] | flip [dir] | crossZoom | cut, optional "14f",
                 optional accent "+flash" or "+leak" (e.g. "slide up +flash")
-    Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold, optional
-                "focus 0.5,0.4". Blank + --auto-camera = rule-based variety.
+    Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold [scale], optional
+                "focus 0.5,0.4" and "roll -1>1". Blank + --auto-camera = the playbook's pattern (and
+                `hold` on clips that analysis.json says already move).
+    Speed       blank (1x) | 2x | 0.5x | ramp 1>2.5>1 (speeds spread evenly over the scene, eased).
+                Under 1x needs a 60 fps proxy (prepare_footage.py keeps 60 fps sources at 60).
 
 Overlays table:  Start | End | Component | Zone | Tone | Content
     Start  seconds, or @"word or phrase"[#n] (n-th occurrence) -> word start minus 3 frames
     End    seconds, +2.5 (duration), auto (reading time), @"word" (end of that word),
            or cut (3 frames before the next scene cut)
-    Component  any key of the template registry: title, callout, checklist, step, price, cart,
-           highlight, sticker, magnifier, thumbs, compare, ranking, progress, lowerThird,
-           plus two pseudo-components: punch (camera punch-in) and sfx (sound cue)
+    Component  any key of the template registry (src/components/registry.tsx): title, callout,
+           checklist, step, price, cart, highlight, sticker, magnifier, thumbs, compare, ranking,
+           progress, lowerThird, specs, pin, label, stat, chart, image, plus two pseudo-components:
+           punch (camera punch-in) and sfx (sound cue)
     Content  key=value pairs separated by ';'. Lists use ' / ', points use 'x,y' (0..1).
            e.g.  style=stack; lines=đợi vừa lâu / vừa tốn token; accent=token
                  label=2 cổng USB-C; target=0.42,0.55; side=left
@@ -32,6 +39,10 @@ Overlays table:  Start | End | Component | Zone | Tone | Content
                      stain: IMG_0319@33:Áo ố+@"áo trắng bị ố"~0.22,0.34,2)
                  before=IMG_0327@1.6; after=IMG_0327@27.6; zoom=1.4   (compare: TRƯỚC/SAU card)
                  items=Claude#1 / Manus#1 / ChatGPT#2           (ranking)
+                 items=area:85 m² / bed:3 PN / bath:2 WC        (specs; icons: area bed bath compass
+                     car floor tree pool clock tag pin star)
+                 items=Tự làm#45 / Thuê thợ#120; unit= phút       (chart)
+                 src=images/floorplan.png; at=0.5,0.3; width=600 (image, file under public/)
 
 It also prints a sync report: cuts inside words, text appearing or vanishing on a cut, graphics in
 the right-rail no-go zone, caption reading speed. Warnings do not stop the build; errors do.
@@ -45,10 +56,13 @@ import sys
 import unicodedata
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import playbook as playbooks  # noqa: E402
+from footage_overlap_checker import parse_speed  # noqa: E402
+
 FPS = 30
 LEAD = 3 / FPS  # graphics land 3 frames before their word
-KNOWN = {"title", "callout", "checklist", "step", "price", "cart", "highlight", "sticker",
-         "magnifier", "thumbs", "compare", "ranking", "progress", "lowerThird", "punch", "sfx"}
+KNOWN = playbooks.registry_components()  # the template's registry + punch and sfx
 CANON = {t.lower(): t for t in ["fade", "slide", "wipe", "iris", "pushCut", "zoomThrough",
                                  "blurDissolve", "whip", "flip", "crossZoom", "cut"]}
 DIRS = {"left", "right", "up", "down"}
@@ -159,6 +173,10 @@ def parse_camera(raw: str):
     rng = re.search(r"([\d.]+)\s*>\s*([\d.]+)", raw)
     if rng:
         cam["from"], cam["to"] = float(rng.group(1)), float(rng.group(2))
+    elif cam["move"] == "hold":  # "hold 1.2": a fixed framing (talking-head jump cuts alternate them)
+        one = re.match(r"hold\s+([\d.]+)(?!\s*%)", raw.strip())
+        if one:
+            cam["from"] = cam["to"] = float(one.group(1))
     if cam["move"] == "pan":
         d = next((p for p in parts if p.lower() in DIRS), "left")
         pct = re.search(r"(\d+(?:\.\d+)?)%", raw)
@@ -252,29 +270,23 @@ def read_srt(path: Path):
 
 
 # ----------------------------------------------------------------------------- auto direction
-def auto_camera(scenes):
-    """Fill blank Camera cells with moves big enough to be seen, varied in size and direction.
-    Rules (references/camera-moves.md): never the same move twice in a row; alternate shot sizes
-    (wide ~1.0, medium ~1.15, close ~1.3); close shots push, results pull back to reveal; some
-    scenes lean (roll). Cells you write by hand are left alone."""
-    pattern = [
-        {"move": "push", "from": 1.0, "to": 1.18},                      # wide, push in
-        {"move": "pan", "pan": [-0.08, 0], "from": 1.16, "to": 1.24},   # medium, drift left while closing in
-        {"move": "pull", "from": 1.3, "to": 1.05},                       # close, pull out
-        {"move": "push", "from": 1.14, "to": 1.34, "roll": [-1.0, 1.0]},  # medium to close with a lean
-        {"move": "pan", "pan": [0.08, 0], "from": 1.16, "to": 1.24},
-        {"move": "pull", "from": 1.26, "to": 1.0},
-    ]
+def auto_camera(scenes, pb, moving=frozenset()):
+    """Fill blank Camera cells from the playbook (references/camera-moves.md): a named scene type gets
+    its `camera.byType` move (e.g. pull back onto a REVEAL), the rest walk `camera.pattern`, which
+    alternates shot sizes and directions so no move repeats. A clip that already moves (gimbal walk,
+    handheld follow: `motion: high` in analysis.json) gets a near-static framing instead, because a
+    virtual move on top of a real one reads as a wobble. Cells written by hand are left alone."""
+    by_type, pattern = pb["camera"].get("byType", {}), pb["camera"]["pattern"]
     k = 0
     for s in scenes:
         if s.get("camera"):
             continue
-        if s.get("type") == "REVEAL":
-            s["camera"] = {"move": "pull", "from": 1.22, "to": 1.0}  # open out onto the finished result
-        elif s.get("type") == "CTA-CLOSE":
-            s["camera"] = {"move": "push", "from": 1.0, "to": 1.1}  # calm, room for the cart arrow
+        if s.get("type") in by_type:
+            s["camera"] = parse_camera(by_type[s["type"]])
+        elif s.get("clip") in moving:
+            s["camera"] = {"move": "hold", "from": 1.04, "to": 1.04}
         else:
-            s["camera"] = dict(pattern[k % len(pattern)])
+            s["camera"] = parse_camera(pattern[k % len(pattern)])
             k += 1
 
 
@@ -303,6 +315,13 @@ def auto_punches(words, keywords, cuts, existing, limit=6):
 
 # ----------------------------------------------------------------------------- sound design
 DEFAULT_SFX_MAP = Path(__file__).resolve().parent.parent / "assets" / "sfx" / "sfx-map.json"
+
+
+def merge_sfx(cfg, overrides):
+    """The playbook's `sfx` section replaces single events of sfx-map.json (null = silence)."""
+    for section, table in overrides.items():
+        cfg["events"].setdefault(section, {}).update(table)
+    return cfg
 
 
 def auto_sfx(scenes, overlays, cfg, manual, offset_db=0.0):
@@ -388,6 +407,8 @@ def missing_assets(project: dict, public: Path) -> list[str]:
             need.add(f"clips/{p['clip']}.mp4")
         if o["component"] == "compare":
             need.update(f"clips/{p[s]['clip']}.mp4" for s in ("before", "after"))
+        if o["component"] == "image" and p.get("src"):
+            need.add(str(p["src"]))
         need.update(f"clips/{c['clip']}.mp4" for c in p.get("cards", []) if isinstance(c, dict) and "clip" in c)
     need.update(x for x in (project["voice"], (project["music"] or {}).get("src")) if x)
     need.update(c["src"] for c in project["sfx"] if c.get("src"))
@@ -402,17 +423,24 @@ def main() -> int:
     ap.add_argument("--voice", help="voiceover path under public/, e.g. audio/kb7.mp3")
     ap.add_argument("--captions", type=Path, help="SRT from align_captions.py")
     ap.add_argument("--words", type=Path, help="word timings from align_captions.py --words-out")
-    ap.add_argument("--music", help="music path under public/ (ducked under speech)")
-    ap.add_argument("--caption-style", default="karaoke", choices=["karaoke", "plain", "none"])
-    ap.add_argument("--auto-camera", action="store_true", help="fill blank Camera cells with varied moves")
+    ap.add_argument("--music", help="music path under public/, levelled first with process_audio.py music (ducked under speech)")
+    ap.add_argument("--platform", choices=["tiktok", "reels", "reels-ad"], default="tiktok",
+                    help="tiktok and reels share the feed layout; reels-ad raises captions above Meta's bottom 35%% and checks its safe zone")
+    ap.add_argument("--playbook", help="playbook id[:variant]; default: the plan's **Playbook:** line")
+    ap.add_argument("--caption-style", choices=["karaoke", "pop", "plain", "none"], help="default: the playbook's")
+    ap.add_argument("--auto-camera", action="store_true", help="fill blank Camera cells from the playbook's camera pattern")
+    ap.add_argument("--analysis", type=Path, help="analysis.json from inspect_footage.py --measure: clips that already move get a static framing")
     ap.add_argument("--punch-keywords", default="", help="comma-separated words/phrases to punch in on")
     ap.add_argument("--auto-sfx", action="store_true", help="add sound effects on transitions and graphics (assets/sfx/sfx-map.json)")
     ap.add_argument("--sfx-map", type=Path, default=DEFAULT_SFX_MAP, help="sound-design table to use with --auto-sfx")
     ap.add_argument("--sfx-gain", type=float, default=0.0, help="dB added to every automatic sound effect")
     a = ap.parse_args()
 
-    tabs = tables(a.plan.read_text(encoding="utf-8-sig"))
+    text = a.plan.read_text(encoding="utf-8-sig")
+    pb = playbooks.resolve(a.playbook, text)
+    tabs = tables(text)
     problems: list[str] = []
+    analysis = {c["stem"]: c for c in json.loads(a.analysis.read_text(encoding="utf-8"))["clips"]} if a.analysis else {}
     words = json.loads(a.words.read_text(encoding="utf-8")) if a.words else []
     captions = read_srt(a.captions) if a.captions else []
 
@@ -437,9 +465,18 @@ def main() -> int:
         cam = parse_camera(cell(h, r, "camera"))
         if cam:
             s["camera"] = cam
+        try:
+            speed, ramp = parse_speed(cell(h, r, "speed"))
+        except ValueError as e:
+            problems.append(str(e))
+            speed, ramp = None, None
+        if speed and speed != 1:
+            s["speed"] = speed
+        if ramp:
+            s["ramp"] = ramp
         scenes.append(s)
     if a.auto_camera:
-        auto_camera(scenes)
+        auto_camera(scenes, pb, {k for k, c in analysis.items() if c.get("motion") == "high"})
     cuts = [s["start"] for s in scenes[1:]]
 
     oh, orows = pick(tabs, "component", "start", "end")
@@ -485,7 +522,8 @@ def main() -> int:
 
     punches += auto_punches(words, a.punch_keywords.split(","), cuts, punches)
     if a.auto_sfx:
-        sfx += auto_sfx(scenes, overlays, json.loads(a.sfx_map.read_text(encoding="utf-8")), sfx, a.sfx_gain)
+        cfg = merge_sfx(json.loads(a.sfx_map.read_text(encoding="utf-8")), pb["sfx"])
+        sfx += auto_sfx(scenes, overlays, cfg, sfx, a.sfx_gain)
 
     if problems:
         for p in problems:
@@ -495,9 +533,12 @@ def main() -> int:
     project = {
         "duration": scenes[-1]["end"],
         "voice": a.voice,
-        "music": {"src": a.music, "volumeDb": -18, "duckDb": -12} if a.music else None,
+        # A track levelled to -14 LUFS (process_audio.py music) sits ~10 LU under a -16 LUFS voice in the
+        # pauses and ~18 LU under it while it speaks; with no voice the music is the soundtrack.
+        "music": ({"src": a.music, "volumeDb": -10, "duckDb": -8} if a.voice else {"src": a.music, "volumeDb": 0, "duckDb": 0}) if a.music else None,
+        "layout": "reels-ad" if a.platform == "reels-ad" else "feed",
         "sfx": sfx,
-        "captionStyle": a.caption_style,
+        "captionStyle": a.caption_style or pb["captions"],
         "scenes": scenes,
         "overlays": overlays,
         "captions": captions,
@@ -509,7 +550,30 @@ def main() -> int:
     print(f"wrote {a.out}: {len(scenes)} scenes, {len(overlays)} overlays, {len(project['punches'])} punch-ins, "
           f"{len(project['sfx'])} sound cues, {len(captions)} captions, {project['duration']}s")
     warns = report(scenes, overlays, captions, words)
+    if a.platform != "tiktok":
+        warns += [f"cart at {o['start']:.2f}s: the cart arrow points at TikTok Shop's product bar, which {a.platform} does not have"
+                  for o in overlays if o["component"] == "cart"]
+    if a.platform == "reels-ad":  # Meta: keep the top 14 %, bottom 35 % and 6 % each side clear
+        for o in overlays:
+            for key in ("target", "at"):
+                pt = o["props"].get(key)
+                if isinstance(pt, list) and len(pt) == 2 and not (0.06 <= pt[0] <= 0.94 and 0.14 <= pt[1] <= 0.65):
+                    warns.append(f"{o['component']} at {o['start']:.2f}s: {key} {pt} is outside the Reels ad safe zone")
+            if o.get("zone") == "lower":
+                warns.append(f"{o['component']} at {o['start']:.2f}s: zone 'lower' (y 1230) is inside the Reels ad bottom 35%")
+    avoid = set(pb["components"].get("avoid", []))
+    warns += [f"{o['component']} at {o['start']:.2f}s: playbook {pb['name']} avoids this component (playbooks/{pb['id']}.md)"
+              for o in overlays if o["component"] in avoid]
     public = a.out.resolve().parent / "public"
+    corr = public / "clips" / "corrections.json"  # written by prepare_footage.py: the proxies' real fps
+    proxy_fps = {k: v.get("fps", 30) for k, v in json.loads(corr.read_text(encoding="utf-8"))["clips"].items()} if corr.is_file() else {}
+    for s in scenes:  # slow motion shows repeated frames unless the proxy has the frames
+        slowest = min(s.get("ramp") or [s.get("speed", 1)])
+        fps = proxy_fps.get(s["clip"] or "", 30 if corr.is_file() else None)
+        if slowest < 1 and fps and fps * slowest < FPS - 0.5:
+            src = analysis.get(s["clip"] or "", {}).get("fps")
+            warns.append(f"scene at {s['start']:.2f}s plays {s['clip']} at {slowest:g}x but its proxy is {fps:g} fps: it will stutter "
+                         + (f"(source {src:g} fps: rebuild with prepare_footage.py --slowmo --force)" if src and src >= 50 else "(shoot 60 fps for slow motion)"))
     if public.is_dir():  # only when --out sits inside a render project (see new_remotion_project.py)
         warns += [f"not in {public}: {f}" for f in missing_assets(project, public)]
     print("Sync report: " + ("clean" if not warns else f"{len(warns)} warning(s)"))

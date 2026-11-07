@@ -1,0 +1,35 @@
+{
+  "about": "Looks applied by prepare_footage.py after the per-clip corrections (white balance, exposure), so every clip of a video shares one grade. Each playbook names one (playbooks/<id>.json \"grade\"). chain = an ffmpeg filter chain on 8-bit SDR video; wbStrength = how much of a measured colour cast is removed (1 = all of it), lower where warm light is part of the look. Checked on stills of real footage: see references/image-processing.md before changing a number.",
+  "grades": {
+    "none": {
+      "about": "No look: corrections only.",
+      "chain": "",
+      "wbStrength": 0.7
+    },
+    "natural": {
+      "about": "True to life with a little punch: demos, tutorials, talking heads. Nothing that could exaggerate a result.",
+      "chain": "eq=contrast=1.04:saturation=1.05,vibrance=intensity=0.06",
+      "wbStrength": 0.7
+    },
+    "bright-interior": {
+      "about": "Property: lifted shadows and mids, clean whites, slightly warm, colours kept honest.",
+      "chain": "curves=master='0/0.02 0.25/0.29 0.5/0.56 0.75/0.8 1/1',colortemperature=temperature=6000:mix=0.25:pl=1,eq=saturation=1.04,vibrance=intensity=0.08",
+      "wbStrength": 0.8
+    },
+    "warm-food": {
+      "about": "Food: warm, a little more contrast and saturation, highlights kept. Warm light stays warm.",
+      "chain": "colortemperature=temperature=5400:mix=0.3:pl=1,eq=contrast=1.06:saturation=1.1,curves=master='0/0 0.5/0.52 0.9/0.92 1/1',vibrance=intensity=0.1",
+      "wbStrength": 0.35
+    },
+    "soft-skin": {
+      "about": "Fashion and beauty: gentle contrast, warm skin, protected highlights; fabric colours not pushed.",
+      "chain": "curves=master='0/0.03 0.5/0.52 0.95/0.94 1/0.97',colortemperature=temperature=6100:mix=0.2:pl=1,eq=contrast=0.98:saturation=1.03",
+      "wbStrength": 0.6
+    },
+    "vivid": {
+      "about": "Montages and promos: rich colour and a firm S-curve, not neon.",
+      "chain": "curves=master='0/0 0.25/0.22 0.75/0.8 1/1',eq=saturation=1.12,vibrance=intensity=0.15",
+      "wbStrength": 0.6
+    }
+  }
+}

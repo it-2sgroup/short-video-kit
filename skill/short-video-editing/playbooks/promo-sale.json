@@ -1,0 +1,48 @@
+{
+  "id": "promo-sale",
+  "title": "Khuyến mãi / thông báo / ra mắt — video đồ hoạ nhiều chữ",
+  "summary": "A short announcement where the graphics are the message: the offer in the first second, the product or place shown, the terms clear, the deadline real, one CTA. Footage stays visible behind big type; every number matches the listing.",
+  "intents": ["khuyến mãi", "sale", "giảm giá", "flash sale", "ưu đãi", "voucher", "ra mắt", "launch", "thông báo", "khai trương", "deal", "combo", "black friday", "11.11", "12.12", "mã giảm"],
+  "expect": {"speech": "any", "motion": "any"},
+  "signals": ["product packshots or a storefront", "logos and offer artwork supplied", "little usable action footage"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 10, "max": 35, "ideal": [15, 25], "why": "An offer is understood in seconds; repetition beats length."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.3, "minBeat": 0.8, "purpose": "the offer itself (the number) on the product", "graphics": "price or stat, big"},
+  "scenes": {"min": 1.2, "max": 3.5, "target": 2.2},
+  "drive": "music",
+  "structure": [
+    {"type": "PRODUCT", "share": 0.4, "purpose": "what is on offer, hero shots", "graphics": "title, image (packshot or logo)"},
+    {"type": "OFFER", "share": 0.3, "purpose": "the terms: price, discount, dates, conditions", "graphics": "price, checklist (terms), sticker"},
+    {"type": "CTA", "share": 0.3, "purpose": "where and until when", "graphics": "cart (TikTok Shop) or pin (store), stat (days left, only if real)"}
+  ],
+  "transitions": {
+    "hook": "pushCut",
+    "same": ["cut", "slide left", "cut", "slide right"],
+    "change": ["pushCut", "zoomThrough +flash", "iris"],
+    "into": {"OFFER": "pushCut", "CTA": "zoomThrough +flash"},
+    "accentsMax": 2
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.16", "pull 1.18>1.0", "push 1.06>1.22", "hold 1.04"],
+    "byType": {"OFFER": "hold 1.04", "CTA": "push 1.0>1.1"},
+    "byKind": {"PACKSHOT": "push 1.05>1.25", "STORE": "pan right 8% 1.1>1.18"}
+  },
+  "captions": "plain",
+  "theme": "cool",
+  "grade": "vivid",
+  "correction": "shared",
+  "music": {"bpm": [110, 140], "mood": "bright, punchy; hits under the price reveals"},
+  "components": {
+    "use": ["title", "price", "sticker", "checklist", "image", "stat", "cart", "pin"],
+    "avoid": ["compare"]
+  },
+  "sfx": {},
+  "compliance": [
+    "Every price, discount and date matches the listing or the store's terms",
+    "No false scarcity or countdown that is not real",
+    "Conditions of the offer stated (minimum order, while stock lasts, dates)",
+    "Logos and artwork are the client's own or licensed",
+    "Commercial-content disclosure switched on"
+  ],
+  "references": ["references/claims-and-compliance.md", "references/typography.md", "references/layout-and-motion-graphics.md"]
+}

@@ -1,35 +1,84 @@
 // Spoken captions in their own band at the bottom, so the middle of the frame stays free for the
-// footage. One group on screen at a time; groups cut, they never pop or bounce. "karaoke"
-// highlights the word being spoken when word timings are available.
+// footage. One group on screen at a time; groups cut, they never bounce.
+//   karaoke  the group, with the word being spoken highlighted (needs word timings)
+//   pop      one short phrase (<= 5 words, one line) at a time, bigger and bolder, the spoken word
+//            popping and coloured: the talking-head style. The whole phrase is visible from its first
+//            word, because viewers read ahead; revealing one word at a time hurts comprehension
+//            (references/captions-and-text.md). Needs word timings.
+//   plain    the group only
 import React from "react";
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import type { Caption, Word } from "../../project";
-import { captionTop, captions as layout, toneColor } from "../../theme";
+import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import type { Caption, CaptionStyle, Word } from "../../project";
+import { captions as layout, motion, toneColor } from "../../theme";
 import { clamp } from "../anim";
 import { OutlineText } from "./primitives";
 
-export const Captions: React.FC<{ captions: Caption[]; words: Word[]; mode: "karaoke" | "plain"; lift?: number }> = ({
+// Pop phrases: break a group's words into runs of <= popWords words and <= popChars characters,
+// starting a new run after a pause or a punctuation mark so a chunk never straddles two thoughts.
+const chunks = (words: Word[]) => {
+  const out: Word[][] = [];
+  for (const w of words) {
+    const cur = out[out.length - 1];
+    const prev = cur?.[cur.length - 1];
+    const chars = cur ? cur.reduce((n, x) => n + x.text.length + 1, 0) + w.text.length : 0;
+    const breakHere = !cur || cur.length >= layout.popWords || chars > layout.popChars || w.start - prev!.end > 0.25 || /[,.!?…:;]$/.test(prev!.text);
+    if (breakHere) out.push([w]);
+    else cur.push(w);
+  }
+  return out;
+};
+
+const Pop: React.FC<{ words: Word[]; t: number; frame: number; fps: number; top: number }> = ({ words, t, frame, fps, top }) => {
+  const groups = chunks(words);
+  const idx = groups.findIndex((g, i) => t >= g[0].start - 0.05 && t < (groups[i + 1]?.[0].start ?? g[g.length - 1].end + 0.3) - 0.05);
+  if (idx < 0) return null;
+  const g = groups[idx];
+  return (
+    <div style={{ position: "absolute", top: top - 20, left: layout.left, right: layout.right, display: "flex", justifyContent: "center" }}>
+      <OutlineText size={layout.popSize} weight={900}>
+        {g.map((w, i) => {
+          const active = t >= w.start && t < (g[i + 1]?.start ?? w.end + 0.3);
+          // the spoken word springs from 1.0 to 1.12 and settles back once the next word starts
+          const k = active ? spring({ frame: frame - Math.round(w.start * fps), fps, config: motion.pop }) : 0;
+          return (
+            <React.Fragment key={i}>
+              {i > 0 ? " " : null}
+              <span style={{ display: "inline-block", scale: String(1 + 0.12 * Math.min(1, k)), color: active ? toneColor.cta : undefined }}>
+                {w.text}
+              </span>
+            </React.Fragment>
+          );
+        })}
+      </OutlineText>
+    </div>
+  );
+};
+
+export const Captions: React.FC<{ captions: Caption[]; words: Word[]; mode: CaptionStyle; top: number; lift?: number }> = ({
   captions,
   words,
   mode,
+  top,
   lift = 0,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
+  if (mode === "none") return null;
   const idx = captions.findIndex((c, i) => {
     const next = captions[i + 1]?.start ?? Infinity;
     return t >= c.start && t < Math.max(c.end, Math.min(next, c.end + 0.25));
   });
   if (idx < 0) return null;
   const c = captions[idx];
+  const groupWords = mode === "plain" ? [] : words.filter((w) => w.start >= c.start - 0.02 && w.start < c.end);
+  if (mode === "pop" && groupWords.length) return <Pop words={groupWords} t={t} frame={frame} fps={fps} top={top - lift} />;
   const opacity = interpolate(frame - Math.round(c.start * fps), [0, 4], [0, 1], clamp);
-  const groupWords = mode === "karaoke" ? words.filter((w) => w.start >= c.start - 0.02 && w.start < c.end) : [];
 
   return (
-    // The right margin keeps long groups clear of TikTok's action rail; lift moves the band up while
-    // the cart arrow needs the bottom-left corner.
-    <div style={{ position: "absolute", top: captionTop - lift, left: layout.left, right: layout.right, display: "flex", justifyContent: "center", opacity }}>
+    // The right margin keeps long groups clear of the platforms' action rail; lift moves the band up
+    // while the cart arrow needs the bottom-left corner.
+    <div style={{ position: "absolute", top: top - lift, left: layout.left, right: layout.right, display: "flex", justifyContent: "center", opacity }}>
       <OutlineText size={layout.size} weight={800}>
         {groupWords.length
           ? groupWords.map((w, i) => {

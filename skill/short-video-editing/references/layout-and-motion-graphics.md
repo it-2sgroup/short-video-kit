@@ -22,11 +22,15 @@ template uses the conservative union [C]:
 
 **Viewer-first rule (why the zones moved).** The picture is the reason people stay; text is the
 reason they understand. With the old zones (titles at y 270–560, captions at y 1190) text blocks sat
-close to the middle and covered the stain, the pour and the lift, so viewers read subtitles instead of
-watching. Now the middle ~900 px (y ≈ 420–1330) belongs to the footage: titles are one strip at the
-top edge, captions one short block just above the bottom no-go, and nothing else stands between them
-except a callout or circle *on* the subject. Check every video on a contact sheet: the stain, the
-pour and the lifted garment must be fully visible in the frame's centre in every scene.
+close to the middle and covered the action, so viewers read subtitles instead of watching (client
+feedback, Nov 2026). Now the middle ~900 px (y ≈ 420–1330) belongs to the footage: titles are one strip
+at the top edge, captions one short block just above the bottom no-go, and nothing else stands between
+them except a callout, label or circle *on* the subject. Check every video on a contact sheet: the
+subject (the stain, the room, the dish, the face) is fully visible in every scene.
+
+**Reels ads** keep the top 14%, bottom 35% and 6% each side clear (y 269–1248, x 65–1015):
+`plan_to_project.py --platform reels-ad` raises the captions to y ≈ 1100 and flags overlays outside
+that box and anything in `lower` (`platforms.md` §2).
 | Cart anchor | (112, 1677) | Centre of the yellow bag tile of TikTok Shop's product bar (below). Point at it; never draw a fake cart |
 
 **Where the product bar really is** (measured, not estimated). On a 1284×2778 iPhone screenshot of the
@@ -50,11 +54,16 @@ go. Put it on the shot list.
 
 ## Layout by content type
 
-| Content | Subject | Graphics |
+| Content (playbook) | Subject | Graphics |
 |---|---|---|
-| Talking head | Face y ≈ 600–1190, never covered | Titles/cards in the head-room band; prices, checklists, lower-third in the chest band |
-| Product close-up | Product centred y 500–1300 | Callouts in the side gutters (left preferred — the right rail covers the other side), ≤ 2 per side |
-| Hands-only top-down demo (laundry, cleaning) | Bowl fills x 90–990, y 450–1350 | Titles and steps in the top band; circles/underlines on the stain; lists in `upper` |
+| Talking head | Face y ≈ 600–1190, never covered | Titles/stat/chart in the head-room band; checklists, lower-third in the chest band; `pop` captions |
+| Product close-up (product-demo) | Product centred y 500–1300 | Callouts in the side gutters (left preferred — the right rail covers the other side), ≤ 2 per side |
+| Hands-only top-down demo (product-demo, tutorial) | Bowl or bench fills x 90–990, y 450–1350 | Titles and steps in the top band; circles/underlines on the subject; lists in `upper` |
+| Room or exterior (real-estate) | The whole frame; verticals straight | `label` bottom-left per room, `pin` top-left on arrival, `specs` + `price` over one calm wide shot, never over the view |
+| Dish (food-fnb) | Plate centred, steam visible | `label` with the dish name, `price` low, `pin` at the end; nothing over the money shot |
+| Full-body look (fashion-beauty) | Person x 200–880, head below y 300 | `label` (item · price) beside the garment, left or `align=right`; title only on the hook |
+| Montage | The whole frame | Two to four words; `pin` with place and date; logo at the end |
+| Offer (promo-sale) | Product or storefront visible behind the type | Big `price`/`stat` in `upper`, terms as a `checklist`, one `sticker` |
 | Screen tutorial | Device frame width ≤ 820 | Magnifier on the active element; step label on top |
 | Listicle / ranking | — | Rank chip top-left, `ranking` podium at the reveal, a `thumbs` strip when the voice lists three things |
 
@@ -69,15 +78,21 @@ go. Put it on the shot list.
 | `highlight` | Hand-drawn circle / underline / arrow draws on | `shape, target, size` | Around the subject, not over it; 10-frame draw |
 | `step` | Numbered chip + instruction | `n, text` | One step visible at a time, synced to the voice |
 | `checklist` | Ticks draw on, rows stagger 9f | `items=a / b / c, title` | 3–4 rows; lifts itself clear of the caption band |
-| `price` | Count-up (vi-VN format), pulse, struck-through old price | `value, unit, label, old, prefix` | Must match the product listing exactly |
+| `price` | Count-up (vi-VN format), pulse, struck-through old price | `value, unit, label, old, prefix, decimals` | Must match the listing exactly; decimals with a point in the plan (`value=5.2; decimals=1` shows "5,2") |
 | `cart` | Hand-drawn arrow that curves down onto the product bar's bag tile (theme `cartPoint`), draws on, then bobs; label above its start | `text` | Early CTA (~9–12 s) and close. The label sits right above the arrow; give a `zone` only to move it. Never add a second graphic in the bottom-left |
 | `sticker` | Rotated badge that pops and wobbles | `text, at, rotate` | One per video; no claims |
 | `progress` | Bar fills across its life | `label` | Time passing ("Ngâm 1–2 tiếng · đã rút gọn thời gian") |
 | `magnifier` | Lens showing a 2.2× crop of a clip | `clip, in, target, at, zoom, diameter` | Fine detail (texture, fine print); keep the camera still meanwhile |
 | `thumbs` | Strip of up to 3 framed stills with a caption under each (the three-photo header) | `cards=CLIP@sec:caption+@"word"~x,y,zoom / …` | Top zone; see "The three-photo header" below |
-| `compare` | BEFORE and AFTER frames of the same garment, TRƯỚC/SAU labels, the AFTER arriving over a dark scrim | `before=CLIP@sec; after=CLIP@sec; mode=side/slider/stack; beforeFocus, afterFocus, zoom; note` | The reveal (zone `top`, ≥ 2.5 s, note stays clear of `lower`); frames from ranges already shown; see `before-after.md` |
+| `compare` | BEFORE and AFTER frames of the same item, TRƯỚC/SAU labels (`beforeLabel`, `afterLabel` to change them), the AFTER arriving over a dark scrim | `before=CLIP@sec; after=CLIP@sec; mode=side/slider/stack; beforeFocus, afterFocus, zoom; note` | The reveal (zone `top`, ≥ 2.5 s, note stays clear of `lower`); frames from ranges already shown; see `before-after.md` |
 | `ranking` | Glossy tiles on podiums | `items=Label#rank / …` | Listicles only; no third-party logos without rights |
-| `lowerThird` | Name bar | `name, role` | Creator/brand ID, 2–3 s |
+| `lowerThird` | Name bar | `name, role` | Creator/brand/agent ID, 2–3 s; credentials must be real |
+| `specs` | Up to six facts with line icons, popping in turn (two per row past three) | `items=area:85 m² / bed:3 PN / bath:2 WC / compass:Đông Nam; title` | Icons: `area bed bath compass car floor tree pool clock tag pin star`. Over a calm shot; facts from the documents |
+| `pin` | A map pin drops with a ring, the place name and a second line slide in | `title, sub, at=x,y` | Arrival or the end; "~15 phút (ước tính)" for travel times |
+| `label` | A quiet tag (name + detail) with a line drawing under it | `text, sub, at=x,y, align=left/right` | Rooms, dishes, items; one at a time; default bottom-left above the captions |
+| `stat` | One figure counting up (vi-VN format), unit and label | `value, unit, label, prefix, decimals` | A real number with a source; holds ≥ 1.5 s after it lands |
+| `chart` | 2–5 horizontal bars growing in turn, values counting up, the largest highlighted | `items=Label#45 / Label#120; unit; title; highlight` | Real measurements only; one idea per chart |
+| `image` | A still from `public/` scaling in, framed (`card`) or bare (`none`) | `src=images/x.png, at=x,y, width, frame, caption` | Floor plans, logos, packshots; files the user owns |
 
 Coordinates are fractions of the frame (`0.62,0.55`), measured on the **rendered** frame (the camera
 may have zoomed). Check with a still.
@@ -93,7 +108,7 @@ it fits where the voice names three things.
   dính dầu mỡ"), three steps, three results. Not for one or two items, and not at the same time as a
   `title` or `step` in the top zone (the sync report flags the overlap).
 - **Frames:** one still per item, from ranges the video already shows, with the item itself in view.
-  Small cards hide detail, so frame the stain: `~x,y,zoom` after the caption (`~0.22,0.34,2` centres
+  Small cards hide detail, so frame the subject (here the stain): `~x,y,zoom` after the caption (`~0.22,0.34,2` centres
   that point of the source frame and magnifies 2×). Check the stain is visible on a still.
 - **Sync:** each card lands on its own word: `+@"áo trắng bị ố"` after the caption gives the card its
   delay from that phrase (or `+1.2` for seconds). Without it the cards follow each other 4 frames apart.
@@ -106,6 +121,15 @@ it fits where the voice names three things.
 ```
 
 ---
+
+## Motion conventions [C]
+
+- Count-ups take 0.6–1.2 s with an ease-out and hold ≥ 1.5 s; bars grow ~0.5 s each, staggered; the
+  motion never changes the data [S: data-visualisation motion guides].
+- Easing carries tone: sharp and fast reads as urgency (promo), slow and eased as calm and premium
+  (property, fashion) [S: SVGator]. The components share `theme.motion`; a playbook's tone comes from
+  its transitions and music more than from the graphics.
+- One idea per graphic: if the viewer has to read it twice, it failed.
 
 ## Density and rhythm [C]
 

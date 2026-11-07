@@ -1,31 +1,38 @@
 // The composition: scenes (with centred transitions and a continuous virtual camera), accents on
 // cuts, overlays on their own timeline, captions, and the soundtrack. Pure function of a Project.
 import React from "react";
-import { AbsoluteFill, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Freeze, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { LightLeak } from "@remotion/light-leaks";
-import type { Project, Scene } from "../project";
-import { captions, motion, palette } from "../theme";
+import type { Project } from "../project";
+import { captionTopFor, captions, motion, palette } from "../theme";
 import { resolveOverlay } from "../components/registry";
 import { Captions } from "../components/text/Captions";
 import { cameraStyle, type ScenePunch } from "./camera";
-import { layoutScenes, toFrames } from "./timeline";
+import { layoutScenes, toFrames, type SceneSlot } from "./timeline";
 import { presentationFor } from "./transitions";
 import { Soundtrack } from "./audio";
 
-const SceneMedia: React.FC<{ scene: Scene; startFrom: number; duration: number; punches: ScenePunch[] }> = ({
-  scene,
-  startFrom,
-  duration,
-  punches,
-}) => {
+const SceneMedia: React.FC<{ slot: SceneSlot; punches: ScenePunch[] }> = ({ slot, punches }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { scene, startFrom, duration } = slot;
+  // Constant speed plays natively; a ramp re-times the source frame by frame inside a <Freeze>.
+  const ramped = Boolean(scene.ramp && scene.ramp.length > 1);
+  const video = scene.clip ? (
+    <OffthreadVideo
+      src={staticFile(`clips/${scene.clip}.mp4`)}
+      trimBefore={startFrom}
+      playbackRate={ramped ? 1 : scene.speed ?? 1}
+      muted
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  ) : null;
   return (
     <AbsoluteFill style={{ background: palette.ink, overflow: "hidden" }}>
       <AbsoluteFill style={cameraStyle(frame, duration, fps, scene.camera, punches)}>
-        {scene.clip ? (
-          <OffthreadVideo src={staticFile(`clips/${scene.clip}.mp4`)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {video ? (
+          ramped ? <Freeze frame={slot.advance(frame)}>{video}</Freeze> : video
         ) : (
           // No footage yet (layout preview): a neutral gradient instead of a broken video.
           <AbsoluteFill style={{ background: `linear-gradient(160deg, #3A4A6B 0%, #1B2338 60%, #0E1322 100%)` }} />
@@ -72,7 +79,7 @@ export const Short: React.FC<Project> = (project) => {
       .map((p) => ({ frame: p.frame - slot.begin, scale: p.scale }));
     series.push(
       <TransitionSeries.Sequence key={`s${slot.index}`} durationInFrames={slot.duration}>
-        <SceneMedia scene={slot.scene} startFrom={slot.startFrom} duration={slot.duration} punches={mine} />
+        <SceneMedia slot={slot} punches={mine} />
       </TransitionSeries.Sequence>,
     );
   });
@@ -109,7 +116,7 @@ export const Short: React.FC<Project> = (project) => {
       })}
 
       {project.captionStyle !== "none" && project.captions?.length ? (
-        <Captions captions={project.captions} words={project.words ?? []} mode={project.captionStyle === "plain" ? "plain" : "karaoke"} lift={lift} />
+        <Captions captions={project.captions} words={project.words ?? []} mode={project.captionStyle ?? "karaoke"} top={captionTopFor[project.layout ?? "feed"]} lift={lift} />
       ) : null}
 
       <Soundtrack voice={project.voice} music={project.music} sfx={project.sfx} words={project.words} fps={fps} />

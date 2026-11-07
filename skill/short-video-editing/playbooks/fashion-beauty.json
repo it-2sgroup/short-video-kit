@@ -1,0 +1,48 @@
+{
+  "id": "fashion-beauty",
+  "title": "Thời trang / làm đẹp — thử đồ, phối đồ, lookbook, makeup, skincare",
+  "summary": "Transformation on the beat: outfit changes and looks cut on the music with match cuts (same pose, same framing) and short speed ramps, each item labelled with its name and price, skin kept natural in the grade. Beauty claims are tightly regulated: show the routine, not promises.",
+  "intents": ["thời trang", "phối đồ", "outfit", "try on", "thử đồ", "lookbook", "ootd", "quần áo", "váy", "giày", "túi", "makeup", "trang điểm", "skincare", "chăm sóc da", "mỹ phẩm", "làm đẹp", "son", "beauty", "tóc"],
+  "expect": {"speech": "any", "motion": "any"},
+  "signals": ["a person in full or half body, mirror shots", "repeated framing with different outfits or looks", "close-ups of face, skin, fabric, product textures"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 15, "max": 45, "ideal": [20, 35], "why": "Outfit and look videos are rhythmic; length comes from the number of looks, not from holding them."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.2, "minBeat": 0.8, "purpose": "the final look first, or the most striking change on a beat", "graphics": "title (how many looks, the theme or the budget)"},
+  "scenes": {"min": 1.0, "max": 3.5, "target": 1.9},
+  "drive": "music",
+  "structure": [
+    {"type": "LOOK", "share": 0.7, "purpose": "one look or step per beat; match-cut the pose, whip between looks", "graphics": "label (item and price), price", "speed": "ramp 1>1.6>1"},
+    {"type": "DETAIL", "share": 0.15, "purpose": "fabric, texture or product close-ups", "graphics": "callout"},
+    {"type": "CTA", "share": 0.15, "purpose": "the favourite look again and where to buy", "graphics": "cart if TikTok Shop, price"}
+  ],
+  "transitions": {
+    "hook": "cut",
+    "same": ["cut", "whip left", "cut", "whip right"],
+    "change": ["zoomThrough", "flip left", "slide up"],
+    "into": {"CTA": "zoomThrough +flash"},
+    "accentsMax": 1
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.14", "hold 1.08", "pull 1.18>1.0", "push 1.06>1.2 roll -1>1", "hold 1.0", "pan up 6% 1.12>1.16"],
+    "byType": {"CTA": "push 1.0>1.12"},
+    "byKind": {"MIRROR": "hold 1.04", "FACE": "push 1.1>1.28 focus 0.5,0.4", "TEXTURE": "push 1.15>1.4"}
+  },
+  "captions": "pop",
+  "theme": "luxe",
+  "grade": "soft-skin",
+  "correction": "per-clip",
+  "music": {"bpm": [100, 130], "mood": "trend-friendly, clear downbeats for the outfit changes"},
+  "components": {
+    "use": ["title", "label", "price", "callout", "cart", "compare", "stat"],
+    "avoid": ["checklist"]
+  },
+  "sfx": {"sceneStart": {"HOOK>HOOK": "whoosh"}},
+  "compliance": [
+    "Cosmetics: no treatment or medical claims (trị mụn, trị nám, trắng da cấp tốc, mọc tóc); TikTok bars before/after for acne, whitening and hair loss",
+    "No skin smoothing or reshaping filters on a product result; the grade is the same on every shot",
+    "Prices and sizes match the listing",
+    "Gifted or paid items disclosed",
+    "Music licensed for commercial use (business account)"
+  ],
+  "references": ["references/claims-and-compliance.md", "references/cutting-and-pacing.md", "references/before-after.md", "references/image-processing.md"]
+}

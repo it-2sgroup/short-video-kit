@@ -25,14 +25,24 @@ in the plan's **Transition** column. **[D]** documented, **[C]** convention.
 Accents centred on a cut, not changing timing: append `+flash` (white flash, peak 0.55) or `+leak`
 (`@remotion/light-leaks`, 0.6 opacity, screen blend). Use at most two per video.
 
-Cadence for the client's 3–4 s scenes [C]: 3–4 transition types per video, one dominant (usually
-`fade`); energetic ones (`zoomThrough`, `whip`, `pushCut`) only on section boundaries
-(hook → problem → product → proof → CTA). Never spin, glitch or star-wipe packs — they read as
-templates and cheapen a product.
+**The playbook chooses** (`transitions` in `playbooks/<id>.json`): a `same` list within a beat, a
+`change` list when the beat changes, `into` for named beats (into a REVEAL, into the SPECS), and a cap on
+accents. `playbook.py skeleton` and `plan_scenes.py` write those cells; change them by hand where the
+footage asks for something else. The families per genre [C]:
 
-### When the client says "chuyển cảnh chưa mượt"
+| Playbooks | Dominant | On a change | Never |
+|---|---|---|---|
+| product-demo, tutorial | `fade`, `slide`, `blurDissolve` (soft, ~0.4 s) | `slide up`, `wipe`, `zoomThrough +flash` | hard cuts between unrelated clips (client: *"bị tách rời"*) |
+| real-estate | `cut` on the beat, `fade 10f` | `whip` in the walking direction, `slide` past a door frame | shader gimmicks |
+| talking-head | `cut` (jump cuts with a new framing) | `pushCut` | anything decorative |
+| food-fnb, fashion-beauty, montage-recap, promo-sale | `cut` on the beat | `whip`, `zoomThrough`, `pushCut`, rarely `crossZoom` | dissolves between outfits; spin, glitch, star-wipe packs |
 
-1. Check scene lengths first: 3–4 s outside the hook. Cuts every 1.5–2 s are what read as jerky; no
+Use 3–4 transition types per video at most, energetic ones only on section boundaries. Never spin,
+glitch or star-wipe packs: they read as templates and cheapen the subject.
+
+### When the client says "chuyển cảnh chưa mượt" (product demos)
+
+1. Check scene lengths first: 3–4 s outside the hook for product-demo. Cuts every 1.5–2 s are what read as jerky; no
    transition fixes that (`pacing_checker.py` warns under 3 s).
 2. Make `fade` or `blurDissolve` the dominant type and lengthen it (`fade 18f`). Drop `whip`,
    `pushCut`, `crossZoom` and `+flash`; keep at most one `zoomThrough` at the hook → problem boundary.

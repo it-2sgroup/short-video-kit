@@ -5,9 +5,15 @@ take never looks static. Implemented in `assets/remotion-template/src/engine/cam
 scene in the plan's **Camera** column, or let `plan_to_project.py --auto-camera` / `plan_scenes.py`
 choose it from what the shot shows.
 
-**A move that nobody notices is wasted.** On a phone, a 5% push is invisible. The camera has to be
-*seen*: at least ~12% change of scale or ~8% of the frame in a pan, aimed at the action (the stain,
-the pour, the lifted garment), with the shot size changing from scene to scene.
+**A move that nobody notices is wasted.** On a phone, a 5% push is invisible. On a locked shot the
+camera has to be *seen*: at least ~12% change of scale or ~8% of the frame in a pan, aimed at the action
+(the stain, the pour, the face, the dish), with the shot size changing from scene to scene.
+
+**Footage that already moves is the exception.** A gimbal walk through a room, a pan across a market,
+a handheld follow: a virtual move on top of a real one reads as a wobble. `inspect_footage.py
+--measure` marks those clips `motion: high`, and `plan_to_project.py --auto-camera --analysis
+analysis.json` gives them a near-static `hold 1.04`. The real-estate and montage playbooks keep their
+patterns subtle (pans of 5–6%, pushes to ~1.12) for the same reason.
 
 ---
 
@@ -19,26 +25,32 @@ the pour, the lifted garment), with the shot size changing from scene to scene.
 | Pull-out reveal | `pull 1.32>1.0 focus 0.5,0.45` | −20–35% | The lifted garment / result: start tight, open to the whole piece |
 | Pan / reframe | `pan left 8% 1.2>1.32 focus …` | 8% of frame width with a small zoom | Fake a second angle on a soaking bowl; follow the action |
 | Roll (lean) | `… roll 1.0>-1.0` | ±1–2° | A handheld lean that makes a static shot feel like a new angle; ≤ 1 scene in 4 |
-| Hold | `hold` (≈1.03) | none | Reveals that must read, nothing fights it |
+| Hold | `hold` (≈1.04) or `hold 1.22 focus 0.5,0.35` | a fixed framing | Reveals that must read; footage that moves; talking-head jump cuts alternating wide (`hold 1.0`) and tight (`hold 1.22` on the face) |
 | Focus point | `… focus 0.45,0.55` | — | The point that stays put while scaling: aim it at the action, not the middle of the frame |
 | Keyword punch-in | Overlays row `punch` at `@"word"`, or `--punch-keywords` | ×1.15 over 6 frames, holds to the scene end | Emphasis on a product name, number, "boom" |
 
-Camera accents on cuts (`+flash`, `+leak` in the Transition column) and speed ramps belong to
-`transitions.md`.
+Camera accents on cuts (`+flash`, `+leak` in the Transition column) belong to `transitions.md`;
+speed changes (the Speed column) to `cutting-and-pacing.md`.
 
 ### Shot-size ladder
 
-Alternate the size scene to scene, never two equal sizes in a row: **wide** (1.0–1.2, the whole bowl
-and garment) → **medium** (1.2–1.35) → **close** (1.4–1.6, the stain or the pour). Each hook beat starts
-on a different size than the one before. `plan_scenes.py` picks the move from the shot library's
-`kind` (what the shot shows) and `size`:
+Alternate the size scene to scene, never two equal sizes in a row: **wide** (1.0–1.2, the whole subject)
+→ **medium** (1.2–1.35) → **close** (1.4–1.6, the detail the voice talks about). Each hook beat starts
+on a different size than the one before. `plan_scenes.py` picks the move for a shot-library span from,
+in order: the span's own `move`, the playbook's `camera.byKind` (the longest key the span's `kind`
+starts with), then its `size` (wide push 1.0>1.2, medium push 1.08>1.28, close pull 1.3>1.06). Kinds
+are words for the footage; each playbook knows its own:
 
-| Kind | Move |
+| Playbook | Kinds and moves |
 |---|---|
-| STAIN | push 1.22>1.46 on the stain, sometimes with roll |
-| POUR_* / PRODUCT | push 1.14>1.4 (wide: 1.0>1.22) |
-| SOAK | slow pan 8% with a 1.2>1.32 zoom, left/right alternating |
-| LIFT | pull 1.32>1.0 |
+| product-demo | STAIN push 1.22>1.46 · POUR/PRODUCT push 1.14>1.4 · SOAK pan 8% 1.2>1.32 · LIFT pull 1.32>1.0 · WIDE push 1.0>1.2 |
+| real-estate | EXTERIOR pan up 6% · ROOM pan right 6% · WALK hold 1.04 · DETAIL push 1.1>1.3 · VIEW pull 1.2>1.0 |
+| food-fnb | MACRO push 1.15>1.4 · POUR push 1.1>1.3 · TABLE pan 8% · FACE hold 1.08 |
+| talking-head | FACE hold 1.12 on the face · BROLL push 1.0>1.16 |
+| tutorial | HANDS push 1.1>1.3 · SCREEN hold · WIDE push 1.0>1.16 |
+| fashion-beauty | MIRROR hold · FACE push to 1.28 · TEXTURE push 1.15>1.4 |
+| montage-recap | WIDE push 1.0>1.12 · CROWD hold · AERIAL hold |
+| promo-sale | PACKSHOT push 1.05>1.25 · STORE pan 8% |
 
 ---
 
@@ -69,11 +81,12 @@ on a different size than the one before. `plan_scenes.py` picks the move from th
 - Aim `focus` at the action. A shot library records it per span (`focus`: the stain, the pour spout);
   a blank focus defaults to the centre and looks generic.
 - Change the shot size at least every scene or two (ladder above); the hook's two beats differ in size.
-- REVEAL scenes pull out or hold; CTA-CLOSE gets a calm push with room for the cart arrow.
+- Named beats follow the playbook's `camera.byType` (product-demo: REVEAL pulls out, CTA-CLOSE a calm
+  push with room for the cart arrow; real-estate: SPECS holds; talking-head: PAYOFF pushes in).
 - At most one punch per 3 s and 6 per video; none within 0.5 s of a cut (the cut already changes
   the frame); punches land 2 frames before the keyword.
 - Roll, snap zooms and speed ramps are spice: ≤ 2 per video unless the roll is the only move on a
-  static bowl, and only with a reason.
+  static shot, and only with a reason. Speed ramps are in `cutting-and-pacing.md`.
 
 Sources: StudioBinder (push-in grammar); Epidemic Sound / ShortGenius (Ken Burns, push to emphasise,
 pull to reveal); CapCut/Submagic and Final Cut docs (ease keyframes; lengthen harsh moves); iart-ai

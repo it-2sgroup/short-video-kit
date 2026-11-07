@@ -1,0 +1,48 @@
+{
+  "id": "tutorial",
+  "title": "Hướng dẫn / how-to / công thức nấu ăn / thao tác từng bước",
+  "summary": "Result first, then the steps in order, each one a beat with its number on screen, long waits compressed and labelled, the finished result again at the end. Clarity beats energy: hold each step long enough to be copied.",
+  "intents": ["hướng dẫn", "cách làm", "how to", "tutorial", "công thức", "recipe", "từng bước", "các bước", "mẹo", "diy", "lắp đặt", "cài đặt", "sử dụng", "thao tác"],
+  "expect": {"speech": "voiceover", "motion": "low"},
+  "signals": ["hands doing a task from one fixed angle (top-down or front)", "a sequence of states (ingredients → result)", "screen recordings or device close-ups"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 25, "max": 75, "ideal": [35, 55], "why": "Each step needs time to be followed; trim waiting, not steps."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.5, "minBeat": 1.0, "purpose": "the finished result, then the promise (\"3 bước\", \"5 phút\")", "graphics": "title with the number of steps or the time"},
+  "scenes": {"min": 2.0, "max": 4.5, "target": 3.3},
+  "drive": "voice",
+  "structure": [
+    {"type": "TOOLS", "share": 0.12, "purpose": "what you need, laid out", "graphics": "checklist"},
+    {"type": "STEP", "share": 0.62, "purpose": "one step per beat; long waits sped up and labelled", "graphics": "step (numbered), callout, magnifier, progress for waiting", "speed": ""},
+    {"type": "RESULT", "share": 0.14, "purpose": "the result, same framing as the hook", "graphics": "title"},
+    {"type": "CTA", "share": 0.12, "purpose": "save it for later, or the product used", "graphics": "title, cart if it is a TikTok Shop product"}
+  ],
+  "transitions": {
+    "hook": "slide up",
+    "same": ["fade 10f", "slide left", "fade 12f", "slide left"],
+    "change": ["slide up", "wipe left 14f", "fade 14f"],
+    "into": {"RESULT": "blurDissolve +leak"},
+    "accentsMax": 1
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.16", "pull 1.2>1.04", "push 1.08>1.28", "pan left 8% 1.14>1.22", "push 1.04>1.2", "pan right 8% 1.14>1.22"],
+    "byType": {"RESULT": "pull 1.22>1.0", "TOOLS": "hold 1.04"},
+    "byKind": {"HANDS": "push 1.1>1.3", "SCREEN": "hold 1.0", "WIDE": "push 1.0>1.16"}
+  },
+  "captions": "karaoke",
+  "theme": "cool",
+  "grade": "natural",
+  "correction": "shared",
+  "music": {"bpm": [85, 115], "mood": "light, steady, low under the voice"},
+  "components": {
+    "use": ["title", "step", "checklist", "progress", "callout", "magnifier", "highlight", "stat", "cart"],
+    "avoid": []
+  },
+  "sfx": {},
+  "compliance": [
+    "Sped-up waiting labelled (\"tua nhanh ×4\", \"sau 20 phút\")",
+    "Safety steps shown (electricity, heat, chemicals, knives); no dangerous shortcuts",
+    "Quantities and times on screen match what was actually done",
+    "Products used are named honestly; paid placement disclosed"
+  ],
+  "references": ["references/cutting-and-pacing.md", "references/layout-and-motion-graphics.md", "references/captions-and-text.md"]
+}

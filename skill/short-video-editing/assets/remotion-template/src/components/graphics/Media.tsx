@@ -1,7 +1,7 @@
-// Graphics that show footage: a magnifier lens on a detail, a recap row of frozen thumbnails, and
-// the before/after comparison card.
+// Graphics that show pictures: a magnifier lens on a detail, a recap row of frozen thumbnails, the
+// before/after comparison card, and a still image (logo, floor plan, packshot) from public/images.
 import React from "react";
-import { AbsoluteFill, Freeze, OffthreadVideo, interpolate, staticFile, useVideoConfig } from "remotion";
+import { AbsoluteFill, Freeze, Img, OffthreadVideo, interpolate, staticFile, useVideoConfig } from "remotion";
 import type { Overlay } from "../../project";
 import { compare, frame as size, motion, palette, safe, thumb as THUMB, toneColor, zones } from "../../theme";
 import { clamp, smooth, useEnterExit } from "../anim";
@@ -47,7 +47,7 @@ export const Magnifier: React.FC<Base> = ({ ov, dur, instant }) => {
             scale: String(p.zoom ?? 2.2),
           }}
         >
-          <OffthreadVideo src={staticFile(`clips/${p.clip}.mp4`)} startFrom={Math.round(p.in * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <OffthreadVideo src={staticFile(`clips/${p.clip}.mp4`)} trimBefore={Math.round(p.in * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
       </div>
     </AbsoluteFill>
@@ -80,7 +80,7 @@ const Still: React.FC<{ clip: string; at: number; focus: Point; zoom: number; cx
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <div style={{ position: "absolute", width: W, height: H, left, top }}>
         <Freeze frame={0}>
-          <OffthreadVideo src={staticFile(`clips/${clip}.mp4`)} startFrom={Math.round(at * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <OffthreadVideo src={staticFile(`clips/${clip}.mp4`)} trimBefore={Math.round(at * fps)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </Freeze>
       </div>
     </div>
@@ -240,6 +240,38 @@ export const Thumbs: React.FC<Base> = ({ ov, dur, instant }) => {
             </div>
           );
         })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// image: a still from public/ (e.g. images/floorplan.png, images/logo.png) that scales in. `frame=card`
+// (white border, rounded, shadow) suits floor plans and packshots; `frame=none` suits logos with
+// transparency. `at` is the centre as fractions of the frame; `width` in pixels.
+export type ImageProps = { src: string; at?: Point; width?: number; frame?: "card" | "none"; caption?: string };
+
+export const ImageCard: React.FC<Base> = ({ ov, dur, instant }) => {
+  const { fps } = useVideoConfig();
+  const p = (ov.props ?? {}) as ImageProps;
+  const { frame, exit } = useEnterExit(dur, { instant });
+  const k = instant ? 1 : smooth(frame, fps, 0, 12);
+  const width = Math.min(p.width ?? 520, safe.right - safe.left);
+  const [cx, cy] = p.at ?? [0.5, 0.3];
+  const card = (p.frame ?? "card") === "card";
+  return (
+    <AbsoluteFill style={{ opacity: exit }}>
+      <div style={{ position: "absolute", left: cx * size.width - width / 2, top: cy * size.height, translate: "0 -50%", width, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, opacity: k, scale: String(interpolate(k, [0, 1], [0.85, 1])) }}>
+        <Img
+          src={staticFile(p.src)}
+          style={{
+            width: "100%",
+            borderRadius: card ? 22 : 0,
+            border: card ? `${compare.border}px solid ${palette.white}` : undefined,
+            boxShadow: card ? "0 18px 50px rgba(0,0,0,0.45)" : undefined,
+            filter: card ? undefined : "drop-shadow(0 8px 24px rgba(0,0,0,0.45))",
+          }}
+        />
+        {p.caption ? <OutlineText size={38} weight={800}>{p.caption}</OutlineText> : null}
       </div>
     </AbsoluteFill>
   );

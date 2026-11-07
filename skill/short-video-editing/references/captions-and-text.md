@@ -1,164 +1,95 @@
 # Captions and On-Screen Text
 
-TikTok's own creative guidance tells creators to include closed captions or concise overlay text
-on every video (`ads.tiktok.com/business/library/Creative_Best_Practices_UKI_SMB.pdf`). Beyond
-accessibility and sound-off viewing, on-screen text is OCR'd by TikTok for search indexing, so the
-words you burn in affect discovery.
+TikTok's creative guidance asks for captions or concise overlay text on every video, at 5–10 words
+per second of on-screen text (`platforms.md` §3). Beyond sound-off viewing, burned-in words are read by
+the platforms for search, so they affect discovery. Titles and graphic text are in `typography.md` and
+`layout-and-motion-graphics.md`; this file is about spoken captions and the words that work beside them.
+**[S]** sourced, **[C]** craft convention.
 
 ---
 
 ## Burned-in, not platform captions
 
-Platform auto-captions can be switched off by the viewer and are frequently wrong on Vietnamese.
-Burn captions into the frame. For commerce content this is the default.
+Platform auto-captions can be switched off and are often wrong on Vietnamese. Burn captions in
+whenever there is a voice. Captions take the **words from the script** and the **timing from Whisper**
+(`align_captions.py`): Whisper mishears Vietnamese ("túi xách" → "tui sách").
 
----
+## Styles (`project.json` `captionStyle`; default from the playbook)
+
+| Style | What it shows | Playbooks | Why |
+|---|---|---|---|
+| `karaoke` | the phrase (≤ 2 lines), the spoken word coloured | product-demo, tutorial, food-fnb, real-estate:voiceover | the 2025–26 default in commerce; whole phrase readable |
+| `pop` | one phrase of ≤ 5 words (≤ 20 characters) on one line, bigger (66 px), the spoken word coloured and springing | talking-head, fashion-beauty | the bold education style; still a whole phrase at once |
+| `plain` | the phrase, no highlight | promo-sale, testimonials, calm or serious content | static sentences read as sober |
+| `none` | nothing | real-estate, montage-recap (music only) | no voice, nothing to caption |
+
+**Why no word-by-word reveal** [S]: viewers read ahead. Deaf and hard-of-hearing viewers preferred 6- and
+12-word lines over single words (ASSETS 2021, they split attention between captions and picture), and
+highlighting 5–15% of the important words improved comprehension without distracting (ASSETS 2019).
+Revealing one word at a time stops the look-ahead. Vietnamese is monosyllabic, so a "word" is a
+syllable: one-word captions would be fragments. Both styles that highlight show the whole phrase from
+its first word.
 
 ## Grouping and timing
 
-| Parameter | Value | Reason |
+| Parameter | Value | Source |
 |---|---|---|
-| Words per group | 2–4 | Legible at phone size; matches speech rhythm |
-| Groups visible at once | 1 | Two groups on screen compete and neither is read |
-| Minimum time on screen | ~0.5s + 0.3s per word | Below this, the line cannot be read before it changes |
-| Style | Word-by-word highlight (karaoke) over static blocks | Widely reported to hold attention better; the magnitude claims circulating are vendor-sourced and not citable |
+| Line length | ≤ ~26 characters per line at 58 px, ≤ 2 lines (pop: one line of ≤ 5 words, 20 characters) | Netflix: 42 chars/line, 2 lines [S], scaled to a phone frame [C] |
+| Reading speed | ≤ ~17–20 characters/s | Netflix adult 20 cps [S] |
+| On screen | 0.8–7 s per group; never under 0.45 s (the sync report flags it) | [C] |
+| Groups at once | 1 | two groups compete and neither is read |
+| Breaks | after punctuation, before conjunctions; keep noun phrases together | Netflix [S] |
+| Emphasis | colour on ≤ 15% of the words | ASSETS 2019 [S] |
 
-The minimum-display formula matters more than it looks. A four-word group needs about 1.7 seconds.
-When captions are generated from word-level timings, fast speech produces groups that flash past
-unreadably — merge them rather than shipping something nobody can read.
-
----
+Fast speech gives fast captions: reading speed is a **script** problem (the word budget), not an edit
+problem. What the edit must avoid is a group that flashes: `align_captions.py` merges them.
 
 ## Placement
 
-Design to the conservative safe zone from `platform-specs.md` §6:
+The caption band is the lower third: y ≈ 1340, 58 px, ≤ 2 lines, x 90–890 (clear of TikTok's action
+rail), lifted 120 px while a `cart` arrow is on screen. Reels ads move it to y ≈ 1100
+(`--platform reels-ad`, Meta keeps the bottom 35% clear). The middle of the frame belongs to the
+footage: big captions in the middle pull the eye off the subject.
 
-| Edge | Keep clear |
-|---|---|
-| Top | 250 px |
-| Bottom | 510 px |
-| Right | 140 px |
-| Left | 60 px |
+- Never centre with `left: 50%; translate(-50%)`: long text clips. Use a full-width container.
+- Never over the subject at the moment that matters (the stain, the dish, the face): move it or drop it.
 
-Usable band on a 1080×1920 frame: **y = 250 → 1410**, **x = 60 → 940** (and x ≤ 900 below y ≈ 700, where
-TikTok's action rail sits — the template's caption block is x ≈ 90–890, starts at y ≈ 1340, is 58 px and
-at most two lines).
+## Contrast
 
-**Captions sit in the lower third, as low as the safe zone allows** (start y ≈ 1340, ≈ 120 px tall), so
-the middle of the frame stays clear for the footage. That clears TikTok's own caption, username, audio
-tag and product card. Big captions in the middle pull the viewer's eye off the demo: keep them small
-(58 px) and short (2–4 words a group).
+Variable backgrounds (fabric, foam, sky, white walls): outlined text with a soft shadow (the kit's
+`OutlineText`), never a full-width bar. White on white fabric disappears: check every caption on the
+contact sheet; over white garments use the `outline` or `marker` title styles for titles.
 
-Two placement rules worth stating explicitly:
+## Text that does work the voice is not doing
 
-- **Never use `left: 50%; transform: translateX(-50%)`** to centre a caption. It clips at frame
-  edges when the text is long. Use a full-width absolute container with `text-align: center`.
-- **Never place a caption over the product or over the stain** during the demo. The whole point of
-  those seconds is that the viewer sees the transformation. Move the caption up, or drop it.
+Picture, text and voice carry three different messages; a caption that only repeats the voice wastes
+a channel — that is why **titles** say something else.
 
----
-
-## Titles and labels
-
-Titles, labels and their styles (no boxes on product demos, the five title styles, fonts with
-Vietnamese support) are in `typography.md`. This file is about spoken captions.
-
----
-
-## Contrast over fabric
-
-Fabric and foam are variable backgrounds — a caption that reads over a white shirt disappears over
-a shadow. Use one of:
-
-- A text shadow or stroke (simplest; `text-shadow: 0 2px 8px rgba(0,0,0,0.9)`)
-- A scrim sized to the text, at 30–40% opacity
-
-**Not a full-width bar.** A bar across the frame costs more of the picture than the text needs and
-looks like a news ticker.
-
-Guidance on blend mode by background brightness (0–255): under 60 use `screen`; 60–180 use
-`overlay`; over 180 use normal with an opaque colour.
-
----
-
-## Text that does work the voiceover is not doing
-
-The hook has three channels — visual, text, audio — and they should carry three different
-messages. A caption that merely transcribes the voiceover wastes the channel.
-
-| Moment | Voiceover says | On-screen text says |
+| Moment | Voice says | Title says |
 |---|---|---|
-| Hook | "Chỗ ố này mình tưởng phải bỏ áo luôn" | "Cái áo này 10 phút trước" |
-| Demo | "Mình đổ chai hồng lên trước" | "Bước 1 — ngâm 5 phút" |
-| Reveal | "Mấy vợ nhìn nè" | "Cùng một cái áo, cùng một góc máy" |
+| Hook (demo) | "Chỗ ố này mình tưởng phải bỏ áo luôn" | "Cái áo này 10 phút trước" |
+| Room (property) | "Phòng khách đón nắng cả buổi sáng" | `label`: "Phòng khách · 32 m²" |
+| Step (tutorial) | "Mình đổ chai hồng lên trước" | `step`: "Bước 1 — ngâm 5 phút" |
+| Point (talking head) | "Phần lớn mọi người mất tiền ở bước này" | `stat`: "73% · khảo sát của shop" |
 | CTA | "Mình để ở giỏ hàng góc trái rồi" | "Giỏ hàng ↙" |
 
-Procedural detail is better on screen than in speech — steps, timings and dilutions read faster
-than they are heard, and putting them in text frees the voiceover for reaction and persuasion.
+Procedural facts (steps, timings, quantities, prices, areas) read faster than they are heard. Three
+kinds of text pull extra weight: **search keywords** (the problem, the dish, the neighbourhood);
+**time-compression labels** ("tua nhanh ×8", "sau 2 tiếng"), required in spirit by the instant-effect
+rules; **evidence labels** ("Cùng một góc máy", "hình minh hoạ", "ước tính").
 
-Three kinds of text pull extra weight:
+## Pointing at the cart (TikTok Shop only)
 
-- **Keyword text for search.** Burn the problem in words — "vết thâm kim", "ố vàng", "dầu mỡ".
-  TikTok OCRs it.
-- **Time-compression labels.** "tua nhanh ×8", "sau 2 tiếng ngâm". Required in spirit by the
-  instant-effect rules in `platform-specs.md`.
-- **Evidence labels.** "Cùng một góc máy", "Nửa trái ngâm rồi". These pre-empt the
-  "staged/fake" reaction and cost one line.
+Point at the **real** product bar (`cart`, aimed at (112, 1677)); never draw a fake cart or button
+(`claims-and-compliance.md` §1). Reels have no product bar: no arrow there.
 
----
-
-## Pointing at the cart
-
-The CTA text should point at the **real** TikTok Shop element.
-
-Permitted: an arrow or hand gesture toward the actual product card, with text like "Giỏ hàng ↙".
-
-Prohibited: drawing a fake cart, a fake "Buy" button, or a fake swipe-up. TikTok's policy names
-fake interactive elements as clickbait. See `platform-specs.md` §4.
-
-Since the product card sits in the bottom-left area that the safe zone already excludes, place the
-CTA text just above it and let the arrow do the work.
-
----
-
-## Generating captions from a voiceover
-
-When the voiceover is synthesised, word-level timings usually come free. `edge-tts` (free,
-supports Vietnamese) emits them when `boundary="WordBoundary"` is set:
-
-```python
-communicate = edge_tts.Communicate(text, "vi-VN-HoaiMyNeural", boundary="WordBoundary")
-async for chunk in communicate.stream():
-    if chunk["type"] == "WordBoundary":
-        # chunk["offset"] and chunk["duration"] are in 100-nanosecond units
-        start = chunk["offset"] / 10_000_000
-```
-
-Two practical notes from using this on Vietnamese commerce scripts:
-
-- The free endpoint rate-limits. Synthesise one line at a time with a 2–3 second gap and retry
-  with backoff; bursts fail with "No audio was received".
-- Offsets are relative to each line's own audio. Add the cumulative offset of preceding lines and
-  any inter-line silence to get absolute timeline positions.
-
-For recorded human voiceover, `python scripts/align_captions.py <file> --lang vi`
-produces the same word-level JSON.
-
----
-
-## SRT output
-
-When the deliverable is for a human editor rather than a Remotion render, emit standard SRT:
+## SRT for a human editor
 
 ```
 1
 00:00:00,706 --> 00:00:01,967
 Ủa mọi người ơi
-
-2
-00:00:02,743 --> 00:00:03,558
-Có ai giống mình
 ```
 
-Commas as the decimal separator, `HH:MM:SS,mmm`, blank line between entries. CapCut, Premiere and
-DaVinci all import this directly.
+Commas as the decimal separator, `HH:MM:SS,mmm`, a blank line between entries. CapCut, Premiere and
+DaVinci import it directly.

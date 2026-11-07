@@ -88,14 +88,19 @@ consecutive beats; one accent word per title.
 
 ## Colour themes
 
-The template ships two palettes in `theme.ts`, switched by one `THEME` line (`new_remotion_project.py DEST
---theme warm`, repeated after every `--update`). **`cool`** (default) is white text with sky-blue gradients and a
-navy/royal glass card. **`warm`** is ivory text, gold accents and highlighter, and a cream glass card with a
-brown-to-vermilion main line: use it when the footage is amber, wooden or candle-lit (Japanese restaurants,
-cafes), where blue and teal accents clash with the picture. Captions follow the theme automatically (ivory text,
-espresso outline, gold karaoke word). Callout, compare and ranking cards still use their own cool tones; if a video
-needs them in the warm theme, add tokens to `theme.ts` the way `titleColors` does. The warm theme was requested by
-the client for the Kiiro Sushi videos (Nov 2026): the skill's blue look did not suit that footage.
+`theme.ts` holds three palettes, switched by one `THEME` line that `new_remotion_project.py DEST
+--playbook ID` writes from the playbook (or `--theme`; repeat after every `--update`):
+
+| Theme | Look | Playbooks | Why |
+|---|---|---|---|
+| `cool` | white text, sky-blue gradients, navy/royal glass card | product-demo, talking-head, tutorial, montage-recap, promo-sale | neutral, reads on most footage |
+| `warm` | ivory text, gold accents and highlighter, cream card, brown-to-vermilion line | food-fnb | amber, wooden or candle-lit footage, where blue accents clash (requested for the Kiiro Sushi videos, Nov 2026) |
+| `luxe` | warm white, champagne gold, charcoal | real-estate, fashion-beauty | calm and premium; gold reads on white interiors and fabric |
+
+Captions, prices, stats, specs and labels follow the theme (their accent is `toneColor.cta`). Callout,
+compare and ranking cards keep their own light cards. A brand's colours = a new theme in `theme.ts`
+(all keys of an existing one) and a playbook (or variant) that names it; `playbook.py check` then
+accepts it.
 
 ---
 
@@ -106,7 +111,7 @@ the client for the Kiiro Sushi videos (Nov 2026): the skill's blue look did not 
 | Source | `align_captions.py` (timing from Whisper, words from the script) | The plan's Overlays table |
 | Font | Be Vietnam Pro 800, 58px, outline (≤ 2 lines, x 90–890) | Mixed weights, accent serif |
 | Place | Lower third, y ≈ 1340 (`theme.captionTop`); 120 px higher while the cart arrow shows | Top strip |
-| Motion | 4-frame fade per group; **karaoke**: the spoken word turns yellow and scales 1.08 | Choreographed entrance/exit |
+| Motion | 4-frame fade per group; **karaoke**: the spoken word takes the accent colour and scales 1.08; **pop**: one phrase of ≤ 5 words on one line at 66 px, the spoken word springs to 1.12 | Choreographed entrance/exit |
 
 Keep the caption highlight colour different from title accents. Don't animate a title entrance and a
 caption change on the same frame — start titles on a pause. If a title repeats the spoken words,

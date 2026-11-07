@@ -1,0 +1,61 @@
+{
+  "id": "food-fnb",
+  "title": "Ẩm thực / nhà hàng / quán / F&B",
+  "summary": "Appetite first: the hero bite, pour or sizzle inside the first second, then the place, the making, the dish, the reaction, the price and where to find it. Fast cuts on the music or the voice, warm grade, real sound of the kitchen kept under the music.",
+  "intents": ["ẩm thực", "món ăn", "nhà hàng", "quán", "food", "review quán", "đồ ăn", "đồ uống", "cafe", "cà phê", "trà sữa", "buffet", "lẩu", "nướng", "f&b", "menu", "mukbang", "đặc sản", "bếp"],
+  "expect": {"speech": "any", "motion": "any"},
+  "signals": ["close-ups of food, steam, pouring, cutting, cheese pull", "warm restaurant light (amber, wood)", "a kitchen or a table", "a person eating or reacting"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 15, "max": 45, "ideal": [22, 35], "why": "Food watch-through drops fast once the dish has been seen; keep it tight."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.3, "minBeat": 0.8, "purpose": "the hero moment (bite, pull, pour, sizzle) then the dish in full", "graphics": "title: what it is and one hook word (giá, địa điểm, độ ngon)"},
+  "scenes": {"min": 1.2, "max": 3.5, "target": 2.2},
+  "drive": "music",
+  "structure": [
+    {"type": "PLACE", "share": 0.15, "purpose": "the place or the stall, the vibe", "graphics": "pin (name, district)"},
+    {"type": "PREP", "share": 0.3, "purpose": "the making: cutting, frying, plating, match cuts on the action", "graphics": "checklist (ingredients) or label", "speed": "1.5x"},
+    {"type": "DISH", "share": 0.25, "purpose": "the finished dish in macro, slow push, steam", "graphics": "label (name), price"},
+    {"type": "REACTION", "share": 0.15, "purpose": "the bite and the face; real sound up", "graphics": "sticker or a one-word title"},
+    {"type": "CTA", "share": 0.15, "purpose": "price, address, hours, how to order", "graphics": "price, pin, stat (e.g. opening hours)"}
+  ],
+  "transitions": {
+    "hook": "cut",
+    "same": ["cut", "cut", "fade 8f", "cut"],
+    "change": ["whip right", "slide up", "zoomThrough", "whip left"],
+    "into": {"DISH": "fade 12f", "CTA": "slide up"},
+    "accentsMax": 1
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.2", "pull 1.24>1.04", "push 1.12>1.34", "pan left 8% 1.14>1.2", "push 1.06>1.26", "pan right 8% 1.14>1.2"],
+    "byType": {"DISH": "push 1.05>1.25", "CTA": "hold 1.04"},
+    "byKind": {"MACRO": "push 1.15>1.4", "POUR": "push 1.1>1.3", "TABLE": "pan right 8% 1.1>1.2", "FACE": "hold 1.08"}
+  },
+  "captions": "karaoke",
+  "theme": "warm",
+  "grade": "warm-food",
+  "correction": "per-clip",
+  "music": {"bpm": [100, 128], "mood": "warm, playful; drop it under sizzle and bite sounds"},
+  "components": {
+    "use": ["title", "price", "pin", "checklist", "label", "stat", "sticker"],
+    "avoid": ["compare"]
+  },
+  "sfx": {"sceneStart": {"HOOK>HOOK": null}},
+  "compliance": [
+    "Prices match the menu on the day of filming; promotions with their dates",
+    "No health or medical claims (\"chữa\", \"giảm cân\", \"tốt cho gan\") for food or drinks",
+    "Alcohol: no appeal to minors, no drinking-and-driving, follow the platform's alcohol rules",
+    "Paid or gifted visit disclosed (commercial-content toggle)",
+    "Staff and other diners: consent, or out of frame",
+    "Music licensed for commercial use (business account)"
+  ],
+  "references": ["references/claims-and-compliance.md", "references/cutting-and-pacing.md", "references/image-processing.md", "references/audio-and-music.md"],
+  "variants": {
+    "review": {
+      "about": "A reviewer talks: voice-driven, the reviewer's verdict carries the video.",
+      "intents": ["review quán", "đánh giá quán", "food review", "ăn thử"],
+      "drive": "voice",
+      "expect": {"speech": "on-camera"},
+      "scenes": {"min": 1.5, "max": 4.0, "target": 2.8},
+      "runtime": {"min": 20, "max": 60, "ideal": [28, 45]}
+    }
+  }
+}

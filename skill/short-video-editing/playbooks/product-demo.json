@@ -1,0 +1,82 @@
+{
+  "id": "product-demo",
+  "title": "Review / demo sản phẩm (TikTok Shop), có thể có TRƯỚC/SAU",
+  "summary": "A product shown working: hook with the result, the problem, the demo, the reveal, the cart. Built on 16,242 measured TikTok Shop videos and the client's house style (3-4 s scenes, soft transitions, no text in boxes).",
+  "intents": ["review", "demo", "sản phẩm", "tiktok shop", "affiliate", "koc", "ugc", "giỏ hàng", "tẩy", "vết bẩn", "trước sau", "before after", "đánh giá", "dùng thử", "gia dụng", "product"],
+  "expect": {"speech": "voiceover", "motion": "low"},
+  "signals": ["hands and the product in close-up, tabletop or top-down", "a visible process with a result (stain, mess, skin, surface)", "little camera movement", "voice recorded separately (or to be synthesized)"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 25, "max": 45, "ideal": [30, 40], "why": "In the reference dataset sub-25 s product videos had the lowest CTR and sale rate of any band (references/niche-winning-patterns.md)."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.5, "minBeat": 1.2, "purpose": "BEFORE → AFTER of the same item, joined by a wipe", "graphics": "title (promise) + honest label"},
+  "scenes": {"min": 2.5, "max": 4.0, "target": 3.3},
+  "drive": "voice",
+  "structure": [
+    {"type": "PROBLEM", "share": 0.2, "purpose": "make the stake concrete: name the item and the problem", "graphics": "title, thumbs when the voice lists three"},
+    {"type": "CTA-EARLY", "seconds": 3.0, "purpose": "plant the cart once, lightly", "graphics": "cart"},
+    {"type": "RE-HOOK", "seconds": 3.3, "purpose": "product hero shot, new energy", "graphics": "title stack + punch on the product name"},
+    {"type": "DEMO", "share": 0.35, "purpose": "the transformation, match-on-action", "graphics": "step, callout, progress (time passing, labelled)"},
+    {"type": "REVEAL", "share": 0.2, "purpose": "pay off the hook; same framing as the BEFORE; no hidden cut", "graphics": "compare card (TRƯỚC/SAU) or checklist"},
+    {"type": "CTA-CLOSE", "share": 0.25, "purpose": "repeat concretely, point at the real cart", "graphics": "cart, price"}
+  ],
+  "transitions": {
+    "hook": "wipe right 14f",
+    "same": ["fade 14f", "slide left", "blurDissolve", "slide right", "fade 18f"],
+    "change": ["slide up", "wipe left 14f", "zoomThrough +flash", "slide down", "wipe right 14f"],
+    "into": {"REVEAL": "wipe right 14f +leak", "RE-HOOK": "zoomThrough +flash"},
+    "accentsMax": 2
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.18", "pan left 8% 1.16>1.24", "pull 1.3>1.05", "push 1.14>1.34 roll -1>1", "pan right 8% 1.16>1.24", "pull 1.26>1.0"],
+    "byType": {"REVEAL": "pull 1.22>1.0", "CTA-CLOSE": "push 1.0>1.1"},
+    "byKind": {"LIFT": "pull 1.32>1.0", "STAIN": "push 1.22>1.46", "POUR": "push 1.14>1.4", "PRODUCT": "push 1.14>1.4", "SOAK": "pan right 8% 1.2>1.32", "WIDE": "push 1.0>1.2"}
+  },
+  "captions": "karaoke",
+  "theme": "cool",
+  "grade": "natural",
+  "correction": "shared",
+  "music": {"bpm": [90, 120], "mood": "light, upbeat bed far under the voice; Commercial Music Library or none"},
+  "components": {
+    "use": ["title", "callout", "highlight", "step", "checklist", "price", "cart", "sticker", "progress", "magnifier", "thumbs", "compare"],
+    "avoid": []
+  },
+  "sfx": {},
+  "compliance": [
+    "No antibacterial / antimicrobial claim",
+    "No \"instant\" or immediate-result claim",
+    "No \"removes all stains\" / ends-all-problems framing",
+    "No money-back or guaranteed-results claim",
+    "No absolute superlative (own-sales claims are permitted)",
+    "No competitor comparison, no false scarcity",
+    "Before/after: same item, same framing, same light and the SAME grade; time compression labelled on screen",
+    "Staged stains labelled (e.g. \"vết thử bằng thuốc đỏ\")",
+    "No fake UI: the CTA points at the real product bar",
+    "Video will be boosted as an ad? Then no before/after comparison (ask the user)",
+    "Commercial-content disclosure switched on at upload; music from the Commercial Music Library or original audio"
+  ],
+  "references": ["references/niche-winning-patterns.md", "references/before-after.md", "references/claims-and-compliance.md", "references/hook-library.md"],
+  "variants": {
+    "unboxing": {
+      "about": "First impression: the box, the reveal of the product, three details, the verdict.",
+      "intents": ["unboxing", "mở hộp", "đập hộp", "first impression"],
+      "runtime": {"min": 25, "max": 50, "ideal": [30, 40]},
+      "hook": {"purpose": "the most surprising detail or the product in hand first, then the closed box", "graphics": "title (what it is, the price)"},
+      "structure": [
+        {"type": "BOX", "share": 0.15, "purpose": "the package, the seal, what is in it", "graphics": "title"},
+        {"type": "REVEAL", "share": 0.15, "purpose": "the product comes out: hold the take", "graphics": "price"},
+        {"type": "DETAIL", "share": 0.35, "purpose": "three details in macro, one per scene", "graphics": "callout, magnifier, thumbs"},
+        {"type": "DEMO", "share": 0.2, "purpose": "it working once", "graphics": "step"},
+        {"type": "CTA-CLOSE", "share": 0.15, "purpose": "verdict and the cart", "graphics": "cart, checklist"}
+      ],
+      "transitions": {"into": {"REVEAL": "iris"}}
+    },
+    "listicle": {
+      "about": "Top-N or one-by-one of the shop's OWN products (TikTok Shop forbids comparing against competitors).",
+      "intents": ["top 3", "top 5", "listicle", "xếp hạng", "những món", "bộ sưu tập"],
+      "structure": [
+        {"type": "ITEM", "share": 0.75, "purpose": "one item per beat: name, the one reason, the proof shot", "graphics": "ranking chip, title, price"},
+        {"type": "CTA-CLOSE", "share": 0.25, "purpose": "the winner again and the cart", "graphics": "ranking, cart"}
+      ],
+      "components": {"use": ["title", "ranking", "price", "callout", "cart", "thumbs", "checklist"]}
+    }
+  }
+}

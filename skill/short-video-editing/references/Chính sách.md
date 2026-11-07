@@ -130,7 +130,7 @@ nó thành "nội dung mới" (mục 2.1).
 - TikTok Shop, *How to Avoid Misleading Content* (áp dụng toàn cầu): hậu quả "content removal or account
   suspension". [P] seller-us.tiktok.com (2026-06-25)
 - Before/after phải cùng ánh sáng, góc máy, không dựng khác biệt; demo phải phản ánh hiệu quả thật. Xem
-  `platform-specs.md` §2.
+  `claims-and-compliance.md` §3.
 - Video demo "sau khi tẩy" lấy từ chai tẩy khác (như clip Douyin) cho người xem tưởng là kết quả của SAIZA là
   **quảng cáo sai sự thật**, chưa kể rủi ro bản quyền. Việt Nam: Luật Quảng cáo cấm quảng cáo gây nhầm lẫn;
   Nghị định 38/2021/NĐ-CP có khung phạt, nguồn thứ cấp ghi 60–80 triệu đồng cho quảng cáo không đúng hoặc gây
@@ -203,7 +203,7 @@ Gọi `r` là số video được dùng chung cùng một đoạn nguồn:
 | Video khách hàng gửi | Chỉ khi có **đồng ý bằng văn bản** cho phép dùng thương mại và đăng lên kênh | Quyền thuộc về người quay |
 | Video creator/KOC được thuê | **Được** nếu hợp đồng nêu rõ quyền dùng thương mại và quyền chỉnh sửa; Spark Ads cần mã ủy quyền | Có quyền chia sẻ (mục 2.1) |
 | Kho video bản quyền (stock) | Chỉ làm **cảnh nền / không khí**, không làm "kết quả tẩy" | Quyền dùng thương mại có, nhưng không phải cảnh của sản phẩm mình (mục 2.5) |
-| Cảnh AI tạo | **Không** cho kết quả tẩy | Cấm demo hiệu quả phi thực tế và phải gắn nhãn AI (`platform-specs.md` §2) |
+| Cảnh AI tạo | **Không** cho kết quả tẩy | Cấm demo hiệu quả phi thực tế và phải gắn nhãn AI (`claims-and-compliance.md` §3) |
 | Xem Douyin làm **tham khảo ý tưởng**, rồi tự quay lại | **Được** | Ý tưởng, kiểu cảnh không phải tác phẩm; quay mới là nội dung gốc |
 
 ### 4.3 Repo `crawl-video-douyin` (đã đọc, chỉ đọc, không chạy)

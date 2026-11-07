@@ -1,9 +1,11 @@
 # short-video-kit — instructions for Claude
 
-The user works in **Vietnamese**: reply in Vietnamese. This repo is a toolkit for making short
-TikTok Shop product videos (30–40 s): the Claude skill `skill/short-video-editing`, Python scripts
-(footage inspection and contact sheets, voice trimming, ElevenLabs voiceover, Whisper-aligned captions,
-plan checkers, plan → project compiler) and a data-driven Remotion render template.
+The user works in **Vietnamese**: reply in Vietnamese. This repo is a toolkit for making short vertical
+videos of **many kinds** (TikTok, TikTok Shop, Reels; product demos, property tours, food, talking heads,
+tutorials, fashion/beauty, montages, promos): the Claude skill `skill/short-video-editing` with one
+**playbook** per genre (`playbooks/`), Python scripts (footage measurement and correction, contact sheets,
+voice cleanup and mastering, jump cuts, cuts on pauses or beats, ElevenLabs voiceover, Whisper-aligned
+captions, plan checkers, plan → project compiler) and a data-driven Remotion render template.
 
 **Everything a new machine needs is in this repo.** A chat, a Claude memory or an installed skill on
 another computer is not shared: if a rule or a fix matters, it belongs here (this file, `docs/`, or the
@@ -47,24 +49,30 @@ another drive and set these two variables for the user.
 
 ## When the user asks for a video
 
-Follow `docs/WORKFLOW.md` (Vietnamese) and the skill's `SKILL.md`. In short, for "make video KBn from
-this script PDF, this clip folder and this voice":
+Follow `docs/WORKFLOW.md` (Vietnamese) and the skill's `SKILL.md`. In short:
 
-1. `./setup.sh --check`, then read the script into one `script.txt` per video (a PDF: open it with the
-   Read tool, `pages` up to 20 at a time, and copy the spoken lines; no PDF library is installed).
-2. See the footage: `contact_sheet.py CLIPS_DIR --out overview.png`, `inspect_footage.py CLIPS_DIR --log`;
-   build a shot log and **budget the batch** (every video gets its own source ranges; check the capacity
-   against the batch size first, `references/Chính sách.md` §4.1).
-3. Voice: supplied → `trim_voice.py` if over 45 s, transcribe, correct the script **by hand** to match
-   what is said, `align_captions.py`. No supplied voice → ElevenLabs (after `--quota`).
-4. Write `edit-plan.md` (Scenes + Overlays), cut **on pauses in the voice**, scenes 3–4 s.
-5. `pacing_checker.py`, `footage_overlap_checker.py` (all plans together), `plan_to_project.py` with
-   `--auto-camera --auto-sfx` (read the sync report), render, then `contact_sheet.py VIDEO --project …` and **look** at it.
-6. Report in Vietnamese: runtime, scenes, hook, what the sync report still flags, claims in the supplied
-   voice that need the human, and what was **not** verified (never say "listened" unless it was).
+1. `./setup.sh --check`. A script PDF: open it with the Read tool (`pages` up to 20 at a time) and copy
+   the spoken lines into one `script.txt` per video (no PDF library is installed).
+2. **Analyse, then choose the playbook**: `inspect_footage.py CLIPS --measure --json analysis.json`,
+   `contact_sheet.py CLIPS --out clips.png` (**look** at it), `playbook.py suggest --intent "<the user's
+   words>" --analysis analysis.json`, then read `playbooks/<id>.md`. Say which playbook and why in one
+   line; when the request and the footage disagree or facts are missing, ask **at most three** questions,
+   each with a default. For a batch, **budget the footage** first (`references/Chính sách.md` §4.1).
+3. Footage: `new_remotion_project.py RENDER --playbook <id> --proxies CLIPS` (corrected, graded proxies;
+   look at `corrections.json` and a contact sheet of the proxies).
+4. Sound: a supplied voice → `trim_voice.py` if longer than the playbook allows, `process_audio.py voice`,
+   transcribe, correct the script **by hand**, `align_captions.py`; a talking head → `trim_voice.py
+   --jumpcut`; no voice → ElevenLabs (after `--quota`) or music only (`process_audio.py music`).
+5. Plan: `suggest_cuts.py` (pauses, or `--music` for beats) → `playbook.py skeleton <id> --cuts` →
+   `plan_scenes.py --plan` → fill Scenes and Overlays; `pacing_checker.py`, `footage_overlap_checker.py`
+   (all plans together); `plan_to_project.py --auto-camera --analysis --auto-sfx` (read the sync report);
+   render; `process_audio.py master`; `contact_sheet.py VIDEO --project …` and **look** at it.
+6. Report in Vietnamese: playbook and why, runtime, scenes, hook, footage corrections, what the sync report
+   still flags, claims that need the human, the publishing checklist, and what was **not** verified (never
+   say "listened" unless it was).
 
-Keep work files **outside this repo** (e.g. `<work>/kb7/{script.txt,voice.mp3,captions.srt,words.json,
-edit-plan.md}` and one render project `<work>/render`); only the toolkit lives here.
+Keep work files **outside this repo** (e.g. `<work>/v1/{script.txt,captions.srt,words.json,edit-plan.md}`,
+`<work>/analysis.json` and one render project `<work>/render`); only the toolkit lives here.
 
 ## Footage rights and duplicate content — read `references/Chính sách.md` first
 
@@ -98,7 +106,10 @@ version, with the evidence in that file:
   support it: put the numbers to the user (see the rights section above); never decide by reshuffling.
 - **Trimming a supplied voiceover** or dropping a claim: say exactly which sentences/claims.
 - **Claims already inside a supplied voice** ("sạch tinh", "tiết kiệm tiền trăm tiền triệu", "Hết lại
-  tiếc đó!"): flag them against `references/platform-specs.md`; keep the on-screen text clear of them.
+  tiếc đó!"): flag them against `references/claims-and-compliance.md`; keep the on-screen text clear of them.
+- **The playbook**, when the request and the footage disagree: ask, do not force footage into a genre.
+- **Facts on screen** (prices, areas, legal status of a property, offer dates): only what the user or the
+  documents give; never invented or rounded.
 
 ## Facts already learned the hard way — do not relearn them
 
@@ -110,6 +121,28 @@ version, with the evidence in that file:
   correct by hand, then align.
 - Client rules (Phương, Nov 2026): scenes 3–4 s with soft transitions (1.5–2 s hard cuts felt jerky);
   no text in boxes on product demos; one batch of footage must feed many videos with no reused range.
+  These are the `product-demo` playbook's house style, not rules for every genre (food, fashion and
+  montages cut on the beat at 1–2 s): say so if the same client asks for another genre.
+- Rules that depend on the kind of video live in `playbooks/<id>.json`; the scripts read the plan's
+  `**Playbook:**` line. Never hard-code a genre's number in a script; add or change a playbook (or a
+  variant) and run `playbook.py check`, which also fails when a component, grade, theme or caption
+  style is used by no playbook.
+- Footage correction (measured, `references/image-processing.md`): white balance only from near-neutral
+  pixels (a green bowl fooled grey-world); denoise only when dark or very noisy (texture fools the
+  meter); an RGB filter right after `vidstabtransform` segfaults ffmpeg 7.0 (the script inserts
+  `scale=iw:ih`); colour steps are baked into one 3D LUT (113 s → 45 s for 6 s of 4K60); a BEFORE and an
+  AFTER get the same correction (`correction: shared`). Run one heavy 4K ffmpeg job at a time: two
+  together exhausted 14 GB and were killed.
+- Audio (measured, `references/audio-processing.md`): the noise floor is the 5th percentile of 100 ms
+  windows (the 10th "cleaned" a clean TTS line and raised its floor 15 dB); the compressor threshold
+  follows the voice; `afftdn` delays 25 ms and `alimiter` adds gain by default — the script handles both.
+  Neither TikTok nor Instagram publishes a loudness target: −14 LUFS / −1 dBTP is common practice.
+- Captions: whole phrases, the spoken word highlighted (`karaoke`, `pop`); never one word at a time
+  (research: viewers read ahead; Vietnamese words are syllables).
+- Speed ramps in Remotion re-time the source frame by frame inside `<Freeze>` (animating `playbackRate`
+  does not work); slow motion needs a 60 fps proxy (`prepare_footage.py --slowmo`).
+- Reels ads keep the bottom 35% clear (Meta): `plan_to_project.py --platform reels-ad`; there is no
+  TikTok Shop product bar on Reels, so no cart arrow there.
 - Shader transitions (`crossZoom`) and light leaks render on Windows with the `angle` GL renderer
   (set in the template's `remotion.config.ts`).
 - iPhone footage is 4K HEVC with rotation metadata: render from ffmpeg proxies
@@ -129,9 +162,10 @@ version, with the evidence in that file:
   in the middle made viewers read instead of watch. Camera moves must be visible (≥ ~12% scale or ~8% pan,
   `focus` on the action, shot size alternating); render from 2880-tall proxies so the zoom stays sharp.
   Overlay targets (`highlight`, `callout`) are in screen space: re-check them on a still after the camera changes.
-- Batches: `suggest_cuts.py` (cuts on pauses) + `plan_scenes.py` (non-overlapping footage from a shot library)
-  make the allocation; `plan_scenes.py` exiting 1 means the footage ran out: report the shortfall.
-- Remotion: show a still of a clip with `startFrom` and `<Freeze frame={0}>`; `Freeze frame={N}` with a
+- Batches: `suggest_cuts.py` (cuts on pauses or beats) + `playbook.py skeleton` + `plan_scenes.py`
+  (non-overlapping footage from a shot library, counting fast scenes) make the allocation;
+  `plan_scenes.py` exiting 1 means the footage ran out: report the shortfall.
+- Remotion: show a still of a clip with `trimBefore` and `<Freeze frame={0}>`; `Freeze frame={N}` with a
   large N inside a short overlay shows the wrong moment.
 - Sound effects: only CC0 or self-made sounds go into `assets/sfx/` (row in `SOURCES.md` for each file);
   never the meme sounds in `@remotion/sfx` (`vine-boom`, `windows-xp-error`, `bruh`: no licence stated).
@@ -146,14 +180,14 @@ version, with the evidence in that file:
 - Windows PowerShell 5.1: `python -I` ignores `PYTHONIOENCODING`, use `python -X utf8`; the `python3`
   command may be the Microsoft Store stub (use the venv's `Scripts\python.exe`); a program installed by
   winget is not on PATH until a new terminal; `Get-Content` needs `-Encoding utf8` for Vietnamese files.
-- Files sent to a phone or web viewer are limited to ~30 MB: make a compressed copy
-  (`ffmpeg -i in.mp4 -c:v libx264 -crf 24 -c:a aac -b:a 128k -movflags +faststart out.mp4`).
+- Files sent to a phone or web viewer are limited to ~30 MB: `process_audio.py master … --phone` writes a
+  CRF 24 copy beside the master.
 
 ## Read next
 
 `README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
-`skill/short-video-editing/SKILL.md` → `skill/short-video-editing/references/Chính sách.md` (content-rights and
-duplicate-content policy). Adding, renaming or removing a file or script means updating
+`skill/short-video-editing/SKILL.md` → `skill/short-video-editing/playbooks/README.md` (genres: how to choose and add) →
+`skill/short-video-editing/references/Chính sách.md` (content-rights and duplicate-content policy). Adding, renaming or removing a file or script means updating
 `docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
 
 ## Working in this repo
@@ -163,8 +197,9 @@ duplicate-content policy). Adding, renaming or removing a file or script means u
 - **The repo must stay private**: `docs/` and `niche-winning-patterns.md` hold real GMV figures and
   creator handles. Do not paste them into external services.
 - **Keep it clean**: no dead code, no unused files, no video content hard-coded in the template (it
-  belongs in the plan / `project.json`). New look → `theme.ts`; new graphic → a component plus a row
-  in `references/layout-and-motion-graphics.md`.
+  belongs in the plan / `project.json`). New genre or house style → a playbook or a variant
+  (`playbooks/README.md`); new look → `theme.ts` or `assets/grades.json`; new graphic → a component plus a
+  row in `references/layout-and-motion-graphics.md` — each used by a playbook, or `playbook.py check` fails.
 - After changing anything under `skill/short-video-editing/`, run `./selftest.sh`; after changing the
   template, run `./selftest.sh --render <render project>` and look at stills.
 - Never label a staged or designed graphic as a "real customer review".

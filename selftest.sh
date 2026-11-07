@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Verify the kit works on this machine. Spends no ElevenLabs credits.
-#   ./selftest.sh                  groups 1-11 (a few seconds each; group 4 loads the Whisper model)
-#   ./selftest.sh --render [DIR]   also group 12: typecheck the Remotion template and render one still in
+#   ./selftest.sh                  groups 1-13 (a few seconds each; group 4 loads the Whisper model)
+#   ./selftest.sh --render [DIR]   also group 14: typecheck the Remotion template and render one still in
 #                                  DIR (default: a temp folder). Without node_modules in DIR this runs
 #                                  npm install, which downloads packages and Chromium (~300 MB): ask first.
 set -uo pipefail
@@ -33,9 +33,18 @@ OUT=$("$PY" "$S/inspect_footage.py" "$TMP/clip.mp4" 2>&1)
 echo "$OUT" | grep -q "1080x1920" && echo "$OUT" | grep -q "vertical" \
   && pass "reported 1080x1920 vertical" || { fail "inspect_footage output wrong"; echo "$OUT" | sed 's/^/        /'; }
 
-echo "3. pacing_checker.py"
+echo "3. playbooks and pacing_checker.py"
+"$PY" "$S/playbook.py" check >"$TMP/pb.log" 2>&1 \
+  && pass "every playbook and variant is valid, its skeleton passes its own pacing, every component/grade/theme is used" \
+  || { fail "playbook.py check"; grep -E "FAIL|x " "$TMP/pb.log" | head -5 | sed 's/^/        /'; }
 "$PY" "$S/pacing_checker.py" "$KIT/samples/example-edit-plan.md" >/dev/null 2>&1 \
-  && pass "example plan passes the hard rules" || fail "pacing_checker rejected the example plan"
+  && pass "example product-demo plan passes its playbook" || fail "pacing_checker rejected the example plan"
+"$PY" "$S/pacing_checker.py" "$KIT/samples/example-real-estate-plan.md" >/dev/null 2>&1 \
+  && pass "example real-estate plan passes its playbook" || fail "pacing_checker rejected the real-estate plan"
+"$PY" "$S/pacing_checker.py" "$KIT/samples/example-real-estate-plan.md" --playbook product-demo >/dev/null 2>&1 \
+  && fail "a 1.5 s non-hook scene passed product-demo's rules" || pass "the same plan fails product-demo's 2.5 s minimum (rules follow the playbook)"
+"$PY" "$S/playbook.py" suggest --intent "tour căn hộ 2 phòng ngủ" 2>&1 | head -1 | grep -q "real-estate" \
+  && pass "suggest: 'tour căn hộ' -> real-estate" || fail "playbook.py suggest did not pick real-estate"
 printf '| # | Start | End | Type |\n|---|---|---|---|\n| 1 | 0.0 | 6.5 | HOOK |\n' > "$TMP/bad.md"
 "$PY" "$S/pacing_checker.py" "$TMP/bad.md" >/dev/null 2>&1 \
   && fail "a 6.5s hook scene was NOT rejected" || pass "a 6.5s opening scene is rejected"
@@ -74,12 +83,22 @@ else
   fail "plan_to_project output wrong"; tail -4 "$TMP/p2p.log" | sed 's/^/        /'
 fi
 
+"$PY" "$S/plan_to_project.py" "$KIT/samples/example-real-estate-plan.md" --out "$TMP/re.json" --auto-camera --auto-sfx >"$TMP/re.log" 2>&1 \
+  && "$PY" -c "import json,sys; p=json.load(open(sys.argv[1],encoding='utf-8')); s=p['scenes']; \
+sys.exit(0 if s[2].get('ramp')==[1.0,2.0,1.0] and s[6].get('speed')==0.5 and p['captionStyle']=='none' \
+  and {o['component'] for o in p['overlays']} >= {'specs','pin','label','stat','chart','image','price'} else 1)" "$TMP/re.json" \
+  && pass "music-driven plan: speed ramp, 0.5x, captions off, specs/pin/label/stat/chart/image compiled" \
+  || { fail "real-estate plan compiled wrong"; tail -3 "$TMP/re.log" | sed 's/^/        /'; }
+
 echo "7. footage_overlap_checker.py"
 "$PY" "$S/footage_overlap_checker.py" "$KIT/samples/example-edit-plan.md" >/dev/null 2>&1 \
   && pass "example plan reuses no footage" || fail "example plan reported as reusing footage"
 printf '| # | Start | End | Source | In |\n|---|---|---|---|---|\n| 1 | 0 | 3 | a.mp4 | 1.0 |\n| 2 | 3 | 6 | a.mp4 | 2.0 |\n' > "$TMP/dup.md"
 "$PY" "$S/footage_overlap_checker.py" "$TMP/dup.md" >/dev/null 2>&1 \
   && fail "a reused range was NOT caught" || pass "a reused range is caught"
+printf '| # | Start | End | Source | In | Speed |\n|---|---|---|---|---|---|\n| 1 | 0 | 3 | a.mp4 | 0.0 | 2x |\n| 2 | 3 | 6 | a.mp4 | 5.0 | |\n' > "$TMP/fast.md"
+"$PY" "$S/footage_overlap_checker.py" "$TMP/fast.md" >/dev/null 2>&1 \
+  && fail "a 2x scene reading 0-6 s was not seen to overlap 5-8 s" || pass "a 2x scene counts the footage it reads (3 s at 2x = 6 s)"
 
 echo "7b. suggest_cuts.py and plan_scenes.py (cuts on pauses, footage never reused)"
 "$PY" - "$TMP" <<'PYEOF'
@@ -106,12 +125,27 @@ KINDS=$(printf 'SOAK,%.0s' $(seq 1 "$N")); KINDS=${KINDS%,}; TYPES=$(printf 'DEM
   && "$PY" "$S/footage_overlap_checker.py" "$TMP/scenes.md" "$TMP/scenes2.md" >/dev/null 2>&1 \
   && pass "a second video planned with --used shares no range with the first" || fail "second video reused footage of the first"
 
+echo "7c. suggest_cuts.py --music (beats) and playbook.py skeleton"
+ffmpeg -loglevel error -y -f lavfi -i "aevalsrc='0.8*sin(2*PI*55*t)*exp(-30*mod(t\,0.5))':d=30:s=44100" "$TMP/beat.wav" 2>/dev/null
+"$PY" "$S/suggest_cuts.py" --music "$TMP/beat.wav" --end 28 --playbook real-estate --beats-out "$TMP/beats.json" --json > "$TMP/mcuts.json" 2>"$TMP/m.err" \
+  && "$PY" -c "import json,sys; g=json.load(open(sys.argv[1])); c=json.load(open(sys.argv[2])); \
+sys.exit(0 if abs(g['bpm']-120)<1.5 and all(min(abs(x['start']-b) for b in g['beats'])<0.02 for x in c[1:]) else 1)" "$TMP/beats.json" "$TMP/mcuts.json" \
+  && pass "120 bpm found; every cut lands on a beat" || { fail "beat detection or beat cuts wrong"; sed 's/^/        /' "$TMP/m.err" | head -3; }
+"$PY" "$S/playbook.py" skeleton real-estate --cuts "$TMP/mcuts.json" > "$TMP/skel.md" && "$PY" "$S/pacing_checker.py" "$TMP/skel.md" >/dev/null 2>&1 \
+  && pass "a skeleton built on those cuts passes real-estate's rules" || fail "skeleton from beat cuts fails its playbook"
+
 echo "8. trim_voice.py finds a pause and cuts there"
 ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='if(between(t,1,2),0,sin(2*PI*440*t))':d=3:s=44100" "$TMP/v.mp3" 2>/dev/null
 "$PY" "$S/trim_voice.py" "$TMP/v.mp3" --silences 2>&1 | grep -q "cut at 1.5" \
   && pass "the 1 s pause is found, midpoint 1.5 s" || fail "trim_voice --silences missed the pause"
 "$PY" "$S/trim_voice.py" "$TMP/v.mp3" --keep 0-1,2-3 --out "$TMP/k.mp3" 2>&1 | grep -Eq "wrote .*: (1\.9|2\.0|2\.1)[0-9]*s" \
   && pass "keeping 0-1 and 2-3 gives a ~2 s file" || fail "trim_voice --keep produced the wrong length"
+
+ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='if(lt(mod(t\,3.2)\,2.4)\,0.5*sin(2*PI*220*t)*sin(2*PI*3*t)\,0.002*random(0))':d=20:s=48000" "$TMP/talk.wav" 2>/dev/null
+"$PY" "$S/trim_voice.py" "$TMP/talk.wav" --jumpcut --out "$TMP/talk_cut.wav" --scenes-out "$TMP/tcuts.json" >/dev/null 2>&1 \
+  && "$PY" "$S/playbook.py" skeleton talking-head --cuts "$TMP/tcuts.json" > "$TMP/th.md" \
+  && grep -q "| TALK | 3.1" "$TMP/th.md" && "$PY" "$S/pacing_checker.py" "$TMP/th.md" --min 15 >/dev/null 2>&1 \
+  && pass "jump cut: pauses removed, scenes carry their source times, talking-head rules pass" || fail "trim_voice --jumpcut / skeleton wrong"
 
 echo "9. contact_sheet.py"
 printf '{"scenes":[{"start":0,"end":1.5},{"start":1.5,"end":3.0}]}' > "$TMP/mini.json"
@@ -149,8 +183,36 @@ sys.exit(0 if ok else 1)" "$TMP/sfx.json" "$KIT/skill/short-video-editing/assets
   pass "automatic cues exist and every one names a sound in the bank"
 else fail "--auto-sfx produced no cues, or a cue names a missing sound"; fi
 
+echo "12. process_audio.py (voice cleanup, loudness master)"
+ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='if(lt(mod(t\,2.6)\,2.0)\,0.3*sin(2*PI*180*t)*(1+sin(2*PI*4*t))\,0)':d=12:s=48000" \
+  -f lavfi -i "anoisesrc=d=12:c=pink:a=0.06:r=48000" -filter_complex amix=inputs=2:normalize=0 "$TMP/noisy.wav" 2>/dev/null
+"$PY" "$S/process_audio.py" voice "$TMP/noisy.wav" --out "$TMP/clean.wav" >"$TMP/pa.log" 2>&1 \
+  && grep -q "noise reduction: afftdn" "$TMP/pa.log" \
+  && "$PY" -c "import re,sys; t=open(sys.argv[1]).read(); a=[float(x) for x in re.findall(r'distance\s+(-?[\d.]+)',t)]; i=float(re.findall(r'after\s+(-?[\d.]+) LUFS',t)[0]); sys.exit(0 if a[1]>a[0]+2 and abs(i+16)<1 else 1)" "$TMP/pa.log" \
+  && pass "noisy voice: noise reduced (speech-to-floor up), levelled to -16 LUFS" || { fail "process_audio voice"; tail -4 "$TMP/pa.log" | sed 's/^/        /'; }
+ffmpeg -loglevel error -y -f lavfi -i testsrc=size=270x480:rate=30 -i "$TMP/noisy.wav" -t 6 -pix_fmt yuv420p -shortest "$TMP/mix.mp4" 2>/dev/null
+"$PY" "$S/process_audio.py" master "$TMP/mix.mp4" --out "$TMP/master.mp4" >"$TMP/pm.log" 2>&1 \
+  && "$PY" -c "import re,sys; t=open(sys.argv[1]).read(); m=re.findall(r'after\s+(-?[\d.]+) LUFS\s+TP\s+(-?[\d.]+)',t)[0]; sys.exit(0 if abs(float(m[0])+14)<1 and float(m[1])<=-0.9 else 1)" "$TMP/pm.log" \
+  && pass "master: -14 LUFS, true peak <= -1 dBTP, picture copied" || { fail "process_audio master"; tail -3 "$TMP/pm.log" | sed 's/^/        /'; }
+
+echo "13. inspect_footage.py --measure and prepare_footage.py"
+mkdir -p "$TMP/raw"
+ffmpeg -loglevel error -y -f lavfi -i "testsrc2=s=1400x2400:r=30:d=4" -vf "crop=1080:1920:'160+40*sin(n*1.7)+25*sin(n*0.9)':'240+40*cos(n*1.3)'" -pix_fmt yuv420p "$TMP/raw/shaky.mp4" 2>/dev/null
+ffmpeg -loglevel error -y -f lavfi -i "testsrc2=s=1080x1920:r=30:d=3" -vf "eq=brightness=-0.25,noise=alls=22:allf=t" -pix_fmt yuv420p "$TMP/raw/dark.mp4" 2>/dev/null
+if "$PY" "$S/inspect_footage.py" "$TMP/raw" --measure --json "$TMP/an.json" >/dev/null 2>&1; then
+  "$PY" -c "import json,sys; c={x['stem']:x for x in json.load(open(sys.argv[1]))['clips']}; \
+sys.exit(0 if 'exposure' in c['DARK']['recommend'] and 'denoise' in c['DARK']['recommend'] and \
+(c['SHAKY']['motion']=='unknown' or 'stabilize' in c['SHAKY']['recommend']) else 1)" "$TMP/an.json" \
+    && pass "measured: the dark noisy clip needs exposure + denoise, the shaken clip stabilisation" || fail "inspect --measure recommendations wrong"
+  "$PY" "$S/prepare_footage.py" "$TMP/raw" "$TMP/proxies" --analysis "$TMP/an.json" --playbook real-estate --height 1920 --fix "DARK:rotate=-1.5" >"$TMP/prep.log" 2>&1 \
+    && [[ -s "$TMP/proxies/SHAKY.mp4" && -s "$TMP/proxies/DARK.mp4" ]] && grep -q "levelled" "$TMP/prep.log" \
+    && [[ "$(ffprobe -v error -show_entries stream=width,height -of csv=p=0 "$TMP/proxies/DARK.mp4")" == "1080,1920" ]] \
+    && pass "proxies corrected, graded (one LUT), levelled, 1080x1920; corrections.json written" \
+    || { fail "prepare_footage.py"; tail -4 "$TMP/prep.log" | sed 's/^/        /'; }
+else fail "inspect_footage --measure failed"; fi
+
 if [[ $RENDER -eq 1 ]]; then
-  echo "12. Remotion render (--render)"
+  echo "14. Remotion render (--render)"
   command -v node >/dev/null 2>&1 || fail "node not found (need 20+)"
   [[ -f "$RENDER_DIR/package.json" ]] || "$PY" "$S/new_remotion_project.py" "$RENDER_DIR" >/dev/null 2>&1
   if (cd "$RENDER_DIR" && { [[ -d node_modules ]] || npm install --no-audit --no-fund; } && npm run typecheck) >"$TMP/tsc.log" 2>&1; then
@@ -159,6 +221,9 @@ if [[ $RENDER -eq 1 ]]; then
   if (cd "$RENDER_DIR" && npx remotion still src/index.ts Short "$TMP/still.png" --frame=30) >"$TMP/still.log" 2>&1 \
      && [[ -s "$TMP/still.png" ]]; then pass "rendered a still of the example project"
   else fail "remotion still failed"; tail -5 "$TMP/still.log" | sed 's/^/        /'; fi
+  if (cd "$RENDER_DIR" && npx remotion still src/index.ts Short "$TMP/still2.png" --frame=990) >"$TMP/still2.log" 2>&1 \
+     && [[ -s "$TMP/still2.png" ]]; then pass "rendered a still of the information graphics (specs, frame 990)"
+  else fail "remotion still of the new graphics failed"; tail -5 "$TMP/still2.log" | sed 's/^/        /'; fi
 fi
 
 echo

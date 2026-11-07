@@ -6,7 +6,8 @@ import { Callout } from "./graphics/Callout";
 import { CheckList, Step } from "./graphics/Lists";
 import { Price } from "./graphics/Price";
 import { CartPointer, Highlight, Sticker } from "./graphics/Pointers";
-import { Compare, Magnifier, Thumbs } from "./graphics/Media";
+import { Compare, ImageCard, Magnifier, Thumbs } from "./graphics/Media";
+import { Chart, Label, Pin, Specs, Stat } from "./graphics/Info";
 import { Ranking } from "./graphics/Ranking";
 import { LowerThird, Progress } from "./graphics/Bars";
 
@@ -27,6 +28,12 @@ export const registry: Record<string, OverlayComponent> = {
   ranking: Ranking,
   progress: Progress,
   lowerThird: LowerThird,
+  specs: Specs,
+  pin: Pin,
+  label: Label,
+  stat: Stat,
+  chart: Chart,
+  image: ImageCard,
 };
 
 export const resolveOverlay = (name: string): OverlayComponent => {

@@ -6,9 +6,7 @@ import { fonts, toneColor, zones } from "../../theme";
 import { clamp, useEnterExit } from "../anim";
 import { GradientText, OutlineText } from "../text/primitives";
 
-export type PriceProps = { value: number; unit?: string; label?: string; old?: string; prefix?: string };
-
-const vnd = new Intl.NumberFormat("vi-VN");
+export type PriceProps = { value: number; unit?: string; label?: string; old?: string; prefix?: string; decimals?: number };
 
 export const Price: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = ({ ov, dur, instant }) => {
   const p = (ov.props ?? {}) as PriceProps;
@@ -16,7 +14,9 @@ export const Price: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
   const count = instant ? 1 : interpolate(frame, [0, 24], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
   const pulse = interpolate(frame, [24, 27, 30], [1, 1.08, 1], clamp);
   const strike = interpolate(frame, [14, 22], [0, 1], clamp);
-  const value = Math.round((p.value ?? 0) * count);
+  const decimals = p.decimals ?? 0; // 1 for "5,2 tỷ" (value=5.2; decimals=1; unit= tỷ)
+  const vnd = new Intl.NumberFormat("vi-VN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  const value = (p.value ?? 0) * count;
   return (
     <AbsoluteFill style={{ opacity: exit }}>
       <div style={{ position: "absolute", top: zones[ov.zone ?? "lower"], left: 60, width: 840, display: "flex", flexDirection: "column", alignItems: "center", opacity: enter }}>

@@ -4,6 +4,9 @@
 //   begin[k]  = cut[k] - T[k]/2            (scene 0 begins at 0)
 //   finish[k] = cut[k+1] + T[k+1]/2        (last scene ends at its planned end)
 // so the cut lands exactly where the plan (and the voice) put it.
+// A scene with `speed` or `ramp` reads its source faster or slower; the source frame at the planned
+// cut is still `in`, so the handles before the cut are read at the scene's own speed.
+import { Easing } from "remotion";
 import type { Scene, SceneTransition, TransitionType } from "../project";
 
 export const toFrames = (seconds: number, fps: number) => Math.round(seconds * fps);
@@ -34,6 +37,29 @@ export type SceneSlot = {
   cut: number; // planned cut frame
   transitionIn: number; // frames of the incoming transition (0 = hard cut)
   startFrom: number; // source frame to start reading, including the pre-roll handle
+  advance: (frame: number) => number; // source frames read after `frame` frames of this slot
+};
+
+const ease = Easing.inOut(Easing.sin); // symmetric, so a segment's average speed is the mean of its ends
+
+// Speed at slot frame f: constant `speed`, or the ramp's points spread evenly over the slot.
+const speedAt = (scene: Scene, f: number, duration: number) => {
+  const r = scene.ramp;
+  if (!r || r.length < 2) return scene.speed ?? 1;
+  const x = Math.min(Math.max(f / Math.max(1, duration), 0), 1) * (r.length - 1);
+  const i = Math.min(Math.floor(x), r.length - 2);
+  return r[i] + (r[i + 1] - r[i]) * ease(x - i);
+};
+
+// Cumulative source frames after each slot frame (midpoint rule, exact for constant speed).
+const advancer = (scene: Scene, duration: number) => {
+  if (!scene.ramp || scene.ramp.length < 2) {
+    const v = scene.speed ?? 1;
+    return (f: number) => f * v;
+  }
+  const acc = [0];
+  for (let f = 0; f < duration + 1; f++) acc.push(acc[f] + speedAt(scene, f + 0.5, duration));
+  return (f: number) => acc[Math.min(Math.max(0, Math.round(f)), acc.length - 1)];
 };
 
 export const layoutScenes = (scenes: Scene[], fps: number): SceneSlot[] => {
@@ -50,6 +76,7 @@ export const layoutScenes = (scenes: Scene[], fps: number): SceneSlot[] => {
   return scenes.map((scene, k) => {
     const begin = k === 0 ? 0 : cuts[k] - T[k] / 2;
     const finish = k === scenes.length - 1 ? ends[k] : cuts[k + 1] + T[k + 1] / 2;
+    const advance = advancer(scene, finish - begin);
     return {
       scene,
       index: k,
@@ -57,7 +84,8 @@ export const layoutScenes = (scenes: Scene[], fps: number): SceneSlot[] => {
       duration: finish - begin,
       cut: cuts[k],
       transitionIn: T[k],
-      startFrom: Math.max(0, toFrames(scene.in, fps) - (cuts[k] - begin)),
+      startFrom: Math.max(0, Math.round(toFrames(scene.in, fps) - advance(cuts[k] - begin))),
+      advance,
     };
   });
 };

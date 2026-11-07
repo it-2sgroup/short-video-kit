@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-"""Check a short-video edit plan against the hard pacing rules.
+"""Check a short-video edit plan against the pacing rules of its playbook.
 
-The rules this enforces exist because distribution on short-form platforms is driven by early
-retention. A plan that drifts past them tends to lose viewers before the product is ever seen,
-so it is worth catching on paper rather than after a render.
+Distribution on short-form platforms follows early retention, so a plan that drifts past its genre's
+rhythm tends to lose viewers before the point is made; it is cheaper to catch on paper than after a
+render. The numbers come from the plan's playbook (playbooks/<id>.json, named by the plan's
+`**Playbook:**` line or --playbook), not from this file:
 
-Rules checked:
-  1. The hook must be established within the first 3.0 seconds.
-  2. No scene may run longer than 4.0 seconds, and outside the hook none may be shorter than
-     2.5 seconds (client wants a cut about every 3-4s; hook beats of 1.2s+ are allowed).
-  3. Scenes must tile the timeline with no gaps and no overlaps.
-  4. Total runtime should land in the target window (default 25-45s, ideal 30-40s).
+  1. The hook resolves by `hook.deadline` (3 s in every playbook); frame 0 is never empty.
+  2. No scene is longer than `scenes.max`; outside the hook none is shorter than `scenes.min`
+     (hook beats may go down to `hook.minBeat`).
+  3. Scenes tile the timeline with no gaps and no overlaps.
+  4. Runtime lands in `runtime.min`-`runtime.max`, ideally in `runtime.ideal`.
 
 Usage:
-    python pacing_checker.py <edit-plan.md> [--min 25] [--max 45] [--json]
+    python pacing_checker.py <edit-plan.md> [--playbook ID] [--min 25] [--max 45] [--min-scene 2.5] [--json]
 
-Exit code is 0 when every rule passes and 1 otherwise, so this can gate a build.
-
-The parser reads the scene table described in assets/edit-plan-template.md. It accepts any
-markdown table whose header contains columns for the scene number, start, and end, and tolerates
-extra columns, so the template can grow without breaking this script.
+Exit code is 0 when every rule passes and 1 otherwise, so this can gate a build. The parser reads any
+markdown table with columns for the scene number, start and end, and tolerates extra columns.
 """
 
 from __future__ import annotations
@@ -31,17 +28,9 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-HOOK_DEADLINE = 3.0
-MAX_SCENE = 4.0
-# Client requirement (Phuong, 2026-11): outside the hook, a scene should last about 3-4s. Cuts every
-# 1.5-2s read as "bị ngắt" (jerky) and the transitions had no time to look smooth. Hook scenes are
-# the one place a shorter beat is allowed, because the before/after must land in the first 3s.
-MIN_SCENE = 2.5          # hard floor for non-hook scenes
-PREFERRED_MIN_SCENE = 3.0
-HOOK_MIN_SCENE = 1.2
-DEFAULT_MIN_RUNTIME = 25.0
-DEFAULT_MAX_RUNTIME = 45.0
-IDEAL_MIN, IDEAL_MAX = 30.0, 40.0
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import playbook as playbooks  # noqa: E402
+
 # Timeline positions are compared with a small tolerance so that a plan written to one decimal
 # place is not failed for floating-point noise.
 EPSILON = 0.051
@@ -186,17 +175,22 @@ def parse_plan(text: str) -> tuple[list[Scene], list[str]]:
     return scenes, problems
 
 
-def is_hook(s: Scene) -> bool:
+def is_hook(s: Scene, deadline: float) -> bool:
     """A HOOK-typed scene (not RE-HOOK). With no type column, anything inside the hook window."""
     kind = s.kind.strip().upper()
     if kind:
         return kind == "HOOK"
-    return s.start < HOOK_DEADLINE - EPSILON
+    return s.start < deadline - EPSILON
 
 
-def check(scenes: list[Scene], min_runtime: float, max_runtime: float,
-          min_scene: float = MIN_SCENE) -> Report:
+def check(scenes: list[Scene], pb: dict) -> Report:
+    """Check scenes against a loaded playbook (playbook.load); the CLI may have overridden its numbers."""
     report = Report(scenes=scenes)
+    deadline, hook_min = pb["hook"]["deadline"], pb["hook"]["minBeat"]
+    lo, hi, target = pb["scenes"]["min"], pb["scenes"]["max"], pb["scenes"]["target"]
+    rmin, rmax = pb["runtime"]["min"], pb["runtime"]["max"]
+    ideal_lo, ideal_hi = pb["runtime"]["ideal"]
+    why = pb["runtime"].get("why", "")
 
     if not scenes:
         report.errors.append("No scenes to check.")
@@ -204,55 +198,54 @@ def check(scenes: list[Scene], min_runtime: float, max_runtime: float,
 
     ordered = sorted(scenes, key=lambda s: s.start)
 
-    # Rule: outside the hook, scenes last at least min_scene (client: cut every ~3-4s).
+    # Rule: outside the hook, scenes last at least `lo`; hook beats at least `hook_min`.
     for s in ordered:
         if s.duration <= 0:
             continue
-        if is_hook(s):
-            if s.duration < HOOK_MIN_SCENE - EPSILON:
+        if is_hook(s, deadline):
+            if s.duration < hook_min - EPSILON:
                 report.errors.append(
                     f"Hook scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s. "
-                    f"Even hook beats need {HOOK_MIN_SCENE:g}s to read."
+                    f"Even hook beats need {hook_min:g}s to read."
                 )
-        elif s.duration < min_scene - EPSILON:
+        elif s.duration < lo - EPSILON:
             report.errors.append(
-                f"Scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s; outside the "
-                f"hook a scene must last at least {min_scene:g}s (aim for 3-4s). Merge it with a "
-                "neighbour or hold the shot longer — cuts this fast feel jerky."
+                f"Scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s; outside the hook "
+                f"a {pb['name']} scene lasts at least {lo:g}s (aim {target:g}s). Merge it with a "
+                "neighbour or hold the shot longer."
             )
 
-    # Rule: each scene must have positive length, and none may exceed MAX_SCENE.
+    # Rule: each scene must have positive length, and none may exceed `hi`.
     for s in ordered:
         if s.duration <= 0:
             report.errors.append(
                 f"Scene {s.index} ({s.start:g}-{s.end:g}s): end must come after start."
             )
-        elif s.duration > MAX_SCENE + EPSILON:
+        elif s.duration > hi + EPSILON:
             report.errors.append(
                 f"Scene {s.index} ({s.start:g}-{s.end:g}s) runs {s.duration:.1f}s, over the "
-                f"{MAX_SCENE:g}s limit. Split it, push in, or cut to a B-roll insert."
+                f"{hi:g}s limit of {pb['name']}. Split it, punch in, or cut to a B-roll insert."
             )
 
-    # Rule: the hook must land inside the first 3 seconds. A hook is whatever happens first;
-    # what matters is that something has changed on screen by the deadline, so the viewer has
-    # a reason to stay.
+    # Rule: the hook must land inside the deadline. What matters is that something has changed on
+    # screen by then, so the viewer has a reason to stay.
     first = ordered[0]
     if first.start > EPSILON:
         report.errors.append(
             f"Timeline starts at {first.start:g}s, not 0. The first frame is the thumbnail — "
             "it cannot be empty."
         )
-    if first.end > HOOK_DEADLINE + EPSILON:
+    if first.end > deadline + EPSILON:
         report.errors.append(
             f"The opening scene runs to {first.end:g}s, so the hook is not resolved within "
-            f"{HOOK_DEADLINE:g}s. Cut it shorter or split it."
+            f"{deadline:g}s. Cut it shorter or split it."
         )
 
-    hook_scenes = [s for s in ordered if s.start < HOOK_DEADLINE - EPSILON]
-    if len(hook_scenes) < 2:
+    hook_scenes = [s for s in ordered if s.start < deadline - EPSILON]
+    if len(hook_scenes) < pb["hook"]["beats"]:
         report.warnings.append(
-            f"Only {len(hook_scenes)} scene in the first {HOOK_DEADLINE:g}s. Hooks usually hold "
-            "better with two ~1.5s beats (before -> after) rather than one static shot."
+            f"Only {len(hook_scenes)} scene(s) in the first {deadline:g}s; the {pb['name']} hook "
+            f"is {pb['hook']['beats']} beats of ~{pb['hook']['beat']:g}s ({pb['hook'].get('purpose', '')})."
         )
 
     # Rule: scenes must tile the timeline.
@@ -271,46 +264,28 @@ def check(scenes: list[Scene], min_runtime: float, max_runtime: float,
 
     # Rule: total runtime.
     runtime = ordered[-1].end
-    if runtime < min_runtime - EPSILON:
-        report.errors.append(
-            f"Runtime {runtime:.1f}s is under the {min_runtime:g}s floor. In the reference "
-            "dataset, sub-25s videos had the lowest CTR and sale rate of any length band."
-        )
-    elif runtime > max_runtime + EPSILON:
-        report.errors.append(
-            f"Runtime {runtime:.1f}s is over the {max_runtime:g}s ceiling."
-        )
-    elif not (IDEAL_MIN - EPSILON <= runtime <= IDEAL_MAX + EPSILON):
+    if runtime < rmin - EPSILON:
+        report.errors.append(f"Runtime {runtime:.1f}s is under the {rmin:g}s floor of {pb['name']}. {why}".strip())
+    elif runtime > rmax + EPSILON:
+        report.errors.append(f"Runtime {runtime:.1f}s is over the {rmax:g}s ceiling of {pb['name']}.")
+    elif not (ideal_lo - EPSILON <= runtime <= ideal_hi + EPSILON):
         report.warnings.append(
-            f"Runtime {runtime:.1f}s is inside the allowed window but outside the "
-            f"{IDEAL_MIN:g}-{IDEAL_MAX:g}s band where CTR peaked in the reference data."
+            f"Runtime {runtime:.1f}s is allowed but outside the ideal {ideal_lo:g}-{ideal_hi:g}s of {pb['name']}."
         )
 
-    # Advisory: average scene length is a decent proxy for whether the edit feels alive.
-    body = [s for s in ordered if not is_hook(s)] or ordered
+    # Advisory: the average body scene against the playbook's target.
+    body = [s for s in ordered if not is_hook(s, deadline)] or ordered
     avg = sum(s.duration for s in body) / len(body)
-    if avg > 3.8:
-        report.warnings.append(
-            f"Average non-hook scene is {avg:.1f}s. The edit will feel slow; aim for 3-3.7s."
-        )
-    elif avg < PREFERRED_MIN_SCENE - EPSILON:
-        report.warnings.append(
-            f"Average non-hook scene is {avg:.1f}s. The client asked for a cut about every 3-4s; "
-            "this will read as choppy."
-        )
-    short = [s for s in body if s.duration < PREFERRED_MIN_SCENE - EPSILON]
-    if short:
-        report.warnings.append(
-            "Scenes under 3s (allowed, but check they look smooth): "
-            + ", ".join(f"#{s.index} {s.duration:.1f}s" for s in short)
-        )
-
+    if avg > target * 1.2:
+        report.warnings.append(f"Average non-hook scene is {avg:.1f}s against a target of {target:g}s; it will feel slow.")
+    elif avg < target * 0.8:
+        report.warnings.append(f"Average non-hook scene is {avg:.1f}s against a target of {target:g}s; it may read as choppy.")
     return report
 
 
-def format_text(report: Report, path: Path, min_rt: float, max_rt: float) -> str:
+def format_text(report: Report, path: Path, pb: dict) -> str:
     out: list[str] = []
-    out.append(f"Pacing check: {path.name}")
+    out.append(f"Pacing check: {path.name}  (playbook {pb['name']})")
     out.append("=" * (15 + len(path.name)))
 
     if report.scenes:
@@ -319,13 +294,13 @@ def format_text(report: Report, path: Path, min_rt: float, max_rt: float) -> str
         avg = sum(s.duration for s in ordered) / len(ordered)
         longest = max(ordered, key=lambda s: s.duration)
         out.append(f"  Scenes        : {len(ordered)}")
-        out.append(f"  Runtime       : {runtime:.1f}s  (window {min_rt:g}-{max_rt:g}s)")
-        out.append(f"  Avg scene     : {avg:.1f}s")
+        out.append(f"  Runtime       : {runtime:.1f}s  (window {pb['runtime']['min']:g}-{pb['runtime']['max']:g}s)")
+        out.append(f"  Avg scene     : {avg:.1f}s  (target {pb['scenes']['target']:g}s)")
         out.append(
             f"  Longest scene : {longest.duration:.1f}s "
-            f"(scene {longest.index}, limit {MAX_SCENE:g}s)"
+            f"(scene {longest.index}, limit {pb['scenes']['max']:g}s)"
         )
-        out.append(f"  Hook resolves : {ordered[0].end:.1f}s (deadline {HOOK_DEADLINE:g}s)")
+        out.append(f"  Hook resolves : {ordered[0].end:.1f}s (deadline {pb['hook']['deadline']:g}s)")
     out.append("")
 
     if report.errors:
@@ -345,12 +320,12 @@ def format_text(report: Report, path: Path, min_rt: float, max_rt: float) -> str
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Check an edit plan against short-video pacing rules.")
+    ap = argparse.ArgumentParser(description="Check an edit plan against its playbook's pacing rules.")
     ap.add_argument("plan", type=Path, help="Path to the edit plan markdown file")
-    ap.add_argument("--min", type=float, default=DEFAULT_MIN_RUNTIME, help="Minimum runtime (s)")
-    ap.add_argument("--max", type=float, default=DEFAULT_MAX_RUNTIME, help="Maximum runtime (s)")
-    ap.add_argument("--min-scene", type=float, default=MIN_SCENE,
-                    help="Minimum length (s) of a non-hook scene (default 2.5; aim for 3-4)")
+    ap.add_argument("--playbook", help="playbook id[:variant]; default: the plan's **Playbook:** line")
+    ap.add_argument("--min", type=float, help="override the minimum runtime (s)")
+    ap.add_argument("--max", type=float, help="override the maximum runtime (s)")
+    ap.add_argument("--min-scene", type=float, help="override the minimum non-hook scene length (s)")
     ap.add_argument("--json", action="store_true", help="Emit JSON instead of text")
     args = ap.parse_args()
 
@@ -359,8 +334,15 @@ def main() -> int:
         return 1
 
     text = args.plan.read_text(encoding="utf-8")
+    pb = playbooks.resolve(args.playbook, text)
+    if args.min is not None:
+        pb["runtime"]["min"] = args.min
+    if args.max is not None:
+        pb["runtime"]["max"] = args.max
+    if args.min_scene is not None:
+        pb["scenes"]["min"] = args.min_scene
     scenes, parse_problems = parse_plan(text)
-    report = check(scenes, args.min, args.max, args.min_scene)
+    report = check(scenes, pb)
     report.errors = parse_problems + report.errors
 
     if args.json:
@@ -369,6 +351,7 @@ def main() -> int:
             json.dumps(
                 {
                     "file": str(args.plan),
+                    "playbook": pb["name"],
                     "passed": report.ok,
                     "scene_count": len(ordered),
                     "runtime_s": round(ordered[-1].end, 2) if ordered else 0,
@@ -389,7 +372,7 @@ def main() -> int:
             )
         )
     else:
-        print(format_text(report, args.plan, args.min, args.max))
+        print(format_text(report, args.plan, pb))
 
     return 0 if report.ok else 1
 

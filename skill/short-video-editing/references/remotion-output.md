@@ -20,31 +20,35 @@ headcount before building; if it is over three and nobody has a seat, say so. So
 ## Pipeline
 
 ```bash
-# 1. Scaffold once per batch (ask before --install: it downloads npm packages + Chromium)
-python scripts/new_remotion_project.py ~/renders/saiza --install --proxies "/path/to/raw clips"
-# proxies are 1620x2880 by default so camera moves up to ~1.5x stay sharp (--proxy-height 1920 = fast drafts)
-cp voice.mp3 ~/renders/saiza/public/audio/kb7.mp3
+# 1. Scaffold once per batch: the playbook's theme, corrected and graded proxies
+#    (ask before --install: it downloads npm packages + Chromium)
+python scripts/new_remotion_project.py ~/renders/batch --playbook <id> --install --proxies "/path/to/raw clips"
+# proxies are 1620x2880 by default so camera moves up to ~1.5x stay sharp (--proxy-height 1920 = fast drafts;
+# --slowmo keeps 60 fps sources at 60 for 0.5x slow motion)
 
-# 2. Captions + word timings (step 5 of SKILL.md)
-python scripts/align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json
+# 2. Sound into public/audio (SKILL.md step 3)
+python scripts/process_audio.py voice voice.mp3 --out ~/renders/batch/public/audio/v1.wav
+python scripts/process_audio.py music track.mp3 --out ~/renders/batch/public/audio/music.wav
+python scripts/align_captions.py ~/renders/batch/public/audio/v1.wav --script script.txt --out captions.srt --words-out words.json
 
 # 3. Compile the plan
-python scripts/plan_to_project.py edit-plan.md --out ~/renders/saiza/kb7.json \
-    --voice audio/kb7.mp3 --captions captions.srt --words words.json --auto-camera \
-    --punch-keywords "saiza,chai xanh" --auto-sfx
+python scripts/plan_to_project.py edit-plan.md --out ~/renders/batch/v1.json \
+    --voice audio/v1.wav --music audio/music.wav --captions captions.srt --words words.json \
+    --auto-camera --analysis analysis.json --auto-sfx [--platform reels-ad]
 
 # 4. Look before rendering, then render
-cd ~/renders/saiza
-npx remotion still src/index.ts Short out/check.png --frame=45 --props=kb7.json
-npx remotion render src/index.ts Short out/kb7.mp4 --props=kb7.json --codec=h264 --crf=18
+cd ~/renders/batch
+npx remotion still src/index.ts Short out/check.png --frame=45 --props=v1.json
+npx remotion render src/index.ts Short out/v1.mp4 --props=v1.json --codec=h264 --crf=18
 
-# 5. Look at the result (scene middles + every cut), then check durations with ffprobe
-python <skill>/scripts/contact_sheet.py out/kb7.mp4 --project kb7.json --out out/sheet.png
+# 5. Master the sound, look at the result (scene middles + every cut), check durations
+python <skill>/scripts/process_audio.py master out/v1.mp4 --out out/v1_final.mp4 --phone
+python <skill>/scripts/contact_sheet.py out/v1_final.mp4 --project v1.json --out out/sheet.png
 ```
 
 `plan_to_project.py` lists any clip, voice, music or sound-effect file the project needs that is not yet
-under `public/` when `--out` sits inside the render project, so a missing asset shows up before the
-render. The scaffold puts the sound effects in `public/sfx/` (recorded CC0 files from `assets/sfx/` plus
+under `public/` (clips, `images/` for the `image` component, audio, sound effects) when `--out` sits
+inside the render project, so a missing asset shows up before the render. The scaffold puts the sound effects in `public/sfx/` (recorded CC0 files from `assets/sfx/` plus
 the ones `make_sfx.py` synthesizes).
 
 `npm run studio` opens Remotion Studio with `project.example.json`, a footage-free gallery of every
@@ -56,20 +60,21 @@ component — the quickest way to see what each style looks like.
 
 | Path | Role |
 |---|---|
-| `src/project.ts` | The input contract (`Project`, `Scene`, `Overlay`, …). |
-| `src/theme.ts` | Design tokens: fonts, palette, layout zones, safe area, cart point, motion curves, camera limits. Change the look here. |
-| `src/engine/timeline.ts` | Scene layout with transitions centred on cuts; reading-time and dB helpers. |
+| `src/project.ts` | The input contract (`Project`, `Scene` with `speed`/`ramp`, `Overlay`, `CaptionStyle`, `layout`, …). |
+| `src/theme.ts` | Design tokens: fonts, three palettes (`cool`, `warm`, `luxe`), layout zones, caption band per layout (feed, reels-ad), cart point, info-graphic sizes, motion curves, camera limits. Change the look here. |
+| `src/engine/timeline.ts` | Scene layout with transitions centred on cuts; source re-timing for `speed` and `ramp`; dB helper. |
 | `src/engine/camera.ts` | Push / pull / pan / hold + keyword punches, perceptual scale. |
 | `src/engine/transitions.tsx` | Transition registry (built-ins + `zoomThrough`, `blurDissolve`, `whip`). |
 | `src/engine/audio.tsx` | Voice, ducked music, SFX — outside the transitions so they never shift. |
-| `src/engine/Short.tsx` | The composition. |
-| `src/components/text/` | `Title` (5 styles), `Captions` (karaoke/plain), text primitives. |
-| `src/components/graphics/` | Callout, CheckList, Step, Price, CartPointer, Highlight, Sticker, Magnifier, Thumbs, Compare, Ranking, Progress, LowerThird. |
+| `src/engine/Short.tsx` | The composition; a ramped scene re-times its clip frame by frame inside `<Freeze>`, a constant speed uses `playbackRate`. |
+| `src/components/text/` | `Title` (5 styles), `Captions` (karaoke / pop / plain), text primitives. |
+| `src/components/graphics/` | Callout, CheckList, Step, Price, CartPointer, Highlight, Sticker, Magnifier, Thumbs, Compare, ImageCard (`image`), Ranking, Progress, LowerThird; `Info.tsx`: Specs, Pin, Label, Stat, Chart. |
 | `src/components/registry.tsx` | Component names used in `project.json`; unknown names throw. |
 
 To add a component: write it under `components/graphics/` taking `{ov, dur, instant}`, read its
 content from `ov.props`, take every colour/size/curve from `theme.ts`, register it, and document
-its content keys in `layout-and-motion-graphics.md`. No video text in code.
+its content keys in `layout-and-motion-graphics.md`, and add it to the `components.use` of the
+playbooks it serves (`playbook.py check` fails on a component no playbook uses). No video text in code.
 
 A render project is a **copy** of the template. After changing the template, bring existing projects
 along with `python scripts/new_remotion_project.py <render dir> --update` (replaces `src/` and the
@@ -99,9 +104,11 @@ These follow Remotion's own agent rules (`remotion-dev/skills`, `remotion-best-p
 
 | Job | Tool |
 |---|---|
-| Proxies, conform fps/resolution, rotation | **ffmpeg** (`new_remotion_project.py --proxies`) |
-| Trimming the voiceover at pauses | **ffmpeg** via `scripts/trim_voice.py` (`atrim` + `concat`, cut points from `silencedetect`) |
-| Looking at footage or at the render | **ffmpeg** via `scripts/contact_sheet.py` |
-| Scene cuts, transitions, camera, graphics, captions, mix | **Remotion** |
-| Loudness check, scene-cut detection on the output | **ffmpeg** (`ebur128`, `select='gt(scene,0.3)'`) |
+| Tone-mapping, framing, denoise, stabilisation, levelling, white balance, exposure, grade, fps | **ffmpeg** via `prepare_footage.py` (the proxies) |
+| Measuring footage (light, cast, noise, shake, motion, speech) | **ffmpeg** via `inspect_footage.py --measure` |
+| Trimming a voice, jump-cutting a talking head | **ffmpeg** via `trim_voice.py` (`silencedetect`, `atrim` + `concat`) |
+| Voice cleanup, music levelling, the final loudness master | **ffmpeg** via `process_audio.py` |
+| Beat detection for music-driven cuts | **ffmpeg** decode + Python in `suggest_cuts.py --music` |
+| Looking at footage or at the render | **ffmpeg** via `contact_sheet.py` |
+| Scene cuts, speed and ramps, transitions, camera, graphics, captions, the mix | **Remotion** |
 | Handing to a human editor | `edit-plan.md` + `captions.srt` → CapCut / Premiere / DaVinci |

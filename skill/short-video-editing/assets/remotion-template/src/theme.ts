@@ -18,10 +18,11 @@ export const fonts = {
   number: number.fontFamily, // Anton: prices and counters
 };
 
-// Colour theme. "cool" is the kit default (white and sky blue); "warm" suits amber, wood and candle-lit
-// footage such as Japanese restaurants (ivory text, gold accents, torii-red and brown cards).
-// Switch with `new_remotion_project.py DEST --theme warm`, which rewrites this one line.
-type ThemeName = "cool" | "warm";
+// Colour theme, chosen by the playbook (playbooks/<id>.json "theme"): "cool" (white and sky blue) for
+// demos, tutorials, talking heads and promos; "warm" (ivory, gold, vermilion, brown) for food and
+// amber, wood or candle-lit footage; "luxe" (ivory, champagne gold, charcoal) for real estate, fashion
+// and beauty. `new_remotion_project.py DEST --playbook ID` (or --theme) rewrites this one line.
+type ThemeName = "cool" | "warm" | "luxe";
 const THEME: ThemeName = "cool";
 
 const themes = {
@@ -67,6 +68,27 @@ const themes = {
       glassShadow: "0 20px 60px rgba(60,25,5,0.32)",
     },
   },
+  luxe: {
+    palette: {
+      white: "#FFFCF5", // warm white: light text and borders
+      ice: "#EDE4D3", // champagne mist: secondary text
+      sky: "#D9BF8C", // champagne gold: gradient ends, progress, chart bars
+      royal: "#9C7A3C", // antique gold: badges, accents
+      navy: "#23211E", // charcoal: dark text on light cards
+      ink: "#141210", // near-black: outlines
+      shadow: "rgba(15,12,8,0.5)",
+    },
+    tones: { before: "#C98B6B", after: "#B9D3B0", cta: "#E8C77E", product: "#D9BF8C" },
+    title: {
+      sky: "#FFFCF5 0%, #FFFCF5 45%, #EBDDBF 100%",
+      accent: "#FFF6E0 0%, #E8CF95 50%, #C49A4A 100%",
+      glassText: "#23211E 0%, #6E5426 100%",
+      glassLead: "#3A342A",
+      glassBg: "linear-gradient(160deg, rgba(255,252,245,0.94), rgba(237,228,211,0.88))",
+      glassBorder: "1.5px solid rgba(255,248,230,0.8)",
+      glassShadow: "0 20px 60px rgba(20,15,5,0.3)",
+    },
+  },
 } as const;
 
 export const palette = themes[THEME].palette;
@@ -92,7 +114,12 @@ export const zones: Record<Zone, number> = {
   lower: 1230, // a bar just above the captions (progress)
 };
 export const captionTop = 1340; // spoken captions: lower third, above TikTok's product bar (y 1644)
-export const captions = { size: 58, left: 90, right: 190, lift: 120 }; // right 190 keeps clear of the action rail; lift = shift while the cart arrow shows
+// Reels ads keep the bottom 35 % clear (Meta: top 14 %, bottom 35 %, sides 6 %), so an ad cut raises the
+// caption band above y 1248 (project.json "layout": "reels-ad"; plan_to_project.py --platform reels-ad).
+export const captionTopFor = { feed: captionTop, "reels-ad": 1100 } as const;
+// right 190 keeps clear of the action rail; lift = shift while the cart arrow shows; pop = the word-by-word
+// style (one phrase of <= 5 words / 20 characters, one line at 66 px).
+export const captions = { size: 58, left: 90, right: 190, lift: 120, popSize: 66, popWords: 5, popChars: 20 };
 // Centre of the yellow shopping-bag tile in TikTok Shop's product bar, in frame pixels. Measured on a
 // 1284x2778 iPhone screenshot of the feed (tile x 48-107, y 2180-2239; tab bar starts at y 2530, so the
 // video fills 1284x2530 and a 1080x1920 frame is scaled 1.3177 and cropped 69.5 px each side). The bar
@@ -104,6 +131,10 @@ export const cartPoint = { x: 112, y: 1677 };
 // `scrim` dims the footage behind the card so the comparison does not blend into it.
 export const compare = { height: 620, radius: 28, border: 6, divider: 6, handle: 76, holdFrames: 8, sweepFrames: 20, settle: 0.5, scrim: 0.5 };
 export const thumb = { width: 250, height: 232 }; // the three-photo strip: small, so the footage stays visible
+
+// Information graphics (components/graphics/Info.tsx): the specs row, the location pin, room labels,
+// count-up stats and bar charts. Sizes in frame pixels; they stay inside the safe width.
+export const info = { iconSize: 54, specGap: 26, labelSize: 40, statSize: 150, barHeight: 34, barGap: 22, chartWidth: 760 };
 
 export const motion = {
   easeOut: Easing.bezier(0.16, 1, 0.3, 1), // default entrance

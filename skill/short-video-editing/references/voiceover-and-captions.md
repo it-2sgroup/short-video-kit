@@ -43,7 +43,7 @@ One line per VO line, one line per file:
 Nhưng mà lần này... mình phải nói thật là chiếc túi này khiến mình bất ngờ luôn!
 ```
 
-Check every line against the rewrite table in `platform-specs.md` §7 before synthesizing. Fixing
+Check every line against the rewrite table in `claims-and-compliance.md` §2 before synthesizing. Fixing
 a prohibited claim after the voiceover exists means paying for the synthesis twice.
 
 ---
@@ -149,15 +149,20 @@ still flags inside a word are then usually a pause that Whisper's timing hides: 
 
 When the client or creator hands over a recording, skip step 2 and work like this:
 
-1. **Too long?** The ceiling is 45 s. `python scripts/trim_voice.py voice.mp3 --silences` lists every
-   pause with a midpoint to cut at; `--keep 0-3.8,8.3-16.1,... --out short.mp3` joins the ranges you
-   keep. Cut between sentences only, drop whole sentences, and tell the user exactly which ones.
-2. **Draft transcript.** `align_captions.py short.mp3 --out draft.srt` (no `--script`) gives Whisper's
+1. **Too long?** The ceiling is the playbook's `runtime.max` (`playbook.py show <id>`; 45 s for
+   product demos). `python scripts/trim_voice.py voice.mp3 --silences` lists every pause with a
+   midpoint to cut at; `--keep 0-3.8,8.3-16.1,... --out short.mp3` joins the ranges you keep. Cut
+   between sentences only, drop whole sentences, and tell the user exactly which ones. A talking head
+   recorded on camera is cut with `--jumpcut` instead (`playbooks/talking-head.md`).
+2. **Clean and level it**: `python scripts/process_audio.py voice short.mp3 --out
+   RENDER/public/audio/v1.wav` (noise print, presence, de-esser, compression, −16 LUFS;
+   `audio-processing.md`). Align on the cleaned file: its timing is what the video plays.
+3. **Draft transcript.** `align_captions.py short.mp3 --out draft.srt` (no `--script`) gives Whisper's
    text. It mishears Vietnamese and recordings rarely match the written script, so read the draft
    while listening to the sentences that look odd, and correct it by hand.
-3. **Save the corrected text as `script.txt`** (one sentence per line, UTF-8) and align again with
+4. **Save the corrected text as `script.txt`** (one sentence per line, UTF-8) and align again with
    `--script script.txt --words-out words.json`. Now the spelling is yours and the timing is Whisper's.
-4. **Scan the voice for claims** the on-screen text must not repeat (`platform-specs.md` §7) and list
+5. **Scan the voice for claims** the on-screen text must not repeat (`claims-and-compliance.md` §2) and list
    them for the user; a recorded line cannot be silently changed.
 
 Supplied voices are often fast (≈5 words/s): the aligner merges caption groups shorter than 0.45 s, and
@@ -167,25 +172,10 @@ the plan compiler still reports a few that remain — that is the voice, not an 
 
 ## 4. Mix
 
-```bash
-# voice at full level, music bed 15-25 dB below it
-ffmpeg -i voice_full.mp3 -i music.mp3 -filter_complex \
-  "[1:a]volume=0.12,afade=t=out:st=33:d=2[bed];[0:a][bed]amix=inputs=2:duration=first:normalize=0" \
-  -ar 44100 final_mix.mp3
-```
+There is no separate mixing step: the render mixes the voice, the ducked music bed and the sound
+effects (`project.json`), and `process_audio.py master` levels the result to −14 LUFS, ≤ −1 dBTP.
+Levels and licensing: `audio-and-music.md`. A synthesized voice is levelled with `process_audio.py
+voice --no-clean` (no noise reduction on TTS).
 
-See `audio-and-music.md` for levels, ducking and where to cut the music entirely. Music must come
-from a cleared source — `platform-specs.md` §5 covers the Commercial Music Library requirement for
-business accounts.
-
----
-
-## Alternative: ElevenLabs timestamps
-
-ElevenLabs also exposes a timestamps variant of the TTS endpoint, which returns character-level
-timings alongside the audio and therefore has no recognition error at all. It is a reasonable
-substitute for step 3 when the audio is used exactly as synthesized.
-
-Whisper alignment is kept as the default here because it keeps working when the audio is edited
-after synthesis — trimmed, re-paced, or spliced with a creator's own recording — where
-synthesis-time timestamps no longer correspond to the finished track.
+ElevenLabs can also return character-level timestamps with the audio; Whisper alignment stays the
+default because it keeps working after the audio is trimmed, re-paced or spliced with a recording.

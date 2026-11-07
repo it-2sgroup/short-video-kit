@@ -34,7 +34,9 @@ export type Scene = {
   in: number; // source timecode (s) of the planned cut
   start: number; // timeline seconds
   end: number;
-  type?: string; // HOOK, PROBLEM, DEMO, REVEAL, CTA-CLOSE ...
+  type?: string; // beat of the playbook's structure: HOOK, DEMO, LIVING, STEP, POINT ...
+  speed?: number; // constant playback speed (2 = twice as fast; < 1 needs a 60 fps proxy to stay smooth)
+  ramp?: number[]; // speed ramp: speeds at evenly spaced points across the scene, eased between, e.g. [1, 2.5, 1]
   transition?: SceneTransition; // how this scene is entered (ignored on scene 1)
   accent?: "flash" | "lightLeak"; // overlay centred on this scene's cut, does not change timing
   camera?: Camera;
@@ -51,6 +53,10 @@ export type Overlay = {
   props?: Record<string, unknown>;
 };
 
+// karaoke: the group with the spoken word highlighted; pop: one to three words at a time, each word
+// popping in on its own timing (talking heads, fashion); plain: the group only; none: no captions.
+export type CaptionStyle = "karaoke" | "pop" | "plain" | "none";
+
 export type Caption = { text: string; start: number; end: number };
 export type Word = { text: string; start: number; end: number };
 export type Punch = { at: number; scale?: number }; // keyword punch-in, seconds on the timeline
@@ -65,7 +71,8 @@ export type Project = {
   voice?: string | null; // path under public/
   music?: Music | null;
   sfx?: AudioCue[];
-  captionStyle?: "karaoke" | "plain" | "none";
+  captionStyle?: CaptionStyle;
+  layout?: "feed" | "reels-ad"; // feed = TikTok and organic Reels (default); reels-ad = Meta's ad safe zone
   scenes: Scene[];
   overlays?: Overlay[];
   captions?: Caption[];

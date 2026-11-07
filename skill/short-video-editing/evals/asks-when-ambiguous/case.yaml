@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: asks-when-ambiguous
+expected_outcome: |
+  The footage could support two different kinds of video (a café presented by its owner speaking to
+  camera, or an appetite-first food video cut to music) and the request does not say the goal or the
+  platform. The skill does not silently apply the product-demo rules. It either asks at most three
+  short questions in one message, each with a sensible default (the goal, the platform, voice or music),
+  or states the playbook it picks and why in one line and offers the alternative. It does not ask about
+  things it can find out itself.

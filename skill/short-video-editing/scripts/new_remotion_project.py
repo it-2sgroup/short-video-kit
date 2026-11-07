@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Create a render project from assets/remotion-template and (optionally) make 1080x1920 proxies.
+"""Create a render project from assets/remotion-template and (optionally) make its proxies.
 
-    python scripts/new_remotion_project.py ~/videos/saiza-render            # copy template only
+    python scripts/new_remotion_project.py ~/videos/brand-render --playbook real-estate   # template + the playbook's theme
     python scripts/new_remotion_project.py DEST --install                    # + npm install (downloads ~300 MB)
-    python scripts/new_remotion_project.py DEST --proxies /path/to/raw_clips  # + ffmpeg proxies into public/clips
+    python scripts/new_remotion_project.py DEST --proxies /path/to/raw_clips  # + corrected, graded proxies (prepare_footage.py)
     python scripts/new_remotion_project.py DEST --update                      # re-copy the template over DEST
 
 A render project is a copy of the template, so a template fix does not reach it by itself. --update
@@ -11,10 +11,11 @@ replaces the template's files (src/, config, package.json) and the sound effects
 the rest of public/, node_modules/, out/ and your own *.json projects. Local edits to the template's
 files are overwritten.
 
-Proxies: phone footage is usually 4K HEVC with rotation metadata; rendering from it is slow. This
-writes H.264 30fps, audio-free copies named <STEM>.mp4 (ffmpeg applies the rotation), 1620x2880 by
-default so camera moves up to ~1.5x stay sharp. Use --proxy-height 1920 for fast drafts (soft past
-~1.15x) or 3840 for zooms up to 2x (see references/camera-moves.md).
+Proxies: phone footage is usually 4K HEVC with rotation metadata (sometimes HDR); rendering from it is
+slow and wrong-coloured. --proxies hands the folder to prepare_footage.py, which measures every clip,
+corrects it (tone-mapping, white balance, exposure, stabilisation, noise) and applies the playbook's
+grade, writing H.264 <STEM>.mp4 at 1620x2880 by default so camera moves up to ~1.5x stay sharp
+(--proxy-height 1920 for fast drafts, 3840 for zooms up to 2x; references/image-processing.md).
 
 Ask the user before --install: it downloads npm packages and Remotion's Chromium on first render.
 """
@@ -29,7 +30,6 @@ from pathlib import Path
 
 SKILL = Path(__file__).resolve().parent.parent
 TEMPLATE = SKILL / "assets" / "remotion-template"
-VIDEO_EXT = {".mov", ".mp4", ".m4v", ".mkv"}
 
 
 def install_sfx(dest: Path) -> None:
@@ -40,23 +40,6 @@ def install_sfx(dest: Path) -> None:
         shutil.copy2(f, out / f.name)
     r = subprocess.run([sys.executable, str(SKILL / "scripts" / "make_sfx.py"), str(out)], capture_output=True, text=True)
     print(f"sound effects in {out}" if r.returncode == 0 else f"could not synthesize sound effects (is ffmpeg on PATH?):\n{r.stderr.strip()}")
-
-
-def make_proxies(src: Path, dest: Path, height: int) -> int:
-    dest.mkdir(parents=True, exist_ok=True)
-    width = height * 9 // 16
-    clips = sorted(p for p in src.rglob("*") if p.suffix.lower() in VIDEO_EXT)
-    for p in clips:
-        out = dest / f"{p.stem.upper()}.mp4"
-        if out.exists():
-            continue
-        print(f"proxy {p.name} -> {out.name}")
-        subprocess.run(
-            ["ffmpeg", "-loglevel", "error", "-y", "-i", str(p),
-             "-vf", f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},fps=30",
-             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-an", str(out)],
-            check=True)
-    return len(clips)
 
 
 def set_theme(dest: Path, theme: str) -> None:
@@ -75,11 +58,13 @@ def main() -> int:
     ap.add_argument("dest", type=Path)
     ap.add_argument("--install", action="store_true", help="run npm install in the new project")
     ap.add_argument("--update", action="store_true", help="re-copy the template over an existing render project")
-    ap.add_argument("--theme", choices=["cool", "warm"],
-                    help="colour theme written into the project's src/theme.ts: cool = kit default (white and sky blue), "
-                         "warm = ivory, gold and torii red for amber, wood or candle-lit footage such as restaurants. "
-                         "--update re-copies the template, so repeat --theme then")
-    ap.add_argument("--proxies", type=Path, help="folder of raw clips to convert into public/clips")
+    ap.add_argument("--playbook", help="playbook id[:variant]: sets the theme and the proxies' grade (playbooks/<id>.json)")
+    ap.add_argument("--theme", choices=["cool", "warm", "luxe"],
+                    help="override the playbook's colour theme in src/theme.ts: cool (white, sky blue), warm (ivory, gold, "
+                         "vermilion: food, amber light), luxe (ivory, champagne, charcoal: property, fashion). "
+                         "--update re-copies the template, so repeat --playbook/--theme then")
+    ap.add_argument("--proxies", type=Path, help="folder of raw clips to correct, grade and convert into public/clips")
+    ap.add_argument("--slowmo", action="store_true", help="with --proxies: keep 60 fps sources at 60 (for 0.5x slow motion)")
     ap.add_argument("--proxy-height", type=int, default=2880, choices=[1920, 2880, 3840],
                     help="proxy height in pixels: 2880 (default) stays sharp to ~1.5x zoom, 1920 is smaller and faster, 3840 sharp to 2x")
     a = ap.parse_args()
@@ -91,16 +76,27 @@ def main() -> int:
     if not exists or a.update:
         shutil.copytree(TEMPLATE, dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("node_modules", "out", "public"))
         print(f"{'updated' if exists else 'created'} {dest}")
-    if a.theme:
-        set_theme(dest, a.theme)
+    theme = a.theme
+    if a.playbook and not theme:
+        sys.path.insert(0, str(SKILL / "scripts"))
+        import playbook as playbooks
+        theme = playbooks.load(a.playbook)["theme"]
+    if theme:
+        set_theme(dest, theme)
     for sub in ("public/clips", "public/audio"):
         (dest / sub).mkdir(parents=True, exist_ok=True)
     if not exists or a.update:
         install_sfx(dest)
 
     if a.proxies:
-        n = make_proxies(a.proxies.expanduser(), dest / "public" / "clips", a.proxy_height)
-        print(f"{n} clip(s) in {dest / 'public' / 'clips'}")
+        cmd = [sys.executable, str(SKILL / "scripts" / "prepare_footage.py"), str(a.proxies.expanduser()),
+               str(dest / "public" / "clips"), "--height", str(a.proxy_height)]
+        if a.playbook:
+            cmd += ["--playbook", a.playbook]
+        if a.slowmo:
+            cmd.append("--slowmo")
+        if subprocess.run(cmd).returncode:
+            sys.exit("prepare_footage.py failed")
 
     if a.install:
         npm = shutil.which("npm")

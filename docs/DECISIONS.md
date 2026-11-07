@@ -85,10 +85,62 @@ thông số; không chép nguyên văn vì có vài con số không có nguồn 
 **Chưa kiểm:** chưa nghe/xem trọn video cuối trên điện thoại thật; vùng an toàn chưa đối chiếu bằng bài đăng
 thử; chưa render từ proxy 2160×3840 (punch-in > 1,15× sẽ mờ trên proxy 1080p).
 
+## Mở rộng đa thể loại (11/2026)
+
+**Vì sao playbook.** Bộ công cụ ban đầu chỉ cho review sản phẩm tẩy rửa: hằng số nhịp (2,5–4 s, 25–45 s), cấu trúc
+HOOK→PROBLEM→…→REVEAL, loại shot STAIN/POUR/SOAK, camera và chuyển cảnh đều nằm cứng trong script. Giờ mọi thứ phụ thuộc
+thể loại là dữ liệu trong `playbooks/<id>.json`, có 8 thể loại và 7 biến thể. Luật của khách Phương (cảnh 3–4 s, chuyển
+cảnh mềm, không chữ trong khung) là house style của `product-demo`, không áp cho ẩm thực hay montage (ở đó cảnh 1–2 s theo
+beat là chuẩn nghề) — nếu cùng khách làm thể loại khác thì nói rõ với khách.
+
+**Nguyên tắc "kỹ thuật phải được dùng".** `playbook.py check` (selftest chạy) báo lỗi nếu một thành phần đồ họa, grade,
+theme hay kiểu phụ đề không được playbook nào dùng; mỗi khóa trong JSON đều có script đọc (bảng ở `playbooks/README.md`);
+khung kế hoạch do chính playbook sinh ra phải qua luật nhịp của chính nó ở cả hai đầu khoảng thời lượng lý tưởng.
+
+**Bẫy đã gặp khi làm (đã đo, đã sửa):**
+
+| Bẫy | Hậu quả | Cách xử lý trong code |
+|---|---|---|
+| Cân trắng "gray world" trên mọi điểm ảnh | Chậu nhựa xanh lá trong clip thật đọc thành ám xanh +0,10 | Chỉ đo điểm ảnh gần trung tính; < 5% khung là trung tính thì không đoán |
+| Đo nhiễu bằng PSNR so với bản khử nhiễu | Bê tông có vân (ban ngày, sạch) đọc 43,6 dB như "nhiễu" | Khử nhiễu chỉ khi < 40 dB, hoặc < 44 dB và cảnh tối |
+| `hqdn3d` ở khung đầu tiên | Gần như không lọc → PSNR khung đầu 55 dB so với 41 dB các khung sau | Bỏ khung đầu khi đo |
+| Bộ lọc RGB ngay sau `vidstabtransform` | ffmpeg 7.0 segfault (exit −11) | Chèn `scale=iw:ih` |
+| Chuỗi màu từng bộ lọc trên 4K60 | 113 s cho 6 s footage | Gộp cân trắng + phơi sáng + grade vào LUT 3D (Hald 64³): 45 s, sai khác 46 dB PSNR |
+| `grayworld` của ffmpeg | Chậm 23× thời gian thực, xuất float | Không dùng |
+| Hai job ffmpeg 4K chạy song song | Máy 14 GB hết RAM, tiến trình bị giết | Tài liệu: một job nặng một lúc trên máy nhỏ |
+| Nền nhiễu = phân vị 10% | Giọng TTS ít khoảng lặng: rơi vào mép từ (−47 dB) → "khử ồn" file sạch, nền lên −31 dB | Phân vị 5% (các khoảng lặng thật, −90 dB) |
+| Nén ngưỡng cố định −24 dB | Giọng to bị nén 10 dB, bước cân mức kéo nhiễu lên theo | Ngưỡng = mức giọng − 8 dB, thêm expander nhẹ |
+| `afftdn`, `alimiter`, `loudnorm` | Trễ 25 ms; tự tăng gain; giới hạn mẫu chứ không phải true peak; linear âm thầm chuyển dynamic | Xem `references/audio-processing.md` |
+| Phụ đề hiện từng chữ | Nghiên cứu ASSETS 2019/2021: người xem đọc trước, câu 6–12 từ dễ hơn từng từ | Kiểu `pop` hiện cả cụm ≤ 5 từ, tô từ đang nói |
+| Animate `playbackRate` trong Remotion | Không hoạt động (docs Remotion) | Ramp đọc lại khung nguồn từng khung trong `<Freeze>`; đã kiểm trên clip có đồng hồ |
+
+**Nghiên cứu (07/11/2026):** ba hướng song song — kỹ thuật dựng theo 12 thể loại (có luật VN: Luật Quảng cáo 75/2025
+hiệu lực 01/01/2026, Luật KDBĐS 2023, NĐ 339/2026 thay NĐ 16/2022, cấm "trị" trong mỹ phẩm, cảnh báo TPBVSK), xử lý âm thanh
++ thông số nền tảng (TikTok/Instagram không công bố chuẩn LUFS; vùng an toàn quảng cáo Reels của Meta 14% trên / 35% dưới /
+6% hai bên; tín hiệu xếp hạng Mosseri 01/2025), xử lý hình (tự đo trên ffmpeg 7.0, clip tổng hợp và một clip iPhone thật
+4K60). Năm con số hay được trích dẫn không tìm thấy nguồn gốc: liệt kê ở `references/platforms.md` §3 để đừng lặp lại.
+
+**Kiểm thêm sau khi người dùng giao "tự quyết, làm tốt nhất" (07/11/2026):**
+
+| Hạng mục | Cách kiểm | Kết quả |
+|---|---|---|
+| HDR | Bản HLG/BT.2020 10-bit chuyển từ clip iPhone thật | Công thức `hable` phổ biến làm tối 30% (luma 90 so với 128) → đổi sang `mobius`: 125 / bão hòa 11,6 so với 11,6 của bản gốc |
+| Cảnh đêm | Clip thật làm tối + nhiễu cảm biến | Đo ra "exposure, denoise"; proxy nâng bóng tối, giảm hạt rõ |
+| Nhận diện giọng trên camera | Cùng hình, một bản tiếng môi trường, một bản có giọng | no / yes đúng |
+| Rung/di chuyển | Clip thật quay tripod | 0,0 / 0,0 — đúng là máy đứng yên |
+| Beat trên nhạc thật | 3 bản CC0 OpenGameArt, đối chiếu khoảng cách onset | Bộ dò Python thuần sai 2/3 bài, bản "tương phản" sai 2/3; bản numpy (spectral flux + tempogram + DP) đúng 97 và 104 bpm, 88–95% phách trùng onset; bài nhịp ghép ra 73 bpm (110 cũng hợp lý) |
+| Âm thanh đầu ra | Render 9 s có giọng + nhạc thật + SFX, master, đo | −14,0 LUFS, đỉnh −1,4 dBTP; lời ~−11,7 LUFS, nhạc trong khoảng lặng ~−20,1 LUFS (thấp hơn ~8 LU) |
+| Eval `routes-real-estate-tour` | Agent mới, chỉ có skill đã cài, chấm theo 5 grader | Đạt 5/5: playbook `real-estate`, lộ trình tham quan, cắt theo nhạc, hook ban công 1,5 s, dữ kiện đúng nguyên văn, không bịa pháp lý, checker PASS, nêu tuân thủ. Lộ lỗi: `suggest` nghiêng về `:voiceover` vì chữ "môi giới" → biến thể giờ cộng từ khoá của bản gốc, bỏ từ khoá bị phủ định ("không có giọng đọc") |
+| Eval `asks-when-ambiguous` | Như trên, 2 grader | Đạt 2/2: nhận ra hai hướng (talking-head / food-fnb:review), hỏi đúng 3 câu có mặc định. Lộ lỗi: "giày" khớp nhầm "50 giây" khi bỏ dấu → so khớp có dấu, theo ranh giới từ; thêm từ khoá "đứng nói" cho talking-head; báo "Close call" giữa hai thể loại |
+| Cài đặt máy này | `setup.sh` (dùng mô hình Whisper có sẵn trong cache Hugging Face, không tải lại) | `selftest.sh` qua toàn bộ, `--render` qua |
+
+**Vẫn chưa kiểm:** footage thật quay cầm tay, ban đêm, góc rộng 0,5×, HDR quay thật; nhạc có tempo thay đổi; tai người
+chưa nghe đầu ra nào (bản `mix_final_phone.mp4` đã gửi để nghe thử).
+
 ## Kịch bản hiện hành của campaign đang chứa claim vi phạm
 
 Doc Lark *"TQA 6 - REVIEW - GIỌNG ADAM"* (21 kịch bản). Các câu cần viết lại — đối chiếu chính sách TikTok Shop
-trong `references/platform-specs.md`:
+trong `references/claims-and-compliance.md` §2:
 
 | Câu | Vấn đề |
 |---|---|

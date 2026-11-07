@@ -59,21 +59,27 @@ synthesizes the rest there, so a render project never needs a network fetch.
 ## 3. Which sound on which event
 
 The table lives in `assets/sfx/sfx-map.json`; change it to change the sound design, not the script.
-`plan_to_project.py --auto-sfx` reads it. Reasoning behind the defaults:
+`plan_to_project.py --auto-sfx` reads it and merges the playbook's `sfx` section over it (an event set
+to `null` is silenced): real-estate, food and montage mute the shutter on the hook (it means "the
+same item later", which they do not show); talking-head keeps cuts silent and gives `pushCut` a pop;
+fashion opens on a whoosh; montage puts a whip on whips. Reasoning behind the defaults:
 
 - **Soft transitions get nothing.** `fade` and `blurDissolve` are meant to be felt, not heard.
 - **Moving transitions get one sound**, matched to their energy: `swoosh` for slide/wipe, `whip` for
   a whip, `whoosh` for a zoom. Never stack two on one cut [C].
 - **A flash accent (`+flash`) gets a `thud`** in place of the transition sound.
-- **The hook's before → after cut gets the camera shutter**: it says "this is the same item, a moment
-  later" and fits the honest-comparison rule.
+- **The hook's before → after cut gets the camera shutter** (product demos): it says "this is the same
+  item, a moment later" and fits the honest-comparison rule.
 - **Nothing across the reveal.** The existing rule stands: the pouring and fabric sounds carry the
   payoff (`audio-and-music.md`). `"*>REVEAL": null` silences the transition into it.
 - **Graphics: only where the sound adds meaning.** A click when the cart arrow lands, a switch for a
   numbered step, a pop for the product-name title. Plain outline titles, callouts and captions are
   silent; sound on every piece of text turns the video into a template [C].
-- **Cuts already sit on pauses in the voice** (`sync-and-timing.md`), so a transition sound lands in a
-  gap and does not touch a word. Graphic sounds may overlap speech; they are quiet and short.
+- **Cuts already sit on pauses in the voice or on beats** (`sync-and-timing.md`), so a transition sound
+  lands in a gap or with the music. Graphic sounds may overlap speech; they are quiet and short.
+- **Music-driven videos need fewer sounds**: the track's own hits do the work; keep effects for whips
+  and the reveal of a fact (price, stat).
+- **Real estate**: room tone under cuts (record 10 s per room), soft whooshes on whips; no UI clicks.
 
 Hand-placed cues: an Overlays row with component `sfx` and `src=sfx/riser.wav; volumeDb=-12` at the
 time of the event (subtract the sound's lead yourself). Hand-placed cues always stay; automatic ones
@@ -89,9 +95,10 @@ step aside.
 - **Short sound for a short transition.** Match the sound's length to the transition's length [C];
   a 0.55 s swoosh suits a 14-frame (0.47 s) slide centred on the cut.
 - **Level.** Guides put whooshes at −18 to −25 dB and impacts at −12 to −18 dB on a mix meter, and
-  advise ducking music 3–6 dB under an effect [C]. In this kit the voice peaks near −4.5 dBFS and
-  integrates near −13 LUFS, so `gainDb` is set so each effect's peak sits about 8–12 dB under the
-  voice (swoosh −10, pop −12, tick −15). Raise or lower everything with `--sfx-gain`.
+  advise ducking music 3–6 dB under an effect [C]. `gainDb` was set when voices peaked near −4.5 dBFS
+  (−13 LUFS) so each effect's peak sits about 8–12 dB under the voice (swoosh −10, pop −12, tick −15);
+  with voices now levelled to −16 LUFS by `process_audio.py`, check the first render and lower
+  everything with `--sfx-gain -2` if effects feel forward. The master stage then sets the overall level.
 - **Density.** The map enforces at least 0.2 s between sounds and at most 2 in any 3-second window;
   a 35-second video ends up with roughly 11–15 cues. Fewer is better; if the video feels busy, remove
   rows from the map, not words from the voice.
@@ -103,8 +110,8 @@ step aside.
 ## 5. Verify
 
 1. `plan_to_project.py … --auto-sfx` prints the cue count; open `project.json` and read `sfx`.
-2. The render must not clip: `ffmpeg -i out.mp4 -af volumedetect -f null -` should show a
-   `max_volume` of −1 dB or lower, and a mean close to the voice-only file's. To see each effect
+2. The render must not clip: `process_audio.py measure out.mp4` before mastering shows the true peak;
+   `process_audio.py master` then brings the mix to −14 LUFS, ≤ −1 dBTP. To see each effect
    against the voice, subtract the voice-only track from the render and compare peaks in the 0.6 s
    after every cue. Beware: ffmpeg's stereo → mono downmix adds 3 dB to a file with identical
    channels, so measure stereo sounds per channel or expect +3 dB. In the first KB4/KB7 renders the

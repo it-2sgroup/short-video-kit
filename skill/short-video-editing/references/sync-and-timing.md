@@ -5,9 +5,11 @@ punches, music and SFX. **[D]** documented, **[C]** convention.
 
 ---
 
-## One master clock: the voice
+## One master clock: the voice (or the music)
 
-The voiceover decides time. Everything else is anchored to it:
+In a voice-driven playbook the voice decides time; in a music-driven one the beat grid does
+(`suggest_cuts.py --music … --beats-out beats.json`) and overlays use seconds. With a voice,
+everything is anchored to it:
 
 1. `align_captions.py voice.mp3 --script script.txt --out captions.srt --words-out words.json`
    gives word timings (timing from Whisper, spelling from the script).
@@ -29,7 +31,10 @@ whole edit without touching the plan.
 - Find pauses with the word gaps in `words.json`, or `python scripts/trim_voice.py voice.mp3
   --silences --min 0.12` (silencedetect at −35 dB; the ffmpeg defaults, −60 dB/2 s, are far too coarse).
 - J-cut/L-cut (sound leads or trails the picture by 4–8 frames) apply to clips with their own
-  audio; a continuous voiceover makes them unnecessary.
+  audio; a continuous voiceover makes every B-roll scene an L-cut by construction.
+- A talking head is cut by `trim_voice.py --jumpcut`: the kept stretches of the take are both the
+  voice track and the scenes (Source = the take, In = the stretch's source time), so picture and lips
+  stay in sync as long as those scenes keep hard cuts (`cut`, `pushCut`).
 
 ---
 
@@ -50,17 +55,17 @@ flags anything within 3 frames of a cut.
 
 ## Music and beats
 
-- Voice-led edits: the voice decides cuts. Snap a cut to a musical downbeat only if one falls within
-  ±4 frames of a legal speech cut. Beat-led montages only for wordless B-roll [C].
-- Beat detection: `librosa.beat.beat_track(y=y, sr=sr, units="time")` (ISC licence) →
-  `frame = round(t * 30)`; frames per beat = 1800 ÷ BPM (120 BPM → 15 frames; 2 bars = 4 s, which
-  matches the 3–4 s cadence). Avoid GPL/AGPL trackers (aubio, essentia) in shipped tooling.
-- Ducking (built into the template's `Soundtrack`): music at −18 dB, dipping a further −12 dB under
-  speech, 2-frame attack, 12-frame release; speech gaps < 0.4 s stay ducked so the bed doesn't pump
-  [C; Remotion recommends a frame-computed `volume` [D]].
-- Master to about −14 LUFS integrated, true peak ≤ −1 dBTP (`ffmpeg -af ebur128`) [C].
-- Music must come from TikTok's Commercial Music Library or carry a licence covering commercial
-  social use — see `audio-and-music.md`.
+- The playbook's `drive` decides the clock. Voice-led: the voice decides cuts; `suggest_cuts.py
+  words.json --music track.wav` nudges a cut onto a beat only within ±4 frames of a legal speech cut.
+  Music-led (property, food, fashion, montage, promo): `suggest_cuts.py --music track.wav --end N`
+  cuts on beats, bar starts first (`audio-and-music.md`).
+- Beat detection is built in (ffmpeg decode, numpy spectral flux, weighted tempogram, dynamic-programming
+  tracking; no librosa or GPL trackers): frames per beat = 1800 ÷ BPM (120 BPM → 15 frames; 2 bars = 4 s).
+- Ducking (built into the template's `Soundtrack`): with a voice, music −10 dB on a −14 LUFS track,
+  a further −8 dB under speech, 2-frame attack, 12-frame release; gaps < 0.4 s stay ducked so the bed
+  does not pump. Without a voice the music plays at 0 dB.
+- Master to −14 LUFS integrated, true peak ≤ −1 dBTP with `process_audio.py master` [C].
+- Music must be licensed for commercial use on the platform (`audio-and-music.md`).
 
 ---
 
@@ -77,5 +82,4 @@ flags anything within 3 frames of a cut.
    durations agree.
 
 Sources: Remotion `audio`, `media-utils`, `captions`, `transitions` docs; browser-use/video-use
-(cut padding, silences ≥ 400 ms as cut points, loudness targets); HyperFrames beat maths; librosa
-docs; Netflix Vietnamese timed-text guide.
+(cut padding, silences ≥ 400 ms as cut points, loudness targets); HyperFrames beat maths; Netflix Vietnamese timed-text guide.

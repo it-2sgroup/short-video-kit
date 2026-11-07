@@ -1,0 +1,65 @@
+{
+  "id": "real-estate",
+  "title": "Bất động sản — tour căn hộ, nhà phố, villa, homestay, đất",
+  "summary": "A property tour cut to music: the best view first, then the route a visitor walks (arrival, living, kitchen, bedrooms, bath, the feature), the facts on screen (area, rooms, price, location) and the agent's contact. The footage moves (gimbal walk-throughs), so the virtual camera stays subtle and speed ramps carry the viewer between rooms.",
+  "intents": ["bất động sản", "bds", "căn hộ", "chung cư", "nhà phố", "biệt thự", "villa", "homestay", "đất nền", "cho thuê", "bán nhà", "tour nhà", "room tour", "house tour", "property", "real estate", "phòng khách", "penthouse", "airbnb"],
+  "expect": {"speech": "none", "motion": "high"},
+  "signals": ["wide interior and exterior shots", "camera walking or gliding through rooms (gimbal, slider, drone)", "no one speaking to camera, or one agent presenting", "windows, views, furniture details"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 25, "max": 60, "ideal": [35, 50], "why": "Short enough to finish, long enough to walk every room once."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.5, "minBeat": 1.0, "purpose": "the single best shot (view, living room, pool) then the facts", "graphics": "title with the location or the price; no clutter over the view"},
+  "scenes": {"min": 1.8, "max": 4.0, "target": 2.8},
+  "drive": "music",
+  "structure": [
+    {"type": "ARRIVAL", "share": 0.12, "purpose": "exterior or entrance: where it is, the approach", "graphics": "pin (address or area)", "speed": "ramp 1>2>1"},
+    {"type": "LIVING", "share": 0.2, "purpose": "the main space, light and volume, walk-through", "graphics": "label (room name, m²)"},
+    {"type": "KITCHEN", "share": 0.12, "purpose": "kitchen and dining, one detail shot", "graphics": "label, callout on one feature"},
+    {"type": "BEDROOM", "share": 0.2, "purpose": "bedrooms, the master first", "graphics": "label"},
+    {"type": "BATH", "share": 0.08, "purpose": "bathroom, one clean frame", "graphics": "label"},
+    {"type": "FEATURE", "share": 0.18, "purpose": "the selling point: balcony, view, pool, rooftop, amenities", "graphics": "title or stat (e.g. 5 phút tới …, estimated)", "speed": "ramp 1>1.8>1"},
+    {"type": "SPECS", "seconds": 4.0, "purpose": "a calm wide shot under the facts", "graphics": "specs card (m², bedrooms, baths, direction, legal status) + price; image for a floor plan"},
+    {"type": "CTA", "seconds": 3.5, "purpose": "agent or brand, how to book a viewing", "graphics": "lowerThird (agent, phone shown only if the user asks), title"}
+  ],
+  "transitions": {
+    "hook": "cut",
+    "same": ["cut", "fade 10f", "cut", "slide left"],
+    "change": ["whip left", "fade 14f", "whip right", "slide up"],
+    "into": {"SPECS": "blurDissolve", "CTA": "fade 16f", "FEATURE": "zoomThrough +leak"},
+    "accentsMax": 1
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.12", "pan right 6% 1.1>1.14", "pull 1.16>1.0", "pan up 5% 1.1>1.12", "push 1.04>1.16", "pan left 6% 1.1>1.14"],
+    "byType": {"SPECS": "hold 1.04", "CTA": "push 1.0>1.08"},
+    "byKind": {"EXTERIOR": "pan up 6% 1.1>1.16", "ROOM": "pan right 6% 1.08>1.14", "DETAIL": "push 1.1>1.3", "VIEW": "pull 1.2>1.0", "WALK": "hold 1.04"}
+  },
+  "captions": "none",
+  "theme": "luxe",
+  "grade": "bright-interior",
+  "correction": "per-clip",
+  "music": {"bpm": [95, 125], "mood": "warm modern, steady 4/4, no vocals over a voiceover; Commercial Music Library / Meta Sound Collection or licensed stock"},
+  "components": {
+    "use": ["title", "specs", "pin", "label", "stat", "price", "callout", "image", "lowerThird"],
+    "avoid": ["cart", "sticker"]
+  },
+  "sfx": {"sceneStart": {"HOOK>HOOK": null}},
+  "compliance": [
+    "Price, area and room count match the listing and the documents; say whether area is thông thủy or tim tường",
+    "Legal status (sổ hồng/sổ đỏ, HĐMB) only as the owner's documents state it; never invented",
+    "No promised returns, guaranteed price rises or rental yields",
+    "Renders, 3D views and virtual staging labelled \"hình minh hoạ\"; nothing shown that is not part of the sale",
+    "Travel times (\"5 phút tới…\") labelled as estimates",
+    "Broker or developer identified; phone numbers only if the user asks to show them",
+    "Faces of residents, neighbours and house numbers of other homes kept out of frame or blurred",
+    "Music licensed for commercial use (business account)"
+  ],
+  "references": ["references/claims-and-compliance.md", "references/cutting-and-pacing.md", "references/image-processing.md", "references/audio-and-music.md"],
+  "variants": {
+    "voiceover": {
+      "about": "An agent's voiceover (or on-camera intro) carries the tour; cuts follow the voice.",
+      "intents": ["giọng đọc", "thuyết minh", "lồng tiếng", "giới thiệu dự án", "voiceover", "voice"],
+      "expect": {"speech": "voiceover"},
+      "drive": "voice",
+      "captions": "karaoke"
+    }
+  }
+}

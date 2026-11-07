@@ -1,5 +1,7 @@
 # Example plan (used by selftest.sh)
 
+**Playbook:** product-demo
+
 ## Scenes
 
 | # | Start | End | Source | In | Type | Transition | Camera | Shot | Audio |

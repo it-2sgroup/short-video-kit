@@ -1,9 +1,13 @@
-# Before / after — making the result of a stain remover visible
+# Before / after — making a result visible, honestly
 
-A cleaning video sells one thing: the viewer must *see* the stain and *see* it gone. If the result is
-hard to read, nothing else in the edit matters. This file collects how before/after is edited in
-practice, which of those methods suit a 30–40 s TikTok Shop review, and how the kit builds them.
-Rules of the platform are in `platform-specs.md` §2. **[D]** documented, **[C]** craft convention,
+Any video that sells a change (a stain removed, a room renovated or staged, a look made up, a surface
+cleaned, a styling change) lives or dies on one thing: the viewer must *see* the before and *see* the
+after. If the result is hard to read, nothing else in the edit matters. This file collects how
+before/after is edited in practice and how the kit builds it. The research and the examples come from
+the stain-remover videos (product-demo); the method applies to every playbook that shows a change
+(real-estate staging or renovation, fashion styling — never a skin, hair or health result:
+`claims-and-compliance.md` §3 and §6).
+Rules of the platform are in `claims-and-compliance.md` §3. **[D]** documented, **[C]** craft convention,
 **[?]** not verified.
 
 ---
@@ -16,7 +20,7 @@ Rules of the platform are in `platform-specs.md` §2. **[D]** documented, **[C]*
 | **Slider reveal** | A divider sweeps across and uncovers the AFTER (in an editor: keyframe the crop of the BEFORE clip from 0 % to 100 %) | A dramatic change; a "moment" | Premiere Pro tutorial (lensvid) |
 | **Split screen** | Both states on screen at once, each filling half the frame (left/right or top/bottom) | A subtle change the viewer must compare in detail, such as a fading stain | Captions.ai, CapCut |
 | **Freeze and label** | Stop on the result with a short "Before"/"After" label | Giving the eye time to read the result | Template vendors |
-| **Control half** | One half of the item treated, the other left as it was | The strongest proof; it also sidesteps "they swapped the shirt" | `hook-library.md`, `platform-specs.md` §2 |
+| **Control half** | One half of the item treated, the other left as it was | The strongest proof; it also sidesteps "they swapped the shirt" | `hook-library.md`, `claims-and-compliance.md` §3 |
 | **Show the working time** | Product on the stain, then rubbing or soaking, with the dwell time visible | Credibility: a professional cleaner's advice is to put the product on the stain and then scrub | Press interview, our own reading [C] |
 
 What the sources agree on:
@@ -38,7 +42,7 @@ Gaps: no source covered stain removal specifically beyond the above, and none wa
 before-and-after results" among content ads and landing pages must not include (its example is a
 wrinkle cream) [D: ads.tiktok.com help article "Misleading and false content"]. The page does not say
 whether this covers organic posts, and TikTok's own SMB ad-policy PDF suggests a disclaimer instead
-[?]. Cleaning products may use before/after in listings and organic videos (`platform-specs.md` §2),
+[?]. Cleaning products may use before/after in listings and organic videos (`claims-and-compliance.md` §3),
 but **ask whether the video will be boosted or run as an ad (Spark Ads) before building the compare
 card around it**.
 
@@ -100,7 +104,7 @@ the line that talks about the result, and end it at least 3 frames before the ne
   frames used by `compare`, `thumbs` or `magnifier`, so reusing a range already on screen costs no
   new footage and breaks no budget.
 - **Label what is staged** ("vết thử bằng thuốc đỏ") and the time ("sau 1–2 tiếng ngâm · đã rút gọn
-  thời gian"). The result must be typical or its limits disclosed (`platform-specs.md` §2).
+  thời gian"). The result must be typical or its limits disclosed (`claims-and-compliance.md` §3).
 - **Over white fabric** the scrim and the white border keep the card readable; keep the labels in the
   outlined text style, never a coloured box.
 

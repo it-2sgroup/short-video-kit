@@ -1,0 +1,48 @@
+{
+  "id": "montage-recap",
+  "title": "Montage / recap — du lịch, sự kiện, khai trương, hậu trường, thương hiệu",
+  "summary": "Music is the script: cuts on the beats (every one or two), energy built in sections that follow the track, speed ramps into the big moments, one or two words on screen at most, the place and the date as quiet labels.",
+  "intents": ["du lịch", "travel", "sự kiện", "event", "recap", "montage", "khai trương", "hậu trường", "behind the scenes", "bts", "team building", "lễ hội", "kỷ niệm", "trailer", "highlight", "vlog"],
+  "expect": {"speech": "none", "motion": "high"},
+  "signals": ["many short clips of varied places, people and moments", "moving camera, people, crowds", "no voiceover; ambient sound only"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 12, "max": 60, "ideal": [15, 30], "why": "A montage lives as long as its music section; end on the peak."},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.0, "minBeat": 0.5, "purpose": "the most spectacular moment, cut hard on the first beat", "graphics": "a two-to-four word title, or nothing"},
+  "scenes": {"min": 0.5, "max": 3.0, "target": 1.2},
+  "drive": "music",
+  "structure": [
+    {"type": "OPEN", "share": 0.25, "purpose": "establish the place and the mood; wider shots, two beats per cut", "graphics": "pin (place, date)"},
+    {"type": "BUILD", "share": 0.4, "purpose": "people and action, one beat per cut, speed ramps into the hits", "graphics": "", "speed": "ramp 1>2.5>0.8"},
+    {"type": "PEAK", "share": 0.2, "purpose": "the best moments on the music's drop", "graphics": "stat (numbers of the event) if real"},
+    {"type": "OUTRO", "share": 0.15, "purpose": "a calm last shot and the brand", "graphics": "title, lowerThird or image (logo)"}
+  ],
+  "transitions": {
+    "hook": "cut",
+    "same": ["cut", "cut", "cut", "whip left"],
+    "change": ["zoomThrough +flash", "whip right", "crossZoom"],
+    "into": {"OUTRO": "fade 18f", "PEAK": "zoomThrough +flash"},
+    "accentsMax": 2
+  },
+  "camera": {
+    "pattern": ["push 1.0>1.14", "pull 1.16>1.0", "hold 1.06", "push 1.04>1.18 roll -1.5>1.5", "pan right 8% 1.12>1.18", "hold 1.0"],
+    "byType": {"OUTRO": "pull 1.12>1.0"},
+    "byKind": {"WIDE": "push 1.0>1.12", "CROWD": "hold 1.04", "AERIAL": "hold 1.0"}
+  },
+  "captions": "none",
+  "theme": "cool",
+  "grade": "vivid",
+  "correction": "per-clip",
+  "music": {"bpm": [100, 140], "mood": "energetic with a clear drop; the edit follows its sections"},
+  "components": {
+    "use": ["title", "pin", "stat", "lowerThird", "image"],
+    "avoid": ["checklist", "step", "cart"]
+  },
+  "sfx": {"transition": {"cut": null, "whip": "whip"}, "sceneStart": {"HOOK>HOOK": null}},
+  "compliance": [
+    "People recognisable in a commercial video agreed to it (staff, guests); children only with a guardian's consent",
+    "Event numbers on screen are real",
+    "Music licensed for commercial use; no chart track on a business account",
+    "Other brands' logos and artworks not featured without permission"
+  ],
+  "references": ["references/cutting-and-pacing.md", "references/audio-and-music.md", "references/image-processing.md"]
+}

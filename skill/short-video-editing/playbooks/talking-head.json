@@ -1,0 +1,61 @@
+{
+  "id": "talking-head",
+  "title": "Nói trước camera — chia sẻ kiến thức, chuyên gia, câu chuyện thương hiệu, cảm nhận khách hàng",
+  "summary": "One person speaking to camera. The A-roll is cut into jump cuts on the pauses (silences and fillers removed), framings alternate wide and tight so every cut reads as intentional, B-roll and graphics illustrate what is said, word-by-word captions carry it with the sound off.",
+  "intents": ["đứng nói", "nói giới thiệu", "mình nói", "chia sẻ", "kiến thức", "chuyên gia", "talking head", "nói trước camera", "podcast", "giải thích", "mẹo", "tips", "câu chuyện", "founder", "ceo", "giáo dục", "tư vấn", "phỏng vấn", "interview", "vlog nói"],
+  "expect": {"speech": "on-camera", "motion": "low"},
+  "signals": ["one face in a fixed frame most of the time", "speech in the camera's own audio", "long takes (30 s to minutes)", "maybe B-roll clips without speech"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 20, "max": 90, "ideal": [30, 60], "why": "Talking content holds longer than demos only while every sentence earns its place: cut pauses, fillers and repeats first."},
+  "hook": {"deadline": 3.0, "beats": 1, "beat": 2.8, "minBeat": 1.2, "purpose": "the boldest sentence of the talk, said in the first breath; a pattern-break frame or B-roll under it", "graphics": "title that states the payoff"},
+  "scenes": {"min": 1.0, "max": 5.0, "target": 3.2},
+  "drive": "voice",
+  "structure": [
+    {"type": "CONTEXT", "share": 0.15, "purpose": "why it matters to the viewer, one sentence", "graphics": "title"},
+    {"type": "POINT", "share": 0.6, "purpose": "the points, one per beat; B-roll or a graphic on every point", "graphics": "step or checklist, stat, chart, image, highlight"},
+    {"type": "PAYOFF", "share": 0.15, "purpose": "the takeaway in one line", "graphics": "title"},
+    {"type": "CTA", "share": 0.1, "purpose": "follow, comment, save, or the offer", "graphics": "lowerThird"}
+  ],
+  "transitions": {
+    "hook": "cut",
+    "same": ["cut", "cut", "cut", "pushCut"],
+    "change": ["cut", "pushCut", "slide up", "cut"],
+    "into": {"PAYOFF": "pushCut"},
+    "accentsMax": 0
+  },
+  "camera": {
+    "pattern": ["hold 1.0", "hold 1.22 focus 0.5,0.35", "hold 1.08", "push 1.18>1.3 focus 0.5,0.35", "hold 1.0", "hold 1.3 focus 0.5,0.33"],
+    "byType": {"PAYOFF": "push 1.1>1.3 focus 0.5,0.35", "CTA": "hold 1.0"},
+    "byKind": {"BROLL": "push 1.0>1.16", "FACE": "hold 1.12 focus 0.5,0.35"}
+  },
+  "captions": "pop",
+  "theme": "cool",
+  "grade": "natural",
+  "correction": "per-clip",
+  "music": {"bpm": [80, 110], "mood": "low, unobtrusive bed or none; never a vocal track under speech"},
+  "components": {
+    "use": ["title", "stat", "chart", "checklist", "step", "image", "highlight", "lowerThird", "thumbs"],
+    "avoid": ["cart"]
+  },
+  "sfx": {"transition": {"cut": null, "pushCut": "pop"}},
+  "compliance": [
+    "Numbers on screen (stat, chart) have a source the speaker can name; label estimates",
+    "Medical, financial, legal advice: hedged, no guaranteed outcomes; expert credentials real",
+    "A testimonial is from a real customer who agreed to it; staged scenes never labelled as a real review",
+    "Paid partnership disclosed (commercial-content toggle)",
+    "No other person's footage or audio without a licence"
+  ],
+  "references": ["references/cutting-and-pacing.md", "references/captions-and-text.md", "references/audio-processing.md", "references/layout-and-motion-graphics.md"],
+  "variants": {
+    "testimonial": {
+      "about": "A customer's own story: the result first, the problem, the experience, the outcome. Honesty is the format.",
+      "intents": ["cảm nhận", "khách hàng", "testimonial", "feedback", "đánh giá của khách", "ugc ad"],
+      "structure": [
+        {"type": "PROBLEM", "share": 0.25, "purpose": "what was wrong before, in their words", "graphics": "title"},
+        {"type": "EXPERIENCE", "share": 0.35, "purpose": "what they did, B-roll of the product in use", "graphics": "step, highlight"},
+        {"type": "RESULT", "share": 0.25, "purpose": "the outcome in their words; no exaggeration added in text", "graphics": "title, stat only if real"},
+        {"type": "CTA", "share": 0.15, "purpose": "where to get it", "graphics": "lowerThird (name, verified customer)"}
+      ]
+    }
+  }
+}

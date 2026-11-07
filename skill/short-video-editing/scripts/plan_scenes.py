@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
 """Fill the Scenes table of an edit plan from a shot library, without reusing any footage.
 
-    python scripts/plan_scenes.py --library library.json --cuts cuts.json \
-        --kinds "STAIN,STAIN,STAIN|SOAK,POUR_PINK,LIFT@IMG_0329" \
-        --types "HOOK,HOOK,PROBLEM,DEMO,REVEAL" --used kb4/edit-plan.md kb7/edit-plan.md --seed 3
+    python scripts/plan_scenes.py --library library.json --plan skeleton.md \
+        --kinds "STAIN,STAIN,STAIN|SOAK,POUR,LIFT@IMG_0329" --used v4/edit-plan.md v7/edit-plan.md --seed 3
+    python scripts/plan_scenes.py --library library.json --cuts cuts.json --types "HOOK,HOOK,DEMO,..." \
+        --kinds "..." --playbook product-demo
 
-cuts.json   scene boundaries, e.g. the output of `suggest_cuts.py --json` ([{"start":0,"end":1.1}, ...]).
+--plan      a plan skeleton (`playbook.py skeleton ID --cuts cuts.json`): its Start, End, Type, Speed and
+            Transition columns are kept, Source/In/Camera are filled. Its **Playbook:** line is used.
+--cuts/--types  the same without a skeleton: scene boundaries (`suggest_cuts.py --json`) and one Type
+            per scene; transitions then come from the playbook.
 --kinds     one entry per scene: the KIND of shot wanted. `A|B` = try A, else B. `KIND@CLIP` = only that
-            clip (use it to keep a before/after pair on the same garment). `ANY` matches every kind: the
-            last resort at the end of a list.
---types     the plan's Type column (HOOK, PROBLEM, DEMO, REVEAL, CTA-CLOSE ...), one per scene.
+            clip (keep a before/after pair on the same item). `ANY` matches every kind: the last resort.
 --used      plans whose source ranges are already spent; nothing is reused within or across them, and
             every range keeps `gap` seconds (default 0.5) from the ones taken.
 --seed      varies which candidate is picked, so two videos from one library differ.
 
 library.json (see assets/shot-library.example.json): {"gap": 0.5, "spans": [{"clip": "IMG_0319",
-"kind": "POUR_PINK", "start": 0, "end": 15, "focus": [0.3, 0.4], "size": "close"}, ...]}. A span is a
-stretch of a clip where one kind of shot holds; `focus` is the part of the frame the camera should
-move toward (0..1), `size` is wide | medium | close.
+"kind": "POUR", "start": 0, "end": 15, "focus": [0.3, 0.4], "size": "close", "move": "push"}, ...]}.
+A span is a stretch of a clip where one kind of shot holds. Kinds are your own words for the footage
+(ROOM, VIEW, MACRO, FACE, STAIN...); `focus` is where the action is (0..1), `size` wide | medium | close,
+`move` an optional camera hint. The camera cell comes from `move`, else the playbook's `camera.byKind`
+(a kind starting with that key), else the shot size. A scene with a Speed reads speed x length of footage.
 
-Prints the Scenes table (Source and In filled, Transition and Camera chosen by rules from the span's
-size and kind) and exits 1 if some scene cannot be filled. Check it with footage_overlap_checker.py.
+Prints the Scenes table and exits 1 if some scene cannot be filled. Check with footage_overlap_checker.py.
 """
 from __future__ import annotations
 
@@ -32,11 +35,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from footage_overlap_checker import parse_plan  # noqa: E402
-
-SAME_TYPE = ["fade 14f", "slide left", "blurDissolve", "slide right", "fade 18f"]
-NEW_TYPE = ["slide up", "wipe left 14f", "zoomThrough +flash", "slide down", "wipe right 14f"]
-INTO_REVEAL = ["blurDissolve", "wipe right 14f +leak"]
+import playbook as playbooks  # noqa: E402
+from footage_overlap_checker import parse_plan, speed_factor  # noqa: E402
 
 
 def free_intervals(span, taken, gap):
@@ -56,31 +56,48 @@ def free_intervals(span, taken, gap):
     return [(round(x, 2), round(y, 2)) for x, y in free if y - x > 0.05]
 
 
-def camera_for(span, kind, i):
-    """A camera cell chosen from the span's size and the kind of action, varied scene to scene."""
+SIZE_MOVE = {"wide": "push 1.0>1.2", "medium": "push 1.08>1.28", "close": "pull 1.3>1.06"}
+
+
+def camera_for(span, kind, i, pb):
+    """A camera cell from the span's `move` hint, else the playbook's byKind, else the shot size; aimed
+    at the span's focus, with a slow lean on every other push when the playbook's pattern leans."""
     fx, fy = span.get("focus", [0.5, 0.5])
-    focus = f"focus {fx:.2f},{fy:.2f}"
-    size = span.get("size", "medium")
-    lean = [-1.0, 1.0] if i % 4 == 1 else [1.0, -1.0] if i % 4 == 3 else None
-    roll = f" roll {lean[0]}>{lean[1]}" if lean else ""
-    direction = "left" if i % 2 else "right"
-    if kind.startswith("LIFT"):
-        return f"pull 1.32>1.0 {focus}"
-    if kind.startswith("STAIN"):
-        return f"push 1.22>1.46 {focus}{roll}"
-    if kind.startswith("POUR") or kind == "PRODUCT":
-        return f"push 1.14>1.4 {focus}{roll}" if size != "wide" else f"push 1.0>1.22 {focus}"
-    if kind.startswith("SOAK"):
-        return f"pan {direction} 8% 1.2>1.32 {focus}"
-    return f"push 1.0>1.2 {focus}{roll}"  # WIDE and anything else
+    by_kind = pb["camera"].get("byKind", {})
+    key = next((k for k in sorted(by_kind, key=len, reverse=True) if kind.startswith(k)), None)
+    if span.get("move"):
+        cell = span["move"]
+    elif key:
+        cell = by_kind[key]
+    else:
+        cell = SIZE_MOVE.get(span.get("size", "medium"), SIZE_MOVE["medium"])
+    if cell.startswith("pan") and not any(d in cell for d in ("left", "right", "up", "down")):
+        cell = cell.replace("pan", f"pan {'left' if i % 2 else 'right'}", 1)
+    leans = any("roll" in c for c in pb["camera"]["pattern"])
+    if leans and cell.startswith("push") and "roll" not in cell and i % 2:
+        cell += " roll -1>1" if i % 4 == 1 else " roll 1>-1"
+    return f"{cell} focus {fx:.2f},{fy:.2f}" if "focus" not in cell else cell
+
+
+def read_skeleton(path: Path):
+    """Rows of a plan skeleton: start, end, type, speed, transition, shot, audio."""
+    import plan_to_project
+    tabs = plan_to_project.tables(path.read_text(encoding="utf-8-sig"))
+    h, rows = plan_to_project.pick(tabs, "start", "end", "type")
+    cell = plan_to_project.cell
+    return [{"start": float(cell(h, r, "start")), "end": float(cell(h, r, "end")), "type": cell(h, r, "type").upper(),
+             "speed": cell(h, r, "speed"), "transition": cell(h, r, "transition"), "shot": cell(h, r, "shot"),
+             "text": cell(h, r, "audio")} for r in rows]
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Choose non-overlapping footage for every scene of a plan.")
     ap.add_argument("--library", type=Path, required=True)
-    ap.add_argument("--cuts", type=Path, required=True)
+    ap.add_argument("--plan", type=Path, help="plan skeleton from playbook.py skeleton (Start/End/Type/Speed/Transition)")
+    ap.add_argument("--cuts", type=Path, help="scene boundaries from suggest_cuts.py --json (with --types)")
     ap.add_argument("--kinds", required=True)
-    ap.add_argument("--types", required=True)
+    ap.add_argument("--types", help="the Type of each scene, comma-separated (with --cuts)")
+    ap.add_argument("--playbook", help="playbook id[:variant]; default: the skeleton's **Playbook:** line")
     ap.add_argument("--used", nargs="*", default=[], type=Path)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--reserve", default="", help="CLIP:KIND,CLIP:KIND to keep free for a later video (e.g. its before/after pair)")
@@ -89,11 +106,19 @@ def main() -> int:
 
     lib = json.loads(a.library.read_text(encoding="utf-8-sig"))
     gap = float(lib.get("gap", 0.5))
-    cuts = json.loads(a.cuts.read_text(encoding="utf-8-sig"))
+    if a.plan:
+        cuts = read_skeleton(a.plan)
+        pb = playbooks.resolve(a.playbook, a.plan.read_text(encoding="utf-8-sig"))
+        types = [c["type"] for c in cuts]
+    elif a.cuts and a.types:
+        cuts = json.loads(a.cuts.read_text(encoding="utf-8-sig"))
+        pb = playbooks.resolve(a.playbook)
+        types = [t.strip().upper() for t in a.types.split(",")]
+    else:
+        sys.exit("give --plan skeleton.md, or --cuts cuts.json with --types")
     kinds = [k.strip() for k in a.kinds.split(",")]
-    types = [t.strip() for t in a.types.split(",")]
     if not len(cuts) == len(kinds) == len(types):
-        sys.exit(f"{len(cuts)} scenes in cuts, {len(kinds)} kinds, {len(types)} types: they must match")
+        sys.exit(f"{len(cuts)} scenes, {len(kinds)} kinds, {len(types)} types: they must match")
 
     taken: dict[str, list[tuple[float, float]]] = {}
     for p in a.used:
@@ -103,9 +128,9 @@ def main() -> int:
     reserved = {tuple(x.split(":", 1)) for x in a.reserve.split(",") if ":" in x}
 
     rows, failed, prev_clip, per_clip = [], [], None, {}
-    accents = 0
+    state: dict = {}
     for i, (c, wanted, typ) in enumerate(zip(cuts, kinds, types)):
-        length = round(c["end"] - c["start"], 2)
+        length = round((c["end"] - c["start"]) * speed_factor(c.get("speed", "")), 2)  # footage it reads
         need = length + 0.2  # the outgoing transition handle
         chosen = None
         for alt in wanted.split("|"):
@@ -134,32 +159,22 @@ def main() -> int:
         taken.setdefault(span["clip"], []).append((start, round(start + length, 2)))
         prev_clip = span["clip"]
         per_clip[prev_clip] = per_clip.get(prev_clip, 0) + 1
-        if i == 0:
-            trans = "–"
-        elif types[i] == "REVEAL" and types[i - 1] != "REVEAL":
-            trans = INTO_REVEAL[0] if accents >= 2 else INTO_REVEAL[i % 2]
-        elif types[i] != types[i - 1]:
-            trans = NEW_TYPE[i % len(NEW_TYPE)]
-        else:
-            trans = SAME_TYPE[i % len(SAME_TYPE)]
-        if "+flash" in trans or "+leak" in trans:
-            if accents >= 2:
-                trans = trans.split(" +")[0]
-            else:
-                accents += 1
-        rows.append({"start": c["start"], "end": c["end"], "clip": span["clip"], "in": start, "type": typ,
-                     "transition": trans, "camera": camera_for(span, kind, i), "kind": kind, "text": c.get("text", "")})
+        trans = c.get("transition") or playbooks.choose_transition(pb, types, i, state)
+        shot = kind + (f" — {c['shot']}" if c.get("shot") else "")
+        rows.append({"start": c["start"], "end": c["end"], "clip": span["clip"], "in": start, "type": typ, "transition": trans,
+                     "camera": camera_for(span, kind, i, pb), "speed": c.get("speed", ""), "shot": shot, "text": c.get("text", "")})
 
     if a.json:
         print(json.dumps(rows, ensure_ascii=False, indent=1))
     else:
-        print("| # | Start | End | Source | In | Type | Transition | Camera | Shot | Audio |")
-        print("|---|-------|-----|--------|----|------|------------|--------|------|-------|")
+        print(f"**Playbook:** {pb['name']}\n")
+        print("| # | Start | End | Source | In | Type | Transition | Camera | Speed | Shot | Audio |")
+        print("|---|-------|-----|--------|----|------|------------|--------|-------|------|-------|")
         for n, r in enumerate(rows, 1):
             if r is None:
-                print(f"| {n} | {cuts[n - 1]['start']} | {cuts[n - 1]['end']} | ??? | ??? | {types[n - 1]} | | | UNFILLED | |")
+                print(f"| {n} | {cuts[n - 1]['start']} | {cuts[n - 1]['end']} | ??? | ??? | {types[n - 1]} | | | | UNFILLED | |")
                 continue
-            print(f"| {n} | {r['start']} | {r['end']} | {r['clip']} | {r['in']} | {r['type']} | {r['transition']} | {r['camera']} | {r['kind']} | {r['text']} |")
+            print(f"| {n} | {r['start']} | {r['end']} | {r['clip']} | {r['in']} | {r['type']} | {r['transition']} | {r['camera']} | {r['speed']} | {r['shot']} | {r['text']} |")
     if failed:
         print("\nCould not fill: " + "; ".join(failed), file=sys.stderr)
         return 1

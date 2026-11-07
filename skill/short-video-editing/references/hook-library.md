@@ -1,11 +1,12 @@
 # Hook Library
 
-The hook is the first 0–3 seconds. It decides whether the video is distributed at all.
+The hook is the first 0–3 seconds, in every playbook. It decides whether the video is distributed at all.
 
-In the reference dataset (`niche-winning-patterns.md`), the top 20% of videos by views earned 95%
-of all revenue, while the bottom 80% averaged 171 views — and GMV per 1,000 views was actually
-*marginally higher* in the bottom group. Those videos were not failing to persuade. They were
-failing to be seen. That is what makes the hook the highest-leverage part of the edit.
+In the product-demo reference dataset (`niche-winning-patterns.md`), the top 20% of videos by views
+earned 95% of all revenue, while the bottom 80% averaged 171 views — and GMV per 1,000 views was
+*marginally higher* in the bottom group. Those videos were not failing to persuade; they were failing
+to be seen. TikTok's own guidance puts the proposition in the first 3 s and the hook within 6 s
+(`platforms.md` §3). That is what makes the hook the highest-leverage part of any edit.
 
 ---
 
@@ -16,20 +17,21 @@ making all three say the same thing, which wastes two of them.
 
 | Channel | Job | Example |
 |---|---|---|
-| **Visual** | Show the most arresting state — usually the end result or the worst-case problem | Locked shot of a badly stained white collar |
-| **On-screen text** | State the promise or the stake in words | "Cái áo này suýt bị vứt" |
-| **Audio** | Start a sentence the viewer needs to finish | VO mid-thought: "...và đây là lúc mình định bỏ nó đi" |
+| **Visual** | Show the most arresting state — usually the end result, the best view or the worst-case problem | The finished room from the balcony; a cheese pull; a badly stained collar |
+| **On-screen text** | State the promise or the stake in words | "Căn 2PN view sông dưới 4 tỷ" · "Cái áo này suýt bị vứt" |
+| **Audio** | Start a sentence the viewer needs to finish, or hit the music's first downbeat | VO mid-thought: "...và đây là lúc mình định bỏ nó đi" |
 
 TikTok's own creative guidance is explicit that a video should open with sound rather than a silent
 title card; the platform reports that 88% of users consider sound integral to the experience
 (`ads.tiktok.com/business/library/Creative_Best_Practices_UKI_SMB.pdf`). A silent opening throws
 away a third of the hook.
 
-**Structural requirements** (enforced by `scripts/pacing_checker.py`):
+**Structural requirements** (enforced by `scripts/pacing_checker.py` from the playbook):
 - The hook resolves by **3.0 seconds**.
 - Frame 0 is never empty — it is the thumbnail in the feed.
-- Prefer **two ~1.5s beats** (before → after, joined by a wipe) over one static 3s shot. Motion in the first second is
-  itself a reason to keep watching.
+- The playbook sets the beats: two ~1.5 s beats for demos and tours (before → after, view → facts),
+  one sentence for a talking head, two beats on the first downbeats for montages and lookbooks. Motion
+  in the first second is itself a reason to keep watching.
 
 ---
 
@@ -42,82 +44,42 @@ hooks analysed by median views (`quso.ai/tools/video-hook-generator`).
 and the sample came from a narrow niche. It is strong enough to tell you what to *avoid*, not
 strong enough to promise that one archetype will beat another on your product.
 
-| Rank | Archetype | What it does | Fit for a cleaning demo |
+| Rank | Archetype | What it does | Notes |
 |---|---|---|---|
-| 1 | **Social proof** | Frames the video as a response to demand | Excellent — and it is the one superlative TikTok permits |
-| 2 | **Product reveal** | Product enters frame immediately, unexplained | Good |
-| 3 | Transformation | Before state → after state | **Best structural fit for this product** |
-| 4 | Shocking stat / claim | Opens on a number or assertion | Constrained by the exaggeration rules — see `platform-specs.md` |
+| 1 | **Social proof** | Frames the video as a response to demand | Strong, and own-sales claims are the one superlative TikTok permits |
+| 2 | **Product / place reveal** | The subject enters frame immediately, unexplained | Good for products, dishes, properties |
+| 3 | Transformation | Before state → after state | Best fit wherever a visible result exists (demo, renovation, makeup) |
+| 4 | Shocking stat / claim | Opens on a number or assertion | Constrained by the claim rules — `claims-and-compliance.md`; a real price works |
 | 5 | Pain point | Names the viewer's problem in their own words | Good when specific, weak when generic |
 | 6 | Open loop | Withholds the resolution | Good as a second beat, weak as a first |
 | 7 | Curiosity question | "Why does nobody know about this?" | Mid-pack — weaker than its reputation |
 | 8 | Contrarian / counter-claim | "Stop scrubbing. You're ruining the fabric." | Underperforms its reputation |
 | 9 | Direct command | "Do this before you throw that shirt out" | Avoid |
-| 10 | Authority | "As a textile chemist…" | Avoid — worst of the ten tested |
+| 10 | Authority | "As a textile chemist…" | Avoid as the opening line — worst of the ten tested (credentials belong in a lower third) |
 
 **The practical read:** lead with social proof, a product reveal, or the transformation itself.
 Stay away from authority framing and bare commands.
 
 ---
 
-## Written hooks for a laundry stain remover
+## Hooks by playbook
 
-All of these are checked against the claim rules in `platform-specs.md`. Vietnamese, in the
-conversational register the campaign's top creators actually use.
+Each playbook's `.md` has its own examples (product-demo: written and compliance-checked hooks for a
+laundry stain remover). The patterns that fit each genre [C]:
 
-### Result-first / transformation (strongest fit)
+| Playbook | Visual (0–1.5 s) | Text | Sound |
+|---|---|---|---|
+| product-demo | the result, then the problem; a split half (treated / untreated) | the stake, specific ("Áo đồng phục của con, mới mua tháng trước") | VO mid-thought |
+| real-estate | the best view or room, a door opening onto it | price + place, or one specific feature ("3,2 tỷ có gì ở Thảo Điền?") | first downbeat |
+| food-fnb | the money shot: pull, pour, sizzle, steam | the dish + one hook word (price, place) | the sizzle itself (J-cut) |
+| talking-head | the speaker mid-sentence on the boldest line, or B-roll of the payoff | the payoff, not the topic | the sentence itself |
+| tutorial | the finished result | the number of steps or the time ("3 bước, 5 phút") | VO promise |
+| fashion-beauty | the final look, or the most striking change on a beat | how many looks / the theme / the budget | the drop |
+| montage-recap | the most spectacular moment, hard cut on beat 1 | two to four words, or nothing | the track's opening hit |
+| promo-sale | the offer on the product | the number ("−50%", "11.11") | a hit under the number |
 
-The transformation *is* the product. Show it immediately, then earn the right to explain it.
-
-> **Visual:** Locked shot. Clean white collar fills frame. Hand pulls it aside to reveal the
-> stained "before" underneath.
-> **Text:** "Cái áo này 10 phút trước"
-> **VO:** "Chỗ ố này mình tưởng phải bỏ áo luôn rồi…"
-
-> **Visual:** Split frame — one half of the stained cloth treated, the other half untouched.
-> **Text:** "Nửa trái ngâm rồi, nửa phải chưa"
-> **VO:** "Cùng một cái áo, cùng một chỗ nha."
-
-How the reveal later in the video repeats the proof (the `compare` card) is in `before-after.md`.
-
-The split-half version is worth reaching for. It removes the "they swapped the shirt" suspicion
-entirely, and because it is self-evidencing it also sidesteps the misleading-demonstration rules.
-
-### Social proof (compliant superlative)
-
-> **Text:** "Cái mọi người hỏi trong cmt nãy giờ"
-> **VO:** "Rồi rồi, nay mình test thật cho coi."
-
-> **Text:** "Bán chạy nhất shop mình tháng này"
-> **VO:** "Mà mình vẫn phải tự thử mới dám nói."
-
-Claims about your own sales are explicitly permitted — this is the compliant way to use a
-superlative.
-
-### Pain point — specific, not generic
-
-Specificity is what separates a pain-point hook that works from one that scrolls past. "Bạn có mệt
-mỏi vì quần áo bị ố không?" is generic and dead. Name the garment, the stain, the moment.
-
-> **Text:** "Áo đồng phục của con, mới mua tháng trước"
-> **VO:** "Dính sa tế một cái là coi như xong."
-
-> **Text:** "Vết này 2 năm rồi"
-> **VO:** "Giặt bao nhiêu lần cũng vậy."
-
-### Pattern interrupt
-
-> **Visual:** Hand drops the stained shirt into a bin. Beat. Hand reaches back in and retrieves it.
-> **Text:** "Khoan đã"
-
-### Stain-creation open (anti-fake)
-
-Showing the stain being made on camera is the strongest credibility signal available, because the
-viewer watches the "before" come into existence.
-
-> **Visual:** Clean white shirt. Red antiseptic poured directly onto the collar in close-up.
-> **Text:** "Cố tình làm bẩn để test"
-> **VO:** "Làm bẩn thật luôn, chứ không lấy áo cũ ra đâu."
+Write the on-screen text and the voice to say **different** things, and check both against the
+playbook's compliance list before locking them.
 
 ---
 
@@ -127,9 +89,9 @@ viewer watches the "before" come into existence.
 |---|---|
 | "Sản phẩm tốt nhất thị trường" | Prohibited absolute superlative |
 | "Tẩy sạch ngay lập tức" | Prohibited instant-effect claim |
-| "Không sạch hoàn tiền" | Guaranteed-results claim — appears in existing scripts for this campaign and should be removed |
-| "Diệt khuẩn 99.9%" | Prohibited antibacterial claim for a cleaning product |
-| "Là chuyên gia giặt là, tôi khuyên…" | Authority archetype, worst-ranked |
+| "Không sạch hoàn tiền" / "cam kết lợi nhuận" | Guaranteed results (products) or returns (property) |
+| "Diệt khuẩn 99.9%", "trị mụn", "giảm cân" | Prohibited category claims (`claims-and-compliance.md`) |
+| "Là chuyên gia …, tôi khuyên…" | Authority archetype, worst-ranked as an opener |
 | "Hãy mua ngay" as the opening line | Direct command, second-worst ranked, and asks before earning |
 | A silent 3-second title card | Throws away the audio channel |
 
@@ -139,13 +101,13 @@ viewer watches the "before" come into existence.
 
 Work in this order, because it fails fast:
 
-1. **Does the footage contain a visible transformation?** If so, use it. It is the best structural
-   fit and needs no claim to carry it.
-2. **Is there genuine social proof available** — real comment volume, real sales rank? Use it.
-   It is compliant and well-ranked.
-3. **Can you name the problem specifically** — this garment, this stain, this moment? Use a pain
-   point.
-4. Otherwise fall back to a product reveal, and strengthen the second beat with an open loop.
+1. **Does the footage contain a visible transformation or a spectacular moment?** Use it. It is the
+   best structural fit and needs no claim to carry it.
+2. **Is there genuine social proof** — real comment volume, real sales rank, a real customer? Use it.
+3. **Can you name the problem or the promise specifically** — this garment, this price, this
+   neighbourhood, this step count? Use it.
+4. Otherwise fall back to a reveal, and strengthen the second beat with an open loop.
 
-Then write the on-screen text and the voiceover to say **different** things, and check the opening
-line against the rewrite table in `platform-specs.md` §7 before locking it.
+Two hooks can be tested on the same edit with Trial Reels (shown to non-followers first); never by
+posting near-identical copies, which is repetitive content (`Chính sách.md`). The data rarely
+says in advance which archetype wins for a given product.

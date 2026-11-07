@@ -178,7 +178,7 @@ What the winning captions actually do, from reading the top 25 by GMV:
 
 **Caution on one observed pattern.** A high-earning caption read *"Hổng sạch hổng lấy tiền"*
 ("not clean, no payment"). This is a guaranteed-results / money-back claim. It performed well here,
-but see `platform-specs.md` — guarantee claims are a documented moderation risk. **Do not copy it.**
+but see `claims-and-compliance.md` — guarantee claims are a documented moderation risk. **Do not copy it.**
 That it worked for one video is not a reason to put a client's account at risk.
 
 ---
@@ -219,7 +219,7 @@ what earns the early retention that drives distribution.
 - Show the stain being *created* on camera when possible. Viewers who watch the stain appear are
   far less likely to assume two different garments were swapped.
 
-See `pacing-and-transitions.md` for how to place the reveal on the timeline.
+See `cutting-and-pacing.md` for how to place the reveal on the timeline.
 
 ---
 
