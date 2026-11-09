@@ -178,7 +178,7 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | `src/theme.ts` | **Mọi token thiết kế**: font, **ba bảng màu** (`cool`: trắng, xanh da trời; `warm`: trắng ngà, vàng, đỏ, nâu cho ẩm thực/ánh vàng; `luxe`: trắng ấm, vàng champagne, than chì cho BĐS/thời trang; một dòng `THEME` do playbook quyết định), màu chữ tiêu đề, vùng bố cục, dải phụ đề theo layout (feed / reels-ad), điểm giỏ hàng (112, 1677; đo từ ảnh chụp TikTok thật), kích thước đồ họa thông tin, đường cong chuyển động, giới hạn camera, thẻ so sánh. Đổi diện mạo ở đây. |
 | `src/engine/timeline.ts` | Dàn cảnh với chuyển cảnh **căn giữa điểm cắt**; tính lại khung nguồn cho `speed` và `ramp` (khung nguồn tại điểm cắt luôn là `In`). |
 | `src/engine/transitions.tsx` | Bảng chuyển cảnh: có sẵn của Remotion + `zoomThrough`, `blurDissolve`, `whip`. |
-| `src/engine/camera.ts` | Camera ảo: push, pull, pan, hold, phóng theo từ khóa. |
+| `src/engine/camera.ts` | Camera ảo: push, pull, pan, hold, phóng theo từ khóa; và **keyframe** (`keys`): danh sách khung hình (zoom, điểm giữa, roll) với easing cho từng đoạn (`inOut soft out in snap back linear hold`), zoom nội suy theo diện tích, mép khung không bao giờ lộ. |
 | `src/engine/audio.tsx` | Giọng, nhạc nền tự hạ khi có lời, hiệu ứng âm; nằm ngoài chuỗi chuyển cảnh nên không bị xê dịch. |
 | `src/engine/Short.tsx` | Composition: nối cảnh, camera, tốc độ (ramp đọc lại khung nguồn từng khung trong `<Freeze>`), lớp đồ họa, phụ đề, âm thanh. |
 | `src/components/registry.tsx` | Tên thành phần dùng trong `project.json`; tên lạ sẽ báo lỗi. |

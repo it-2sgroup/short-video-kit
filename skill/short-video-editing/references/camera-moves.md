@@ -27,6 +27,7 @@ patterns subtle (pans of 5–6%, pushes to ~1.12) for the same reason.
 | Roll (lean) | `… roll 1.0>-1.0` | ±1–2° | A handheld lean that makes a static shot feel like a new angle; ≤ 1 scene in 4 |
 | Hold | `hold` (≈1.04) or `hold 1.22 focus 0.5,0.35` | a fixed framing | Reveals that must read; footage that moves; talking-head jump cuts alternating wide (`hold 1.0`) and tight (`hold 1.22` on the face) |
 | Focus point | `… focus 0.45,0.55` | — | The point that stays put while scaling: aim it at the action, not the middle of the frame |
+| Keyframes | `keys 0=1.05 ; 0.5=1.38@0.4,0.5 out ; 1=1.38@0.4,0.5` | 2-4 named framings with an easing each | A scene with an action to follow or reveal (the Keyframes section below) |
 | Keyword punch-in | Overlays row `punch` at `@"word"`, or `--punch-keywords` | ×1.15 over 6 frames, holds to the scene end | Emphasis on a product name, number, "boom" |
 
 Camera accents on cuts (`+flash`, `+leak` in the Transition column) belong to `transitions.md`;
@@ -54,12 +55,82 @@ are words for the footage; each playbook knows its own:
 
 ---
 
+## Keyframes (the CapCut way: a framing at chosen moments)
+
+CapCut's keyframe animation: put the playhead where a move starts, record a value (position, scale,
+rotation, opacity), move on, change the value, and the editor interpolates; an easing shapes how the value
+travels between two keys. Its own recipes: a slow zoom is two Scale keys seconds apart (Ken Burns), a
+punch-in is two Scale keys close together, a fade is two Opacity keys [D: capcut.com keyframe-animation and
+its PC keyframe guide]. A single push or pull per scene (above) is the two-key case. When a scene has
+**something to follow or reveal**, name the framings yourself with `keys`:
+
+```
+| 4 | 6.80 | 9.66 | … | Camera: keys 0=1.1@0.45,0.45 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft |
+```
+
+| Part | Meaning |
+|---|---|
+| `TIME=` | when the key is reached: a **fraction of the scene** (`0`, `0.4`, `1`) or **seconds from its start** (`1.2s`). Keys are sorted; before the first key the first framing holds, after the last the last holds |
+| `ZOOM` | scale, 1.0 = the whole frame; never below 1.0 (the edge is never shown); capped at `theme.camera.maxScale` |
+| `@X,Y` | the point of the **footage** the camera centres on, as fractions of the frame (`@0.32,0.54` = the glass). Default `@0.5,0.5`. Unlike `focus` (a transform origin) it moves the picture, and it is clamped so the frame edge stays covered: a point near the border simply stops at the border |
+| `roll DEG` | optional lean in degrees at that key |
+| ease word | the easing of the segment that **arrives at** this key (none = `inOut`) |
+
+| Ease | Curve | Use |
+|---|---|---|
+| `inOut` (default) | `bezier(.33,0,.67,1)` | the standard slow-in slow-out move |
+| `soft` | `bezier(.45,.05,.55,.95)` | a very gentle drift: a long settle on a calm shot |
+| `out` | `bezier(0,0,.58,1)` | arriving at the target: fast start, long settle (a push to a product) |
+| `in` | `bezier(.42,0,1,1)` | leaving: slow start, fast end (a pull-away) |
+| `snap` | `bezier(.16,1,.3,1)` | a punch-in: nearly instant, then settles |
+| `back` | `bezier(.34,1.4,.64,1)` | overshoots about 8 % and settles: **once per video, at most** |
+| `linear` | straight | a mechanical move; rarely right on a phone |
+| `hold` | a step | keeps the previous framing until the key's time, then jumps (a deliberate cut-in) |
+
+Zoom between keys is eased in **area** (scale squared, the same `perceptual-scale` as a plain push, so equal
+time reads as equal zoom); the centre and the roll move linearly. A **hold** is two keys with the same
+framing (`0.4=1.05 ; 0.6=1.05`); `punches` (keyword punch-ins) still multiply on top.
+
+**How to choose the keys** [C, with the animation principles of easing, anticipation and restraint]:
+
+- **Follow the voice.** The framing at a key is what the voice names at that moment: the pour, the
+  glass, the bag. Read the fractions off a still of the scene (`contact_sheet.py`, or a HyperFrames
+  `snapshot`), and **look at the end of the move**: the subject must be inside the frame, not just near it.
+- **Hold, then move, then hold.** A move of 0.4-1.2 s between two holds reads as intention; a move that
+  never stops reads as drift. A reveal: `keys 0=1.05 ; 0.4=1.05 ; 0.6=1.38@x,y snap ; 1=1.38@x,y`.
+- **Arrive with `out`, leave with `in`, drift with `soft`.** Ease-in and ease-out are what stops a move
+  looking mechanical; do not use `linear`.
+- **Two to four keys per scene.** More is a wobble. Key only the scenes that have an action; the rest keep
+  the automatic move (`--auto-camera`).
+- **Anticipation and settle are spice.** A small step back before a push, or one `back` on the closing
+  push; sources on animation agree that overshoot used everywhere "goes against the purpose".
+- **Never past the footage's own pixels.** The limit is the clip's resolution, not the proxy's: AI clips of
+  720x1280 are already upscaled 1.5x to 1080x1920 and stay clean to about x1.3; 4K footage in 2880 px proxies
+  holds x1.5. The sync report warns past 1.5.
+
+Recipes:
+
+| Want | Keys |
+|---|---|
+| Reveal the product on a word | `keys 0=1.05 ; 0.4=1.05 ; 0.6=1.38@0.42,0.56 snap ; 1=1.38@0.42,0.56` |
+| Follow a pour | `keys 0=1.1@0.45,0.45 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft` |
+| Step-back reveal | `keys 0=1.38@0.5,0.2 ; 0.6=1.0 out ; 1=1.0` |
+| Slow push to a face | `keys 0=1.0 ; 1=1.35@0.55,0.45 soft` |
+| Look from product to face | `keys 0=1.3@0.3,0.55 ; 0.45=1.3@0.3,0.55 ; 0.8=1.3@0.6,0.35 inOut ; 1=1.3@0.6,0.35` |
+| A closing push with a settle | `keys 0=1.0 ; 0.5=1.0 ; 0.75=1.2@0.5,0.52 back ; 1=1.2@0.5,0.52` |
+
+Not keyed: the motion of overlays (each component moves by its own curve), colour, and volume (ducking is
+computed from the voice). Both renderers read `keys` (`engine/camera.ts`, `hyperframes-template/kit.js`).
+
+---
+
 ## Why it no longer feels "khựng" (jerky)
 
 1. **Eased, never linear at the ends** [D]: `Easing.bezier(0.33, 0, 0.67, 1)` for moves; punches use
    a no-overshoot spring (`damping: 200`, 6 frames).
-2. **Perceptual scale** [D]: `interpolate(..., {output: 'perceptual-scale'})` so equal time reads as
-   equal zoom (a linear 1.0→1.1 visibly decelerates).
+2. **Perceptual scale** [D, read from Remotion's source]: `interpolate(..., {output: 'perceptual-scale'})` eases the
+   zoom in **area** (`√(a² + t(b² − a²))`, not geometrically) so equal time reads as equal zoom (a linear
+   1.0→1.1 visibly decelerates).
 3. **One continuous move per scene, across its transition handles**: motion is evaluated over the
    whole sequence including the ±0.2 s the transition borrows, so nothing resets on a cut.
 4. **A punch stays** until the scene ends. A punch that springs back reads as a glitch.
@@ -88,7 +159,8 @@ are words for the footage; each playbook knows its own:
 - Roll, snap zooms and speed ramps are spice: ≤ 2 per video unless the roll is the only move on a
   static shot, and only with a reason. Speed ramps are in `cutting-and-pacing.md`.
 
-Sources: StudioBinder (push-in grammar); Epidemic Sound / ShortGenius (Ken Burns, push to emphasise,
+Sources: CapCut keyframe animation (capcut.com/tools/keyframe-animation) and its PC guide; Disney's principles as applied to
+interface motion (easing first, anticipation and overshoot with restraint); StudioBinder (push-in grammar); Epidemic Sound / ShortGenius (Ken Burns, push to emphasise,
 pull to reveal); CapCut/Submagic and Final Cut docs (ease keyframes; lengthen harsh moves); iart-ai
 `short-form-video` (punch 1→1.12, cuts at uneven 2–4 s); Remotion `interpolate`, `spring`,
 `motion-blur` docs; ProVideo Coalition (4K reframing headroom).

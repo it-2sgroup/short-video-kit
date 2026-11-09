@@ -30,7 +30,9 @@ lengths; the hook resolves by 3.0 s. Cut on pauses in the voice or on beats of t
   and accent (`+flash`, `+leak`), and, for the HyperFrames renderer only, CapCut-style hits on the cut
   (`+shake`, `+glitch`, `+rgb`, `+pulse`: at most two per video). `–` on scene 1. See `references/transitions.md`.
 - **Camera** — `push [a>b]`, `pull [a>b]`, `pan left|right|up|down [6%]`, `hold [scale]`, optional
-  `focus x,y` and `roll a>b`. Blank = `--auto-camera` (the playbook's pattern). `references/camera-moves.md`.
+  `focus x,y` and `roll a>b`; or **keyframes**: `keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft`
+  (TIME=ZOOM[@X,Y][ ease], time as a fraction of the scene or `1.2s`). Blank = `--auto-camera` (the playbook's pattern).
+  `references/camera-moves.md`.
 - **Speed** — blank (1x), `2x`, `0.5x` (60 fps source), `ramp 1>2.5>1`. `references/cutting-and-pacing.md`.
 
 | # | Start | End | Source | In | Type | Transition | Camera | Speed | Shot | Audio |

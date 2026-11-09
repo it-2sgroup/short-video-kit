@@ -52,7 +52,8 @@ or need an internet connection: check the current app before promising one to a 
 | Ken Burns on a still photo | **D** | turn the still into a clip (`ffmpeg -loop 1 -i p.jpg -t 4 -r 30 -vf scale=1620:2880:force_original_aspect_ratio=increase,crop=1620:2880 -pix_fmt yuv420p p.mp4`) and give it a `push` |
 | Auto reframe to 9:16 | **S** | `prepare_footage.py` scales to fill and centre-crops to 9:16 (no face tracking): check the contact sheet; put the subject in the middle third when shooting |
 | Stabilize | **S** | `prepare_footage.py` (vid.stab, two passes, only when `inspect_footage.py --measure` finds shake) |
-| Custom bezier keyframe graph | — | the easings are fixed (`theme.motion`); edit them there for a different feel |
+| Multi-point keyframes: scale, position, rotation, an ease per segment | **K** | `Camera: keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft`: framings with an easing each (`camera-moves.md`, Keyframes). Overlay position/opacity keyframes: not built; each component moves by its own curve |
+| Custom bezier keyframe graph | — | eight named easings (`inOut soft out in snap back linear hold`), no free bezier handles; the curves are in `engine/camera.ts` |
 
 ## 4. Transitions
 

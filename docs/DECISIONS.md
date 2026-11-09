@@ -122,6 +122,24 @@ Tham khảo: `github.com/heygen-com/hyperframes`, `hyperframes.heygen.com` (html
 gsap-animation, shader-transitions, cli, rendering, faq), `heygen.com/research/html-to-video`. Danh mục kỹ thuật CapCut tổng
 hợp từ mô tả công khai của ứng dụng (chợ ứng dụng, trang tính năng): tên và gói trả phí thay đổi.
 
+## Keyframe camera (11/2026)
+
+**Vì sao.** CapCut dựng chuyển động bằng keyframe (đặt giá trị tại mốc, đổi tiếp ở mốc khác, easing cho từng đoạn); bộ công cụ
+chỉ có một cú push/pull/pan cho mỗi cảnh. Thêm `Camera: keys TIME=ZOOM[@X,Y][ roll DEG][ ease] ; …`: 2-4 khung hình có tên, mỗi đoạn
+một easing, tiêu điểm là **điểm của cảnh quay** đặt vào giữa khung (khác `focus` là điểm gốc của phép scale). Hai renderer cùng đọc
+`scenes[].camera.keys` (`ts` = giây kể từ điểm cắt; phân số của cảnh được đổi sang giây ở `plan_to_project.py`).
+
+**Quyết định thiết kế.** Zoom nội suy theo **diện tích** như `perceptual-scale` của Remotion; tâm và roll nội suy tuyến tính; mép khung
+không bao giờ lộ (tịnh tiến bị kẹp theo phần scale dư, trừ phần roll cần); 8 easing có tên thay vì tay cầm bezier tự do, vì đủ cho
+quảng cáo ngắn và kiểm được; `back` (lố 8 %) chỉ dùng một lần mỗi video. Nguồn: trang keyframe và hướng dẫn PC của CapCut (các
+công thức: Ken Burns = hai keyframe scale cách nhau vài giây, punch-in = hai keyframe sát nhau), nguyên tắc easing/anticipation/
+overshoot trong thiết kế chuyển động (dùng tiết chế).
+
+**Áp dụng cho 3 video cafe.** 27 cảnh có hành động (rót, thả túi, giơ sản phẩm, uống, mở đầu bàn ăn, kết thúc lùi lại) được gán keyframe;
+tọa độ đọc từ ảnh chụp từng cảnh và **kiểm lại ở cuối chuyển động** (chủ thể phải nằm trong khung): vài điểm phải sửa (người ngồi
+thấp hơn dự đoán, đầu bị cắt ở cảnh kết). Clip AI gốc 720×1280 nên zoom bị chặn ở ~1,38: bản đầu zoom 1,6-1,7 sẽ mờ; cảnh báo của
+`plan_to_project.py` giờ nói rõ giới hạn là điểm ảnh của clip chứ không phải của proxy.
+
 ## Mở rộng đa thể loại (11/2026)
 
 **Vì sao playbook.** Bộ công cụ ban đầu chỉ cho review sản phẩm tẩy rửa: hằng số nhịp (2,5–4 s, 25–45 s), cấu trúc

@@ -550,7 +550,36 @@
   const dirVec = { left: [1, 0], right: [-1, 0], up: [0, 1], down: [0, -1] };
   const fromDir = { left: "from-right", right: "from-left", up: "from-bottom", down: "from-top" };
 
+  // Keyframed camera (plan: `keys 0=1.0 ; 0.4=1.35@0.3,0.45 out ; 1=1.1`): the same maths as engine/camera.ts.
+  const KEY_EASE = {
+    linear: (t) => t, in: bezier(0.42, 0, 1, 1), out: bezier(0, 0, 0.58, 1), inOut: EASE.camera, soft: bezier(0.45, 0.05, 0.55, 0.95),
+    snap: EASE.out, back: bezier(0.34, 1.4, 0.64, 1), hold: (t) => (t < 1 ? 0 : 1),
+  };
+  const framingAt = (f, cutOffset, keys) => {
+    const ks = keys.slice().sort((a, b) => a.ts - b.ts).map((k) => ({ f: cutOffset + k.ts * FPS, zoom: Math.max(1, k.zoom), at: k.at || [0.5, 0.5], roll: k.roll || 0, ease: k.ease || "inOut" }));
+    if (f <= ks[0].f) return ks[0];
+    if (f >= ks[ks.length - 1].f) return ks[ks.length - 1];
+    let i = 0;
+    while (f > ks[i + 1].f) i++;
+    const a = ks[i], b = ks[i + 1], e = KEY_EASE[b.ease]((f - a.f) / Math.max(1e-6, b.f - a.f));
+    return { zoom: Math.sqrt(Math.max(1e-6, a.zoom * a.zoom + e * (b.zoom * b.zoom - a.zoom * a.zoom))), at: [a.at[0] + (b.at[0] - a.at[0]) * e, a.at[1] + (b.at[1] - a.at[1]) * e], roll: a.roll + (b.roll - a.roll) * e };
+  };
+  const keyedCamera = (s, f) => {
+    const k = framingAt(f, s.cut - s.begin, s.scene.camera.keys);
+    const rad = (Math.abs(k.roll) * Math.PI) / 180, need = Math.cos(rad) + Math.sin(rad) * (16 / 9);
+    let scale = Math.max(k.zoom, need);
+    for (const pu of s.punches) scale *= 1 + (pu.scale - 1) * spring(f - pu.frame, SPRINGS.smooth, CAM.punchFrames);
+    scale = Math.min(scale, CAM.maxScale);
+    // centre the chosen point of the footage, then keep the frame edge covered
+    const th = (k.roll * Math.PI) / 180, px = scale * (k.at[0] - 0.5) * W, py = scale * (k.at[1] - 0.5) * H;
+    const room = Math.max(0, scale - need);
+    const tx = Math.max(-room * W * 0.5, Math.min(room * W * 0.5, -(Math.cos(th) * px - Math.sin(th) * py)));
+    const ty = Math.max(-room * H * 0.5, Math.min(room * H * 0.5, -(Math.sin(th) * px + Math.cos(th) * py)));
+    return { origin: "50% 50%", tx: tx, ty: ty, rot: k.roll, scale: scale };
+  };
+
   const cameraFor = (s, f) => {
+    if (s.scene.camera && s.scene.camera.keys && s.scene.camera.keys.length) return keyedCamera(s, f);
     const cam = s.scene.camera || {}, move = cam.move || "push";
     let a, b;
     if (move === "pull") [a, b] = [cam.from != null ? cam.from : CAM.defaultPull[0], cam.to != null ? cam.to : CAM.defaultPull[1]];

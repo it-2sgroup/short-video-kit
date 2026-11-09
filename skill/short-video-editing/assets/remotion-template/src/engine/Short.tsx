@@ -30,7 +30,7 @@ const SceneMedia: React.FC<{ slot: SceneSlot; punches: ScenePunch[] }> = ({ slot
   ) : null;
   return (
     <AbsoluteFill style={{ background: palette.ink, overflow: "hidden" }}>
-      <AbsoluteFill style={cameraStyle(frame, duration, fps, scene.camera, punches)}>
+      <AbsoluteFill style={cameraStyle(frame, duration, fps, scene.camera, punches, slot.cut - slot.begin)}>
         {video ? (
           ramped ? <Freeze frame={slot.advance(frame)}>{video}</Freeze> : video
         ) : (

@@ -55,10 +55,12 @@
         "direction": "up"
       },
       "camera": {
-        "move": "push",
-        "focus": [
-          0.5,
-          0.4
+        "move": "keys",
+        "keys": [
+          { "ts": 0, "zoom": 1.05 },
+          { "ts": 1.2, "zoom": 1.05 },
+          { "ts": 2.1, "zoom": 1.3, "at": [0.42, 0.45], "ease": "snap" },
+          { "ts": 3.5, "zoom": 1.3, "at": [0.42, 0.45] }
         ]
       }
     },

@@ -240,6 +240,24 @@ grep -q "not drawn by the HyperFrames kit: compare" "$TMP/hf.log" \
   && pass "an overlay the kit cannot draw (compare) is reported, not dropped silently" || fail "unsupported overlay not reported"
 node -e "new Function(require('fs').readFileSync(process.argv[1],'utf8'))" "$TMP/hf/kit.js" >/dev/null 2>&1 \
   && pass "kit.js parses" || { command -v node >/dev/null 2>&1 && fail "kit.js has a syntax error" || skip "node not installed: kit.js not parsed"; }
+"$PY" -X utf8 - "$S" <<'PYEOF' >/dev/null 2>&1 \
+  && pass "camera keyframes: fractions and seconds become ts, @X,Y and ease are read, bad keys are rejected" \
+  || fail "camera keyframe parsing (plan_to_project.parse_camera)"
+import sys
+sys.path.insert(0, sys.argv[1])
+import plan_to_project as p
+c = p.parse_camera("keys 0=1.0 ; 0.4=1.35@0.3,0.45 out ; 1.5s=1.1 roll -1 soft")
+p.resolve_keys(c, 3.0)
+k = c["keys"]
+assert c["move"] == "keys" and [x["ts"] for x in k] == [0.0, 1.2, 1.5], k
+assert k[1]["at"] == [0.3, 0.45] and k[1]["ease"] == "out" and k[2]["roll"] == -1 and k[2]["ease"] == "soft", k
+for bad in ("keys 0=1.0", "keys 0=1.0 ; 1=1.2 wobble", "keys 0=x ; 1=1.2"):
+    try:
+        p.parse_camera(bad)
+    except ValueError:
+        continue
+    raise SystemExit(1)
+PYEOF
 
 if [[ $RENDER -eq 1 ]]; then
   echo "15. Remotion render (--render)"

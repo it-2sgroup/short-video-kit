@@ -133,7 +133,8 @@ python scripts/plan_scenes.py --library library.json --plan edit-plan.md --kinds
 
 Fill the plan (`assets/edit-plan-template.md`): every scene a Source and In (a kept talking-head take
 already has them), a transition from the playbook, a Camera cell or blank for `--auto-camera`
-(`references/camera-moves.md`), a Speed where it earns its place (`2x` for waiting, `ramp 1>2.5>1`
+(`references/camera-moves.md`; for a scene with an action to follow or reveal, **keyframes**:
+`keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft`), a Speed where it earns its place (`2x` for waiting, `ramp 1>2.5>1`
 through a doorway, `0.5x` on a 60 fps money shot: `references/cutting-and-pacing.md`). Cut on pauses or
 beats, never inside a word, never across a reveal.
 

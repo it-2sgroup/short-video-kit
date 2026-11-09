@@ -99,6 +99,10 @@ other accents: **at most two per video**, never on the reveal itself, never toge
 grain over the footage (grain re-seeds every 6 frames); keep both under 0.4 or the picture reads dirty.
 Neither is a claim about what performs better: they are CapCut-style finishes [C].
 
+The camera `keys` of `camera-moves.md` (keyframes) are read by both renderers; `kit.js` ports `engine/camera.ts` line
+for line, and the same plan was previewed with HyperFrames snapshots to find each subject's coordinates before the
+Remotion render: a snapshot of 10 scenes takes about 15 s, a Remotion still about 10 s each.
+
 ## 5. What `check` says and what to do
 
 `check` ran on the real video: **0 errors, 23 warnings, 1 note** [M]. The warnings are all `line_unread`:

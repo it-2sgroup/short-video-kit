@@ -19,8 +19,16 @@ export type TransitionType =
 
 export type SceneTransition = { type: TransitionType; frames?: number; direction?: Direction };
 
-export type CameraMove = "push" | "pull" | "pan" | "hold";
+export type CameraMove = "push" | "pull" | "pan" | "hold" | "keys";
+
+// Keyframed camera (plan: `keys 0=1.0 ; 0.4=1.35@0.3,0.45 out ; 1=1.1`). Each key is a framing: the zoom,
+// the point of the footage the camera is centred on, an optional roll; `ease` shapes the segment that ARRIVES
+// at the key. `ts` is seconds from the planned cut (scene start). The frame edge is never shown.
+export type CameraEase = "linear" | "in" | "out" | "inOut" | "soft" | "snap" | "back" | "hold";
+export type CameraKey = { ts: number; zoom: number; at?: [number, number]; roll?: number; ease?: CameraEase };
+
 export type Camera = {
+  keys?: CameraKey[]; // with move "keys": replaces from/to/focus/pan/roll
   move?: CameraMove;
   from?: number; // scale at scene start
   to?: number; // scale at scene end

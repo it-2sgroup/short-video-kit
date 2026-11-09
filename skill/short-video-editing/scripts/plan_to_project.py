@@ -19,7 +19,9 @@ Scenes table (columns by name, any order; extra columns are ignored):
                 optional accent "+flash" or "+leak" (e.g. "slide up +flash"), and CapCut-style hits
                 "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them)
     Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold [scale], optional
-                "focus 0.5,0.4" and "roll -1>1". Blank + --auto-camera = the playbook's pattern (and
+                "focus 0.5,0.4" and "roll -1>1"; or keyframes "keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft"
+                (TIME=ZOOM[@X,Y][ ease]: a fraction of the scene or "1.2s"; references/camera-moves.md).
+                Blank + --auto-camera = the playbook's pattern (and
                 `hold` on clips that analysis.json says already move).
     Speed       blank (1x) | 2x | 0.5x | ramp 1>2.5>1 (speeds spread evenly over the scene, eased).
                 Under 1x needs a 60 fps proxy (prepare_footage.py keeps 60 fps sources at 60).
@@ -162,9 +164,49 @@ def parse_transition(raw: str):
     return t, accent, fx
 
 
+KEY_EASES = ("linear", "in", "out", "inOut", "soft", "snap", "back", "hold")
+KEY_RE = re.compile(r"^(?P<t>\d*\.?\d+)(?P<s>s?)\s*=\s*(?P<zoom>\d*\.?\d+)"
+                    r"(?:\s*@\s*(?P<x>\d*\.?\d+)\s*,\s*(?P<y>\d*\.?\d+))?"
+                    r"(?:\s+roll\s+(?P<roll>-?\d*\.?\d+))?"
+                    r"(?:\s+(?P<ease>" + "|".join(KEY_EASES) + r"))?$")
+
+
+def parse_keys(raw: str) -> dict:
+    """`keys 0=1.0 ; 0.4=1.35@0.3,0.45 out ; 1=1.1`: a keyframed camera. Each key is TIME=ZOOM, then optionally
+    @X,Y (the point of the footage to centre on, 0-1), roll DEGREES, and an easing for the segment that ARRIVES at
+    the key. TIME is a fraction of the scene (0-1) or seconds from its start (`1.2s`); resolve_keys() turns it into `ts`."""
+    keys = []
+    for chunk in filter(None, (c.strip() for c in raw.split(";"))):
+        m = KEY_RE.match(chunk)
+        if not m:
+            raise ValueError(f"camera key '{chunk}': expected TIME=ZOOM[@X,Y][ roll DEG][ {'|'.join(KEY_EASES)}], TIME 0-1 or 1.2s")
+        k = {"zoom": float(m["zoom"])}
+        k["ts" if m["s"] else "frac"] = float(m["t"])
+        if m["x"] is not None:
+            k["at"] = [float(m["x"]), float(m["y"])]
+        if m["roll"] is not None:
+            k["roll"] = float(m["roll"])
+        if m["ease"]:
+            k["ease"] = m["ease"]
+        keys.append(k)
+    if len(keys) < 2:
+        raise ValueError("camera keys need at least two keyframes (a single framing is `hold 1.2 focus x,y`)")
+    return {"move": "keys", "keys": keys}
+
+
+def resolve_keys(cam: dict, length: float) -> None:
+    """Fractions of the scene become seconds from its planned cut, the unit the renderers use."""
+    for k in cam.get("keys", []):
+        if "frac" in k:
+            k["ts"] = round(min(max(k.pop("frac"), 0.0), 1.0) * length, 3)
+    cam["keys"].sort(key=lambda k: k["ts"])
+
+
 def parse_camera(raw: str):
     if not raw or raw in "-–":
         return None
+    if raw.strip().lower().startswith("keys"):
+        return parse_keys(raw.strip()[4:])
     cam = {}
     roll = re.search(r"roll\s+(-?[\d.]+)\s*>\s*(-?[\d.]+)", raw)  # degrees, e.g. roll -1>1
     if roll:
@@ -466,8 +508,14 @@ def main() -> int:
             s["accent"] = accent
         if fx and scenes:
             s["fx"] = fx
-        cam = parse_camera(cell(h, r, "camera"))
+        try:
+            cam = parse_camera(cell(h, r, "camera"))
+        except ValueError as e:
+            problems.append(f"scene {len(scenes) + 1}: {e}")
+            cam = None
         if cam:
+            if cam.get("keys"):
+                resolve_keys(cam, end - start)
             s["camera"] = cam
         try:
             speed, ramp = parse_speed(cell(h, r, "speed"))
@@ -565,6 +613,13 @@ def main() -> int:
                     warns.append(f"{o['component']} at {o['start']:.2f}s: {key} {pt} is outside the Reels ad safe zone")
             if o.get("zone") == "lower":
                 warns.append(f"{o['component']} at {o['start']:.2f}s: zone 'lower' (y 1230) is inside the Reels ad bottom 35%")
+    for i, s in enumerate(scenes):  # keyframed cameras: a zoom the proxies cannot hold, a key outside the scene
+        for k in (s.get("camera") or {}).get("keys", []):
+            if k["zoom"] > 1.5:
+                warns.append(f"scene {i + 1}: camera key zoom {k['zoom']} is past 1.5: a 2880 px proxy of 4K footage softens beyond it, and a 720p or 1080p clip "
+                             "softens much earlier (the limit is the clip's own pixels: 720p holds about 1.3)")
+            if k["ts"] > (s["end"] - s["start"]) + 0.3:
+                warns.append(f"scene {i + 1}: camera key at {k['ts']:.2f}s is after the scene ends ({s['end'] - s['start']:.2f}s)")
     avoid = set(pb["components"].get("avoid", []))
     warns += [f"{o['component']} at {o['start']:.2f}s: playbook {pb['name']} avoids this component (playbooks/{pb['id']}.md)"
               for o in overlays if o["component"] in avoid]
