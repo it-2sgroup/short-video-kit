@@ -121,7 +121,7 @@ def has_filter(name: str) -> bool:
 
 def keyframe_light(path: Path, pre: str) -> dict:
     out = ffmpeg_out(["-skip_frame", "nokey", "-i", str(path), "-an", "-vf",
-                      f"{pre}scale=320:-2,signalstats,metadata=mode=print:file=-", "-f", "null", "-"])
+                      f"{pre}format=yuv420p,scale=320:-2,signalstats,metadata=mode=print:file=-", "-f", "null", "-"])
     def series(key):
         return [float(x) for x in re.findall(rf"signalstats\.{key}=([\d.]+)", out)] or [0.0]
     return {k: round(statistics.mean(series(k.upper())), 1) for k in ("yavg", "ylow", "yhigh", "satavg")}
