@@ -2,7 +2,8 @@
 
 The kit renders with a data-driven Remotion project: `assets/remotion-template`. The edit plan is
 compiled to `project.json`; one composition (`Short`) renders any video from it. Nobody edits React
-code to make a video — changing a video means changing the plan.
+code to make a video — changing a video means changing the plan. The same `project.json` also renders with
+HyperFrames (Apache-2.0, no seat count): `hyperframes-flow.md`.
 
 ---
 

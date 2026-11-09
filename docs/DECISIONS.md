@@ -85,6 +85,43 @@ thông số; không chép nguyên văn vì có vài con số không có nguồn 
 **Chưa kiểm:** chưa nghe/xem trọn video cuối trên điện thoại thật; vùng an toàn chưa đối chiếu bằng bài đăng
 thử; chưa render từ proxy 2160×3840 (punch-in > 1,15× sẽ mờ trên proxy 1080p).
 
+## Renderer thứ hai: HyperFrames (11/2026)
+
+**Vì sao.** Remotion tính phí theo ghế từ 4 nhân viên trở lên và một tác tử viết code Remotion cũng chiếm ghế. HyperFrames
+(HeyGen, Apache-2.0, "không phí mỗi lần render hay ngưỡng thương mại" theo README) dựng video từ HTML + animation tua được,
+render bằng Chrome headless + ffmpeg. Chọn cách **giữ nguyên mọi thứ trước bước render** (phân tích, proxy, giọng, phụ đề,
+kế hoạch, bộ kiểm) và chỉ thay renderer: `project_to_hyperframes.py` đọc cùng `project.json`.
+
+**Thiết kế.** Hợp đồng của HyperFrames là timeline GSAP tạm dừng; bộ vẽ `kit.js` thì là **hàm thuần của khung hình**
+(`render(frame)`) đúng như component Remotion, nên công thức (easing, spring, camera, chuyển cảnh căn giữa) được port nguyên
+và chuyển động không phụ thuộc cách HyperFrames tua. GSAP chỉ đẩy đầu phát qua một setter, vì `seek()` mặc định chặn callback.
+Cảnh có `speed`/`ramp` được nướng bằng ffmpeg (HyperFrames chỉ phát tốc độ không đổi); âm thanh trộn sẵn một file
+(`audio/mix.wav`) để không phụ thuộc tự động hoá âm lượng của HyperFrames.
+
+**Đã kiểm thực tế** (Windows, Node 26, HyperFrames 0.9.26, Chrome hệ thống): `check` 0 lỗi (23 cảnh báo `line_unread` do phụ đề
+theo giọng nhanh); video cafe 3 dài 28,5 s render ~55 s, 855 khung; độ ồn −16,3 LUFS và thời lượng giống bản Remotion; 6 khung
+chuyển cảnh/phụ đề và 7 khung đồ họa so cạnh nhau giống hệt mắt thường; tốc độ 2x, 0,5x và ramp ra đúng số khung của cảnh.
+
+**Chưa kiểm / hạn chế.** Chưa nghe âm thanh bản HyperFrames; chưa render đồ họa `pin`, `label`, `chart`, `specs`, `stat`,
+`progress`, `lowerThird`, `image` song song với Remotion (đã nhìn ảnh HyperFrames, ảnh Remotion cùng khung không render
+được trong lần chạy đó); không vẽ `magnifier`, `thumbs`, `compare`, `ranking`; `crossZoom` là mờ-phóng chứ không phải shader
+WebGL; trên Windows HyperFrames dùng chụp màn hình (không phải đường BeginFrame chỉ có trên Linux) nên không đảm bảo giống
+từng bit với bản render Linux; GSAP tải từ jsDelivr nên lần render đầu cần mạng.
+
+**So sánh khung hình với Remotion** (cùng video cafe 3, 855 khung): SSIM 0,987, PSNR 36,3 dB; 852/855 khung trên 0,95. Lần đo
+đầu chỉ 0,946 vì `perceptual-scale` của Remotion nội suy zoom theo **diện tích** (`√(a² + t(b² − a²))`) chứ không phải hàm mũ
+như bản port đầu: đã sửa. Một clip đếm khung cho thấy hai renderer đọc đúng cùng khung nguồn. Thời gian render (cùng máy,
+mỗi bên một lượt): HyperFrames 56 s (một lượt trước đó 122 s), Remotion 100 s.
+
+**Hiệu ứng kiểu CapCut** (`+shake`, `+glitch`, `+rgb`, `+pulse`, `--look`) chỉ có ở HyperFrames; `plan_to_project.py` lưu
+`scenes[].fx` và cảnh báo rằng Remotion bỏ qua. Bản đầu dùng `drop-shadow` để tách màu: sai (bóng của khung kín chỉ hiện ở
+mép), nên đổi sang bộ lọc SVG tách kênh thật. Bẫy làm tròn: `round()` của Python làm tròn nửa về số chẵn còn
+`Math.round` của JS làm tròn lên, đủ lệch một khung ở chuyển cảnh 9 khung: script dùng hàm làm tròn lên.
+
+Tham khảo: `github.com/heygen-com/hyperframes`, `hyperframes.heygen.com` (html-schema, data-attributes, frame-adapters,
+gsap-animation, shader-transitions, cli, rendering, faq), `heygen.com/research/html-to-video`. Danh mục kỹ thuật CapCut tổng
+hợp từ mô tả công khai của ứng dụng (chợ ứng dụng, trang tính năng): tên và gói trả phí thay đổi.
+
 ## Mở rộng đa thể loại (11/2026)
 
 **Vì sao playbook.** Bộ công cụ ban đầu chỉ cho review sản phẩm tẩy rửa: hằng số nhịp (2,5–4 s, 25–45 s), cấu trúc

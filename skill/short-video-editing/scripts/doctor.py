@@ -194,6 +194,11 @@ def check_node(rep: Report) -> None:
         rep.add("node", "Node 20+ (rendering only)", "ok", ver)
     else:
         rep.add("node", "Node 20+ (rendering only)", "warn", f"{ver} is too old for Remotion 4", hint("node"))
+    if major >= 22:
+        rep.add("node", "Node 22+ (HyperFrames renderer, optional)", "ok", ver)
+    else:
+        rep.add("node", "Node 22+ (HyperFrames renderer, optional)", "warn", f"{ver}: HyperFrames needs Node 22 or newer; Remotion does not",
+                hint("node"))
     if not shutil.which("npm"):
         rep.add("node", "npm", "warn", "not found", "comes with Node")
 

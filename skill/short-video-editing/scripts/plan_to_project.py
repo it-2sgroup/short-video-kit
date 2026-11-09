@@ -16,7 +16,8 @@ Scenes table (columns by name, any order; extra columns are ignored):
   Start | End | Source | In | Type | Transition | Camera | Speed
     Transition  fade | slide [left|right|up|down] | wipe [dir] | iris | pushCut | zoomThrough |
                 blurDissolve | whip [dir] | flip [dir] | crossZoom | cut, optional "14f",
-                optional accent "+flash" or "+leak" (e.g. "slide up +flash")
+                optional accent "+flash" or "+leak" (e.g. "slide up +flash"), and CapCut-style hits
+                "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them)
     Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold [scale], optional
                 "focus 0.5,0.4" and "roll -1>1". Blank + --auto-camera = the playbook's pattern (and
                 `hold` on clips that analysis.json says already move).
@@ -146,8 +147,9 @@ def resolve_time(raw: str, words, which: str, scene_cuts, start=None, text_len=0
 # ----------------------------------------------------------------------------- cells
 def parse_transition(raw: str):
     if not raw or raw in "-–":
-        return None, None
+        return None, None, []
     accent = "flash" if "+flash" in raw else "lightLeak" if "+leak" in raw else None
+    fx = [m for m in re.findall(r"\+(shake|glitch|rgb|pulse)\b", raw)]  # CapCut-style hits: drawn by the HyperFrames renderer only
     parts = re.sub(r"\+\w+", "", raw).split()
     t = {"type": CANON.get(parts[0].lower(), "fade")} if parts else {"type": "fade"}
     for p in parts[1:]:
@@ -157,7 +159,7 @@ def parse_transition(raw: str):
             t["frames"] = int(p[:-1])
         elif re.fullmatch(r"[\d.]+s", p):
             t["frames"] = round(float(p[:-1]) * FPS)
-    return t, accent
+    return t, accent, fx
 
 
 def parse_camera(raw: str):
@@ -457,11 +459,13 @@ def main() -> int:
             continue
         s = {"clip": Path(src).stem.upper() if src and src not in "-–" else None, "in": inn,
              "start": start, "end": end, "type": cell(h, r, "type").upper()}
-        t, accent = parse_transition(cell(h, r, "transition"))
+        t, accent, fx = parse_transition(cell(h, r, "transition"))
         if t and scenes:
             s["transition"] = t
         if accent:
             s["accent"] = accent
+        if fx and scenes:
+            s["fx"] = fx
         cam = parse_camera(cell(h, r, "camera"))
         if cam:
             s["camera"] = cam
@@ -564,6 +568,10 @@ def main() -> int:
     avoid = set(pb["components"].get("avoid", []))
     warns += [f"{o['component']} at {o['start']:.2f}s: playbook {pb['name']} avoids this component (playbooks/{pb['id']}.md)"
               for o in overlays if o["component"] in avoid]
+    fx_scenes = [i + 1 for i, s in enumerate(scenes) if s.get("fx")]
+    if fx_scenes:
+        warns.append(f"scene(s) {fx_scenes} use +shake/+glitch/+rgb/+pulse: only the HyperFrames renderer draws them "
+                     "(project_to_hyperframes.py); Remotion ignores them")
     public = a.out.resolve().parent / "public"
     corr = public / "clips" / "corrections.json"  # written by prepare_footage.py: the proxies' real fps
     proxy_fps = {k: v.get("fps", 30) for k, v in json.loads(corr.read_text(encoding="utf-8"))["clips"].items()} if corr.is_file() else {}

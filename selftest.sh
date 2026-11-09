@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Verify the kit works on this machine. Spends no ElevenLabs credits.
-#   ./selftest.sh                  groups 1-13 (a few seconds each; group 4 loads the Whisper model)
-#   ./selftest.sh --render [DIR]   also group 14: typecheck the Remotion template and render one still in
+#   ./selftest.sh                  groups 1-14 (a few seconds each; group 4 loads the Whisper model)
+#   ./selftest.sh --render [DIR]   also group 15: typecheck the Remotion template and render one still in
 #                                  DIR (default: a temp folder). Without node_modules in DIR this runs
 #                                  npm install, which downloads packages and Chromium (~300 MB): ask first.
 set -uo pipefail
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8  # Windows: the scripts print arrows and Vietnamese, which cp1252 cannot encode
 KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 S="$KIT/skill/short-video-editing/scripts"
 # Prefer the kit's venv (setup.sh), then any working Python 3. On Windows "python3" may be the
@@ -214,8 +215,34 @@ sys.exit(0 if 'exposure' in c['DARK']['recommend'] and 'denoise' in c['DARK']['r
     || { fail "prepare_footage.py"; tail -4 "$TMP/prep.log" | sed 's/^/        /'; }
 else fail "inspect_footage --measure failed"; fi
 
+echo "14. project_to_hyperframes.py builds a HyperFrames project (no Node needed)"
+mkdir -p "$TMP/hfpub/clips"; cp "$TMP/clip.mp4" "$TMP/hfpub/clips/CLIP.mp4"
+"$PY" - "$TMP/hf.json" <<'PYEOF'
+import json, sys
+sc = lambda a, b, **k: dict(clip="CLIP", **{"in": 0.2}, start=a, end=b, type="DEMO", **k)
+json.dump({"duration": 3.0, "captionStyle": "plain", "captions": [{"text": "xin chào", "start": 0.2, "end": 1.4}],
+           "scenes": [sc(0, 1.0, fx=["shake"]), sc(1.0, 2.0, transition={"type": "slide", "direction": "up"}, speed=2),
+                      sc(2.0, 3.0, transition={"type": "whip"}, ramp=[1, 2, 1], fx=["rgb"])],
+           "overlays": [{"component": "title", "start": 0, "end": 1.5, "props": {"style": "outline", "lines": ["Tiêu đề"]}},
+                        {"component": "compare", "start": 1.5, "end": 2.5, "props": {}}]},
+          open(sys.argv[1], "w", encoding="utf-8"), ensure_ascii=False)
+PYEOF
+"$PY" -X utf8 "$S/project_to_hyperframes.py" "$TMP/hf.json" --public "$TMP/hfpub" --out "$TMP/hf" --look vignette=0.3,grain=0.05 >"$TMP/hf.log" 2>&1 \
+  && [[ -f "$TMP/hf/index.html" && -f "$TMP/hf/kit.js" && -f "$TMP/hf/kit.css" && -f "$TMP/hf/package.json" ]] \
+  && grep -q 'data-composition-id="main"' "$TMP/hf/index.html" && grep -q "__SVK_PROJECT__" "$TMP/hf/index.html" \
+  && pass "index.html, kit.js, kit.css and package.json written; the composition is registered" \
+  || { fail "project_to_hyperframes.py"; tail -5 "$TMP/hf.log" | sed 's/^/        /'; }
+frames() { ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$1" 2>/dev/null; }
+[[ "$(frames "$TMP/hf/clips/_scene1.mp4")" == "42" && "$(frames "$TMP/hf/clips/_scene2.mp4")" == "35" ]] \
+  && pass "a 2x scene and a speed ramp are baked to exactly their slot (30-frame scenes plus transition handles: 42 and 35 frames)" \
+  || fail "baked scene lengths are wrong ($(frames "$TMP/hf/clips/_scene1.mp4") and $(frames "$TMP/hf/clips/_scene2.mp4") frames)"
+grep -q "not drawn by the HyperFrames kit: compare" "$TMP/hf.log" \
+  && pass "an overlay the kit cannot draw (compare) is reported, not dropped silently" || fail "unsupported overlay not reported"
+node -e "new Function(require('fs').readFileSync(process.argv[1],'utf8'))" "$TMP/hf/kit.js" >/dev/null 2>&1 \
+  && pass "kit.js parses" || { command -v node >/dev/null 2>&1 && fail "kit.js has a syntax error" || skip "node not installed: kit.js not parsed"; }
+
 if [[ $RENDER -eq 1 ]]; then
-  echo "14. Remotion render (--render)"
+  echo "15. Remotion render (--render)"
   command -v node >/dev/null 2>&1 || fail "node not found (need 20+)"
   [[ -f "$RENDER_DIR/package.json" ]] || "$PY" "$S/new_remotion_project.py" "$RENDER_DIR" >/dev/null 2>&1
   if (cd "$RENDER_DIR" && { [[ -d node_modules ]] || npm install --no-audit --no-fund; } && npm run typecheck) >"$TMP/tsc.log" 2>&1; then

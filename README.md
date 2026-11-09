@@ -178,29 +178,32 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
     ├── references/                Shared craft and policy: platforms, claims and compliance, content-rights policy
     │                              (Chính sách.md), hooks, cutting and pacing, transitions, camera, image processing,
     │                              typography, layout and motion graphics, captions, sync, footage ingest, voiceover,
-    │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion
+    │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion,
+    │                              HyperFrames flow, CapCut techniques
     ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
     │                              make_voiceover, make_sfx, align_captions, suggest_cuts, plan_scenes, pacing_checker,
-    │                              footage_overlap_checker, plan_to_project, new_remotion_project
+    │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
     │   ├── grades.json            Colour looks used by the playbooks
     │   ├── shot-library.example.json  Shot library format for plan_scenes.py
     │   ├── sfx/                   CC0 sound effects, their sources, the event → sound table
-    │   └── remotion-template/     Render project: theme, engine, components
+    │   ├── remotion-template/     Render project: theme, engine, components
+    │   └── hyperframes-template/  The HyperFrames renderer's kit.js and kit.css (second renderer, Apache-2.0)
     └── evals/                     Evaluation cases for the skill
 ```
 
 ## Testing
 
-`./selftest.sh` runs thirteen groups without spending ElevenLabs credits: tools; footage inspection;
+`./selftest.sh` runs fourteen groups without spending ElevenLabs credits: tools; footage inspection;
 playbooks (every playbook and variant valid, its own skeleton passing its own pacing, every component,
 grade, theme and caption style used by some playbook) and pacing per playbook; caption alignment; the
 ElevenLabs key (read-only); plan compilation (product demo and a music-driven property tour with speed
 ramps and information graphics); footage reuse (including fast scenes); cuts on pauses and on beats;
 voice trimming and jump cuts; contact sheets; scaffolding; sound effects; voice cleanup and mastering;
-footage measurement and correction. `./selftest.sh --render DIR` adds group 14: typecheck the template
-and render stills, including the information graphics.
+footage measurement and correction; the HyperFrames project build (baked speed ramps, unsupported overlays
+reported). `./selftest.sh --render DIR` adds group 15: typecheck the Remotion template and render stills,
+including the information graphics.
 
 ## Licensing and third-party terms
 
@@ -209,6 +212,7 @@ This repository is proprietary and unlicensed for redistribution. Third-party te
 | Dependency | Terms |
 |---|---|
 | Remotion | Free for individuals and companies of up to 3 employees; otherwise $25/month per seat, and an AI agent writing Remotion code counts as a seat ([licence](https://www.remotion.dev/license)). |
+| HyperFrames (second renderer) | Apache-2.0 ([licence](https://github.com/heygen-com/hyperframes/blob/main/LICENSE)): free commercially, no seat count. The fonts, footage and music you add keep their own terms. Node 22+ and Chrome; the first `npx hyperframes` downloads the package. |
 | ElevenLabs | Free-plan audio cannot be used commercially, including after upgrading. |
 | Google Fonts used by the template | SIL Open Font License. |
 | Sound effects in `assets/sfx` | Five recordings under CC0 (sources in `assets/sfx/SOURCES.md`); the rest are synthesized by `make_sfx.py`. Add only CC0 or self-made sounds. |

@@ -1,6 +1,6 @@
 ---
 name: short-video-editing
-description: Plan, edit and render short vertical videos (TikTok, TikTok Shop, Reels, Shorts; 10–90 s) of any kind — product demos and reviews, before/after, unboxing, real-estate tours, food and restaurants, talking heads and testimonials, tutorials and recipes, fashion and beauty, travel/event montages, sale promos. It analyses the footage and the request, picks a genre playbook, then does the edit: footage correction (white balance, exposure, grade, stabilisation, denoise, levelling), voice cleanup and loudness, cuts on voice pauses or music beats, jump cuts, speed ramps, transitions, virtual camera, captions, motion graphics and infographics, sound effects, a Remotion render and platform-ready export. Use it whenever someone asks to make, edit, cut, script, caption, colour, mix or improve a short-form video, or several from one batch of footage, even for a small part of the job ("just add captions", "fix the colour", "cut this to the music").
+description: Plan, edit and render short vertical videos (TikTok, TikTok Shop, Reels, Shorts; 10–90 s) of any kind — product demos and reviews, before/after, unboxing, real-estate tours, food and restaurants, talking heads and testimonials, tutorials and recipes, fashion and beauty, travel/event montages, sale promos. It analyses the footage and the request, picks a genre playbook, then does the edit: footage correction (white balance, exposure, grade, stabilisation, denoise, levelling), voice cleanup and loudness, cuts on voice pauses or music beats, jump cuts, speed ramps, transitions, virtual camera, captions, motion graphics and infographics, sound effects, a Remotion or HyperFrames render (CapCut-style hits and looks) and platform-ready export. Use it whenever someone asks to make, edit, cut, script, caption, colour, mix or improve a short-form video, or several from one batch of footage, even for a small part of the job ("just add captions", "fix the colour", "cut this to the music").
 ---
 
 # Short Video Editing
@@ -45,8 +45,10 @@ Checked mechanically where a tool exists. Do not deliver a plan that breaks them
 
 ## Decisions that belong to the human — ask, do not decide silently
 
-Any download (packages, models, music, stock): name, source, size. The ElevenLabs plan (free-plan audio
-is never commercial). The Remotion licence (free up to 3 employees). Third-party footage. The batch size
+Any download (packages, models, music, stock): name, source, size; that includes the first
+`npx hyperframes` (it fetches the package). The ElevenLabs plan (free-plan audio
+is never commercial). The Remotion licence (free up to 3 employees; HyperFrames is Apache-2.0, so a studio
+above the limit can render with it: `references/hyperframes-flow.md` §1). Third-party footage. The batch size
 when footage runs short. Trimming a supplied voice or dropping a claim (say which sentences). Whether
 the video will be boosted as an ad (no before/after in ads).
 
@@ -166,6 +168,20 @@ captions, components the playbook avoids, slow motion that would stutter, missin
 flags. Sound effects come from `assets/sfx/sfx-map.json` with the playbook's overrides
 (`references/sound-design.md`). A human editor can work from the plan and `captions.srt` instead.
 
+**Alternative renderer: HyperFrames** (Apache-2.0; the same `project.json`; CapCut-style hits `+shake`
+`+glitch` `+rgb` `+pulse` in the Transition cell and `--look vignette,grain`). Choose it per video and say why
+(`references/hyperframes-flow.md` §1: it does not draw `magnifier`, `thumbs`, `compare`, `ranking`):
+
+```bash
+python scripts/project_to_hyperframes.py RENDER/v1.json --out HF/v1 --playbook <id> [--look vignette=0.3,grain=0.05]
+cd HF/v1 && npx hyperframes@0.9.26 check && npx hyperframes@0.9.26 snapshot --at 0.5,4,9   # look at the sheet
+npx hyperframes@0.9.26 render --quality high --output final.mp4                             # then step 8 on final.mp4
+```
+
+Ask before the first `npx` (package download; Node 22+ and Chrome). `check` should report 0 errors; its
+`line_unread` warnings on fast-voice captions are expected (§5 of the reference). For "make it like a CapCut
+edit", find the technique in `references/capcut-techniques.md` before inventing one.
+
 ### 8. Master and export
 
 ```bash
@@ -214,6 +230,8 @@ Read as the task requires, not all at once.
 | `references/before-after.md` | Showing a result honestly: techniques, the `compare` card, choosing the pair. |
 | `references/niche-winning-patterns.md` | Product demos for household products: what the campaign data shows. |
 | `references/remotion-output.md` | The render pipeline and template. Read the licence section first. |
+| `references/hyperframes-flow.md` | Rendering with HyperFrames instead: which renderer, the flow, `+shake`/`+glitch`/`+rgb`/`+pulse`, `--look`, what `check` says, parity measured, pitfalls. |
+| `references/capcut-techniques.md` | A client wants "a CapCut look", or you need a technique (speed curve, glitch, freeze, text behind subject, auto captions…): where it lives in the kit, or why it does not. |
 
 ---
 

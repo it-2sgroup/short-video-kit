@@ -27,7 +27,8 @@ lengths; the hook resolves by 3.0 s. Cut on pauses in the voice or on beats of t
 - **Type** — the playbook's beat (HOOK, DEMO, LIVING, STEP, POINT, LOOK, OFFER…).
 - **Transition** — how the scene is entered: `fade`, `slide [dir]`, `wipe [dir]`, `iris`, `pushCut`,
   `zoomThrough`, `blurDissolve`, `whip [dir]`, `flip [dir]`, `crossZoom`, `cut`; optional length (`14f`)
-  and accent (`+flash`, `+leak`). `–` on scene 1. See `references/transitions.md`.
+  and accent (`+flash`, `+leak`), and, for the HyperFrames renderer only, CapCut-style hits on the cut
+  (`+shake`, `+glitch`, `+rgb`, `+pulse`: at most two per video). `–` on scene 1. See `references/transitions.md`.
 - **Camera** — `push [a>b]`, `pull [a>b]`, `pan left|right|up|down [6%]`, `hold [scale]`, optional
   `focus x,y` and `roll a>b`. Blank = `--auto-camera` (the playbook's pattern). `references/camera-moves.md`.
 - **Speed** — blank (1x), `2x`, `0.5x` (60 fps source), `ramp 1>2.5>1`. `references/cutting-and-pacing.md`.

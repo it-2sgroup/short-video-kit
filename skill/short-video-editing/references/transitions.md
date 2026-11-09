@@ -81,6 +81,14 @@ everywhere.
 
 ---
 
+## Hits on a cut (HyperFrames renderer only)
+
+`+shake`, `+glitch`, `+rgb`, `+pulse` after the transition in the plan's Transition cell: a decaying camera
+shake, a torn glitch, an RGB channel split, a zoom pulse, over the first 8–14 frames after the cut. They are
+CapCut-style accents, drawn only by the HyperFrames renderer (Remotion ignores them and the sync report says
+so), spent like `+flash`: at most two per video, never on the reveal. Details and the other CapCut
+techniques: `hyperframes-flow.md` §4 and `capcut-techniques.md` §4.
+
 ## Sound under transitions
 
 `plan_to_project.py --auto-sfx` puts one sound on each moving transition (`slide`/`wipe` → swoosh,

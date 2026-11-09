@@ -72,7 +72,8 @@ Follow `docs/WORKFLOW.md` (Vietnamese) and the skill's `SKILL.md`. In short:
 5. Plan: `suggest_cuts.py` (pauses, or `--music` for beats) → `playbook.py skeleton <id> --cuts` →
    `plan_scenes.py --plan` → fill Scenes and Overlays; `pacing_checker.py`, `footage_overlap_checker.py`
    (all plans together); `plan_to_project.py --auto-camera --analysis --auto-sfx` (read the sync report);
-   render; `process_audio.py master`; `contact_sheet.py VIDEO --project …` and **look** at it.
+   render (Remotion, or HyperFrames with `project_to_hyperframes.py`: choose per video, `references/hyperframes-flow.md`
+   §1); `process_audio.py master`; `contact_sheet.py VIDEO --project …` and **look** at it.
 6. Report in Vietnamese: playbook and why, runtime, scenes, hook, footage corrections, what the sync report
    still flags, claims that need the human, the publishing checklist, and what was **not** verified (never
    say "listened" unless it was).
@@ -106,7 +107,9 @@ version, with the evidence in that file:
 - **ElevenLabs plan.** Free-plan audio is not licensed for commercial use, ever. Run `--quota` and say
   so before synthesizing anything meant to ship.
 - **Remotion licence.** Free only for individuals or companies of up to 3 employees; $25/seat/month
-  above that, and an AI writing Remotion code still counts as a seat.
+  above that, and an AI writing Remotion code still counts as a seat. HyperFrames (the second renderer,
+  `references/hyperframes-flow.md`) is Apache-2.0: say so when a client is above the Remotion limit. Its first
+  `npx hyperframes` downloads a package: ask first.
 - **Any download** (packages, models, binaries, stock media). Name it, its source and size; wait for yes.
 - **Third-party footage of any kind**, and **how many videos** a batch should have when the footage cannot
   support it: put the numbers to the user (see the rights section above); never decide by reshuffling.
@@ -186,6 +189,12 @@ version, with the evidence in that file:
 - Windows PowerShell 5.1: `python -I` ignores `PYTHONIOENCODING`, use `python -X utf8`; the `python3`
   command may be the Microsoft Store stub (use the venv's `Scripts\python.exe`); a program installed by
   winget is not on PATH until a new terminal; `Get-Content` needs `-Encoding utf8` for Vietnamese files.
+- HyperFrames renderer (measured on Windows, 0.9.26): same `project.json`, a pure function of the frame in `kit.js`;
+  `check` gives 0 errors and `line_unread` warnings on fast-voice captions (normal); it does not draw `magnifier`,
+  `thumbs`, `compare`, `ranking`; `+shake +glitch +rgb +pulse` and `--look` exist only there; an RGB split needs an
+  SVG filter (a `drop-shadow` on an opaque frame only paints the edges); Python's `round()` is not JS `Math.round`
+  (use the half-up helper); Remotion's `perceptual-scale` eases zoom in area (`√(a²+t(b²−a²))`), not geometrically
+  (the first port got it wrong: SSIM 0.946 → 0.987 once fixed); `selftest.sh` needs `PYTHONUTF8=1` on Windows (it now exports it).
 - Files sent to a phone or web viewer are limited to ~30 MB: `process_audio.py master … --phone` writes a
   CRF 24 copy beside the master.
 
@@ -193,7 +202,8 @@ version, with the evidence in that file:
 
 `README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
 `skill/short-video-editing/SKILL.md` → `skill/short-video-editing/playbooks/README.md` (genres: how to choose and add) →
-`skill/short-video-editing/references/Chính sách.md` (content-rights and duplicate-content policy). Adding, renaming or removing a file or script means updating
+`skill/short-video-editing/references/Chính sách.md` (content-rights and duplicate-content policy) → `references/hyperframes-flow.md` (the second renderer) and
+`references/capcut-techniques.md` (where each CapCut technique lives in the kit). Adding, renaming or removing a file or script means updating
 `docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
 
 ## Working in this repo

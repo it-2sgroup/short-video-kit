@@ -118,6 +118,8 @@ Tám playbook: `product-demo` (+`unboxing`, `listicle`), `real-estate` (+`voiceo
 | `before-after.md` | Làm kết quả trước/sau rõ và trung thực: kỹ thuật, thẻ `compare`, chọn cặp khung hình, cảnh báo quảng cáo. |
 | `niche-winning-patterns.md` | Số liệu thật trên 16.242 video sản phẩm gia dụng (cho `product-demo`). *Số liệu nội bộ, repo phải để private.* |
 | `remotion-output.md` | Giấy phép Remotion, pipeline render, bố cục template, ranh giới ffmpeg ↔ Remotion. |
+| `hyperframes-flow.md` | Luồng render bằng **HyperFrames** (Apache-2.0): chọn renderer nào, các bước, cú pháp `+shake/+glitch/+rgb/+pulse` và `--look`, `check` báo gì, đối chiếu với Remotion (số đo), bẫy, cách mở rộng. |
+| `capcut-techniques.md` | Danh mục kỹ thuật CapCut (cắt, tốc độ, camera, chuyển cảnh, hiệu ứng, mặt nạ, màu, chữ, âm thanh, AI) ánh xạ sang bộ công cụ: có ở đâu, bằng lệnh nào, hoặc vì sao chưa; công thức review kiểu CapCut. |
 
 ### 6.4 `scripts/` — công cụ dòng lệnh
 
@@ -141,6 +143,7 @@ bộ công cụ); phần còn lại chỉ cần Python 3 và ffmpeg (bản đủ
 | `pacing_checker.py` | Cổng kiểm tra luật nhịp **của playbook** ghi trong plan (hook, độ dài cảnh, liền mạch, tổng thời lượng). Thoát 1 nếu vi phạm. | `edit-plan.md` → báo cáo |
 | `footage_overlap_checker.py` | Biến mỗi cảnh thành khoảng nguồn `[In, In + độ dài × tốc độ]` và báo trùng/sát nhau trong và giữa các plan; `--clips` liệt kê đoạn còn trống. | các `edit-plan.md` → báo cáo |
 | `plan_to_project.py` | Biên dịch kế hoạch thành `project.json` (cả Speed/ramp); kiểu phụ đề, camera tự động (`--auto-camera`, giữ yên clip đang di chuyển theo `--analysis`), ghi đè SFX lấy từ playbook; `--platform reels-ad`; in **báo cáo bắt nhịp** (cắt giữa từ, chữ sát điểm cắt, vùng giao diện, thành phần playbook tránh, slow-motion sẽ giật, thiếu file). | `edit-plan.md` + SRT + words → `project.json` |
+| `project_to_hyperframes.py` | **Renderer thứ hai**: biến cùng `project.json` thành dự án HyperFrames (Apache-2.0, không tính ghế): dàn cảnh giống `timeline.ts`, **nướng** cảnh có `speed`/`ramp` thành clip riêng bằng ffmpeg, trộn giọng + nhạc tự hạ + SFX thành `audio/mix.wav` (cùng mức và độ hạ như `audio.tsx`), nối cứng proxy (không chép), ghi `index.html`, `kit.js`, `kit.css`, `package.json` (ghim `hyperframes@0.9.26`); `--look vignette=,grain=`; `--check`, `--render FILE --quality`; báo thành phần chưa vẽ (magnifier, thumbs, compare, ranking) và cảnh mà clip nguồn hết trước. | `project.json` → thư mục HyperFrames |
 | `new_remotion_project.py` | Tạo dự án render từ template; `--playbook` đặt theme (và grade cho proxy); `--proxies` gọi `prepare_footage.py`; `--slowmo`; `--install` chạy npm; `--theme cool|warm|luxe`; `--update` chép lại template (lặp lại `--playbook`/`--theme`); luôn đặt bộ SFX vào `public/sfx/`. | → thư mục dự án |
 
 ### 6.5 `assets/`
@@ -152,6 +155,7 @@ bộ công cụ); phần còn lại chỉ cần Python 3 và ffmpeg (bản đủ
 | `shot-library.example.json` | Mẫu thư viện shot cho `plan_scenes.py`: `kind`, `focus`, `size`, `move` tùy chọn. |
 | `sfx/` | Bộ hiệu ứng âm thanh: 5 file ghi âm CC0 (`whoosh`, `whip`, `switch`, `mouse-click`, `shutter-modern`), `SOURCES.md` (tác giả, nguồn, giấy phép từng file), `sfx-map.json` (tiếng nào cho sự kiện nào, mức dB, độ dẫn trước). |
 | `remotion-template/` | Dự án Remotion điều khiển bằng dữ liệu (mục 7). |
+| `hyperframes-template/` | Bộ vẽ cho renderer HyperFrames (mục 7b): `kit.js`, `kit.css`. |
 
 ### 6.6 `evals/` — bộ ca kiểm tra skill
 
@@ -181,6 +185,19 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | `src/components/anim.ts` | Hàm hoạt họa dùng chung (vào/ra, spring, vừa khung). |
 | `src/components/text/` | `Title.tsx` (5 kiểu: outline, stack, gradient, glass, marker), `Captions.tsx` (karaoke / pop / plain), `primitives.tsx` (chữ viền, chữ gradient, chữ trồi qua mặt nạ). |
 | `src/components/graphics/` | 20 thành phần: `Callout`, `Lists` (checklist, step), `Price` (đếm số, có thập phân), `Pointers` (mũi tên giỏ hàng TikTok Shop, vòng khoanh, sticker), `Media` (kính lúp, dải 3 hình `thumbs`, thẻ TRƯỚC/SAU `compare`, ảnh `image`), `Ranking`, `Bars` (thanh tiến trình, thẻ tên), `Info` (**`specs`** hàng thông số có icon, **`pin`** ghim bản đồ, **`label`** nhãn phòng/món/món đồ, **`stat`** số đếm lên, **`chart`** biểu đồ thanh). |
+
+## 7b. `assets/hyperframes-template/` — bộ vẽ cho HyperFrames
+
+Không phải dự án hoàn chỉnh: `project_to_hyperframes.py` chép hai file này vào dự án và sinh `index.html` quanh chúng.
+Cùng hợp đồng `project.json` với mục 7; hợp đồng HyperFrames: một timeline GSAP tạm dừng đăng ký ở `window.__timelines["main"]`.
+
+| Đường dẫn | Chức năng |
+|---|---|
+| `kit.js` | Toàn bộ bộ vẽ: `render(frame)` là **hàm thuần của khung hình** (đặt style mọi phần tử từ dữ liệu), GSAP chỉ đẩy đầu phát qua một setter nên mọi lần tua đều đúng. Gồm token theme (cool/warm/luxe, sao từ `theme.ts`), easing và spring giống Remotion, dàn cảnh + chuyển cảnh căn giữa, camera ảo (push/pull/pan/hold/roll, punch), 11 chuyển cảnh, accent flash/light leak, **hiệu ứng trên điểm cắt** (`shake`, `pulse`, `rgb` tách kênh bằng bộ lọc SVG, `glitch`), **look** (vignette, hạt phim), phụ đề karaoke/pop/plain, 5 kiểu tiêu đề và 17 thành phần đồ họa (`FACTORY`). Chưa vẽ: `magnifier`, `thumbs`, `compare`, `ranking`. |
+| `kit.css` | Nền và lớp xếp chồng (`z-index`), phông Be Vietnam Pro / Playfair Display / Anton (HyperFrames nhúng Google Fonts lúc render). |
+
+Hướng dẫn dùng, so sánh với Remotion, số đo thực và các bẫy: `references/hyperframes-flow.md`. Danh mục kỹ thuật CapCut
+và chỗ chúng nằm trong bộ công cụ: `references/capcut-techniques.md`.
 
 ## 8. Nằm ngoài repo (do `setup.sh` và quá trình làm việc tạo ra)
 

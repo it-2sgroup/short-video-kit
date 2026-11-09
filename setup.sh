@@ -15,6 +15,7 @@
 # be moved or deleted afterwards without breaking the install. Override HOME for a trial run:
 #   HOME=/tmp/trial ./setup.sh
 set -euo pipefail
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8  # Windows: doctor.py prints check marks that cp1252 cannot encode
 
 KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SHARE="$HOME/.local/share/short-video-kit"

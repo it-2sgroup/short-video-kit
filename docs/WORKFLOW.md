@@ -112,6 +112,24 @@ npx remotion render src/index.ts Short out/v1.mp4 --props=v1.json --codec=h264 -
 Đọc **sync report**: cắt giữa từ, chữ hiện/tắt sát điểm cắt, đồ hoạ lấn vùng giao diện (TikTok, quảng cáo Reels),
 thành phần playbook không nên dùng, slow-motion sẽ giật, thiếu file trong `public/`.
 
+### 6b. (Tuỳ chọn) Render bằng HyperFrames thay cho Remotion
+Cùng `project.json`, renderer thứ hai (Apache-2.0, không tính ghế như Remotion). Chọn theo từng video và nói lý do:
+HyperFrames hợp khi studio vượt giới hạn 3 nhân viên của Remotion, hoặc muốn hiệu ứng kiểu CapCut (`+shake`, `+glitch`,
+`+rgb`, `+pulse` ở ô Transition; `--look vignette,grain`). **Không** vẽ `magnifier`, `thumbs`, `compare`, `ranking`: video
+cần thẻ trước/sau thì dùng Remotion.
+```bash
+python3 scripts/new_remotion_project.py ~/renders/lo1 --playbook <id> --proxies /duong/dan/clips     # KHÔNG --install: chỉ lấy proxy + SFX
+python3 scripts/plan_to_project.py … --out ~/renders/lo1/v1.json …                                    # như bước 6
+python3 scripts/project_to_hyperframes.py ~/renders/lo1/v1.json --out ~/hf/v1 --playbook <id> [--look vignette=0.3,grain=0.05]
+cd ~/hf/v1
+npx hyperframes@0.9.26 check                       # hỏi người dùng trước lần npx đầu (tải gói); cần Node 22+, Chrome
+npx hyperframes@0.9.26 snapshot --at 0.5,4,9,28    # NHÌN ảnh tổng hợp
+npx hyperframes@0.9.26 render --quality high --output final.mp4
+```
+`check` phải 0 lỗi; cảnh báo `line_unread` trên phụ đề theo giọng nhanh là bình thường. Đo thực: video 28,5 s render ~55 s,
+độ ồn −16,3 LUFS và thời lượng trùng Remotion, hình giống nhau khi đặt cạnh. Tiếp tục bước 7 với `final.mp4`.
+Chi tiết, bẫy, mở rộng: `references/hyperframes-flow.md`; danh mục kỹ thuật CapCut: `references/capcut-techniques.md`.
+
 ### 7. Master âm thanh và xuất
 ```bash
 python3 scripts/process_audio.py master out/v1.mp4 --out out/v1_final.mp4 --phone    # −14 LUFS, đỉnh ≤ −1 dBTP + bản nhẹ gửi điện thoại
