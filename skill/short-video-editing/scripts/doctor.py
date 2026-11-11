@@ -53,6 +53,12 @@ FILTERS = {
     "alimiter": "loudness limiter (process_audio)",
     "ebur128": "loudness measurement (process_audio)",
     "asendcmd": "noise print (process_audio)",
+    "equalizer": "voice EQ (process_audio)",
+    "loudnorm": "loudness mastering (process_audio, finish_video)",
+    "eq": "brightness and contrast (prepare_footage)",
+    "tile": "contact sheets (contact_sheet, inspect_footage)",
+    "aecho": "reverb tails (make_sfx, make_music)",
+    "acrusher": "glitch sound (make_sfx)",
 }
 ENCODERS = {"libx264": "H.264 video (every proxy and render)", "aac": "AAC audio"}
 
@@ -134,7 +140,7 @@ def check_venv(rep: Report) -> None:
         rep.add("venv", "kit virtualenv", "missing", f"not found at {KIT_PYTHON} and $SVK_PYTHON is unset",
                 setup_hint())
         return
-    for mod, pin in (("faster_whisper", "faster-whisper==1.2.1"), ("numpy", "numpy")):
+    for mod, pin in (("faster_whisper", "faster-whisper==1.2.1"), ("numpy", "numpy"), ("onnxruntime", "onnxruntime")):
         out = run([vpy, "-c", f"import {mod}; print(getattr({mod}, '__version__', 'ok'))"])
         if out.strip() and "Error" not in out:
             rep.add("venv", f"{pin.split('==')[0]} in the venv", "ok", out.strip().splitlines()[-1])
@@ -181,6 +187,34 @@ def check_model(rep: Report) -> None:
     else:
         rep.add("model", "Whisper model (captions)", "missing", f"not at {MODEL_DIR}",
                 f"{setup_hint()} downloads ~460 MB (ask the user first)")
+    check_person_model(rep)
+
+
+PERSON_MODEL = "u2net_human_seg.onnx"
+PERSON_SHA256 = "01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c"   # the file this kit was tested with
+
+
+def check_person_model(rep: Report) -> None:
+    """Optional: only the agency-pitch recipe (silhouette flash, beauty light, cutaways away from the person) needs it."""
+    dirs = [os.environ.get("SVK_MODEL_DIR", ""), os.environ.get("WHISPER_MODEL_DIR", ""),
+            str(HOME / ".cache" / "short-video-kit" / "models"), str(HOME / ".local" / "share" / "short-video-kit" / "models")]
+    for d in dirs:
+        f = Path(d) / PERSON_MODEL if d else None
+        if f and f.is_file():
+            import hashlib
+            h = hashlib.sha256()
+            with f.open("rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            if h.hexdigest() == PERSON_SHA256:
+                rep.add("model", "person-segmentation model (optional)", "ok", f"{f.stat().st_size // 2**20} MB at {f.parent}, checksum matches")
+            else:
+                rep.add("model", "person-segmentation model (optional)", "warn",
+                        f"{f} differs from the file the kit was tested with (sha256 {h.hexdigest()[:12]}…)", "re-download: ./setup.sh --person-model")
+            return
+    rep.add("model", "person-segmentation model (optional)", "warn",
+            f"{PERSON_MODEL} not found: needed only by person_matte.py (silhouette flash, beauty light) and find_cutaways.py --person",
+            "./setup.sh --person-model downloads 168 MB (ask the user first)")
 
 
 def check_node(rep: Report) -> None:

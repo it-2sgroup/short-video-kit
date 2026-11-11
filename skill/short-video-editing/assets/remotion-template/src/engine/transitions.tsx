@@ -67,6 +67,80 @@ const Whip: React.FC<TransitionPresentationComponentProps<WhipProps>> = ({
   );
 };
 
+// cardSlide: card scenes are transparent outside their card, so the whole scene can travel. The outgoing card slides
+// off to one side, the incoming card slides in from the other; each leaves two fading copies of itself behind (the
+// stepped trail of the agency-pitch look). Ghosts are the same children rendered again, only while the transition runs.
+type CardSlideProps = { dx: number };
+const CardSlide: React.FC<TransitionPresentationComponentProps<CardSlideProps>> = ({
+  children,
+  presentationDirection,
+  presentationProgress: p,
+  passedProps,
+}) => {
+  const exiting = presentationDirection === "exiting";
+  const W = 1080 * 1.18;
+  const at = (q: number) => (exiting ? interpolate(q, [0, 1], [0, W * passedProps.dx], clamp) : interpolate(q, [0, 1], [-W * passedProps.dx, 0], clamp));
+  const lag = exiting ? [0.085, 0.17] : [-0.085, -0.17]; // exiting ghosts stay behind (earlier on the path); entering ghosts trail ahead
+  const alpha = [0.5, 0.26];
+  return (
+    <AbsoluteFill>
+      {lag.map((l, i) => (p > 0 && p < 1 ? (
+        <AbsoluteFill key={i} style={{ translate: `${at(p + l)}px 0`, opacity: alpha[i] }}>
+          {children}
+        </AbsoluteFill>
+      ) : null))}
+      <AbsoluteFill style={{ translate: `${at(p)}px 0` }}>{children}</AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+// cardSwirl: the incoming (full-frame) shot arrives as three tilted cards that converge, straighten, square their
+// corners and fill the frame; the outgoing shot dims and sinks underneath. Hero entrance after a card sequence.
+type SwirlProps = { tilt: number };
+const CardSwirl: React.FC<TransitionPresentationComponentProps<SwirlProps>> = ({
+  children,
+  presentationDirection,
+  presentationProgress: p,
+  passedProps,
+}) => {
+  if (presentationDirection === "exiting") {
+    return (
+      <AbsoluteFill style={{ filter: `brightness(${1 - 0.45 * p}) blur(${p * 6}px)`, scale: String(1 - 0.05 * p) }}>{children}</AbsoluteFill>
+    );
+  }
+  const layers = [
+    { lag: 0.2, rot: passedProps.tilt * -1.5, dx: -70, alpha: 0.4 },
+    { lag: 0.1, rot: passedProps.tilt * 1.1, dx: 60, alpha: 0.6 },
+    { lag: 0, rot: 0, dx: 0, alpha: 1 },
+  ];
+  return (
+    <AbsoluteFill>
+      {layers.map((l, i) => {
+        const q0 = Math.min(1, Math.max(0, p - l.lag) / (1 - 0.2));
+        if (l.lag > 0 && (q0 <= 0 || p >= 1)) return null;
+        const q = Math.pow(q0, 1.7); // arrive late: the stack stays visibly tilted for most of the transition
+        const k = 1 - q; // 1 at the start, 0 when settled
+        return (
+          <AbsoluteFill
+            key={i}
+            style={{
+              opacity: l.lag > 0 ? l.alpha * Math.min(1, q * 4) * (1 - Math.max(0, (q - 0.7) / 0.3)) : Math.min(1, q * 3),
+              scale: String(0.52 + 0.48 * q),
+              rotate: `${(l.rot !== 0 ? l.rot : passedProps.tilt) * k}deg`,
+              translate: `${l.dx * k}px ${-40 * k}px`,
+              borderRadius: 64 * k,
+              overflow: "hidden",
+              boxShadow: k > 0.02 ? "0 24px 60px rgba(0,0,0,0.45)" : undefined,
+            }}
+          >
+            {children}
+          </AbsoluteFill>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
 const custom = <P extends Record<string, unknown>>(
   component: React.FC<TransitionPresentationComponentProps<P>>,
   props: P,
@@ -101,6 +175,10 @@ export const presentationFor = (
       return any(custom(BlurDissolve, { blur: 16 }));
     case "whip":
       return any(custom(Whip, { dx: unit[dir][0], dy: unit[dir][1], blur: 24 }));
+    case "cardSlide":
+      return any(custom(CardSlide, { dx: dir === "right" ? -1 : 1 })); // default: the old card leaves to the right
+    case "cardSwirl":
+      return any(custom(CardSwirl, { tilt: 20 }));
     case "fade":
     case "cut":
     default:

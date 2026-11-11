@@ -78,6 +78,28 @@ a testimonial comes from a real customer who agreed to it, and staged scenes are
 real review; paid partnerships disclosed. Finance content advertised on TikTok in Vietnam needs the
 advertiser's registration with SBV, SSC or MOF [S: TikTok ads policy].
 
+## Variant `agency`: a service pitch to camera
+
+For an agency, studio, clinic or school that pitches itself to camera: `playbook.py suggest` picks `talking-head:agency` on "dịch vụ", "agency", "tư vấn miễn phí".
+Theme `crimson` (white, brand red, yellow, maroon); 40-75 s; scenes 0.7-4 s (cards are fast: 0.8-1.6 s; a closing `expand` card may run longer).
+
+- **Picture:** the speaker's takes cut on the voice (jump cuts that change the framing: `hold 1.3-1.4` / `push 1.1>1.24`), a card section over the animated grid wherever
+  the voice talks about the work (`Layout card`, `cardSlide`), one `expand` (a card grows to full frame), `cardSwirl` into a new section.
+- **Lip-sync when the voice was cut from the takes:** run `match_voice_takes.py voice.mp3 clips/` first. For each take it prints `clip time = voice time + lag`;
+  a scene that starts at voice time T uses `In = T + lag`, and a splice inside a take (a second lag) is a cut. Stretches no take covers are the card sections:
+  fill them with cutaways (the speaker's silent pre-roll and walk-offs, empty establishing shots), never with another take of the same line (the lips would
+  disagree with the voice).
+- **Opening:** the first frames are the speaker's white silhouette flashing three times (`Flash` cell, `person_matte.py`), then a `burst` pile of the city name (or an `arc` when the shout reads better on a curve: one of the two, not both) with a megaphone `icon`; the shout (`phrase` `fx=slam`) follows.
+- **Face:** a backlit speaker looks grey beside a hand edit: measure the head (`person_matte.py --faces`), fill the `Face` cells and use `--face-glow` (`image-processing.md`).
+- **Text:** a `phrase` block for every spoken thought of the talking shots (they replace the captions there: caption bands `hide`), karaoke captions in a strip above the cards (y 250, 44 px): this is a deliberate exception to the lower-third captions of the other playbooks, because on a card scene the picture sits
+  in a framed card and the words need a place the card does not cover.
+  The brand mark (`logo`) lands on the brand's name and again at the end; `circled`, `counter` and `script` once each at most; `icon` on a word that names a picture; `pill` for a list of two or three
+  offers one under another.
+- **Sound:** a self-made bed (`make_music.py`) with sections on the cuts and an impact on the big ones, soft whooshes on cards, pops on text; or a library track the human adds
+  at upload; always a second master without music.
+- **Check:** figures said in the voice ("hơn 300 thương hiệu", "10-50 video/tháng") are the brand's own claims: flag them and name who keeps the evidence; client names
+  and work on cards need the client's consent.
+
 ## Commands
 
 ```bash

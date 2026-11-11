@@ -136,3 +136,14 @@ the same colour filters one by one took 113 s, which is why they are baked into 
 differ by 46 dB PSNR: invisible). Stabilisation adds a detection pass; `--slowmo` (60 fps) roughly
 doubles the encode. For drafts use `--proxy-height 1920`; run one heavy ffmpeg job at a time on small
 machines (two 4K jobs together exhausted 14 GB and were killed).
+
+
+## Beauty light on a face (a backlit speaker looks grey)
+
+A speaker shot against bright sky and water is exposed for the sky, so the face comes out grey and tan next to the same face in a hand-edited video (which lifts the
+skin: CapCut's "whitening" and "smooth"). The kit does it in the render, not in the proxy: `person_matte.py --faces "CLIP@sec,..." --clips DIR` measures the head
+(centre and half-width as fractions of the frame, on a person matte: the head is what sits above the shoulders; checked on six scenes), the plan's `Face` cell
+carries it, and `plan_to_project.py --face-glow BRIGHTNESS,SATURATE,BLUR,SIZE,WARM,VEIL` writes `faceGlow`: a soft elliptical patch (CSS backdrop filter, feathered by a
+mask, drawn inside the camera framing so it follows every push) that brightens the picture behind it, takes a little colour out, softens it a hair and lays a pale pink
+veil (1.26, 0.88, 1.0, 1.15, 0, 0.07 matched a hand-edited sample; 1.30 and a 0.10 veil is already pale). It lifts hair and shirt near the face a little too: keep SIZE
+near 1.15. `look` (`--look SAT,CON,BRI,WARM`) is the global push on the footage: 1.10, 1.05, 1.04 and a 0.06 sepia warms a cool Sony take toward social video.

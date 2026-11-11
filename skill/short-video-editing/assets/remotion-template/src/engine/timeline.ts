@@ -23,6 +23,8 @@ export const DEFAULT_FRAMES: Record<TransitionType, number> = {
   whip: 9,
   flip: 16,
   crossZoom: 16,
+  cardSlide: 10,
+  cardSwirl: 16,
 };
 
 const DEFAULT_TRANSITION: SceneTransition = { type: "fade" };

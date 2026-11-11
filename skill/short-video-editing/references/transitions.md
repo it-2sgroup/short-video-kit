@@ -20,6 +20,8 @@ in the plan's **Transition** column. **[D]** documented, **[C]** convention.
 | `iris` | 18 | Circle opening from the centre | Hero/product reveal |
 | `flip [dir]` | 16 | 3D card flip | Rarely; comparisons |
 | `crossZoom` | 16 | WebGL radial zoom blur | Big reveal; needs the `angle` GL renderer (set in `remotion.config.ts`) |
+| `cardSlide [right]` | 10 | Card layout: the old card slides off with two fading copies behind it, the next card slides in | Between card scenes over the animated grid; ~0.8-1.5 s per card; also leaves a full-frame shot for the first card |
+| `cardSwirl` | 16 | The incoming full-frame shot arrives as a stack of tilted cards that straighten into the frame; the old shot dims and sinks | The hero entrance after a card sequence (a new section: the offer) |
 | `cut` | 0 | Hard cut | Deliberate punch on an emphasis word |
 
 Accents centred on a cut, not changing timing: append `+flash` (white flash, peak 0.55) or `+leak`
@@ -35,6 +37,7 @@ footage asks for something else. The families per genre [C]:
 | product-demo, tutorial | `fade`, `slide`, `blurDissolve` (soft, ~0.4 s) | `slide up`, `wipe`, `zoomThrough +flash` | hard cuts between unrelated clips (client: *"bị tách rời"*) |
 | real-estate | `cut` on the beat, `fade 10f` | `whip` in the walking direction, `slide` past a door frame | shader gimmicks |
 | talking-head | `cut` (jump cuts with a new framing) | `pushCut` | anything decorative |
+| talking-head:agency | `cut` (jump cuts), `cardSlide` between cards | `zoomThrough +leak`, `crossZoom`, `whip`, `cardSwirl` | more than ~2 shader or leak accents |
 | food-fnb, fashion-beauty, montage-recap, promo-sale | `cut` on the beat | `whip`, `zoomThrough`, `pushCut`, rarely `crossZoom` | dissolves between outfits; spin, glitch, star-wipe packs |
 
 Use 3–4 transition types per video at most, energetic ones only on section boundaries. Never spin,

@@ -59,9 +59,10 @@ def main() -> int:
     ap.add_argument("--install", action="store_true", help="run npm install in the new project")
     ap.add_argument("--update", action="store_true", help="re-copy the template over an existing render project")
     ap.add_argument("--playbook", help="playbook id[:variant]: sets the theme and the proxies' grade (playbooks/<id>.json)")
-    ap.add_argument("--theme", choices=["cool", "warm", "luxe"],
+    ap.add_argument("--theme", choices=["cool", "warm", "luxe", "crimson"],
                     help="override the playbook's colour theme in src/theme.ts: cool (white, sky blue), warm (ivory, gold, "
-                         "vermilion: food, amber light), luxe (ivory, champagne, charcoal: property, fashion). "
+                         "vermilion: food, amber light), luxe (ivory, champagne, charcoal: property, fashion), crimson (white, brand red, "
+                         "yellow, maroon: agency pitches with cards on an animated grid). "
                          "--update re-copies the template, so repeat --playbook/--theme then")
     ap.add_argument("--proxies", type=Path, help="folder of raw clips to correct, grade and convert into public/clips")
     ap.add_argument("--slowmo", action="store_true", help="with --proxies: keep 60 fps sources at 60 (for 0.5x slow motion)")

@@ -54,6 +54,21 @@ its loudest moment lands on it (measured from each file's peak).
 `new_remotion_project.py` copies the recorded files into a render project's `public/sfx/` and
 synthesizes the rest there, so a render project never needs a network fetch.
 
+### The second bank: variety (2026-11-11)
+
+A text-heavy pitch has a sound for every transition and every text, so one whoosh and one pop make it monotone. The bank now holds **58 more CC0 recordings** (Kenney packs: Interface Sounds,
+UI Audio, Digital Audio, Impact Sounds, Sci-Fi Sounds, Music Jingles; OpenGameArt items whose page says CC0; per-file rows in `assets/sfx/SOURCES.md`) and **11 more synthesized sounds**
+(`make_sfx.py`: `sparkle`, `chime3`, `twinkle`, `shutter`, `glitch`, `bubble`, `boing`, `typing`, `whoosh_s`, `whoosh_l`, `slam`). They were chosen from names, pack text and measurements
+(duration, brightness, onsets, decay) because nobody could listen: **listen before shipping**. Families (file-name stem): `chime-*` and `sparkle`/`chime3`/`twinkle` ("tinh tinh": two or three bright bell notes),
+`success-*`, `ding-*`, `pop-*`, `bubble-*`, `tick-*`/`type-*`/`typing`, `toggle-*`, `whoosh-s*` (0.2-0.4 s), `whoosh-m*` (0.5-0.8 s), `whoosh-l*` (1 s+), `riser-*` (reversed gong/bell/spell: peak at the end, `lead` =
+its length), `impact-*`, `slam-*`, `shutter-*`, `glitch-*`, `stinger-*`, `boing-*`, `magic-*`, `slidepop-*`.
+
+`sfx-map.json` events may now be a name, a **list** (alternatives, used in turn: the same sound never plays twice in a row) or `{"sound": name-or-list, "offset": s, "also": [names]}` (layers on the same moment,
+e.g. a whoosh with a soft impact). Overlays are looked up by `component:fx` first (`phrase:slam` -> a slam, `phrase:glitch` -> a glitch burst, `phrase:elastic` -> a boing, `phrase:shine` -> a twinkle), then by
+`component`. Extra events: `flash` (a camera click on the first white frame of a silhouette flash) and `burst` (a pop for each of the first copies of a text pile), both played whatever the thinning says.
+A playbook's `sfx.rules` (`minGap`, `window`, `maxInWindow`, `notBefore`) replaces the global thinning: `talking-head:agency` allows 5 sounds per 3 s (a typical SISMO cut: 68 cues in 64 s, 18 families).
+Levels: every file peaks at -3 dBFS and `gainDb` sets it 10-16 dB under the voice's peak; chimes and pops -15 to -19, whooshes -13 to -16, impacts -11 to -14.
+
 ---
 
 ## 3. Which sound on which event
@@ -99,7 +114,7 @@ step aside.
   (−13 LUFS) so each effect's peak sits about 8–12 dB under the voice (swoosh −10, pop −12, tick −15);
   with voices now levelled to −16 LUFS by `process_audio.py`, check the first render and lower
   everything with `--sfx-gain -2` if effects feel forward. The master stage then sets the overall level.
-- **Density.** The map enforces at least 0.2 s between sounds and at most 2 in any 3-second window;
+- **Density.** The map enforces at least 0.2 s between sounds and at most 2 in any 3-second window (a playbook's `sfx.rules` replaces this: `talking-head:agency` allows 5);
   a 35-second video ends up with roughly 11–15 cues. Fewer is better; if the video feels busy, remove
   rows from the map, not words from the voice.
 - **Never mask the claim.** Keep loud sounds (`thud`) off the first word after a cut and off the

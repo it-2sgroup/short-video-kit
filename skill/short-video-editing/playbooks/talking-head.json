@@ -2,42 +2,164 @@
   "id": "talking-head",
   "title": "Nói trước camera — chia sẻ kiến thức, chuyên gia, câu chuyện thương hiệu, cảm nhận khách hàng",
   "summary": "One person speaking to camera. The A-roll is cut into jump cuts on the pauses (silences and fillers removed), framings alternate wide and tight so every cut reads as intentional, B-roll and graphics illustrate what is said, word-by-word captions carry it with the sound off.",
-  "intents": ["đứng nói", "nói giới thiệu", "mình nói", "chia sẻ", "kiến thức", "chuyên gia", "talking head", "nói trước camera", "podcast", "giải thích", "mẹo", "tips", "câu chuyện", "founder", "ceo", "giáo dục", "tư vấn", "phỏng vấn", "interview", "vlog nói"],
-  "expect": {"speech": "on-camera", "motion": "low"},
-  "signals": ["one face in a fixed frame most of the time", "speech in the camera's own audio", "long takes (30 s to minutes)", "maybe B-roll clips without speech"],
-  "platforms": ["tiktok", "reels"],
-  "runtime": {"min": 20, "max": 90, "ideal": [30, 60], "why": "Talking content holds longer than demos only while every sentence earns its place: cut pauses, fillers and repeats first."},
-  "hook": {"deadline": 3.0, "beats": 1, "beat": 2.8, "minBeat": 1.2, "purpose": "the boldest sentence of the talk, said in the first breath; a pattern-break frame or B-roll under it", "graphics": "title that states the payoff"},
-  "scenes": {"min": 1.0, "max": 5.0, "target": 3.2},
+  "intents": [
+    "đứng nói",
+    "người dẫn",
+    "người nói",
+    "nói trước ống kính",
+    "nói giới thiệu",
+    "mình nói",
+    "chia sẻ",
+    "kiến thức",
+    "chuyên gia",
+    "talking head",
+    "nói trước camera",
+    "podcast",
+    "giải thích",
+    "mẹo",
+    "tips",
+    "câu chuyện",
+    "founder",
+    "ceo",
+    "giáo dục",
+    "tư vấn",
+    "phỏng vấn",
+    "interview",
+    "vlog nói"
+  ],
+  "expect": {
+    "speech": "on-camera",
+    "motion": "low"
+  },
+  "signals": [
+    "one face in a fixed frame most of the time",
+    "speech in the camera's own audio",
+    "long takes (30 s to minutes)",
+    "maybe B-roll clips without speech"
+  ],
+  "platforms": [
+    "tiktok",
+    "reels"
+  ],
+  "runtime": {
+    "min": 20,
+    "max": 90,
+    "ideal": [
+      30,
+      60
+    ],
+    "why": "Talking content holds longer than demos only while every sentence earns its place: cut pauses, fillers and repeats first."
+  },
+  "hook": {
+    "deadline": 3.0,
+    "beats": 1,
+    "beat": 2.8,
+    "minBeat": 1.2,
+    "purpose": "the boldest sentence of the talk, said in the first breath; a pattern-break frame or B-roll under it",
+    "graphics": "title that states the payoff"
+  },
+  "scenes": {
+    "min": 1.0,
+    "max": 5.0,
+    "target": 3.2
+  },
   "drive": "voice",
   "structure": [
-    {"type": "CONTEXT", "share": 0.15, "purpose": "why it matters to the viewer, one sentence", "graphics": "title"},
-    {"type": "POINT", "share": 0.6, "purpose": "the points, one per beat; B-roll or a graphic on every point", "graphics": "step or checklist, stat, chart, image, highlight"},
-    {"type": "PAYOFF", "share": 0.15, "purpose": "the takeaway in one line", "graphics": "title"},
-    {"type": "CTA", "share": 0.1, "purpose": "follow, comment, save, or the offer", "graphics": "lowerThird"}
+    {
+      "type": "CONTEXT",
+      "share": 0.15,
+      "purpose": "why it matters to the viewer, one sentence",
+      "graphics": "title"
+    },
+    {
+      "type": "POINT",
+      "share": 0.6,
+      "purpose": "the points, one per beat; B-roll or a graphic on every point",
+      "graphics": "step or checklist, stat, chart, image, highlight"
+    },
+    {
+      "type": "PAYOFF",
+      "share": 0.15,
+      "purpose": "the takeaway in one line",
+      "graphics": "title"
+    },
+    {
+      "type": "CTA",
+      "share": 0.1,
+      "purpose": "follow, comment, save, or the offer",
+      "graphics": "lowerThird"
+    }
   ],
   "transitions": {
     "hook": "cut",
-    "same": ["cut", "cut", "cut", "pushCut"],
-    "change": ["cut", "pushCut", "slide up", "cut"],
-    "into": {"PAYOFF": "pushCut"},
+    "same": [
+      "cut",
+      "cut",
+      "cut",
+      "pushCut"
+    ],
+    "change": [
+      "cut",
+      "pushCut",
+      "slide up",
+      "cut"
+    ],
+    "into": {
+      "PAYOFF": "pushCut"
+    },
     "accentsMax": 0
   },
   "camera": {
-    "pattern": ["hold 1.0", "hold 1.22 focus 0.5,0.35", "hold 1.08", "push 1.18>1.3 focus 0.5,0.35", "hold 1.0", "hold 1.3 focus 0.5,0.33"],
-    "byType": {"PAYOFF": "push 1.1>1.3 focus 0.5,0.35", "CTA": "hold 1.0"},
-    "byKind": {"BROLL": "push 1.0>1.16", "FACE": "hold 1.12 focus 0.5,0.35"}
+    "pattern": [
+      "hold 1.0",
+      "hold 1.22 focus 0.5,0.35",
+      "hold 1.08",
+      "push 1.18>1.3 focus 0.5,0.35",
+      "hold 1.0",
+      "hold 1.3 focus 0.5,0.33"
+    ],
+    "byType": {
+      "PAYOFF": "push 1.1>1.3 focus 0.5,0.35",
+      "CTA": "hold 1.0"
+    },
+    "byKind": {
+      "BROLL": "push 1.0>1.16",
+      "FACE": "hold 1.12 focus 0.5,0.35"
+    }
   },
   "captions": "pop",
   "theme": "cool",
   "grade": "natural",
   "correction": "per-clip",
-  "music": {"bpm": [80, 110], "mood": "low, unobtrusive bed or none; never a vocal track under speech"},
-  "components": {
-    "use": ["title", "stat", "chart", "checklist", "step", "image", "highlight", "lowerThird", "thumbs"],
-    "avoid": ["cart"]
+  "music": {
+    "bpm": [
+      80,
+      110
+    ],
+    "mood": "low, unobtrusive bed or none; never a vocal track under speech"
   },
-  "sfx": {"transition": {"cut": null, "pushCut": "pop"}},
+  "components": {
+    "use": [
+      "title",
+      "stat",
+      "chart",
+      "checklist",
+      "step",
+      "image",
+      "highlight",
+      "lowerThird",
+      "thumbs"
+    ],
+    "avoid": [
+      "cart"
+    ]
+  },
+  "sfx": {
+    "transition": {
+      "cut": null,
+      "pushCut": "pop"
+    }
+  },
   "compliance": [
     "Numbers on screen (stat, chart) have a source the speaker can name; label estimates",
     "Medical, financial, legal advice: hedged, no guaranteed outcomes; expert credentials real",
@@ -45,16 +167,217 @@
     "Paid partnership disclosed (commercial-content toggle)",
     "No other person's footage or audio without a licence"
   ],
-  "references": ["references/cutting-and-pacing.md", "references/captions-and-text.md", "references/audio-processing.md", "references/layout-and-motion-graphics.md"],
+  "references": [
+    "references/cutting-and-pacing.md",
+    "references/captions-and-text.md",
+    "references/audio-processing.md",
+    "references/layout-and-motion-graphics.md"
+  ],
   "variants": {
     "testimonial": {
       "about": "A customer's own story: the result first, the problem, the experience, the outcome. Honesty is the format.",
-      "intents": ["cảm nhận", "khách hàng", "testimonial", "feedback", "đánh giá của khách", "ugc ad"],
+      "intents": [
+        "cảm nhận",
+        "khách hàng",
+        "testimonial",
+        "feedback",
+        "đánh giá của khách",
+        "ugc ad"
+      ],
       "structure": [
-        {"type": "PROBLEM", "share": 0.25, "purpose": "what was wrong before, in their words", "graphics": "title"},
-        {"type": "EXPERIENCE", "share": 0.35, "purpose": "what they did, B-roll of the product in use", "graphics": "step, highlight"},
-        {"type": "RESULT", "share": 0.25, "purpose": "the outcome in their words; no exaggeration added in text", "graphics": "title, stat only if real"},
-        {"type": "CTA", "share": 0.15, "purpose": "where to get it", "graphics": "lowerThird (name, verified customer)"}
+        {
+          "type": "PROBLEM",
+          "share": 0.25,
+          "purpose": "what was wrong before, in their words",
+          "graphics": "title"
+        },
+        {
+          "type": "EXPERIENCE",
+          "share": 0.35,
+          "purpose": "what they did, B-roll of the product in use",
+          "graphics": "step, highlight"
+        },
+        {
+          "type": "RESULT",
+          "share": 0.25,
+          "purpose": "the outcome in their words; no exaggeration added in text",
+          "graphics": "title, stat only if real"
+        },
+        {
+          "type": "CTA",
+          "share": 0.15,
+          "purpose": "where to get it",
+          "graphics": "lowerThird (name, verified customer)"
+        }
+      ]
+    },
+    "agency": {
+      "about": "A service pitch (agency, studio, clinic, school) told to camera: loud text blocks that mirror the speech, the brand mark landing on its name, portfolio cards on an animated grid between the talking shots, a closing card. The loudest of the talking-head styles: every spoken thought is also a text block, so captions run only where no block says it.",
+      "intents": [
+        "agency",
+        "video mẫu",
+        "bản mẫu",
+        "giống mẫu",
+        "giống video mẫu",
+        "dựng lại video",
+        "các take",
+        "dịch vụ",
+        "quảng cáo dịch vụ",
+        "giới thiệu dịch vụ",
+        "giới thiệu công ty",
+        "sản xuất video",
+        "gói dịch vụ",
+        "inbox tư vấn",
+        "tư vấn miễn phí",
+        "pitch",
+        "kêu gọi hợp tác"
+      ],
+      "runtime": {
+        "min": 40,
+        "max": 75,
+        "ideal": [
+          55,
+          68
+        ],
+        "why": "A service pitch has more to prove than a tip (who, what, for whom, plans, offer): it holds while a new picture or text block arrives every 1-2 s."
+      },
+      "hook": {
+        "deadline": 3.0,
+        "beats": 2,
+        "beat": 1.2,
+        "minBeat": 0.8,
+        "purpose": "the place or the pain, shouted: a city name or 'đừng bỏ qua' with a megaphone, then the problem as a red block",
+        "graphics": "burst (or arc), icon, phrase"
+      },
+      "scenes": {
+        "min": 0.7,
+        "max": 4.0,
+        "target": 1.8
+      },
+      "structure": [
+        {
+          "type": "PROBLEM",
+          "share": 0.12,
+          "purpose": "the pain in one red block",
+          "graphics": "phrase"
+        },
+        {
+          "type": "SOLUTION",
+          "share": 0.15,
+          "purpose": "the brand named: its mark lands on the word, the promise as a block",
+          "graphics": "logo, phrase"
+        },
+        {
+          "type": "LIVING",
+          "share": 0.25,
+          "purpose": "portfolio and process on cards over the animated grid, kinds of clients as tags, one proof graphic (RAW/FINAL, counter)",
+          "graphics": "tag, counter, rawfinal, icon"
+        },
+        {
+          "type": "PROOF",
+          "share": 0.15,
+          "purpose": "support and experience, said to camera",
+          "graphics": "circled, pill"
+        },
+        {
+          "type": "OFFER",
+          "share": 0.18,
+          "purpose": "the plans, the range, who it suits",
+          "graphics": "logo, pill, script"
+        },
+        {
+          "type": "CTA",
+          "share": 0.15,
+          "purpose": "one action: inbox; the free consultation and the limited offer as pills; a closing card with the mark",
+          "graphics": "pill, phrase, logo"
+        }
+      ],
+      "transitions": {
+        "hook": "cut",
+        "same": [
+          "cut",
+          "cut",
+          "cut",
+          "pushCut"
+        ],
+        "change": [
+          "zoomThrough +leak",
+          "crossZoom",
+          "whip left",
+          "cardSwirl"
+        ],
+        "into": {
+          "LIVING": "cardSlide",
+          "PROOF": "whip right",
+          "OFFER": "cardSwirl",
+          "CTA": "whip left"
+        },
+        "accentsMax": 2
+      },
+      "camera": {
+        "pattern": [
+          "push 1.02>1.12 focus 0.5,0.45",
+          "hold 1.32 focus 0.5,0.40",
+          "push 1.10>1.24 focus 0.5,0.42",
+          "hold 1.40 focus 0.5,0.38"
+        ],
+        "byType": {
+          "LIVING": "push 1.00>1.10 focus 0.5,0.5",
+          "CTA": "push 1.10>1.26 focus 0.5,0.42"
+        },
+        "byKind": {
+          "BROLL": "push 1.00>1.10 focus 0.5,0.5",
+          "FACE": "hold 1.32 focus 0.5,0.40"
+        }
+      },
+      "captions": "karaoke",
+      "theme": "crimson",
+      "grade": "natural",
+      "correction": "per-clip",
+      "music": {
+        "bpm": [
+          100,
+          128
+        ],
+        "mood": "bright, driving corporate pop: a kick on every card change, a lift into the offer; never a vocal"
+      },
+      "components": {
+        "use": [
+          "phrase",
+          "pill",
+          "arc",
+          "script",
+          "tag",
+          "logo",
+          "counter",
+          "icon",
+          "circled",
+          "rawfinal",
+          "burst"
+        ],
+        "avoid": [
+          "cart",
+          "compare"
+        ]
+      },
+      "sfx": {
+        "transition": {},
+        "sceneStart": {
+          "HOOK>HOOK": null
+        },
+        "rules": {
+          "minGap": 0.16,
+          "window": 3.0,
+          "maxInWindow": 5,
+          "notBefore": 0.1
+        }
+      },
+      "compliance": [
+        "Figures said in the voice (clients served, videos per month, delivery days) are the brand's own and can be shown with evidence: say who must keep it",
+        "Client names, logos and work shown on cards: written consent from each client, or the footage is the agency's own",
+        "RAW / FINAL cards use the same take; no staged 'before' made worse on purpose",
+        "Limited-time offers ('chỉ có trong tháng này') are real and dated; commercial-content disclosure on",
+        "Music is CC0, self-made or licensed for this account; the TikTok Commercial Music Library for business accounts"
       ]
     }
   }

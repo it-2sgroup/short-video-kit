@@ -72,6 +72,10 @@ or need an internet connection: check the current app before promising one to a 
 | Glitch, RGB split | **H** | `+rgb`, `+glitch` on the cut |
 | Shake / earthquake | **H** | `+shake` |
 | Shader family (ripple, swirl, liquid, burn, domain warp, lens, thermal) | **D** | `@hyperframes/shader-transitions` has 14 (`hyperframes-flow.md` §7); it needs its own scene structure |
+| White silhouette flash (the speaker's outline filled white for a frame, three times) | **K** | scene `Flash` cell `0,2,4 @ mattes/C5074`; `person_matte.py` cuts the person out of those frames with a segmentation model |
+| Slide with trail, stacked-card slide | **K** | `cardSlide`: card scenes slide off with two fading copies behind (the card layout, `layout-and-motion-graphics.md`) |
+| Spin-in cards, stack zoom | **K** | `cardSwirl`: the incoming shot arrives as three tilted cards that straighten into the frame |
+| Wave warp, bulge, flag wave | **K** | scene layout `expand`: a card grows to the full frame with a fabric-like wave (SVG displacement) |
 | Spin, mirror, pixelate, luma wipe, clone, page curl | — | not built; a hard cut or `whip` carries the same beat |
 
 Playbooks set which transitions a genre uses and how many accents it may spend (`playbooks/<id>.md`,
@@ -124,13 +128,27 @@ taste for glitches.
 | Caption templates, word highlight (karaoke) | **K** | `captionStyle karaoke`: the whole phrase, the spoken word coloured; `pop`: a short phrase popping, for talking heads; `plain` |
 | One word at a time | — | rejected on purpose: viewers read ahead (`captions-and-text.md`) |
 | Text styles (outline, gradient, glass card, highlighter marker) | **K** | `title` styles `outline`, `stack`, `gradient`, `glass`, `marker`; one accent word; never the same style twice in a row |
-| Text animations (in, out, loop: rise, blur-in, scale, typewriter) | **K** | every title rises through a mask with a blurred accent word; no typewriter (it delays the reading) |
+| Text animations (in, out, loop: rise, blur-in, scale, typewriter) | **K** | every title rises through a mask with a blurred accent word; `phrase` letters scatter in and fly apart again; `pill` types in (short labels only: a typewriter on a long line delays the reading) |
+| Curved text, text on a path, echo trail | **K** | `arc`: letters on an arc with echoes fanning out behind (the opening shout) |
+| Handwritten, brush font | **K** | `script` (Pacifico) for one phrase; `phrase` for loud red/white blocks (Barlow Condensed) |
+| Text pile / echo burst ("hidden letters jump up") | **K** | `burst` |
+| Text presets: slam, stamp, glitch, neon, shine, drop, elastic, wave, flip, split, mask wipe, typewriter | **K** | `phrase` `fx=` (14 effects, `layout-and-motion-graphics.md`) |
+| Beauty: skin brighten and soften | **K** | `faceGlow` (a feathered backdrop-filter patch on the head, `Face` column) and `look` warm; `image-processing.md` |
+| Karaoke with a bigger coloured word | **K** | `captionStyle karaoke` (scaled, coloured word) and `captionBands` to move the captions above a card |
 | Text templates, speech bubbles, boxes | — | no text in boxes on product demos (client rule); the `glass` card is the one panel, for busy footage |
 | Text-to-speech | **K** | ElevenLabs (`make_voiceover.py`; Vietnamese needs `eleven_turbo_v2_5`; a free plan is not commercial) |
 | Auto-translate captions, bilingual | — | not built; a Vietnamese line and an English line would double the text |
 | Lyrics / karaoke for music | — | out of scope |
 
 ## 9. Graphics and stickers
+
+| CapCut | Status | In the kit |
+|---|---|---|
+| Animated background (moving grid, gradient, cloth) | **K** | the card layout's grid: a net of lines blown by a wind (`components/graphics/Grid.tsx`) |
+| Logo reveal, brand intro | **K** | `logo`: blurs in from a motion smear and snaps sharp; `tint=white` on a red backdrop |
+| Stickers and emoji (megaphone, bullseye, !!!, magnifier) | **K** | `icon` (`target megaphone bang search check`), `circled`, `tag` |
+| Counter, number roll | **K** | `counter`: "5 -> 10" with a drawn arrow |
+| RAW vs FINAL, split compare | **K** | `rawfinal`: the same take unedited and edited, side by side |
 
 | CapCut | Status | In the kit |
 |---|---|---|

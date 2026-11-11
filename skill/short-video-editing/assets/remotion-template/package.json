@@ -11,13 +11,16 @@
     "studio": "remotion studio",
     "typecheck": "tsc --noEmit",
     "still": "remotion still src/index.ts Short",
+    "stills": "node stills.mjs",
     "render": "remotion render src/index.ts Short --codec=h264 --crf=18"
   },
   "dependencies": {
+    "@remotion/bundler": "4.0.540",
     "@remotion/cli": "4.0.540",
     "@remotion/google-fonts": "4.0.540",
     "@remotion/light-leaks": "4.0.540",
     "@remotion/paths": "4.0.540",
+    "@remotion/renderer": "4.0.540",
     "@remotion/transitions": "4.0.540",
     "react": "19.3.1",
     "react-dom": "19.3.1",

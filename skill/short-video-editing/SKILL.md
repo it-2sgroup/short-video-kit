@@ -1,6 +1,6 @@
 ---
 name: short-video-editing
-description: Plan, edit and render short vertical videos (TikTok, TikTok Shop, Reels, Shorts; 10–90 s) of any kind — product demos and reviews, before/after, unboxing, real-estate tours, food and restaurants, talking heads and testimonials, tutorials and recipes, fashion and beauty, travel/event montages, sale promos. It analyses the footage and the request, picks a genre playbook, then does the edit: footage correction (white balance, exposure, grade, stabilisation, denoise, levelling), voice cleanup and loudness, cuts on voice pauses or music beats, jump cuts, speed ramps, transitions, virtual camera, captions, motion graphics and infographics, sound effects, a Remotion or HyperFrames render (CapCut-style hits and looks) and platform-ready export. Use it whenever someone asks to make, edit, cut, script, caption, colour, mix or improve a short-form video, or several from one batch of footage, even for a small part of the job ("just add captions", "fix the colour", "cut this to the music").
+description: Plan, edit and render short vertical videos (TikTok, TikTok Shop, Reels, Shorts; 10–90 s) of any kind — product demos and reviews, before/after, unboxing, real-estate tours, food and restaurants, talking heads and testimonials, tutorials and recipes, fashion and beauty, travel/event montages, sale promos. It analyses the footage and the request, picks a genre playbook, then does the edit: footage correction (white balance, exposure, grade, stabilisation, denoise, levelling), voice cleanup and loudness, cuts on voice pauses or music beats, jump cuts, speed ramps, transitions, virtual camera, captions, motion graphics and infographics, sound effects, a Remotion or HyperFrames render (CapCut-style hits and looks) and platform-ready export. It also rebuilds a client's reference video (measures it frame by frame, then recreates its text, cards, flashes, transitions and sound), including a service or agency pitch cut from a presenter's takes with the voice matched to each take for exact lip-sync. Use it whenever someone asks to make, edit, cut, script, caption, colour, mix or improve a short-form video, or several from one batch of footage, even for a small part of the job ("just add captions", "fix the colour", "cut this to the music").
 ---
 
 # Short Video Editing
@@ -57,8 +57,9 @@ the video will be boosted as an ad (no before/after in ads).
 ## Workflow
 
 Run scripts from this skill's folder (`~/.claude/skills/short-video-editing` once installed). They
-need Python 3 and a full ffmpeg; `align_captions.py` and `suggest_cuts.py --music` re-launch themselves
-in the kit's venv.
+need Python 3 and a full ffmpeg; the scripts that need faster-whisper or numpy (`align_captions.py`, `suggest_cuts.py --music`,
+`match_voice_takes.py`, `find_cutaways.py`, `person_matte.py`, `check_lipsync.py`, `mix_report.py`, `make_music.py`, `analyze_reference.py`)
+re-launch themselves in the kit's venv (`$SVK_PYTHON`, or the one `setup.sh` built).
 
 ### 0. Is this machine ready? (first time in a chat, and whenever a tool is "not found")
 
@@ -66,16 +67,16 @@ in the kit's venv.
 python scripts/doctor.py          # changes nothing; names every missing item and how to install it
 ```
 
-It checks Python, the venv (faster-whisper, numpy), ffmpeg **and the filters the scripts call**
-(vidstab, zscale, haldclut, afftdn, …), the Whisper model, Node (rendering only), the ElevenLabs key
-(presence only) and free disk. If something required is missing, set it up before any video work:
+It checks Python, the venv (faster-whisper, numpy, onnxruntime), ffmpeg **and the filters the scripts call**
+(vidstab, zscale, haldclut, afftdn, loudnorm, tile, …), the Whisper model, the optional person-segmentation
+model (only the agency recipe needs it), Node (rendering only), the ElevenLabs key (presence only) and free disk. If something required is missing, set it up before any video work:
 
 - The kit repo is on this machine (doctor prints its path) → `cd <repo> && ./setup.sh`, then
   `./selftest.sh`. On a machine without it: `gh auth login --web && gh auth setup-git`, clone
   `https://github.com/it-2sgroup/short-video-kit.git`, read its `CLAUDE.md` (the setup steps), run `./setup.sh`.
   Windows: through Git Bash.
-- **Ask before any download or install** (Whisper model ~460 MB, ffmpeg, npm + Chromium ~300 MB) and name
-  it. Never ask for the ElevenLabs key in chat: the user runs `./setup.sh --set-key` themselves.
+- **Ask before any download or install** (Whisper model ~460 MB, ffmpeg, npm + Chromium ~300 MB, the person
+  model 168 MB via `./setup.sh --person-model`) and name it. Never ask for the ElevenLabs key in chat: the user runs `./setup.sh --set-key` themselves.
 - Show doctor's real output; a failure is never "probably fine". Low disk space is a stop sign for a
   4K batch, not a footnote.
 - A new chat must be started after the skill is installed or updated so it loads.
@@ -95,6 +96,21 @@ address, offer dates, the voice), ask **at most three** questions in one message
 default (`playbooks/README.md` → Questions). For a batch: budget the footage first
 (`references/footage-ingest.md` §1b, `Chính sách.md` §4.1).
 
+### 1b. A reference video to copy ("make it like this sample")
+
+```bash
+python scripts/analyze_reference.py sample.mp4 --out ref/ --dense 0-3,15-20   # shots, transitions, flashes, colours, loudness, sheets
+```
+
+Open `ref/report.md`, `scenes.png`, every `dense_*.png` (every 2nd frame of a range: a flash on frames 0, 2, 4, a text pile
+assembling) and every `spectrum_*.png` (a click is a vertical streak, a whoosh a slanted band) and **look**. The numbers give the
+frame-exact timing (cut count, shortest shot, transition lengths in frames, flashes, loudness); the sheets give the technique. Write
+down every technique you see (text effects, card layouts, transitions, background, sound on each cut), then find each one in
+`references/capcut-techniques.md` and `references/layout-and-motion-graphics.md`. A technique the kit lacks is **researched and added
+as a component with its doc row and a selftest**, never faked with a lookalike. A presenter talking to camera with a service pitch →
+`references/agency-pitch-recipe.md`, step by step (steps 0-10). The sample's logo and the client's work shown on its cards belong to the
+client: ask for the vector logo and for consent. Do not copy the sample's music or footage.
+
 ### 2. Prepare the footage
 
 ```bash
@@ -111,14 +127,21 @@ horizon. Look at `contact_sheet.py RENDER/public/clips` and read `corrections.js
 - **Supplied voice**: several files → match by name and ask when unsure. Too long for the playbook's
   band → `trim_voice.py voice.mp3 --silences`, keep whole sentences with `--keep`, tell the user which
   were dropped. Then `process_audio.py voice voice.mp3 --out RENDER/public/audio/v1.wav`.
+- **Agency pitch end to end:** `references/agency-pitch-recipe.md` — `match_voice_takes.py` (lag per take), `find_cutaways.py`, `person_matte.py` (silhouette flash,
+  head positions for the beauty light), `agency_plan.py` (draft plan), 14 text effects, caption highlights, `make_music.py`, a varied CC0 sound bank,
+  `finish_video.py` (masters), `check_lipsync.py` and `mix_report.py` (proof).
+- **Voice cut from the takes** (a presenter's camera audio, spliced): `match_voice_takes.py voice.mp3 clips/` prints `clip time = voice time + lag` per take, so each scene uses the take's own
+  picture with `In = start + lag` and the lips are exact; stretches no take covers get cutaways. Used by `talking-head:agency` (service pitches: loud text blocks, card sections over an
+  animated grid, theme `crimson`; `playbooks/talking-head.md`).
 - **Talking head** (speech on camera): `trim_voice.py talk.mp4 --jumpcut --out voice.wav --scenes-out
   cuts.json` removes the pauses and gives the scenes with their source times; then `process_audio.py voice`.
 - **Synthesized voice**: write to the word budget (~4.5–5 words/s), check claims, then
   `make_voiceover.py --quota`, `--dry-run`, synthesize (`references/voiceover-and-captions.md`;
   Vietnamese needs `eleven_turbo_v2_5`), and `process_audio.py voice --no-clean`.
-- **Captions and word timings**: `align_captions.py voice.wav --out draft.srt` → correct the transcript
-  by hand into `script.txt` → `align_captions.py voice.wav --script script.txt --out captions.srt
-  --words-out words.json`. Whisper gives the timing, the script gives the words.
+- **Captions and word timings**: `align_captions.py voice.wav --out draft.srt [--prompt "BRAND, domain words"]`
+  → correct the transcript by hand into `script.txt` → `align_captions.py voice.wav --script script.txt --out
+  captions.srt --words-out words.json`. Whisper gives the timing, the script gives the words; `--prompt` primes it with
+  brand names it would otherwise mishear. A sentence you could not hear well is **flagged to the user, not guessed**.
 - **Music** (licensed for the platform and a business account; `references/audio-and-music.md`):
   `process_audio.py music track.mp3 --out RENDER/public/audio/music.wav`.
 
@@ -160,9 +183,13 @@ python scripts/footage_overlap_checker.py plans/v1.md plans/v2.md --clips CLIPS 
 ```bash
 python scripts/plan_to_project.py edit-plan.md --out RENDER/v1.json --voice audio/v1.wav --music audio/music.wav \
     --captions captions.srt --words words.json --auto-camera --analysis analysis.json --auto-sfx [--platform reels-ad]
-cd RENDER && npx remotion still src/index.ts Short out/check.png --frame=45 --props=v1.json
-npx remotion render src/index.ts Short out/v1.mp4 --props=v1.json --codec=h264 --crf=18
+cd RENDER && node stills.mjs v1.json out/s --cuts          # one bundle: a still after every cut and mid-scene; or --every 0.5 --from 0 --to 8; or seconds
+python scripts/montage.py "out/s_*.jpg" --cols 6 --out out/sheet.jpg      # one labelled sheet: LOOK at every transition, effect and card
+npx remotion render src/index.ts Short out/v1.mp4 --props=v1.json --codec=h264 --crf=18 --concurrency=5
 ```
+
+`--concurrency=5`: 8 workers fail with "No frame found at position" on 2880-tall proxies. Read the "wrote …" line of every compile:
+an argument argparse rejects (`--music-levels -6,-6` needs the `=`) can leave an older project in place, and the video then renders without its music.
 
 Read the **sync report** (cuts inside words, text on cuts, UI-zone collisions, overlaps, flashing
 captions, components the playbook avoids, slow motion that would stutter, missing files) and fix what it
@@ -186,20 +213,28 @@ edit", find the technique in `references/capcut-techniques.md` before inventing 
 ### 8. Master and export
 
 ```bash
-python scripts/process_audio.py master RENDER/out/v1.mp4 --out RENDER/out/v1_final.mp4 --phone
+python scripts/process_audio.py master RENDER/out/v1.mp4 --out RENDER/out/v1_final.mp4 --phone      # the general path
+python scripts/finish_video.py RENDER/out/v1.mp4 --name BRAND_v1 --out-dir RENDER/out/final --audio-nomusic nomusic.wav --cover-at 3 --preview720   # agency recipe
 ```
 
-−14 LUFS, true peak ≤ −1 dBTP, AAC 192 kb/s, `+faststart`; `--phone` adds a small copy for sending.
-One clean master for every platform (`references/platforms.md`): never re-post a TikTok download.
+−14 LUFS, true peak ≤ −1 dBTP, AAC 192 kb/s, `+faststart`; `--phone` adds a small copy for sending (chat and web viewers
+take ~30 MB). Remotion writes full-range `yuvj420p`: `finish_video.py` converts to limited-range BT.709 (`mix_report.py` flags a
+file that still is). One clean master for every platform (`references/platforms.md`): never re-post a TikTok download. A business
+account cannot bake in a licensed track: deliver a second master **without music** so the human adds a Commercial Music Library
+track at upload (`make_music.py` writes the self-made bed).
 
 ### 9. Verify, then report
 
 `contact_sheet.py out/v1_final.mp4 --project RENDER/v1.json --out sheet.png` (the middle of every scene
 and every cut) and **look**: subject visible, text readable over the footage (white text on white
-fabric: `outline`/`marker`), nothing in UI zones, before/after honest. `ffprobe` the durations against
-the plan. Then report in the user's language: playbook and why, runtime, scenes, the hook, corrections
+fabric: `outline`/`marker`), nothing in UI zones, before/after honest. Then the numbers:
+`mix_report.py final.mp4 --project RENDER/v1.json --words words.json [--nomusic final_nomusic.mp4]` (format, range, duration
+against the plan, LUFS, true peak, loudness by 10 s, pauses, cue count, music present) and, for a voice cut from takes,
+`check_lipsync.py RENDER/v1.json final.mp4 --clips ORIGINALS` (every talking scene within a frame). Then report in the user's language: playbook and why, runtime, scenes, the hook, corrections
 applied to the footage, what the sync report still flags, claims changed or flagged (name the rule),
-the publishing checklist (`platforms.md` §6), and what was **not** verified (e.g. not listened to).
+the publishing checklist (`platforms.md` §6), and what was **not** verified (e.g. not listened to; sounds picked by name and
+measurement; a sentence guessed from a poor transcript; a logo keyed from a sample frame). Facts on screen (figures, client
+names, prices) are the user's or the documents', never invented; client claims inside a voice need the client's evidence.
 
 ---
 
@@ -211,6 +246,7 @@ Read as the task requires, not all at once.
 |---|---|
 | `playbooks/README.md` | Choosing the playbook; the questions to ask; adding a genre or a client's house style. |
 | `playbooks/<id>.md` | Always, for the chosen playbook: structure, shots needed, editing, sound, look, graphics, compliance, commands. |
+| `references/agency-pitch-recipe.md` | A service or agency pitch, or any "recreate this sample" job where a presenter talks to camera and the voice is cut from their takes: every step, tool and flag, and the pitfalls met. |
 | `references/Chính sách.md` | **Before any batch or any footage that is not the user's own**: originality, duplicates, Douyin, how many videos footage supports. |
 | `references/claims-and-compliance.md` | Writing any script or on-screen claim; category law (real estate, food, cosmetics, finance); before/after rules; the rewrite table. |
 | `references/platforms.md` | TikTok vs Reels vs Shorts: formats, safe zones, ranking signals, music by platform, the publishing checklist. |

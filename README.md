@@ -98,7 +98,7 @@ cd short-video-kit
 `setup.sh` installs everything under `$HOME` (venv in `~/.local/share/short-video-kit`, model in
 `~/.cache/short-video-kit`, key in `~/.config/short-video-kit/env`, skill in
 `~/.claude/skills/short-video-editing`) and can be re-run safely. Options: `--download-ffmpeg`
-(Linux static build), `--no-model`, `--no-skill`, `--package` (builds
+(Linux static build), `--no-model`, `--person-model` (the 168 MB person-segmentation model the agency recipe needs; ask first), `--no-skill`, `--package` (builds
 `dist/short-video-editing.skill` for the Claude desktop app).
 
 **Windows:** run `setup.sh` and `selftest.sh` from Git Bash. Install prerequisites with
@@ -183,8 +183,9 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
     │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion,
     │                              HyperFrames flow, CapCut techniques
     ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
-    │                              make_voiceover, make_sfx, align_captions, suggest_cuts, plan_scenes, pacing_checker,
-    │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes
+    │                              make_voiceover, make_sfx, make_music, match_voice_takes, align_captions, suggest_cuts, plan_scenes, pacing_checker,
+    │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes,
+    │                              analyze_reference, montage, mix_report, find_cutaways, person_matte, agency_plan, finish_video, check_lipsync
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
     │   ├── grades.json            Colour looks used by the playbooks

@@ -5,6 +5,8 @@
 #   ./setup.sh                    full setup
 #   ./setup.sh --download-ffmpeg  also fetch a static ffmpeg if none is installed (Linux, ~40 MB)
 #   ./setup.sh --no-model         skip the Whisper model (it then downloads on first use)
+#   ./setup.sh --person-model     also download the person-segmentation model (u2net_human_seg.onnx, 168 MB; ASK THE USER FIRST).
+#                                 Only the agency-pitch recipe needs it: silhouette flash, beauty light, cutaways (person_matte.py)
 #   ./setup.sh --no-skill         do not install the skill into ~/.claude/skills
 #   ./setup.sh --set-key          type the ElevenLabs key (hidden) and store it, then exit
 #   ./setup.sh --package          build dist/short-video-editing.skill (for the Claude desktop app), then exit
@@ -23,12 +25,18 @@ VENV="$SHARE/venv"
 MODEL_DIR="${WHISPER_MODEL_DIR:-$HOME/.cache/short-video-kit/models}"   # same override align_captions.py reads
 KEYDIR="$HOME/.config/short-video-kit"; KEYFILE="$KEYDIR/env"
 
-INSTALL_SKILL=1; GET_MODEL=1; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0; CHECK=0
+INSTALL_SKILL=1; GET_MODEL=1; GET_PERSON=0; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0; CHECK=0
+PERSON_URL="https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx"
+PERSON_SHA256="01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c"   # the file this kit was tested with
+# where person_matte.py looks for it (same order)
+person_model_file() { local d; for d in "${SVK_MODEL_DIR:-}" "${WHISPER_MODEL_DIR:-}" "$HOME/.cache/short-video-kit/models" "$SHARE/models"; do
+  [[ -n "$d" && -f "$d/u2net_human_seg.onnx" ]] && { echo "$d/u2net_human_seg.onnx"; return 0; }; done; return 1; }
 for a in "$@"; do
   case "$a" in
     --check) CHECK=1 ;;
     --no-skill) INSTALL_SKILL=0 ;;
     --no-model) GET_MODEL=0 ;;
+    --person-model) GET_PERSON=1 ;;
     --download-ffmpeg) GET_FFMPEG=1 ;;
     --set-key) SET_KEY=1 ;;
     --package) PACKAGE=1 ;;
@@ -83,6 +91,8 @@ if [[ $CHECK -eq 1 ]]; then
   chk "Node 20+ (rendering only)"           "install Node 20+ (Windows: winget install OpenJS.NodeJS.LTS, then open a NEW terminal)" node_ok
   chk "skill installed and identical to this repo" "run ./setup.sh (after every git pull), then start a NEW Claude Code session" skill_ok
   DOCTOR="$KIT/skill/short-video-editing/scripts/doctor.py"
+  if person_model_file >/dev/null; then ok "person-segmentation model (optional): $(person_model_file)"
+  else warn "no person-segmentation model. Optional: only the agency-pitch recipe needs it (silhouette flash, beauty light). ./setup.sh --person-model (168 MB: ask the user first)"; fi
   deep_ok()   { [[ -n "$PY" ]] && "$PY" "$DOCTOR" --only ffmpeg; }
   chk "ffmpeg has every filter and encoder the scripts call" "run: python skill/short-video-editing/scripts/doctor.py --only ffmpeg (names what is missing and the build to install)" deep_ok
   if [[ -f "$KEYFILE" || -n "${ELEVENLABS_API_KEY:-}" ]]; then ok "ElevenLabs key present (value not shown)"
@@ -209,6 +219,29 @@ PY
     [[ -f "$MODEL_DIR/faster-whisper-small/model.bin" ]] && ok "model downloaded to $MODEL_DIR" \
       || { bad "download finished but model.bin is missing"; PROBLEMS=$((PROBLEMS+1)); }
   else bad "model download failed (needs internet)"; PROBLEMS=$((PROBLEMS+1)); fi
+fi
+
+# Optional, on request only: the person-segmentation model (168 MB) for person_matte.py.
+if [[ $GET_PERSON -eq 1 ]]; then
+  if person_model_file >/dev/null; then ok "person-segmentation model already present: $(person_model_file)"
+  else
+    mkdir -p "$MODEL_DIR"; TARGET="$MODEL_DIR/u2net_human_seg.onnx"
+    echo "      downloading u2net_human_seg.onnx from github.com/danielgatis/rembg (168 MB)…"
+    if "$VBIN/python" - "$PERSON_URL" "$TARGET.part" "$PERSON_SHA256" << 'PY'
+import hashlib, sys, urllib.request
+url, out, want = sys.argv[1:4]
+h = hashlib.sha256()
+with urllib.request.urlopen(url, timeout=60) as r, open(out, "wb") as f:
+    while chunk := r.read(1 << 20):
+        f.write(chunk); h.update(chunk)
+if h.hexdigest() != want:
+    print(f"      checksum differs from the tested file ({h.hexdigest()[:12]}…): kept anyway, check it before relying on it", file=sys.stderr)
+PY
+    then mv -f "$TARGET.part" "$TARGET"; ok "person-segmentation model at $TARGET"
+    else rm -f "$TARGET.part"; bad "person model download failed (needs internet)"; PROBLEMS=$((PROBLEMS+1)); fi
+  fi
+elif ! person_model_file >/dev/null; then
+  echo "      (optional) person-segmentation model not installed: only the agency-pitch recipe needs it. ./setup.sh --person-model"
 fi
 
 # ------------------------------------------------------------------ 4. ElevenLabs key

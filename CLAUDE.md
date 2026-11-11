@@ -50,7 +50,7 @@ Do these in order. Show real output; never summarise a failure as success.
    Claude Code session so the skill loads.
 
 Machine-specific locations are overridable: `SVK_PYTHON` (the venv's python), `WHISPER_MODEL_DIR`
-(folder holding `faster-whisper-small/`). If drive C: is small, put the venv, model and work folders on
+(folder holding `faster-whisper-small/`), `SVK_MODEL_DIR` (where `u2net_human_seg.onnx` is looked for first). If drive C: is small, put the venv, model and work folders on
 another drive and set these two variables for the user.
 
 ## When the user asks for a video
@@ -80,6 +80,14 @@ Follow `docs/WORKFLOW.md` (Vietnamese) and the skill's `SKILL.md`. In short:
 
 Keep work files **outside this repo** (e.g. `<work>/v1/{script.txt,captions.srt,words.json,edit-plan.md}`,
 `<work>/analysis.json` and one render project `<work>/render`); only the toolkit lives here.
+
+## When the user hands over a reference video ("make it like this") or a presenter's takes with a voice
+
+`skill/short-video-editing/references/agency-pitch-recipe.md` is the full recipe (steps 0-10, every tool and flag, the pitfalls met). In short: `analyze_reference.py sample.mp4 --out ref/` and
+**look** at its sheets before planning; `match_voice_takes.py` when the voice is the takes' own sound; `find_cutaways.py`, `person_matte.py` (needs the 168 MB person model: ask, then
+`./setup.sh --person-model`), `agency_plan.py` for the draft plan; build with `plan_to_project.py`; check with `node stills.mjs` + `montage.py`; render Remotion with `--concurrency=5`;
+finish with `finish_video.py`; prove with `check_lipsync.py` and `mix_report.py`. A technique the kit lacks is researched and added (component + doc row + selftest), not faked. Say what was not
+verified: nobody has listened to the sound bank or the music, and a sentence guessed from a poor transcript or a logo keyed from a sample frame is the human's to confirm.
 
 ## Footage rights and duplicate content — read `references/Chính sách.md` first
 
@@ -166,7 +174,7 @@ version, with the evidence in that file:
 - Before/after: the reveal gets a `compare` card (TRƯỚC/SAU frames of the same garment from ranges
   already on screen, with an honest time note); TikTok's **ad** policy bars before-and-after
   comparisons, so ask whether the video will be boosted. Details: `references/before-after.md`.
-- Viewer-first layout (client feedback, Nov 2026): titles hug the top edge (y 236–420), captions are the
+- Viewer-first layout (client feedback, Nov 2026; product demos: the `talking-head:agency` variant deliberately puts captions in a strip above its cards instead): titles hug the top edge (y 236–420), captions are the
   lower third (y ≈ 1340, 58 px, ≤ 2 lines), the middle ~900 px belongs to the footage. Title/caption blocks
   in the middle made viewers read instead of watch. Camera moves must be visible (≥ ~12% scale or ~8% pan,
   `focus` on the action, shot size alternating); render from 2880-tall proxies so the zoom stays sharp.
@@ -195,6 +203,21 @@ version, with the evidence in that file:
   SVG filter (a `drop-shadow` on an opaque frame only paints the edges); Python's `round()` is not JS `Math.round`
   (use the half-up helper); Remotion's `perceptual-scale` eases zoom in area (`√(a²+t(b²−a²))`), not geometrically
   (the first port got it wrong: SSIM 0.946 → 0.987 once fixed); `selftest.sh` needs `PYTHONUTF8=1` on Windows (it now exports it).
+- Footage for a batch (measured, Nov 2026, 8 videos x 41 s from 148 AI clips + 16 new ones): a scene uses a whole short clip (a 4 s clip hosts one scene of <= 3.2 s; two ranges of one clip need 0.5 s between them), so supply is about one scene per clip and the AI library carried 8 videos only just. Allocate **round-robin over all videos** (scene 1 of every video, then scene 2...; product beats before drinking shots), or the last video gets every leftover. Reserve one closing-shot clip per video. File names must not contain a dot (`…` becomes `...` and `Path.stem` cuts it: two clips collapse into one name). `plan_scenes.py --used` is case-insensitive since this batch; plans store clip names in upper case. A client's "40% new footage" is limited by the same arithmetic: 70 s of new clips are about 14-20% of 8 x 41 s without reuse; say so with the numbers.
+- A supplied voice that is the camera audio of the chosen takes, spliced (SISMO ad, Nov 2026: `voice_video_11-11.mp3` against clips C5074-C5109) matches each take sample for sample
+  (normalised correlation 0.98-1.0): `match_voice_takes.py` gives the lag per take; use the take's own picture with `In = start + lag` and the lips are exact. Lines no take holds
+  (the portfolio part of the pitch) get cutaways from the silent pre-roll and walk-off of the other takes, never another take of the same line. The other takes of a line
+  (C5075/76 for C5074's line) are for cutaways only. Whisper `small` mishears Vietnamese company talk: give it `initial_prompt` with the brand and domain words, and correct by hand.
+- Agency-pitch look (`talking-head:agency`, theme `crimson`): card scenes over the wind-blown grid, `cardSlide`/`cardSwirl`, `phrase`/`pill`/`arc`/`logo`; the logo PNG was keyed out of the
+  client's own sample frame (a red mark on sky: alpha = (R-G+55)/260 with ffmpeg `geq`, 4x Lanczos): ask the client for the vector instead. 8 render workers fail with
+  `No frame found at position` on 2880-tall proxies; `--concurrency=5` passes.
+- Agency pitch, second pass (SISMO v2, Nov 2026): the sample's opening is the speaker's silhouette filled white on frames 0, 2, 4 (30 fps), then the video; its "hidden letters jumping up" is a pile of tilted copies (gray ghosts under, colour copies larger and nearer the edge): `burst`.
+  A backlit face is grey beside a hand edit: `faceGlow` (brightness 1.26, saturate 0.88, blur 1, size 1.15, veil 0.07, head from `person_matte.py --faces`) matched it; a ring or ellipse effect must never cross the face.
+  The person model `u2net_human_seg.onnx` (168 MB) is not in the repo: `./setup.sh --person-model` downloads it next to the Whisper model (ask first); `doctor.py` checks it. Full recipe: `references/agency-pitch-recipe.md`;
+  draft the plan with `agency_plan.py`, finish with `finish_video.py`, prove the lips with `check_lipsync.py`.
+- Sound bank: 63 recorded CC0 files in `assets/sfx` (Kenney, OpenGameArt, Remotion's CDN) + 17 sounds `make_sfx.py` synthesizes into each render project, rotated per event so nothing repeats; nobody listened to them: say so. `--music-levels=-6,-6` needs the `=`.
+- No licensed track is bakeable into a business-account video (TikTok: Commercial Music Library only, not reachable by a render): `make_music.py` writes a self-made bed that follows the cuts;
+  deliver a second master without music so the human can add a CML track at upload.
 - Files sent to a phone or web viewer are limited to ~30 MB: `process_audio.py master … --phone` writes a
   CRF 24 copy beside the master.
 

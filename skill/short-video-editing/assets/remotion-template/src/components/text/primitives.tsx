@@ -12,6 +12,7 @@ type TextProps = {
   tracking?: string;
   lineHeight?: number;
   align?: "left" | "center" | "right";
+  wordSpacing?: string;
   children: React.ReactNode;
 };
 
@@ -24,6 +25,7 @@ const base = (p: TextProps): React.CSSProperties => ({
   lineHeight: p.lineHeight ?? 1.12, // Vietnamese stacked marks (Ấ, Ộ) need >= 1.05
   textAlign: p.align ?? "center",
   whiteSpace: "pre-wrap",
+  wordSpacing: p.wordSpacing,
 });
 
 // Solid fill with a dark outline layer underneath, so the stroke never eats into the letters.

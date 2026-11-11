@@ -36,3 +36,71 @@ well-known meme or Microsoft sounds. The kit's `ding` is synthesized instead.
 
 `sfx-map.json` holds the level (`gainDb`) and the lead time of every sound and says which sound
 plays on which event.
+
+## Recorded files, second batch (CC0)
+
+Fetched on 2026-11-11 from the CC0 packs of Kenney (kenney.nl: Interface Sounds, UI Audio, Digital Audio, Impact Sounds, Sci-Fi Sounds, Music Jingles; each pack's
+License.txt says CC0) and from OpenGameArt.org items whose page says CC0 (author as listed). Each is a 48 kHz mono 16-bit WAV, peak -3 dBFS, silence trimmed.
+Nobody listened to them: they were chosen from names, pack descriptions and measured features (`references/sound-design.md`). Derived files (a time-reversed copy for
+a riser, an excerpt) are marked; CC0 allows derivatives.
+
+| File here | Original file | Pack | Author | Page | Licence |
+|---|---|---|---|---|---|
+| `chime-a.wav` | confirmation_003.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `chime-b.wav` | confirmation_002.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `chime-c.wav` | dingCling-levelup.ogg | oga-6-user-interface-ding-clicks | qubodup | https://opengameart.org/content/6-user-interface-ding-clicks | CC0 1.0 |
+| `chime-d.wav` | item_gem_04.ogg | oga-80-cc0-rpg-sfx | rubberduck | https://opengameart.org/content/80-cc0-rpg-sfx | CC0 1.0 |
+| `chime-e.wav` | kalimba.wav | oga-kalimba-two-notes | railkill | https://opengameart.org/content/kalimba-two-notes | CC0 1.0 |
+| `chime-f.wav` | coin.wav | oga-rpg-sound-pack | artisticdude | https://opengameart.org/content/rpg-sound-pack | CC0 1.0 |
+| `success-a.wav` | Chime_LevelUp.mp3 | oga-chimey-ui-sounds | mousebyte | https://opengameart.org/content/chimey-ui-sounds | CC0 1.0 |
+| `success-b.wav` | positive_0.ogg | oga-positive-sound | ezduzziteh | https://opengameart.org/content/positive-sound | CC0 1.0 |
+| `ding-a.wav` | Ding.wav | oga-ui-sound-effects-button-clicks-user-feedback-notifications | robin-lamb | https://opengameart.org/content/ui-sound-effects-button-clicks-user-feedback-notifications | CC0 1.0 |
+| `ding-b.wav` | sfx_ui_twang_2.mp3 | oga-twangy-ui-sounds | ezduzziteh | https://opengameart.org/content/twangy-ui-sounds | CC0 1.0 |
+| `pop-a.wav` | pop4.ogg | oga-pop-sounds | cogitollc | https://opengameart.org/content/pop-sounds | CC0 1.0 |
+| `pop-b.wav` | pop2.wav | oga-pop-sounds-0 | ezduzziteh | https://opengameart.org/content/pop-sounds-0 | CC0 1.0 |
+| `pop-c.wav` | drop_003.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `bubble-a.wav` | bubbles-single1.wav | oga-bubble-sound-effects | bmaczero | https://opengameart.org/content/bubble-sound-effects | CC0 1.0 |
+| `bubble-b.wav` | pop.ogg | oga-bubbles-pop | farfadet46 | https://opengameart.org/content/bubbles-pop | CC0 1.0 |
+| `click-a.wav` | click2.ogg | kenney-ui-audio | Kenney (kenney.nl) | https://kenney.nl/assets/ui-audio | CC0 1.0 |
+| `tick-a.wav` | tick_004.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `tick-b.wav` | tick2.wav | oga-tick-and-tock | cemkalyoncu | https://opengameart.org/content/tick-and-tock | CC0 1.0 |
+| `type-a.wav` | typewriter6.wav | oga-typewriter-sounds | cassie-orbitgames | https://opengameart.org/content/typewriter-sounds | CC0 1.0 |
+| `toggle-a.wav` | toggle_001.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `whoosh-s1.wav` | whip.wav | remotionmedia | JW_Audio | https://remotion.media/whip.wav (origin: https://freesound.org/s/838766/) | CC0 1.0 |
+| `whoosh-s2.wav` | swosh-19.flac | oga-swish-bamboo-stick-weapon-swhoshes | qubodup | https://opengameart.org/content/swish-bamboo-stick-weapon-swhoshes | CC0 1.0 |
+| `whoosh-s3.wav` | maximize_001.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `whoosh-s4.wav` | blade_02.ogg | oga-80-cc0-rpg-sfx | rubberduck | https://opengameart.org/content/80-cc0-rpg-sfx | CC0 1.0 |
+| `whoosh-m1.wav` | qubodup-megaswosh1.wav | oga-wind-hit-time-morph | qubodup | https://opengameart.org/content/wind-hit-time-morph | CC0 1.0 |
+| `whoosh-m2.wav` | swosh-24.flac | oga-swish-bamboo-stick-weapon-swhoshes | qubodup | https://opengameart.org/content/swish-bamboo-stick-weapon-swhoshes | CC0 1.0 |
+| `whoosh-m3.wav` | maximize_005.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `whoosh-l1.wav` | whoosh2_0.wav | oga-air-whoosh | pyranostudios | https://opengameart.org/content/air-whoosh | CC0 1.0 |
+| `whoosh-l2.wav` | qubodup-slomo1.wav | oga-wind-hit-time-morph | qubodup | https://opengameart.org/content/wind-hit-time-morph | CC0 1.0 |
+| `whoosh-l3.wav` | swosh-31.flac | oga-swish-bamboo-stick-weapon-swhoshes | qubodup | https://opengameart.org/content/swish-bamboo-stick-weapon-swhoshes | CC0 1.0 |
+| `riser-a.wav` | spell_fire_04.ogg | oga-80-cc0-rpg-sfx | rubberduck | https://opengameart.org/content/80-cc0-rpg-sfx | CC0 1.0 |
+| `riser-b.wav` | explosionCrunch_001.ogg | kenney-sci-fi-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/sci-fi-sounds | CC0 1.0 |
+| `riser-c.wav` | gong_01.ogg | oga-100-cc0-sfx | rubberduck | https://opengameart.org/content/100-cc0-sfx | CC0 1.0 |
+| `riser-d.wav` | bell_01.ogg | oga-100-cc0-sfx | rubberduck | https://opengameart.org/content/100-cc0-sfx | CC0 1.0 |
+| `impact-soft.wav` | impactSoft_heavy_003.ogg | kenney-impact-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/impact-sounds | CC0 1.0 |
+| `impact-boom.wav` | lowFrequency_explosion_001.ogg | kenney-sci-fi-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/sci-fi-sounds | CC0 1.0 |
+| `impact-wood.wav` | impactWood_heavy_001.ogg | kenney-impact-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/impact-sounds | CC0 1.0 |
+| `impact-cine.wav` | explosionCrunch_001.ogg | kenney-sci-fi-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/sci-fi-sounds | CC0 1.0 |
+| `impact-bell.wav` | impactBell_heavy_000.ogg | kenney-impact-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/impact-sounds | CC0 1.0 |
+| `slam-wood.wav` | wood_slam_01.ogg | oga-100-cc0-metal-and-wood-sfx | rubberduck | https://opengameart.org/content/100-cc0-metal-and-wood-sfx | CC0 1.0 |
+| `slam-thwack.wav` | thwack-05.oga | oga-thwack-sounds | antumdeluge | https://opengameart.org/content/thwack-sounds | CC0 1.0 |
+| `slam-a.wav` | slam_04.ogg | oga-100-cc0-sfx | rubberduck | https://opengameart.org/content/100-cc0-sfx | CC0 1.0 |
+| `slam-plate.wav` | impactPlate_heavy_001.ogg | kenney-impact-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/impact-sounds | CC0 1.0 |
+| `shutter-a.wav` | shutter-modern.wav | remotionmedia | ristooooo1 | https://remotion.media/shutter-modern.wav (origin: https://freesound.org/s/539136/) | CC0 1.0 |
+| `shutter-b.wav` | shutter-old.wav | remotionmedia | hmilleo | https://remotion.media/shutter-old.wav (origin: https://freesound.org/s/409093/) | CC0 1.0 |
+| `shutter-c.wav` | photo.ogg | oga-camera | themightyglider | https://opengameart.org/content/camera | CC0 1.0 |
+| `glitch-a.wav` | scratch_004.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `glitch-b.wav` | error_003.ogg | kenney-interface-sounds | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | CC0 1.0 |
+| `stinger-a.wav` | jingles_HIT03.ogg | kenney-music-jingles | Kenney (kenney.nl) | https://kenney.nl/assets/music-jingles | CC0 1.0 |
+| `stinger-b.wav` | jingles_STEEL09.ogg | kenney-music-jingles | Kenney (kenney.nl) | https://kenney.nl/assets/music-jingles | CC0 1.0 |
+| `boing-a.wav` | boing.wav | oga-18-random-video-game-sound-effects | bart | https://opengameart.org/content/18-random-video-game-sound-effects | CC0 1.0 |
+| `boing-b.wav` | spring_07.ogg | oga-100-cc0-sfx | rubberduck | https://opengameart.org/content/100-cc0-sfx | CC0 1.0 |
+| `magic-a.wav` | powerUp10.ogg | kenney-digital-audio | Kenney (kenney.nl) | https://kenney.nl/assets/digital-audio | CC0 1.0 |
+| `magic-b.wav` | spell_02.ogg | oga-80-cc0-rpg-sfx | rubberduck | https://opengameart.org/content/80-cc0-rpg-sfx | CC0 1.0 |
+| `magic-c.wav` | Cure2.wav | oga-cure-magic | someoneman | https://opengameart.org/content/cure-magic | CC0 1.0 |
+| `slidepop-a.wav` | slidepop_0.mp3 | oga-a-slide-pop-sound | ezduzziteh | https://opengameart.org/content/a-slide-pop-sound | CC0 1.0 |
+| `slidepop-b.wav` | phaseJump5.ogg | kenney-digital-audio | Kenney (kenney.nl) | https://kenney.nl/assets/digital-audio | CC0 1.0 |
+| `slidepop-c.wav` | phaserUp5.ogg | kenney-digital-audio | Kenney (kenney.nl) | https://kenney.nl/assets/digital-audio | CC0 1.0 |

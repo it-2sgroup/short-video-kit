@@ -4,6 +4,8 @@ import { Easing } from "remotion";
 import { loadFont as loadSans } from "@remotion/google-fonts/BeVietnamPro";
 import { loadFont as loadSerif } from "@remotion/google-fonts/PlayfairDisplay";
 import { loadFont as loadNumber } from "@remotion/google-fonts/Anton";
+import { loadFont as loadCondensed } from "@remotion/google-fonts/BarlowCondensed";
+import { loadFont as loadScript } from "@remotion/google-fonts/Pacifico";
 import type { Tone, Zone } from "./project";
 
 // Vietnamese needs BOTH subsets: the 'vietnamese' subset holds only the extra marks.
@@ -11,18 +13,24 @@ const SUBSETS: ("latin" | "latin-ext" | "vietnamese")[] = ["latin", "latin-ext",
 const sans = loadSans("normal", { weights: ["500", "700", "800", "900"], subsets: SUBSETS });
 const serif = loadSerif("italic", { weights: ["700"], subsets: SUBSETS });
 const number = loadNumber("normal", { weights: ["400"], subsets: SUBSETS });
+const condensed = loadCondensed("normal", { weights: ["800", "900"], subsets: SUBSETS });
+const script = loadScript("normal", { weights: ["400"], subsets: ["latin", "latin-ext", "vietnamese"] });
 
 export const fonts = {
   sans: sans.fontFamily, // Be Vietnam Pro: titles, labels, captions
   accent: serif.fontFamily, // Playfair Display Italic: one accent word per title
   number: number.fontFamily, // Anton: prices and counters
+  condensed: condensed.fontFamily, // Barlow Condensed: the loud emphasis line (phrase, tag)
+  script: script.fontFamily, // Pacifico: one handwritten word or phrase (script)
 };
 
 // Colour theme, chosen by the playbook (playbooks/<id>.json "theme"): "cool" (white and sky blue) for
 // demos, tutorials, talking heads and promos; "warm" (ivory, gold, vermilion, brown) for food and
 // amber, wood or candle-lit footage; "luxe" (ivory, champagne gold, charcoal) for real estate, fashion
 // and beauty. `new_remotion_project.py DEST --playbook ID` (or --theme) rewrites this one line.
-type ThemeName = "cool" | "warm" | "luxe";
+// "crimson" (white, brand red, yellow highlight, deep maroon) is the agency-pitch look: red emphasis lines, white
+// pills, a maroon animated grid behind the cards. `new_remotion_project.py DEST --theme crimson`.
+type ThemeName = "cool" | "warm" | "luxe" | "crimson";
 const THEME: ThemeName = "cool";
 
 const themes = {
@@ -66,6 +74,27 @@ const themes = {
       glassBg: "linear-gradient(160deg, rgba(255,247,230,0.94), rgba(243,224,188,0.88))",
       glassBorder: "1.5px solid rgba(255,238,205,0.8)",
       glassShadow: "0 20px 60px rgba(60,25,5,0.32)",
+    },
+  },
+  crimson: {
+    palette: {
+      white: "#FFFFFF",
+      ice: "#FFE9E6", // blush: secondary text
+      sky: "#FFD23F", // yellow: the spoken word, script text, highlights
+      royal: "#E4262B", // brand red: emphasis lines, red pills, badges
+      navy: "#7A0F1A", // deep maroon: the grid's mid tone, dark text on white pills
+      ink: "#1A0407", // near-black red: outlines, grid top
+      shadow: "rgba(40,0,6,0.5)",
+    },
+    tones: { before: "#FF8A7A", after: "#FFD23F", cta: "#FFD23F", product: "#FF6F7D" },
+    title: {
+      sky: "#FFFFFF 0%, #FFFFFF 45%, #FFD9D4 100%",
+      accent: "#FFF3B0 0%, #FFD23F 50%, #FFA726 100%",
+      glassText: "#7A0F1A 0%, #E4262B 100%",
+      glassLead: "#5B0B14",
+      glassBg: "linear-gradient(160deg, rgba(255,255,255,0.95), rgba(255,226,222,0.9))",
+      glassBorder: "1.5px solid rgba(255,255,255,0.8)",
+      glassShadow: "0 20px 60px rgba(60,0,8,0.3)",
     },
   },
   luxe: {
@@ -131,6 +160,12 @@ export const cartPoint = { x: 112, y: 1677 };
 // `scrim` dims the footage behind the card so the comparison does not blend into it.
 export const compare = { height: 620, radius: 28, border: 6, divider: 6, handle: 76, holdFrames: 8, sweepFrames: 20, settle: 0.5, scrim: 0.5 };
 export const thumb = { width: 250, height: 232 }; // the three-photo strip: small, so the footage stays visible
+
+// Card layout (a scene with layout "card"/"expand"): the clip plays in a rounded 9:16 card floating over the
+// animated grid (components/graphics/Grid.tsx), the portfolio look of agency pitches. Frame pixels.
+export const card = { width: 690, height: 1227, top: 360, radius: 48, shadow: "0 30px 70px rgba(0,0,0,0.5)", expandFrames: 14 };
+// The animated grid behind the cards: a net of lines blown by a slow wind. `cell` is the mesh pitch in pixels.
+export const grid = { cell: 72, amplitude: 16, speed: 1.0 };
 
 // Information graphics (components/graphics/Info.tsx): the specs row, the location pin, room labels,
 // count-up stats and bar charts. Sizes in frame pixels; they stay inside the safe width.

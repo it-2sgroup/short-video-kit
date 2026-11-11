@@ -93,6 +93,17 @@ go. Put it on the shot list.
 | `stat` | One figure counting up (vi-VN format), unit and label | `value, unit, label, prefix, decimals` | A real number with a source; holds ≥ 1.5 s after it lands |
 | `chart` | 2–5 horizontal bars growing in turn, values counting up, the largest highlighted | `items=Label#45 / Label#120; unit; title; highlight` | Real measurements only; one idea per chart |
 | `image` | A still from `public/` scaling in, framed (`card`) or bare (`none`) | `src=images/x.png, at=x,y, width, frame, caption` | Floor plans, logos, packshots; files the user owns |
+| `burst` | The opening shout as a pile of copies: a gray ghost under, then more and more tilted copies pop up around it, each larger and nearer the frame edge ("hidden letters jumping up") | `text, at, copies, speed, fill, stroke, hold` | The first second, once (the alternative to `arc`); `speed=1.7` builds it in ~0.4 s |
+| `phrase` | A white lead line over a loud emphasis line (red, or `emphColor=yellow`), letters scatter in and fly apart on exit; the lead can come first and the emphasis `emphAt` seconds later | `lead, emph, emphAt, y, emphColor, enter=scatter/rise, exit=scatter/fade` | The agency look: every spoken thought is a block; one block at a time (while a `logo` or `counter` holds the top strip, a phrase sits at `y=0.285`); `y` is the top as a fraction of the height |
+| `pill` | A rounded label (white with red text, or red with white text) whose text types in | `text, variant=white/red, at=x,y, size, type` | Lists of two or three offers one under another; <= 30 characters |
+| `arc` | Letters along an arc with echoes fanning out behind them | `text, echoes, at, fill, stroke` | The opening shout (a city name), once; it is there on frame 0. The alternative to `burst`: use one of the two |
+| `script` | One handwritten phrase in the highlight colour (Pacifico), letters scatter in | `text, at, rotate, size` | One per video, on a word that deserves warmth |
+| `tag` | A small loud label (red letters, white outline) popping over a card | `text, at` | "SẢN PHẨM", "F&B": kinds of clients or work; <= 14 characters |
+| `logo` | The brand mark (`public/images/logo.png`, a transparent PNG) arrives out of a motion blur and snaps sharp; `tint=white` for a red backdrop, `hold=1` for an end card | `at, width, src, tint, hold` | On the beats that name the brand and at the end; keyed from the brand's own file (a vector or PNG the user supplies; never redraw it) |
+| `counter` | A number pops, an arrow draws, the second number pops, a unit slides up | `from, to, label, at` | One range the voice says ("5 -> 10 ngày"); the figures are the brand's own and need evidence |
+| `icon` | A pictogram popping in at a point: `target megaphone bang search check` | `name, at, size, rotate` | A word that names the picture (mục tiêu, đừng bỏ qua); not on faces |
+| `circled` | A label that a hand-drawn ellipse draws around, a pictogram popping in below it | `text, at, icon` | One support or promise ("HỖ TRỢ"); the word is said while it is on |
+| `rawfinal` | Two cards side by side playing the same take: the unedited clip (`public/raw/…`) and the finished look | `raw, final, at, saturate, contrast, brightness` | The honest "what editing does": same take, only the edit differs; put it on a card scene with no clip |
 
 Coordinates are fractions of the frame (`0.62,0.55`), measured on the **rendered** frame (the camera
 may have zoomed). Check with a still.
@@ -121,6 +132,39 @@ it fits where the voice names three things.
 ```
 
 ---
+
+## Text effects (`fx=` of `phrase`, `leadFx=`, `tag`)
+
+One engine (`components/text/Fx.tsx`), fourteen effects; pick by what the words *do*, and never the same effect on two neighbouring blocks:
+
+| `fx` | Look | Use it on |
+|---|---|---|
+| `scatter` | letters fly in from random places and settle; fly apart on exit | the default loud line |
+| `slam` | the whole line slams in from 3x size and shakes | a shout, a claim ("ĐỪNG BỎ QUA!!!", "CHỈ CÓ TRONG THÁNG NÀY!") |
+| `stamp` | tilted, lands with an overshoot, a double rule pressed round it | a verdict or a promise ("GIẢI QUYẾT VẤN ĐỀ") |
+| `glitch` | RGB-split jitter that settles | the problem, the pain ("THIẾU VIDEO…") |
+| `drop` | letters fall from above and bounce | a lead line that sets something down |
+| `elastic` | rubbery overshoot, letter by letter | the answer after a problem |
+| `wave` | letters rise in a ripple and keep rippling | friendly, flowing lines |
+| `flip` | letters flip up in 3D | an instruction ("Bạn chỉ cần chọn mục tiêu") |
+| `maskwipe` | a coloured bar wipes the text into view | a list item, a plan |
+| `split` | two halves slide in from opposite sides and join | a before/after word pair |
+| `shine` | a light sweep crosses the finished text | the line that names the offer |
+| `neon` | flickers on, then glows | the call to action ("INBOX NGAY") |
+| `typewriter` | letters appear one by one with a cursor | a short label, a quote |
+| `rise` | a quiet rise | calm lead lines |
+
+Rotation rule used on the SISMO pitch: lead lines `rise`, `maskwipe`, `drop`, `wave`, `flip`; emphasis lines `slam`, `glitch`, `elastic`, `stamp`, `shine`, `neon`; at most
+two loud effects within any 3 s.
+
+## Card layout and the animated grid (`Layout` column: `card`, `expand`)
+
+A scene with `Layout = card` plays its clip (camera moves included) inside a rounded 9:16 card (690 x 1227, top at y 360) floating over an animated
+backdrop: a net of fine lines on a deep gradient, blown by a slow wind like a banner (`components/graphics/Grid.tsx`; colours from the theme, `grid` and
+`card` in `theme.ts`). It is the portfolio or process section of an agency pitch: 0.8-1.6 s per card (a closing `expand` card longer), `cardSlide` between them, captions in a strip above the
+card (`Caption bands`: `| 14.7 | 19.6 | 250 | 44 |`), one tag per card at most. A card scene whose Source is `-` shows the grid alone, for overlays that draw their
+own cards (`rawfinal`) or an end card. `Layout = expand` starts as a card and grows to the full frame in 14 frames with a fabric-like wave (an SVG
+displacement filter): follow a card with it and a `cut`. The grid shows only where a card scene is transparent, so full-frame scenes cover it.
 
 ## Motion conventions [C]
 

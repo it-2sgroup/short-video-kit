@@ -21,7 +21,7 @@ dùng/tránh, danh sách tuân thủ. Kế hoạch dựng ghi `**Playbook:** <id
 | `product-demo` (`:unboxing`, `:listicle`) | review/demo sản phẩm TikTok Shop, trước/sau | giọng |
 | `real-estate` (`:voiceover`) | tour căn hộ, nhà phố, villa, homestay, đất | nhạc |
 | `food-fnb` (`:review`) | món ăn, quán, đồ uống | nhạc |
-| `talking-head` (`:testimonial`) | chuyên gia, chia sẻ, câu chuyện, cảm nhận khách | giọng trên camera (jump cut) |
+| `talking-head` (`:testimonial`, `:agency`) | chuyên gia, chia sẻ, câu chuyện, cảm nhận khách; `:agency` = video giới thiệu dịch vụ cắt từ các take của người dẫn | giọng trên camera (jump cut) |
 | `tutorial` | hướng dẫn, công thức, từng bước | giọng |
 | `fashion-beauty` | thử đồ, lookbook, makeup, skincare | nhạc |
 | `montage-recap` | du lịch, sự kiện, khai trương, hậu trường | nhạc |
@@ -52,6 +52,17 @@ Nếu yêu cầu và footage khớp nhau, Claude nói chọn playbook nào và v
 nhau hoặc thiếu dữ kiện (giá, diện tích, địa chỉ, ngày khuyến mãi, có giọng hay chỉ nhạc), Claude hỏi **tối
 đa 3 câu**, mỗi câu kèm phương án mặc định. Lô nhiều video: tính ngân sách footage trước
 (`references/footage-ingest.md` §1b, `references/Chính sách.md` §4.1).
+
+### 1b. Khách đưa video mẫu ("làm giống cái này")
+```bash
+python3 scripts/analyze_reference.py mau.mp4 --out ref/ --dense 0-3,15-20   # đo: số cảnh, chuyển cảnh, cú nháy, màu, độ ồn + ảnh tổng hợp
+```
+Mở `ref/report.md`, `scenes.png`, mọi `dense_*.png` (cứ 2 khung hình một lần trong đoạn: cú nháy trên khung 0, 2, 4, đống chữ đang
+ghép lại) và `spectrum_*.png` (tiếng click là vạch đứng, whoosh là dải chéo), rồi **nhìn**. Số đo cho thời điểm chính xác tới khung
+hình; ảnh cho biết đó là kỹ thuật gì. Liệt kê từng kỹ thuật thấy được, tìm nó trong `references/capcut-techniques.md` và
+`references/layout-and-motion-graphics.md`; kỹ thuật bộ công cụ chưa có thì **nghiên cứu và thêm thành thành phần** (kèm dòng tài
+liệu và selftest), không làm nhái. Người dẫn nói trước ống kính giới thiệu dịch vụ → `references/agency-pitch-recipe.md` (10 bước).
+Logo và sản phẩm khách đưa lên thẻ thuộc về khách: xin file vector và sự đồng ý. Không dùng nhạc, footage của video mẫu.
 
 ### 2. Chuẩn bị footage (hiệu chỉnh + màu)
 ```bash
@@ -106,9 +117,12 @@ python3 scripts/footage_overlap_checker.py v1/edit-plan.md v0/edit-plan.md --cli
 python3 scripts/plan_to_project.py v1/edit-plan.md --out ~/renders/lo1/v1.json --voice audio/v1.wav --music audio/music.wav \
     --captions captions.srt --words words.json --auto-camera --analysis analysis.json --auto-sfx [--platform reels-ad]
 cd ~/renders/lo1
-npx remotion still src/index.ts Short out/kiemtra.png --frame=45 --props=v1.json
-npx remotion render src/index.ts Short out/v1.mp4 --props=v1.json --codec=h264 --crf=18
+node stills.mjs v1.json out/s --cuts                                  # một lần bundle: ảnh sau mỗi điểm cắt và giữa mỗi cảnh (hoặc --every 0.5 --from 0 --to 8, hoặc liệt kê giây)
+python3 scripts/montage.py "out/s_*.jpg" --cols 6 --out out/sheet.jpg  # NHÌN từng chuyển cảnh, hiệu ứng chữ, thẻ trên một ảnh
+npx remotion render src/index.ts Short out/v1.mp4 --props=v1.json --codec=h264 --crf=18 --concurrency=5
 ```
+`--concurrency=5`: 8 luồng báo "No frame found at position" với proxy cao 2880. Đọc dòng "wrote …" sau mỗi lần biên dịch: tham số
+bị argparse từ chối (`--music-levels -6,-6` phải viết `=`) có thể để lại project cũ và video render ra không có nhạc.
 Đọc **sync report**: cắt giữa từ, chữ hiện/tắt sát điểm cắt, đồ hoạ lấn vùng giao diện (TikTok, quảng cáo Reels),
 thành phần playbook không nên dùng, slow-motion sẽ giật, thiếu file trong `public/`.
 
@@ -133,12 +147,17 @@ Chi tiết, bẫy, mở rộng: `references/hyperframes-flow.md`; danh mục k�
 ### 7. Master âm thanh và xuất
 ```bash
 python3 scripts/process_audio.py master out/v1.mp4 --out out/v1_final.mp4 --phone    # −14 LUFS, đỉnh ≤ −1 dBTP + bản nhẹ gửi điện thoại
+python3 scripts/finish_video.py out/v1.mp4 --name TEN_v1 --out-dir out/final --audio-nomusic nomusic.wav --cover-at 3 --preview720   # quy trình agency
 ```
+Remotion xuất dải màu full (`yuvj420p`): `finish_video.py` đổi về limited BT.709. Tài khoản doanh nghiệp TikTok không thể "nướng" nhạc có bản quyền
+vào video: giao thêm một bản **không nhạc** để người dùng gắn nhạc từ Commercial Music Library khi đăng (`make_music.py` viết nền nhạc tự tạo).
 Một bản master sạch dùng cho mọi nền tảng; **không** tải video từ TikTok về đăng lại lên Reels (dính watermark).
 
 ### 8. Kiểm cuối và báo cáo
 ```bash
 python3 scripts/contact_sheet.py out/v1_final.mp4 --project ~/renders/lo1/v1.json --out out/sheet.png
+python3 scripts/mix_report.py out/v1_final.mp4 --project ~/renders/lo1/v1.json --words words.json [--nomusic out/v1_nomusic.mp4]   # đo: dải màu, thời lượng, LUFS, đỉnh, nhạc có thật sự trong file
+python3 scripts/check_lipsync.py ~/renders/lo1/v1.json out/v1_final.mp4 --clips /duong/dan/clip-goc   # giọng cắt từ các take: mọi cảnh lệch ≤ 1 khung hình
 ```
 **Nhìn thật**: chủ thể không bị che, chữ đọc được (chữ trắng trên vải trắng), không lấn vùng giao diện, trước/sau
 trung thực. Nghe trọn video. Báo cáo: playbook và lý do, thời lượng, số cảnh, hook, hiệu chỉnh đã áp cho footage,

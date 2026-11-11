@@ -3,3 +3,5 @@
 # scripts/align_captions.py decodes with ffmpeg and hands over raw samples instead.
 faster-whisper==1.2.1
 numpy
+# the person-segmentation scripts (person_matte.py, find_cutaways.py --person) run on onnxruntime; faster-whisper already depends on it
+onnxruntime

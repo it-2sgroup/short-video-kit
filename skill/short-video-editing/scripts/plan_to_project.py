@@ -13,9 +13,16 @@ playbook (`**Playbook:**` line, or --playbook).
         [--auto-sfx [--sfx-map table.json] [--sfx-gain -3]]
 
 Scenes table (columns by name, any order; extra columns are ignored):
-  Start | End | Source | In | Type | Transition | Camera | Speed
+  Start | End | Source | In | Type | Layout | Transition | Camera | Speed | Flash | Face
+    Face        "0.52,0.50,0.072": where the head is (x, y of its centre and r, half its width, as fractions of the frame; person_matte.py
+                --faces measures it): the beauty light (project "faceGlow", --face-glow) is drawn there
+    Flash       "0,2,4 @ mattes/C5074": a white silhouette of the person on those frames from the cut (person_matte.py wrote
+                public/mattes/C5074_0.png, _2, _4): the social opener's white flash
+    Layout      blank/full (the clip fills the frame) | card (the clip plays in a rounded card over the animated grid;
+                Source "-" gives the grid alone, for overlays that draw their own cards) | expand (starts as a card and
+                grows to the full frame with a fabric-like wave; follow a card scene with a "cut")
     Transition  fade | slide [left|right|up|down] | wipe [dir] | iris | pushCut | zoomThrough |
-                blurDissolve | whip [dir] | flip [dir] | crossZoom | cut, optional "14f",
+                blurDissolve | whip [dir] | flip [dir] | crossZoom | cardSlide [right] | cardSwirl | cut, optional "14f",
                 optional accent "+flash" or "+leak" (e.g. "slide up +flash"), and CapCut-style hits
                 "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them)
     Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold [scale], optional
@@ -32,8 +39,8 @@ Overlays table:  Start | End | Component | Zone | Tone | Content
            or cut (3 frames before the next scene cut)
     Component  any key of the template registry (src/components/registry.tsx): title, callout,
            checklist, step, price, cart, highlight, sticker, magnifier, thumbs, compare, ranking,
-           progress, lowerThird, specs, pin, label, stat, chart, image, plus two pseudo-components:
-           punch (camera punch-in) and sfx (sound cue)
+           progress, lowerThird, specs, pin, label, stat, chart, image, phrase, pill, arc, script, tag, logo,
+           counter, icon, circled, rawfinal, plus two pseudo-components: punch (camera punch-in) and sfx (sound cue)
     Content  key=value pairs separated by ';'. Lists use ' / ', points use 'x,y' (0..1).
            e.g.  style=stack; lines=đợi vừa lâu / vừa tốn token; accent=token
                  label=2 cổng USB-C; target=0.42,0.55; side=left
@@ -46,6 +53,12 @@ Overlays table:  Start | End | Component | Zone | Tone | Content
                      car floor tree pool clock tag pin star)
                  items=Tự làm#45 / Thuê thợ#120; unit= phút       (chart)
                  src=images/floorplan.png; at=0.5,0.3; width=600 (image, file under public/)
+                 lead=Đang kinh doanh; emph=THIẾU VIDEO; emphColor=yellow (phrase); text=TĂNG NHẬN DIỆN; variant=red (pill)
+                 from=5; to=10; label=NGÀY (counter); name=target|megaphone|bang|search|check; at=0.2,0.3 (icon)
+                 raw=raw/C5099.mp4; final=clips/C5099.mp4; at=3.2 (rawfinal: two cards, the same take unedited and edited)
+
+Caption bands (optional table, Start | End | Top | Size): where the spoken captions sit while a window is open, e.g. a
+strip above the cards: | 14.7 | 19.6 | 250 | 44 |; an optional Highlight column (color box underline glow) restyles the spoken word in that window; Top "hide" shows no captions in the window (a title already says it).
 
 It also prints a sync report: cuts inside words, text appearing or vanishing on a cut, graphics in
 the right-rail no-go zone, caption reading speed. Warnings do not stop the build; errors do.
@@ -67,7 +80,8 @@ FPS = 30
 LEAD = 3 / FPS  # graphics land 3 frames before their word
 KNOWN = playbooks.registry_components()  # the template's registry + punch and sfx
 CANON = {t.lower(): t for t in ["fade", "slide", "wipe", "iris", "pushCut", "zoomThrough",
-                                 "blurDissolve", "whip", "flip", "crossZoom", "cut"]}
+                                 "blurDissolve", "whip", "flip", "crossZoom", "cardSlide", "cardSwirl", "cut"]}
+LAYOUTS = {"full", "card", "expand"}
 DIRS = {"left", "right", "up", "down"}
 
 
@@ -233,7 +247,7 @@ def parse_camera(raw: str):
 
 
 def value(v: str):
-    v = v.strip()
+    v = unicodedata.normalize("NFC", v.strip())  # letters are split per character by the text effects: composed Vietnamese only
     if " / " in v:
         return [x.strip() for x in v.split(" / ")]
     if re.fullmatch(r"-?[\d.]+\s*,\s*-?[\d.]+", v):
@@ -364,38 +378,73 @@ DEFAULT_SFX_MAP = Path(__file__).resolve().parent.parent / "assets" / "sfx" / "s
 def merge_sfx(cfg, overrides):
     """The playbook's `sfx` section replaces single events of sfx-map.json (null = silence)."""
     for section, table in overrides.items():
-        cfg["events"].setdefault(section, {}).update(table)
+        if section == "rules":
+            cfg["rules"].update(table)  # a playbook may allow more sounds per window (text-heavy genres)
+        else:
+            cfg["events"].setdefault(section, {}).update(table)
     return cfg
 
 
 def auto_sfx(scenes, overlays, cfg, manual, offset_db=0.0):
     """Sound cues from assets/sfx/sfx-map.json: transitions (an accent beats the transition type; a
-    `sceneStart` entry "A>B" or "*>B" beats both, and null means silence, e.g. across the reveal), and
-    graphic entrances. Cues you wrote by hand (`manual`) always stay; the rest are thinned so sounds
-    never crowd each other: minGap apart, at most maxInWindow per window."""
+    `sceneStart` entry "A>B" or "*>B" beats both, and null means silence, e.g. across the reveal), a silhouette
+    flash, and graphic entrances. An event's value is a sound name, a LIST of names (alternatives, used in turn so
+    the same sound never plays twice in a row), or {"sound": name-or-list, "offset": s, "also": [name, ...]} where
+    `also` sounds are layered on the same moment (a whoosh with a soft impact). An overlay is looked up by
+    "component:fx" (a text effect or style), then "component". Cues you wrote by hand (`manual`) always stay; the rest
+    are thinned so sounds never crowd each other: minGap apart, at most maxInWindow per window."""
     sounds, ev, rules = cfg["sounds"], cfg["events"], cfg["rules"]
-    cand = []  # (priority, time, sound)
+    cand = []  # (priority, time, event key, entry)
     for k, s in enumerate(scenes[1:], 1):
         prev, cut = scenes[k - 1], s["start"]
-        name = ev["accent"].get(s.get("accent")) or ev["transition"].get(s.get("transition", {}).get("type", "fade"))
-        name = ev["sceneStart"].get(f"{prev['type']}>{s['type']}", ev["sceneStart"].get(f"*>{s['type']}", name))
-        if name:
-            cand.append((0, cut, name))
-    for o in overlays:  # "title:stack" (component:style) wins over "title"; a value may be {sound, offset}
-        entry = ev["overlay"].get(f"{o['component']}:{o['props'].get('style')}") or ev["overlay"].get(o["component"])
+        key, entry = None, None
+        acc, ttype = s.get("accent"), s.get("transition", {}).get("type", "fade")
+        if ev["accent"].get(acc):
+            key, entry = f"accent:{acc}", ev["accent"][acc]
+        elif ev["transition"].get(ttype):
+            key, entry = f"transition:{ttype}", ev["transition"][ttype]
+        for sk in (f"{prev['type']}>{s['type']}", f"*>{s['type']}"):
+            if sk in ev["sceneStart"]:
+                key, entry = f"sceneStart:{sk}", ev["sceneStart"][sk]
+                break
         if entry:
-            name, offset = (entry["sound"], entry.get("offset", 0.0)) if isinstance(entry, dict) else (entry, 0.0)
-            cand.append((1, o["start"] + offset, name))
+            cand.append((0, cut, key, entry))
+    fps = 30
+    direct = []  # (time, key, entry): played whatever the thinning says (the silhouette flash, the pops of a text pile)
+    for s in scenes:  # a silhouette flash: a camera click on its first frame
+        if s.get("flash") and ev.get("flash"):
+            direct.append((s["start"] + s["flash"]["frames"][0] / fps, "flash", ev["flash"]))
+    for o in overlays:  # a burst of copies pops one after another: a pop for each main copy
+        if o["component"] == "burst" and ev.get("burst"):
+            sp = float(o["props"].get("speed", 1))
+            for n, at in enumerate((3, 8, 12, 15, 19)):
+                direct.append((o["start"] + at / fps / sp, "burst", ev["burst"]))
+    for o in overlays:
+        props = o["props"]
+        for k in (f"{o['component']}:{props.get('fx') or props.get('style')}", o["component"]):
+            if ev["overlay"].get(k):
+                cand.append((1, o["start"] + (ev["overlay"][k].get("offset", 0.0) if isinstance(ev["overlay"][k], dict) else 0.0), f"overlay:{k}", ev["overlay"][k]))
+                break
     kept = [m["at"] for m in manual]
-    cues = []
-    for _, t, name in sorted(cand, key=lambda c: (c[0], c[1])):
+    cues, turn = [], {}
+
+    def emit(t, key, entry):
+        names = entry["sound"] if isinstance(entry, dict) else entry
+        names = names if isinstance(names, list) else [names]
+        pick = names[turn.get(key, 0) % len(names)]
+        turn[key] = turn.get(key, 0) + 1
+        for name in [pick] + (entry.get("also", []) if isinstance(entry, dict) else []):
+            snd = sounds[name]
+            cues.append({"src": snd["file"], "at": round(max(0.0, t - snd["lead"]), 3), "volumeDb": round(snd["gainDb"] + offset_db, 1)})
+
+    for t, key, entry in direct:
+        emit(t, key, entry)
+    for _, t, key, entry in sorted(cand, key=lambda c: (c[0], c[1])):
         near = [a for a in kept if abs(a - t) < rules["window"] / 2]
         if t < rules["notBefore"] or any(abs(a - t) < rules["minGap"] for a in kept) or len(near) >= rules["maxInWindow"]:
             continue
-        snd = sounds[name]
         kept.append(t)
-        cues.append({"src": snd["file"], "at": round(max(0.0, t - snd["lead"]), 3),
-                     "volumeDb": round(snd["gainDb"] + offset_db, 1)})
+        emit(t, key, entry)
     return sorted(cues, key=lambda c: c["at"])
 
 
@@ -433,6 +482,8 @@ def report(scenes, overlays, captions, words):
             continue
         if o["component"] == "cart":
             continue  # the cart arrow lives at the bottom-left and keeps its own label
+        if any(k in o.get("props", {}) for k in ("at", "y")):
+            continue  # placed by hand (at / y): the zone is only the default position, so two of them cannot be judged by it
         # the compare card is tall: its note line reaches into the lower zone as well
         for z in [o.get("zone", "top")] + (["lower"] if o["component"] == "compare" else []):
             for p in busy.get(z, []):
@@ -445,6 +496,9 @@ def report(scenes, overlays, captions, words):
 def missing_assets(project: dict, public: Path) -> list[str]:
     """Files the render will ask for (relative to public/) that are not there yet."""
     need = {f"clips/{s['clip']}.mp4" for s in project["scenes"] if s["clip"]}
+    for s in project["scenes"]:
+        if s.get("flash"):
+            need.update(f"{s['flash']['matte']}_{n}.png" for n in s["flash"]["frames"])
     for o in project["overlays"]:
         p = o["props"]
         if o["component"] == "magnifier" and "clip" in p:
@@ -453,6 +507,10 @@ def missing_assets(project: dict, public: Path) -> list[str]:
             need.update(f"clips/{p[s]['clip']}.mp4" for s in ("before", "after"))
         if o["component"] == "image" and p.get("src"):
             need.add(str(p["src"]))
+        if o["component"] == "logo":
+            need.add(str(p.get("src", "images/logo.png")))
+        if o["component"] == "rawfinal":
+            need.update(str(p[k]) for k in ("raw", "final") if p.get(k))
         need.update(f"clips/{c['clip']}.mp4" for c in p.get("cards", []) if isinstance(c, dict) and "clip" in c)
     need.update(x for x in (project["voice"], (project["music"] or {}).get("src")) if x)
     need.update(c["src"] for c in project["sfx"] if c.get("src"))
@@ -478,6 +536,11 @@ def main() -> int:
     ap.add_argument("--auto-sfx", action="store_true", help="add sound effects on transitions and graphics (assets/sfx/sfx-map.json)")
     ap.add_argument("--sfx-map", type=Path, default=DEFAULT_SFX_MAP, help="sound-design table to use with --auto-sfx")
     ap.add_argument("--sfx-gain", type=float, default=0.0, help="dB added to every automatic sound effect")
+    ap.add_argument("--music-levels", help="VOLUME,DUCK in dB for the music bed (default -10,-8 with a voice): the bed's level in pauses, then the extra dip under speech")
+    ap.add_argument("--caption-highlight", choices=["color", "box", "underline", "glow"], help="how the spoken word is marked in karaoke captions (default color)")
+    ap.add_argument("--caption-keywords", default="", help="comma-separated words that are marked all the time in the captions (bigger, coloured)")
+    ap.add_argument("--face-glow", help="BRIGHTNESS,SATURATE,BLUR[,SIZE[,WARM[,VEIL]]] of the beauty light on scenes that have a Face (e.g. 1.16,0.92,0.6)")
+    ap.add_argument("--look", help="SATURATE,CONTRAST,BRIGHTNESS[,WARM] factors (1 = unchanged; WARM 0 = none, 0.06 = a little) pushed onto the footage only, e.g. 1.12,1.05,1.03,0.06")
     a = ap.parse_args()
 
     text = a.plan.read_text(encoding="utf-8-sig")
@@ -501,6 +564,24 @@ def main() -> int:
             continue
         s = {"clip": Path(src).stem.upper() if src and src not in "-–" else None, "in": inn,
              "start": start, "end": end, "type": cell(h, r, "type").upper()}
+        fl = cell(h, r, "flash")
+        m = re.match(r"^([\d,\s]+)@\s*(\S+)$", fl) if fl and fl not in "-–" else None
+        if m:
+            s["flash"] = {"frames": [int(x) for x in m.group(1).replace(" ", "").strip(",").split(",") if x], "matte": m.group(2)}
+        elif fl and fl not in "-–":
+            problems.append(f"scene row {len(scenes) + 1}: flash '{fl}' should look like '0,2,4 @ mattes/C5074'")
+        fc = cell(h, r, "face")
+        if fc and fc not in "-–":
+            try:
+                fx, fy, fr = (float(x) for x in fc.split(","))
+                s["face"] = {"x": fx, "y": fy, "r": fr}
+            except ValueError:
+                problems.append(f"scene row {len(scenes) + 1}: face '{fc}' should look like '0.52,0.50,0.072'")
+        layout = cell(h, r, "layout").lower()
+        if layout in LAYOUTS and layout != "full":
+            s["layout"] = layout
+        elif layout and layout not in LAYOUTS | {"-", "–"}:
+            problems.append(f"scene row {len(scenes) + 1}: layout '{layout}' is not one of {sorted(LAYOUTS)}")
         t, accent, fx = parse_transition(cell(h, r, "transition"))
         if t and scenes:
             s["transition"] = t
@@ -572,6 +653,22 @@ def main() -> int:
             o["tone"] = cell(oh, r, "tone")
         overlays.append(o)
 
+    bh, brows = pick(tabs, "start", "end", "top")
+    bands = []
+    for r in brows if bh and "component" not in bh and "source" not in bh else []:
+        try:
+            hide = cell(bh, r, "top").lower() in ("hide", "none")
+            band = {"start": float(cell(bh, r, "start")), "end": float(cell(bh, r, "end")), "top": 0.0 if hide else float(cell(bh, r, "top"))}
+            if hide:
+                band["hide"] = True
+            if cell(bh, r, "size"):
+                band["size"] = float(cell(bh, r, "size"))
+            if cell(bh, r, "highlight") in ("color", "box", "underline", "glow"):
+                band["highlight"] = cell(bh, r, "highlight")
+            bands.append(band)
+        except ValueError:
+            problems.append(f"caption band row unreadable: {r}")
+
     punches += auto_punches(words, a.punch_keywords.split(","), cuts, punches)
     if a.auto_sfx:
         cfg = merge_sfx(json.loads(a.sfx_map.read_text(encoding="utf-8")), pb["sfx"])
@@ -587,13 +684,19 @@ def main() -> int:
         "voice": a.voice,
         # A track levelled to -14 LUFS (process_audio.py music) sits ~10 LU under a -16 LUFS voice in the
         # pauses and ~18 LU under it while it speaks; with no voice the music is the soundtrack.
-        "music": ({"src": a.music, "volumeDb": -10, "duckDb": -8} if a.voice else {"src": a.music, "volumeDb": 0, "duckDb": 0}) if a.music else None,
+        "music": ({"src": a.music, "volumeDb": -10, "duckDb": -8, **({"volumeDb": float(a.music_levels.split(",")[0]), "duckDb": float(a.music_levels.split(",")[1])} if a.music_levels else {})}
+                  if a.voice else {"src": a.music, "volumeDb": 0, "duckDb": 0}) if a.music else None,
         "layout": "reels-ad" if a.platform == "reels-ad" else "feed",
         "sfx": sfx,
         "captionStyle": a.caption_style or pb["captions"],
+        **({"captionHighlight": a.caption_highlight} if a.caption_highlight else {}),
+        **({"captionKeywords": [k.strip() for k in a.caption_keywords.split(",") if k.strip()]} if a.caption_keywords.strip() else {}),
+        **({"faceGlow": dict(zip(("brightness", "saturate", "blur", "size", "warm", "veil"), (float(x) for x in a.face_glow.split(","))))} if a.face_glow else {}),
+        **({"look": dict(zip(("saturate", "contrast", "brightness", "warm"), (float(x) for x in a.look.split(","))))} if a.look else {}),
         "scenes": scenes,
         "overlays": overlays,
         "captions": captions,
+        "captionBands": bands,
         "words": words,
         "punches": sorted(punches, key=lambda p: p["at"]),
     }

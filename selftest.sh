@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verify the kit works on this machine. Spends no ElevenLabs credits.
-#   ./selftest.sh                  groups 1-14 (a few seconds each; group 4 loads the Whisper model)
+#   ./selftest.sh                  groups 1-14d (a few seconds each; group 4 loads the Whisper model)
 #   ./selftest.sh --render [DIR]   also group 15: typecheck the Remotion template and render one still in
 #                                  DIR (default: a temp folder). Without node_modules in DIR this runs
 #                                  npm install, which downloads packages and Chromium (~300 MB): ask first.
@@ -129,6 +129,10 @@ KINDS=$(printf 'SOAK,%.0s' $(seq 1 "$N")); KINDS=${KINDS%,}; TYPES=$(printf 'DEM
   && "$PY" "$S/footage_overlap_checker.py" "$TMP/scenes.md" "$TMP/scenes2.md" >/dev/null 2>&1 \
   && pass "a second video planned with --used shares no range with the first" || fail "second video reused footage of the first"
 
+# a library written in lower case (real file names are) must still be recognised as spent: plans store clip names in upper case
+sed 's/"clip": "A"/"clip": "clip_a"/; s/"clip": "B"/"clip": "clip_b"/' "$TMP/lib.json" > "$TMP/lib_lc.json"
+"$PY" "$S/plan_scenes.py" --library "$TMP/lib_lc.json" --cuts "$TMP/cuts.json" --kinds "$KINDS" --types "$TYPES" > "$TMP/lc1.md" 2>/dev/null   && "$PY" "$S/plan_scenes.py" --library "$TMP/lib_lc.json" --cuts "$TMP/cuts.json" --kinds "$KINDS" --types "$TYPES" --used "$TMP/lc1.md" > "$TMP/lc2.md" 2>/dev/null   && "$PY" "$S/footage_overlap_checker.py" "$TMP/lc1.md" "$TMP/lc2.md" >/dev/null 2>&1   && pass "--used also holds for lower-case clip names in the library" || fail "plan_scenes ignored --used for lower-case clip names"
+
 echo "7c. suggest_cuts.py --music (beats) and playbook.py skeleton"
 ffmpeg -loglevel error -y -f lavfi -i "aevalsrc='0.8*sin(2*PI*55*t)*exp(-30*mod(t\,0.5))':d=30:s=44100" "$TMP/beat.wav" 2>/dev/null
 "$PY" "$S/suggest_cuts.py" --music "$TMP/beat.wav" --end 28 --playbook real-estate --beats-out "$TMP/beats.json" --json > "$TMP/mcuts.json" 2>"$TMP/m.err" \
@@ -170,13 +174,19 @@ if [[ -f "$TMP/render/package.json" && -f "$TMP/render/src/index.ts" && -d "$TMP
   "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/render/project.json" \
     --voice audio/none.mp3 2>&1 | grep -q "not in .*clips/" \
     && pass "plan_to_project reports clips and voice missing from public/" || fail "missing assets were not reported"
-  [[ $(ls "$TMP/render/public/sfx"/*.wav 2>/dev/null | wc -l) -eq 11 ]] \
-    && pass "11 sound effects installed in public/sfx" || fail "public/sfx is incomplete"
+  "$PY" -c "
+import json, sys, pathlib
+m = json.load(open(sys.argv[1], encoding='utf-8'))
+have = {p.name for p in pathlib.Path(sys.argv[2]).glob('*.wav')}
+miss = [n for n, v in m['sounds'].items() if pathlib.PurePosixPath(v['file']).name not in have]
+print('missing:', miss) if miss else None
+sys.exit(1 if miss else 0)" "$KIT/skill/short-video-editing/assets/sfx/sfx-map.json" "$TMP/render/public/sfx" \
+    && pass "every sound named in sfx-map.json is installed in public/sfx ($(ls "$TMP/render/public/sfx"/*.wav 2>/dev/null | wc -l) files)" || fail "public/sfx is incomplete"
 else fail "scaffold incomplete"; fi
 
 echo "11. sound effects: make_sfx.py and plan_to_project.py --auto-sfx"
-"$PY" "$S/make_sfx.py" "$TMP/sfx" >"$TMP/sfx.log" 2>&1 && [[ $(ls "$TMP/sfx"/*.wav | wc -l) -eq 6 ]] \
-  && pass "6 sounds synthesized with ffmpeg" || { fail "make_sfx failed"; tail -3 "$TMP/sfx.log" | sed 's/^/        /'; }
+"$PY" "$S/make_sfx.py" "$TMP/sfx" >"$TMP/sfx.log" 2>&1 && [[ $(ls "$TMP/sfx"/*.wav | wc -l) -ge 17 ]] \
+  && pass "17 sounds synthesized with ffmpeg (pop, tick, ding, thud, swoosh, sparkle, chime3, twinkle, shutter, glitch, bubble, boing, typing, whoosh_s, whoosh_l, slam, riser)" || { fail "make_sfx failed"; tail -3 "$TMP/sfx.log" | sed 's/^/        /'; }
 if "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/sfx.json" --auto-sfx >/dev/null 2>&1 \
    && "$PY" -c "
 import json, sys, pathlib
@@ -257,6 +267,202 @@ for bad in ("keys 0=1.0", "keys 0=1.0 ; 1=1.2 wobble", "keys 0=x ; 1=1.2"):
     except ValueError:
         continue
     raise SystemExit(1)
+PYEOF
+
+echo "14b. agency pitch: card layout, new components, make_music.py, match_voice_takes.py"
+cat >"$TMP/agency-plan.md" <<'MDEOF'
+**Playbook:** talking-head:agency
+
+| # | Start | End | Source | In | Type | Layout | Transition | Camera |
+|---|-------|-----|--------|----|------|--------|------------|--------|
+| 1 | 0.0 | 1.5 | CLIP | 0.2 | HOOK | | – | hold 1.2 focus 0.5,0.4 |
+| 2 | 1.5 | 2.7 | CLIP | 0.2 | LIVING | card | cardSlide 10f | push 1.0>1.1 |
+| 3 | 2.7 | 3.9 | CLIP | 1.4 | LIVING | expand | cut | |
+| 4 | 3.9 | 5.0 | - | 0 | CTA | card | cardSwirl 16f | |
+
+| # | Start | End | Component | Zone | Tone | Content |
+|---|-------|-----|-----------|------|------|---------|
+| 1 | 0.0 | 1.4 | phrase | top | – | lead=Đang kinh doanh; emph=THIẾU VIDEO; emphAt=0.5; y=0.2 |
+| 2 | 1.6 | 2.6 | counter | – | – | from=5; to=10; label=NGÀY; at=0.5,0.18 |
+| 3 | 4.0 | 4.9 | logo | – | – | at=0.5,0.4; width=500; tint=white; hold=1 |
+
+| Start | End | Top | Size |
+|-------|-----|-----|------|
+| 0.0 | 1.5 | hide | |
+| 1.5 | 3.9 | 250 | 44 |
+MDEOF
+"$PY" "$S/plan_to_project.py" "$TMP/agency-plan.md" --out "$TMP/agency.json" --look 1.1,1.05,1.02 >"$TMP/agency.log" 2>&1 \
+  && "$PY" -c "
+import json, sys
+p = json.load(open(sys.argv[1], encoding='utf-8'))
+s = p['scenes']
+ok = [x.get('layout') for x in s] == [None, 'card', 'expand', 'card'] and s[1]['transition']['type'] == 'cardSlide' and s[3]['transition']['type'] == 'cardSwirl'
+ok = ok and s[3]['clip'] is None and p['look']['saturate'] == 1.1
+ok = ok and p['captionBands'][0].get('hide') is True and p['captionBands'][1]['top'] == 250
+ok = ok and {o['component'] for o in p['overlays']} == {'phrase', 'counter', 'logo'}
+sys.exit(0 if ok else 1)" "$TMP/agency.json" \
+  && pass "Layout column, cardSlide/cardSwirl, caption bands (hide), --look and the new components compile" \
+  || { fail "agency plan did not compile as expected"; tail -4 "$TMP/agency.log" | sed 's/^/        /'; }
+"$PY" "$S/make_music.py" --duration 6 --bpm 120 --sections "0:0.55,2:1.0,4:0.0" --hits "2" --out "$TMP/bed.wav" >"$TMP/mm.log" 2>&1 \
+  && "$PY" -c "
+import sys, wave
+import numpy as np
+w = wave.open(sys.argv[1]); d = np.frombuffer(w.readframes(w.getnframes()), dtype='<i2') / 32768
+sr = w.getframerate()
+loud = lambda a, b: np.sqrt((d[int(a*sr)*2:int(b*sr)*2] ** 2).mean())
+ok = abs(w.getnframes() / sr - 6) < 0.05 and 0.6 < np.abs(d).max() < 0.75 and loud(2.2, 3.8) > loud(4.6, 5.6) * 3 and not (np.abs(d) > 0.999).any()
+sys.exit(0 if ok else 1)" "$TMP/bed.wav" \
+  && pass "make_music.py: stereo bed of the asked length, peak near -3 dBFS, the loud section louder than the silent one, no clipping" \
+  || { fail "make_music.py"; tail -3 "$TMP/mm.log" | sed 's/^/        /'; }
+# a "voice" cut from two takes: take A (0-3 s of tone sweep) then take B, joined; each take plus a leading countdown that is not in the voice
+ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='0.5*sin(2*PI*(300+80*t)*t)*(1+0.6*sin(2*PI*3*t))':d=5:s=16000" "$TMP/tkA.wav" 2>/dev/null
+ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='0.5*sin(2*PI*(500+60*t)*t)*(1+0.6*sin(2*PI*2.2*t))':d=5:s=16000" "$TMP/tkB.wav" 2>/dev/null
+mkdir -p "$TMP/takes" && cp "$TMP/tkA.wav" "$TMP/takes/TKA.wav" && cp "$TMP/tkB.wav" "$TMP/takes/TKB.wav"
+ffmpeg -loglevel error -y -ss 1.0 -t 2.5 -i "$TMP/tkA.wav" "$TMP/pA.wav" 2>/dev/null && ffmpeg -loglevel error -y -ss 2.0 -t 2.5 -i "$TMP/tkB.wav" "$TMP/pB.wav" 2>/dev/null
+ffmpeg -loglevel error -y -i "$TMP/pA.wav" -i "$TMP/pB.wav" -filter_complex "[0][1]concat=n=2:v=0:a=1" "$TMP/joined.wav" 2>/dev/null
+"$PY" "$S/match_voice_takes.py" "$TMP/joined.wav" "$TMP/takes" --min-corr 0.8 >"$TMP/mv.log" 2>&1 \
+  && grep -qE "^TKA .*\+1\.000" "$TMP/mv.log" && grep -qE "^TKB .*-0\.500" "$TMP/mv.log" \
+  && pass "match_voice_takes.py: finds the take and the lag (clip time = voice time + 1.0 s and - 0.5 s) of a voice cut from two takes" \
+  || { fail "match_voice_takes.py"; sed 's/^/        /' "$TMP/mv.log" | head -8; }
+
+echo "14c. agency tools: find_cutaways.py, agency_plan.py, text effects, flash and face cells"
+# two "takes": a speaker (loud tone bursts) with a quiet pre-roll and tail, so there are cutaways; the voice is the middle of take A
+mkdir -p "$TMP/ag"
+ffmpeg -loglevel error -y -f lavfi -i "color=c=gray:s=270x480:r=30:d=12" -f lavfi -i "aevalsrc=exprs='if(between(t,3,9),0.5*sin(2*PI*(300+40*t)*t)*(1+0.6*sin(2*PI*3*t)),0.002*sin(2*PI*60*t))':d=12:s=16000"   -pix_fmt yuv420p -shortest "$TMP/ag/TKX.mp4" 2>/dev/null
+"$PY" "$S/find_cutaways.py" "$TMP/ag" --min 1.0 --json "$TMP/ag/cut.json" >"$TMP/ca.log" 2>&1 \
+  && "$PY" -c "
+import json, sys
+r = json.load(open(sys.argv[1], encoding='utf-8'))
+ok = len(r) == 2 and r[0]['clip'] == 'TKX' and all(x['end'] <= 3.0 or x['start'] >= 9.0 for x in r) and any(x['start'] < 0.5 for x in r) and any(x['end'] > 11 for x in r)
+sys.exit(0 if ok else 1)" "$TMP/ag/cut.json" \
+  && pass "find_cutaways.py: the quiet pre-roll and tail of a take are found, the spoken middle is not" || { fail "find_cutaways.py"; tail -4 "$TMP/ca.log" | sed 's/^/        /'; }
+"$PY" -X utf8 - "$S" "$TMP" <<'PYEOF' >"$TMP/ap.log" 2>&1 \
+  && pass "agency_plan.py: a voice cut from a take -> talking scenes with In = start + lag, cutaway cards, text blocks, a plan that compiles" \
+  || { fail "agency_plan.py"; tail -6 "$TMP/ap.log" | sed 's/^/        /'; }
+import json, subprocess, sys
+from pathlib import Path
+S, T = sys.argv[1], Path(sys.argv[2])
+words = []
+t = 3.2
+for i, w in enumerate("Chào bạn, chúng tôi làm video. Hãy inbox ngay cho SISMO nhé!".split()):
+    words.append({"text": w, "start": round(t, 2), "end": round(t + 0.35, 2)})
+    t += 0.42 + (0.25 if w.endswith((",", ".")) else 0)
+(T / "w.json").write_text(json.dumps(words, ensure_ascii=False), encoding="utf-8")
+(T / "m.json").write_text(json.dumps({"TKX": [{"lag": 0.0, "clip_from": 3.2, "clip_to": 8.4, "voice_from": 3.2, "voice_to": 8.4, "corr": 0.99}]}), encoding="utf-8")
+(T / "c.json").write_text(json.dumps([{"clip": "TKX", "start": 0.2, "end": 2.8, "length": 2.6, "person": None, "score": 2.6}, {"clip": "TKX", "start": 9.2, "end": 11.8, "length": 2.6, "person": None, "score": 2.6}]), encoding="utf-8")
+r = subprocess.run([sys.executable, str(Path(S) / "agency_plan.py"), "--words", str(T / "w.json"), "--matches", str(T / "m.json"), "--cutaways", str(T / "c.json"), "--brand", "SISMO", "--out", str(T / "ap.md")], capture_output=True, text=True)
+print(r.stdout, r.stderr)
+assert r.returncode == 0, "agency_plan failed"
+md = (T / "ap.md").read_text(encoding="utf-8")
+assert "talking-head:agency" in md and "phrase" in md and "logo" in md and "card" in md, "plan lacks talking scenes, blocks or cards"
+r = subprocess.run([sys.executable, str(Path(S) / "plan_to_project.py"), str(T / "ap.md"), "--out", str(T / "ap.json"), "--words", str(T / "w.json")], capture_output=True, text=True)
+print(r.stdout, r.stderr)
+assert r.returncode == 0, "the drafted plan does not compile"
+p = json.load(open(T / "ap.json", encoding="utf-8"))
+talk = [s for s in p["scenes"] if s["clip"] == "TKX" and not s.get("layout")]
+assert talk and abs(talk[0]["in"] - talk[0]["start"]) < 0.01, "In must equal start + lag (lag 0 here)"
+PYEOF
+"$PY" -X utf8 - "$KIT/skill/short-video-editing/assets/remotion-template/src" <<'PYEOF' >/dev/null 2>&1 \
+  && pass "text effects: every effect named in Fx.tsx has a duration in Phrase.tsx and a sound-design key" || fail "text effect names out of step"
+import json, re, sys
+from pathlib import Path
+src = Path(sys.argv[1])
+fx = re.search(r'FX_NAMES: FxName\[\] = \[(.*?)\]', (src / "components/text/Fx.tsx").read_text(encoding="utf-8"), re.S).group(1)
+names = re.findall(r'"(\w+)"', fx)
+phrase = (src / "components/text/Phrase.tsx").read_text(encoding="utf-8")
+frames = re.search(r'const fxFrames = .*?\)\[fx\]', phrase, re.S).group(0)
+missing = [n for n in names if n + ":" not in frames]
+assert not missing, missing
+PYEOF
+
+echo "14d. reference analysis, montage, mix report, doctor, and every command the docs name"
+mkdir -p "$TMP/rf"
+# a 4 s test video: 2 s red then 2 s blue (one hard cut at 2.0 s) with a quiet tone
+ffmpeg -loglevel error -y -f lavfi -i "color=c=red:s=216x384:r=30:d=2" -f lavfi -i "color=c=blue:s=216x384:r=30:d=2" -f lavfi -i "sine=frequency=440:duration=4" \
+  -filter_complex "[0:v][1:v]concat=n=2:v=1:a=0[v]" -map "[v]" -map 2:a -af "volume=0.3" -pix_fmt yuv420p -shortest "$TMP/rf/sample.mp4" 2>/dev/null
+"$PY" "$S/analyze_reference.py" "$TMP/rf/sample.mp4" --out "$TMP/rf/ref" --dense 0-1 >"$TMP/rf.log" 2>&1 \
+  && "$PY" -c "
+import json, sys
+r = json.load(open(sys.argv[1] + '/report.json', encoding='utf-8'))
+ok = r['shot_length']['count'] == 2 and abs(r['shots'][1]['start'] - 2.0) < 0.07 and r['shots'][0]['edge'].endswith('red') and r['shots'][1]['edge'].endswith('blue') and r['loudness'] is not None
+sys.exit(0 if ok else 1)" "$TMP/rf/ref" \
+  && [[ -s "$TMP/rf/ref/scenes.png" && -s "$TMP/rf/ref/dense_0-1.png" && -s "$TMP/rf/ref/report.md" ]] \
+  && pass "analyze_reference.py: two shots with the cut at 2.0 s, edge colours red and blue, loudness, scene and dense sheets" \
+  || { fail "analyze_reference.py"; tail -5 "$TMP/rf.log" | sed 's/^/        /'; }
+"$PY" "$S/montage.py" "$TMP/rf/ref/scenes.png" "$TMP/rf/ref/dense_0-1.png" --cols 2 --width 200 --labels "a,b" --out "$TMP/rf/m.png" >"$TMP/mt.log" 2>&1 \
+  && [[ -s "$TMP/rf/m.png" ]] && pass "montage.py: two images tiled with labels" || { fail "montage.py"; tail -3 "$TMP/mt.log" | sed 's/^/        /'; }
+echo '{"duration": 4.0, "sfx": [{"src": "sfx/pop-a.wav", "at": 1.0}], "music": null}' > "$TMP/rf/p.json"
+"$PY" "$S/mix_report.py" "$TMP/rf/sample.mp4" --project "$TMP/rf/p.json" >"$TMP/mr.log" 2>&1 \
+  && pass "mix_report.py: a limited-range video of the planned duration has no errors" || { fail "mix_report.py (clean case)"; tail -6 "$TMP/mr.log" | sed 's/^/        /'; }
+ffmpeg -loglevel error -y -i "$TMP/rf/sample.mp4" -pix_fmt yuvj420p -c:v libx264 -c:a copy "$TMP/rf/full.mp4" 2>/dev/null
+"$PY" "$S/mix_report.py" "$TMP/rf/full.mp4" --project "$TMP/rf/p.json" >"$TMP/mr2.log" 2>&1 \
+  && fail "mix_report.py let a full-range video (yuvj420p) pass" || { grep -q "full-range" "$TMP/mr2.log" && pass "mix_report.py: a full-range video is an error" || fail "mix_report.py full-range message"; }
+"$PY" "$S/doctor.py" --only model --json >"$TMP/dr.json" 2>&1; "$PY" -c "
+import json, sys
+rows = json.load(open(sys.argv[1], encoding='utf-8'))['checks']
+names = [r['name'] for r in rows]
+sys.exit(0 if any('person-segmentation' in n for n in names) and any('Whisper' in n for n in names) else 1)" "$TMP/dr.json" \
+  && pass "doctor.py reports the Whisper model and the optional person-segmentation model" || fail "doctor.py model group"
+"$PY" -X utf8 - "$S" <<'PYEOF' >"$TMP/hfw.log" 2>&1 \
+  && pass "project_to_hyperframes.py names every Remotion-only feature (card layout, flash, face, look, bands, cardSlide)" || { fail "project_to_hyperframes.py warnings"; tail -4 "$TMP/hfw.log" | sed 's/^/        /'; }
+import sys
+sys.path.insert(0, sys.argv[1])
+import project_to_hyperframes as hf
+p = {"scenes": [{"layout": "card", "transition": {"type": "cardSlide"}}, {"flash": {"frames": [0]}, "face": {"x": .5, "y": .3, "r": .1}}],
+     "faceGlow": {"brightness": 1.2}, "look": {"saturate": 1.1}, "captionBands": [{"hide": True}], "captionHighlight": "box"}
+out = " ".join(hf.remotion_only(p))
+for word in ("layout", "flash", "face", "faceGlow", "look", "caption band", "cardSlide", "captionHighlight"):
+    assert word in out, (word, out)
+assert hf.remotion_only({"scenes": [{"transition": {"type": "fade"}}], "look": {"vignette": 0.3}}) == []
+PYEOF
+"$PY" "$S/playbook.py" suggest --intent "Tôi có thư mục clip thô quay một người dẫn, một file giọng (voice) cắt từ chính các take đó, và một video mẫu của khách. Hãy dựng lại video giống bản mẫu" 2>&1 | head -1 | grep -q "talking-head:agency" \
+  && pass "playbook.py suggest: the words a client uses for this job (người dẫn, video mẫu, các take) pick talking-head:agency" || fail "playbook.py suggest does not pick talking-head:agency for the agency-pitch request"
+"$PY" "$S/agency_plan.py" --words "$TMP/w.json" --matches "$TMP/m.json" --cutaways "$TMP/c.json" --brand "chúng tôi" --cta "GỌI NGAY" --out "$TMP/ap2.md" >"$TMP/ap2.log" 2>&1 \
+  && grep -q "emph=GỌI NGAY" "$TMP/ap2.md" && grep -q "text=GỌI NGAY" "$TMP/ap2.md" && grep -q "| logo |" "$TMP/ap2.md" && [[ -s "$TMP/ap2.face-keys.txt" ]] \
+  && pass "agency_plan.py: --cta reaches the neon block and the closing card, a two-word brand gets its logo, the face-keys file is written" \
+  || { fail "agency_plan.py --cta / multi-word brand / face keys"; tail -4 "$TMP/ap2.log" | sed 's/^/        /'; }
+mkdir -p "$TMP/rf/empty"
+echo '{"scenes": [{"clip": "TKX", "in": 0.5, "start": 0.0, "end": 2.0}]}' > "$TMP/rf/p2.json"
+"$PY" "$S/check_lipsync.py" "$TMP/rf/p2.json" "$TMP/rf/sample.mp4" --clips "$TMP/rf/empty" >"$TMP/cl.log" 2>&1 \
+  && fail "check_lipsync.py passed although it checked nothing" || { grep -q "NOTHING WAS CHECKED" "$TMP/cl.log" && pass "check_lipsync.py: zero scenes checked is a failure, not a pass" || fail "check_lipsync.py message"; }
+env -u SVK_PYTHON SVK_REEXEC= "$PY" -c "import sys; sys.path.insert(0, sys.argv[1]); import _venv; _venv.ensure_venv('numpy'); print('ok')" "$S" >/dev/null 2>&1 \
+  && pass "_venv.ensure_venv() finds numpy (or re-launches in the kit venv)" || fail "_venv.ensure_venv()"
+"$PY" -X utf8 - "$KIT" <<'PYEOF' >"$TMP/docs.log" 2>&1 \
+  && pass "every script and --flag named next to it in SKILL.md, the recipe and WORKFLOW.md exists" || { fail "a documented command or flag does not exist"; tail -12 "$TMP/docs.log" | sed 's/^/        /'; }
+import re, sys
+from pathlib import Path
+kit = Path(sys.argv[1])
+scripts = kit / "skill/short-video-editing/scripts"
+docs = [kit / "skill/short-video-editing/SKILL.md", kit / "skill/short-video-editing/references/agency-pitch-recipe.md", kit / "docs/WORKFLOW.md",
+        kit / "skill/short-video-editing/playbooks/talking-head.md"]
+bad = []
+for doc in docs:
+    lines = doc.read_text(encoding="utf-8").splitlines()
+    for i, line in enumerate(lines):
+        names = re.findall(r"scripts/(\w+)\.py", line)
+        if len(set(names)) != 1 or re.search(r"\b(npx|node|ffmpeg|npm)\b", line):
+            continue
+        name = names[0]
+        src = scripts / f"{name}.py"
+        if not src.exists():
+            bad.append(f"{doc.name}:{i + 1}: scripts/{name}.py does not exist")
+            continue
+        text = src.read_text(encoding="utf-8")
+        # the command and its continuation lines (a trailing backslash)
+        cmd = line
+        j = i
+        while cmd.rstrip().endswith("\\") and j + 1 < len(lines):
+            j += 1
+            cmd += " " + lines[j]
+        after = cmd[cmd.index(f"{name}.py") + len(name) + 3:]
+        for flag in re.findall(r"(?<![\w-])(--[a-z][a-z0-9-]+)", after):
+            if flag in ("--help",):
+                continue
+            if f'"{flag}"' not in text and f"'{flag}'" not in text:
+                bad.append(f"{doc.name}:{i + 1}: {name}.py has no {flag}")
+for b in bad:
+    print(b)
+sys.exit(1 if bad else 0)
 PYEOF
 
 if [[ $RENDER -eq 1 ]]; then

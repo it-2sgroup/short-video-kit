@@ -66,6 +66,8 @@ def parse_plan(path: Path):
             src, in_t = cells[header["source"]], float(cells[header["in"]])
         except (ValueError, KeyError, IndexError):
             continue
+        if src in ("", "-", "–"):  # a graphics-only scene (a card or end card with no footage) uses no source
+            continue
         try:
             factor = speed_factor(cells[header["speed"]]) if "speed" in header and header["speed"] < len(cells) else 1.0
         except ValueError as e:

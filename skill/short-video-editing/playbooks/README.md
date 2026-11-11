@@ -10,7 +10,7 @@ policy) lives in `references/` and the scripts. A plan names its playbook in its
 | `product-demo` (+ `:unboxing`, `:listicle`) | TikTok Shop review, demo, before/after | voice | 2.5–4 s | 25–45 s | cool · natural · karaoke |
 | `real-estate` (+ `:voiceover`) | apartment, house, villa, homestay, land tour | music | 1.8–4 s | 25–60 s | luxe · bright-interior · none |
 | `food-fnb` (+ `:review`) | restaurant, dish, drink, menu | music | 1.2–3.5 s | 15–45 s | warm · warm-food · karaoke |
-| `talking-head` (+ `:testimonial`) | expert tips, story, founder, customer story | voice (on camera) | 1–5 s | 20–90 s | cool · natural · pop |
+| `talking-head` (+ `:testimonial`, `:agency`) | expert tips, story, founder, customer story; `:agency` = a service pitch cut from the presenter's takes | voice (on camera) | 1–5 s (`:agency` ~1.8 s) | 20–90 s | cool · natural · pop (`:agency` crimson) |
 | `tutorial` | how-to, recipe, step by step | voice | 2–4.5 s | 25–75 s | cool · natural · karaoke |
 | `fashion-beauty` | try-on, lookbook, makeup, skincare | music | 1–3.5 s | 15–45 s | luxe · soft-skin · pop |
 | `montage-recap` | travel, event, opening, behind the scenes | music | 0.5–3 s | 12–60 s | cool · vivid · none |
@@ -45,6 +45,7 @@ before planning anything:
 | A person on a fixed mark in several outfits or looks; face close-ups with cosmetics | sell clothes or cosmetics | `fashion-beauty` |
 | One person speaking to the lens most of the time | authority, followers, explain | `talking-head` |
 | A customer talking about the product | trust, ads | `talking-head:testimonial` |
+| A presenter pitching a service or agency, the voice cut from their takes, a sample to match | win clients | `talking-head:agency` (`references/agency-pitch-recipe.md`) |
 | Many clips of places, people, moments; little speech | reach, event, travel, brand | `montage-recap` |
 | Packshots, logo, offer artwork, little action | announce an offer | `promo-sale` |
 | Talking head + product demo | sell with authority | `talking-head` for the A-roll, demo shots as B-roll |

@@ -76,6 +76,22 @@ consecutive beats; one accent word per title.
 
 ---
 
+## Loud text for agency pitches (`phrase`, `pill`, `arc`, `script`, `tag`)
+
+The agency look (`talking-head:agency`, theme `crimson`) is the opposite of the no-box rule: the text is the picture. A **phrase** is a white lead line (Be Vietnam
+Pro 800, ink outline) over a heavy emphasis line in **Barlow Condensed 900** (red with a white outline, or yellow with an ink outline), up to ~27 characters at 118 px, the
+block's top at y ~ 0.20 x height; its letters scatter in in ~10 frames and fly apart in ~9. **Pills** are rounded rectangles (white with red text, or red with white
+text; Be Vietnam Pro 900, 44-52 px) whose text types in at 0.8 frame per character. One **script** phrase per video (Pacifico, highlight colour). Rules that keep it
+readable: one block at a time; the emphasis line says the claim, the lead line the context; the words on screen are the words spoken (they replace the captions
+where they stand: `captionBands` with Top `hide`); white text never sits on a white garment or sky without the outline.
+
+## Caption highlights and keywords
+
+`plan_to_project.py --caption-highlight color|box|underline|glow` marks the spoken word in karaoke captions: `color` (the word turns the highlight colour and swells), `box`
+(a rounded block hugs the word and hops to the next: the loudest), `underline` (a bar under it), `glow` (a halo). The `Caption bands` table can restyle a window
+(a `Highlight` column), so card sections can use `box`, then `glow`, then `underline`. `--caption-keywords "SISMO,video"` marks those words ALL the time (bigger, coloured), so the
+brand and the offer stay visible while others are spoken. One highlight style per section; the style changes where the picture changes.
+
 ## Sizes and placement (1080×1920)
 
 - Titles 88–160px (auto-fitted to width by `fitSize`), labels ≥ 40px, nothing under 36px [C].

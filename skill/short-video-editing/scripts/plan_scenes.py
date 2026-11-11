@@ -42,7 +42,7 @@ from footage_overlap_checker import parse_plan, speed_factor  # noqa: E402
 def free_intervals(span, taken, gap):
     """Parts of the span not within `gap` seconds of a taken range of the same clip."""
     free = [(span["start"], span["end"])]
-    for a, b in taken.get(span["clip"], []):
+    for a, b in taken.get(span["clip"].upper(), []):
         nxt = []
         for x, y in free:
             if b + gap <= x or a - gap >= y:
@@ -156,7 +156,7 @@ def main() -> int:
             continue
         kind, span, start = chosen
         start = round(start, 1)
-        taken.setdefault(span["clip"], []).append((start, round(start + length, 2)))
+        taken.setdefault(span["clip"].upper(), []).append((start, round(start + length, 2)))
         prev_clip = span["clip"]
         per_clip[prev_clip] = per_clip.get(prev_clip, 0) + 1
         trans = c.get("transition") or playbooks.choose_transition(pb, types, i, state)

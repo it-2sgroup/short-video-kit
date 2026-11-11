@@ -192,6 +192,35 @@ hiệu lực 01/01/2026, Luật KDBĐS 2023, NĐ 339/2026 thay NĐ 16/2022, cấ
 **Vẫn chưa kiểm:** footage thật quay cầm tay, ban đêm, góc rộng 0,5×, HDR quay thật; nhạc có tempo thay đổi; tai người
 chưa nghe đầu ra nào (bản `mix_final_phone.mp4` đã gửi để nghe thử).
 
+## Video giới thiệu dịch vụ dựng lại từ video mẫu (11/2026)
+
+Việc: video quảng cáo agency (SISMO) từ 28 take của một người dẫn + file giọng 62,6 s, theo video mẫu của khách (63,7 s, 60 fps, 31 cảnh). Quy trình
+đầy đủ và các lệnh: `references/agency-pitch-recipe.md`. Tại sao làm như vậy, và cái gì đã thử rồi bỏ:
+
+- **File giọng là âm thanh gốc của các take, đã ghép** (tương quan 0,98–1,0). Nên mỗi cảnh người dẫn dùng chính hình của take với `In = start + lag`
+  (`match_voice_takes.py`) và môi khớp từng mẫu âm thanh; `check_lipsync.py` kiểm lại trên bản cuối (21 cảnh lệch ≤ 5 ms). Đoạn không take nào chứa
+  (phần danh mục) lấy hình phụ từ đoạn lặng đầu/cuối của take khác (`find_cutaways.py`), không bao giờ dùng take khác của cùng câu.
+- **Cú nháy silhouette mở đầu**: đo trên mẫu, người dẫn tô trắng trên khung 0, 2, 4 (30 fps) rồi mới tới video. Làm bằng model tách người `u2net_human_seg`
+  (Apache-2.0, 168 MB, để ngoài repo, hỏi trước khi tải) → PNG alpha; cùng model cho vị trí đầu (`--faces`) để làm sáng da. Chọn model này vì chạy CPU bằng
+  onnxruntime (đã có cùng faster-whisper), không cần GPU, không cần tài khoản.
+- **Chữ**: 14 hiệu ứng trong một engine (`Fx.tsx`) thay vì mỗi hiệu ứng một component; mỗi hiệu ứng dùng một hai lần trong video. Vòng elip quanh chữ "stamp"
+  cắt ngang mặt người dẫn → thay bằng khung hai vạch sát chữ; neon nhấp nháy làm mất chữ → mẫu nhấp nháy dịu hơn.
+- **Âm thanh**: một tiếng whoosh và một tiếng pop làm video đơn điệu, nên ngân hàng có 58 bản ghi CC0 (Kenney, OpenGameArt) + 17 âm tự tổng hợp, xoay vòng theo
+  sự kiện (không lặp liền nhau), mỗi hiệu ứng chữ có tiếng riêng, `sfx.rules` của biến thể cho 5 tiếng/3 s. Không ai nghe thử: chọn theo tên, mô tả gói và số đo.
+  **Đã thử và bỏ**: tự nhận diện tiếng hiệu ứng trong bản mix (nhảy năng lượng trên 1 kHz). Thử trên bản mix có 68 tiếng đã biết vị trí: tìm được 5 tiếng, và
+  đo phân biệt giữa thời điểm có tiếng và thời điểm ngẫu nhiên chỉ AUC 0,53–0,58 (gần như tung đồng xu) vì giọng nói che mất. `analyze_reference.py` thay bằng
+  ảnh phổ (`spectrum_*.png`) để người xem; số tiếng, tỷ lệ cắt có tiếng KHÔNG được báo.
+- **Nhạc**: tài khoản doanh nghiệp TikTok chỉ được dùng Commercial Music Library (render không với tới được) → `make_music.py` viết nền tự tạo theo điểm cắt, và giao
+  thêm bản không nhạc. Mức nhạc `--music-levels=-6,-6` (phải có `=`): bản đầu render ra không nhạc vì argparse từ chối `-8,-8` mà không ai đọc dòng "wrote".
+- **Dải màu**: Remotion xuất full-range `yuvj420p`; điện thoại hiện bạc hoặc cháy → `finish_video.py` đổi về limited BT.709, master −14 LUFS / ≤ −1 dBTP.
+- **Render**: 8 luồng báo "No frame found at position" với proxy cao 2880 → `--concurrency=5`.
+- **Logo** được tách nền từ khung hình mẫu (alpha = (R−G+55)/260, ffmpeg `geq`, phóng 4× Lanczos): là giải pháp cuối cùng, hỏi khách file vector.
+- **Chưa kiểm**: không ai nghe âm thanh/nhạc hay xem trọn video; câu 8 của kịch bản đoán từ bản Whisper kém; số liệu trong giọng (hơn 300 thương hiệu, 10–50 video/tháng,
+  5–10 ngày, ưu đãi chỉ trong tháng này) là lời khách cần bằng chứng; tên khách hàng trên thẻ cần sự đồng ý.
+- **Công cụ thêm vì việc này** (đều có trong `docs/CAU-TRUC.md`): `analyze_reference.py`, `montage.py`, `stills.mjs` (template), `mix_report.py`, `match_voice_takes.py`,
+  `find_cutaways.py`, `person_matte.py`, `agency_plan.py`, `make_music.py`, `finish_video.py`, `check_lipsync.py`; `align_captions.py --prompt`; `doctor.py` kiểm
+  onnxruntime, model tách người và các filter ffmpeg mới; `./setup.sh --person-model`; `project_to_hyperframes.py` báo mọi tính năng chỉ Remotion có.
+
 ## Kịch bản hiện hành của campaign đang chứa claim vi phạm
 
 Doc Lark *"TQA 6 - REVIEW - GIỌNG ADAM"* (21 kịch bản). Các câu cần viết lại — đối chiếu chính sách TikTok Shop

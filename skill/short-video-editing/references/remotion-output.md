@@ -96,6 +96,14 @@ These follow Remotion's own agent rules (`remotion-dev/skills`, `remotion-best-p
 - Assets in `public/`, referenced with `staticFile()`; no network fetches at render time.
 - Shader transitions and light leaks need `Config.setChromiumOpenGlRenderer("angle")` (set in
   `remotion.config.ts`).
+- A card scene (`Layout card|expand`) is rendered inside a transparent scene over the grid; its camera math is done on the full 1080x1920 frame and the
+  frame is scaled into the card, so `Camera` cells mean the same thing in both layouts. Footage-only colour (`plan_to_project.py --look 1.12,1.05,1.03`) is a CSS
+  filter on the footage, never on graphics.
+- Many 2880-tall proxies read by many workers at once can fail with `No frame found at position`: render with `--concurrency=5` (8 failed on a 63 s card-heavy
+  video, 5 passed). `cardSlide` and `cardSwirl` render each shot up to three times during the transition, which is why.
+- Scene extras: `flash` (white silhouette PNGs on listed frames), `face` (the head, for `faceGlow`). Project extras: `look`, `faceGlow`, `captionHighlight`,
+  `captionKeywords`, `captionBands` (with `hide` and a per-band `highlight`). The silhouette matte is drawn inside the camera framing, so it matches the footage even
+  while the camera pushes.
 - Render a still at every transition before a full render; a full 35 s render takes ~2 minutes on
   the reference Windows machine, a still a few seconds.
 

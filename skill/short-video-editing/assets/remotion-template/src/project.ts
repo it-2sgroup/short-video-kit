@@ -15,7 +15,9 @@ export type TransitionType =
   | "blurDissolve" // dissolve through a blur
   | "whip" // fast directional slide with motion blur
   | "flip" // 3D card flip, sparingly
-  | "crossZoom"; // WebGL radial zoom blur (needs the angle GL renderer)
+  | "crossZoom" // WebGL radial zoom blur (needs the angle GL renderer)
+  | "cardSlide" // card layout: the outgoing card slides off with a trail of copies, the next card slides in
+  | "cardSwirl"; // the incoming shot arrives as a stack of tilted cards that straighten into the full frame
 
 export type SceneTransition = { type: TransitionType; frames?: number; direction?: Direction };
 
@@ -37,7 +39,20 @@ export type Camera = {
   roll?: [number, number]; // tilt in degrees from scene start to end, e.g. [-1.2, 1.2] (adds a handheld lean)
 };
 
+// full: the clip fills the frame. card: it plays in a rounded card over the animated grid (a clip of null shows the
+// grid only, for overlays that draw their own cards). expand: starts as a card, grows to the full frame with a
+// fabric-like wave warp (use after a card scene, with a "cut" transition so the card carries over).
+export type Layout = "full" | "card" | "expand";
+
+// Silhouette flash: for the listed frames (counted from the planned cut, at the project fps) a white PNG of the person
+// (scripts/person_matte.py -> public/mattes/PREFIX_<offset>.png) is drawn over the footage, inside the same camera framing.
+// The social opener fills the speaker's outline with white for one frame, three times, then plays on.
+export type Flash = { frames: number[]; matte: string; opacity?: number };
+
 export type Scene = {
+  face?: Face;
+  flash?: Flash;
+  layout?: Layout;
   clip: string | null; // file name in public/clips without extension; null renders a placeholder
   in: number; // source timecode (s) of the planned cut
   start: number; // timeline seconds
@@ -64,14 +79,32 @@ export type Overlay = {
 // karaoke: the group with the spoken word highlighted; pop: one to three words at a time, each word
 // popping in on its own timing (talking heads, fashion); plain: the group only; none: no captions.
 export type CaptionStyle = "karaoke" | "pop" | "plain" | "none";
+// How the spoken word is marked in karaoke captions: color (the word turns the highlight colour and swells), box (a rounded block hugs
+// the word and hops to the next), underline (a bar draws under it), glow (a halo). Keywords are marked all the time (bigger, coloured).
+export type CaptionHighlight = "color" | "box" | "underline" | "glow";
 
 export type Caption = { text: string; start: number; end: number };
+// Where the spoken captions sit while a time window is open (default: the lower third). The agency look puts them in
+// a top band above the cards: { start: 14.7, end: 19.6, top: 250, size: 44 }.
+export type CaptionBand = { start: number; end: number; top: number; size?: number; hide?: boolean; highlight?: CaptionHighlight }; // hide: no captions in this window (a title already says it)
 export type Word = { text: string; start: number; end: number };
 export type Punch = { at: number; scale?: number }; // keyword punch-in, seconds on the timeline
 export type AudioCue = { src: string; at: number; volumeDb?: number };
 export type Music = { src: string; volumeDb?: number; duckDb?: number };
 
+// A final colour push applied to the footage only (never to graphics): CSS filter factors, 1 = unchanged. It is the cheap
+// way to lift a flat 1080p clip toward the punchy look of social video; heavier correction belongs in the proxies (grades.json).
+export type Look = { saturate?: number; contrast?: number; brightness?: number; warm?: number };
+
+// Beauty light on the speaker's face: a soft elliptical patch where the picture is brightened, slightly desaturated and a hair softer
+// (CSS backdrop filter, feathered by a mask), drawn inside the camera framing so it follows every push. `face` of a scene is the
+// head as fractions of the frame: x, y (centre) and r (half the head width, as a fraction of the frame width); person_matte.py --faces finds it.
+export type FaceGlow = { brightness?: number; saturate?: number; blur?: number; size?: number; warm?: number; veil?: number };
+export type Face = { x: number; y: number; r: number };
+
 export type Project = {
+  look?: Look;
+  faceGlow?: FaceGlow;
   fps?: number;
   width?: number;
   height?: number;
@@ -80,10 +113,13 @@ export type Project = {
   music?: Music | null;
   sfx?: AudioCue[];
   captionStyle?: CaptionStyle;
+  captionHighlight?: CaptionHighlight;
+  captionKeywords?: string[];
   layout?: "feed" | "reels-ad"; // feed = TikTok and organic Reels (default); reels-ad = Meta's ad safe zone
   scenes: Scene[];
   overlays?: Overlay[];
   captions?: Caption[];
+  captionBands?: CaptionBand[];
   words?: Word[];
   punches?: Punch[];
 };

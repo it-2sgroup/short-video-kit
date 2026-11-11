@@ -1,31 +1,626 @@
 {
   "about": "Which sound plays on which event, and how loud. Read by plan_to_project.py --auto-sfx; edit this file to change the sound design, not the script. gainDb is applied to a file whose peak is -3 dBFS (the voice peaks around -4.5 dBFS), so -10 puts a sound's peak about 8 dB under the voice. lead is the seconds the file starts BEFORE its event, so its loudest moment (or first click) lands on it.",
   "sounds": {
-    "swoosh":         { "file": "sfx/swoosh.wav",         "gainDb": -10, "lead": 0.30 },
-    "whoosh":         { "file": "sfx/whoosh.wav",         "gainDb": -9,  "lead": 0.08 },
-    "whip":           { "file": "sfx/whip.wav",           "gainDb": -9,  "lead": 0.03 },
-    "thud":           { "file": "sfx/thud.wav",           "gainDb": -10, "lead": 0.0 },
-    "riser":          { "file": "sfx/riser.wav",          "gainDb": -12, "lead": 0.95 },
-    "pop":            { "file": "sfx/pop.wav",            "gainDb": -12, "lead": 0.0 },
-    "tick":           { "file": "sfx/tick.wav",           "gainDb": -15, "lead": 0.0 },
-    "ding":           { "file": "sfx/ding.wav",           "gainDb": -14, "lead": 0.0 },
-    "switch":         { "file": "sfx/switch.wav",         "gainDb": -12, "lead": 0.12 },
-    "mouse-click":    { "file": "sfx/mouse-click.wav",    "gainDb": -12, "lead": 0.12 },
-    "shutter-modern": { "file": "sfx/shutter-modern.wav", "gainDb": -10, "lead": 0.21 }
+    "swoosh": {
+      "file": "sfx/swoosh.wav",
+      "gainDb": -10,
+      "lead": 0.3
+    },
+    "whoosh": {
+      "file": "sfx/whoosh.wav",
+      "gainDb": -9,
+      "lead": 0.08
+    },
+    "whip": {
+      "file": "sfx/whip.wav",
+      "gainDb": -9,
+      "lead": 0.03
+    },
+    "thud": {
+      "file": "sfx/thud.wav",
+      "gainDb": -10,
+      "lead": 0.0
+    },
+    "riser": {
+      "file": "sfx/riser.wav",
+      "gainDb": -12,
+      "lead": 0.95
+    },
+    "pop": {
+      "file": "sfx/pop.wav",
+      "gainDb": -12,
+      "lead": 0.0
+    },
+    "tick": {
+      "file": "sfx/tick.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "ding": {
+      "file": "sfx/ding.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "switch": {
+      "file": "sfx/switch.wav",
+      "gainDb": -12,
+      "lead": 0.12
+    },
+    "mouse-click": {
+      "file": "sfx/mouse-click.wav",
+      "gainDb": -12,
+      "lead": 0.12
+    },
+    "shutter-modern": {
+      "file": "sfx/shutter-modern.wav",
+      "gainDb": -10,
+      "lead": 0.21
+    },
+    "whoosh-soft": {
+      "file": "sfx/whoosh.wav",
+      "gainDb": -16,
+      "lead": 0.08
+    },
+    "chime-a": {
+      "file": "sfx/chime-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "chime-b": {
+      "file": "sfx/chime-b.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "chime-c": {
+      "file": "sfx/chime-c.wav",
+      "gainDb": -19,
+      "lead": 0.0
+    },
+    "chime-d": {
+      "file": "sfx/chime-d.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "chime-e": {
+      "file": "sfx/chime-e.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "chime-f": {
+      "file": "sfx/chime-f.wav",
+      "gainDb": -19,
+      "lead": 0.0
+    },
+    "success-a": {
+      "file": "sfx/success-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "success-b": {
+      "file": "sfx/success-b.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "ding-a": {
+      "file": "sfx/ding-a.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "ding-b": {
+      "file": "sfx/ding-b.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "pop-a": {
+      "file": "sfx/pop-a.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "pop-b": {
+      "file": "sfx/pop-b.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "pop-c": {
+      "file": "sfx/pop-c.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "bubble-a": {
+      "file": "sfx/bubble-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "bubble-b": {
+      "file": "sfx/bubble-b.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "click-a": {
+      "file": "sfx/click-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "tick-a": {
+      "file": "sfx/tick-a.wav",
+      "gainDb": -18,
+      "lead": 0.0
+    },
+    "tick-b": {
+      "file": "sfx/tick-b.wav",
+      "gainDb": -18,
+      "lead": 0.0
+    },
+    "type-a": {
+      "file": "sfx/type-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "toggle-a": {
+      "file": "sfx/toggle-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "whoosh-s1": {
+      "file": "sfx/whoosh-s1.wav",
+      "gainDb": -13,
+      "lead": 0.0
+    },
+    "whoosh-s2": {
+      "file": "sfx/whoosh-s2.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "whoosh-s3": {
+      "file": "sfx/whoosh-s3.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "whoosh-s4": {
+      "file": "sfx/whoosh-s4.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "whoosh-m1": {
+      "file": "sfx/whoosh-m1.wav",
+      "gainDb": -13,
+      "lead": 0.19
+    },
+    "whoosh-m2": {
+      "file": "sfx/whoosh-m2.wav",
+      "gainDb": -13,
+      "lead": 0.25
+    },
+    "whoosh-m3": {
+      "file": "sfx/whoosh-m3.wav",
+      "gainDb": -15,
+      "lead": 0.47
+    },
+    "whoosh-l1": {
+      "file": "sfx/whoosh-l1.wav",
+      "gainDb": -13,
+      "lead": 0.8
+    },
+    "whoosh-l2": {
+      "file": "sfx/whoosh-l2.wav",
+      "gainDb": -13,
+      "lead": 0.85
+    },
+    "whoosh-l3": {
+      "file": "sfx/whoosh-l3.wav",
+      "gainDb": -14,
+      "lead": 0.75
+    },
+    "riser-a": {
+      "file": "sfx/riser-a.wav",
+      "gainDb": -13,
+      "lead": 0.99
+    },
+    "riser-b": {
+      "file": "sfx/riser-b.wav",
+      "gainDb": -15,
+      "lead": 1.34
+    },
+    "riser-c": {
+      "file": "sfx/riser-c.wav",
+      "gainDb": -15,
+      "lead": 1.22
+    },
+    "riser-d": {
+      "file": "sfx/riser-d.wav",
+      "gainDb": -16,
+      "lead": 1.0
+    },
+    "impact-soft": {
+      "file": "sfx/impact-soft.wav",
+      "gainDb": -12,
+      "lead": 0.01
+    },
+    "impact-boom": {
+      "file": "sfx/impact-boom.wav",
+      "gainDb": -11,
+      "lead": 0.08
+    },
+    "impact-wood": {
+      "file": "sfx/impact-wood.wav",
+      "gainDb": -12,
+      "lead": 0.0
+    },
+    "impact-cine": {
+      "file": "sfx/impact-cine.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "impact-bell": {
+      "file": "sfx/impact-bell.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "slam-wood": {
+      "file": "sfx/slam-wood.wav",
+      "gainDb": -13,
+      "lead": 0.0
+    },
+    "slam-thwack": {
+      "file": "sfx/slam-thwack.wav",
+      "gainDb": -13,
+      "lead": 0.0
+    },
+    "slam-a": {
+      "file": "sfx/slam-a.wav",
+      "gainDb": -13,
+      "lead": 0.0
+    },
+    "slam-plate": {
+      "file": "sfx/slam-plate.wav",
+      "gainDb": -13,
+      "lead": 0.0
+    },
+    "shutter-a": {
+      "file": "sfx/shutter-a.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "shutter-b": {
+      "file": "sfx/shutter-b.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "shutter-c": {
+      "file": "sfx/shutter-c.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "glitch-a": {
+      "file": "sfx/glitch-a.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "glitch-b": {
+      "file": "sfx/glitch-b.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "stinger-a": {
+      "file": "sfx/stinger-a.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "stinger-b": {
+      "file": "sfx/stinger-b.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "boing-a": {
+      "file": "sfx/boing-a.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "boing-b": {
+      "file": "sfx/boing-b.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "magic-a": {
+      "file": "sfx/magic-a.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "magic-b": {
+      "file": "sfx/magic-b.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "magic-c": {
+      "file": "sfx/magic-c.wav",
+      "gainDb": -18,
+      "lead": 0.0
+    },
+    "slidepop-a": {
+      "file": "sfx/slidepop-a.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "slidepop-b": {
+      "file": "sfx/slidepop-b.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "slidepop-c": {
+      "file": "sfx/slidepop-c.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "sparkle": {
+      "file": "sfx/sparkle.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "chime3": {
+      "file": "sfx/chime3.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "twinkle": {
+      "file": "sfx/twinkle.wav",
+      "gainDb": -18,
+      "lead": 0.0
+    },
+    "shutter": {
+      "file": "sfx/shutter.wav",
+      "gainDb": -15,
+      "lead": 0.0
+    },
+    "glitch": {
+      "file": "sfx/glitch.wav",
+      "gainDb": -16,
+      "lead": 0.0
+    },
+    "bubble": {
+      "file": "sfx/bubble.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "boing": {
+      "file": "sfx/boing.wav",
+      "gainDb": -17,
+      "lead": 0.0
+    },
+    "typing": {
+      "file": "sfx/typing.wav",
+      "gainDb": -19,
+      "lead": 0.0
+    },
+    "whoosh_s": {
+      "file": "sfx/whoosh_s.wav",
+      "gainDb": -14,
+      "lead": 0.08
+    },
+    "whoosh_l": {
+      "file": "sfx/whoosh_l.wav",
+      "gainDb": -13,
+      "lead": 0.5
+    },
+    "slam": {
+      "file": "sfx/slam.wav",
+      "gainDb": -12,
+      "lead": 0.0
+    }
   },
   "events": {
     "transition": {
-      "fade": null, "blurDissolve": null, "cut": null,
-      "slide": "swoosh", "wipe": "swoosh", "whip": "whip", "zoomThrough": "whoosh",
-      "flip": "whoosh", "iris": "pop", "pushCut": "thud", "crossZoom": "riser"
+      "fade": null,
+      "blurDissolve": null,
+      "cut": null,
+      "slide": [
+        "whoosh-s2",
+        "whoosh-m3"
+      ],
+      "wipe": [
+        "whoosh-m2",
+        "whoosh-s3"
+      ],
+      "whip": [
+        "whoosh-s1",
+        "whoosh-s2",
+        "whoosh-m2",
+        "whoosh-s4"
+      ],
+      "zoomThrough": [
+        "whoosh-m1",
+        "whoosh-m3",
+        "whoosh-m2"
+      ],
+      "flip": "whoosh",
+      "iris": "pop",
+      "pushCut": [
+        "impact-wood",
+        "impact-soft"
+      ],
+      "crossZoom": [
+        "riser-a",
+        "riser-b",
+        "riser-c"
+      ],
+      "cardSlide": [
+        "whoosh-s1",
+        "slidepop-a",
+        "whoosh-s3",
+        "whoosh_s",
+        "whoosh-s2",
+        "slidepop-b"
+      ],
+      "cardSwirl": {
+        "sound": [
+          "whoosh-l1",
+          "whoosh-m1"
+        ],
+        "also": [
+          "impact-soft"
+        ]
+      }
     },
-    "accent": { "flash": "thud" },
-    "sceneStart": { "HOOK>HOOK": "shutter-modern", "*>REVEAL": null },
+    "accent": {
+      "flash": "impact-soft",
+      "lightLeak": {
+        "sound": "impact-boom",
+        "also": [
+          "twinkle"
+        ]
+      }
+    },
+    "sceneStart": {
+      "HOOK>HOOK": "shutter-modern",
+      "*>REVEAL": null
+    },
     "overlay": {
-      "title:stack": "pop", "title:glass": "pop", "highlight": "pop", "sticker": "pop",
-      "step": "switch", "checklist": "tick",
-      "cart": { "sound": "mouse-click", "offset": 0.4 }, "thumbs": "shutter-modern", "price": "ding", "ranking": "ding",
-      "compare": { "sound": "whoosh", "offset": 0.3 }
+      "title:stack": "pop",
+      "title:glass": "pop",
+      "highlight": "pop",
+      "sticker": "pop",
+      "step": "switch",
+      "checklist": "tick",
+      "cart": {
+        "sound": "mouse-click",
+        "offset": 0.4
+      },
+      "thumbs": "shutter-modern",
+      "price": "ding",
+      "ranking": "ding",
+      "compare": {
+        "sound": "whoosh",
+        "offset": 0.3
+      },
+      "phrase": [
+        "pop-a",
+        "pop-b",
+        "bubble-a"
+      ],
+      "pill": {
+        "sound": [
+          "bubble-b",
+          "pop-b",
+          "bubble-a"
+        ],
+        "also": [
+          "typing"
+        ]
+      },
+      "icon": [
+        "chime-a",
+        "sparkle",
+        "chime-d",
+        "twinkle"
+      ],
+      "tag": [
+        "pop-b",
+        "chime-e",
+        "pop-c",
+        "chime-b"
+      ],
+      "circled": [
+        "magic-a",
+        "chime-c",
+        "sparkle"
+      ],
+      "script": [
+        "whoosh-s1",
+        "twinkle"
+      ],
+      "logo": {
+        "sound": [
+          "whoosh-m1",
+          "whoosh-m3"
+        ],
+        "also": [
+          "twinkle"
+        ]
+      },
+      "arc": {
+        "sound": "whoosh",
+        "offset": 0.0
+      },
+      "counter": {
+        "sound": [
+          "ding-a",
+          "success-b",
+          "ding-b"
+        ],
+        "offset": 0.55,
+        "also": [
+          "chime3"
+        ]
+      },
+      "rawfinal": [
+        "slidepop-c",
+        "whoosh-m2"
+      ],
+      "phrase:slam": {
+        "sound": [
+          "slam-wood",
+          "slam-plate",
+          "slam-a"
+        ],
+        "also": [
+          "whoosh-s4"
+        ]
+      },
+      "phrase:stamp": [
+        "slam-thwack",
+        "impact-wood",
+        "slam"
+      ],
+      "phrase:glitch": [
+        "glitch-a",
+        "glitch",
+        "glitch-b"
+      ],
+      "phrase:elastic": [
+        "boing-a",
+        "boing-b",
+        "boing"
+      ],
+      "phrase:drop": [
+        "pop-c",
+        "bubble-a"
+      ],
+      "phrase:wave": [
+        "magic-a",
+        "magic-b"
+      ],
+      "phrase:flip": [
+        "toggle-a",
+        "tick-a"
+      ],
+      "phrase:maskwipe": [
+        "whoosh-s3",
+        "whoosh-s2"
+      ],
+      "phrase:shine": [
+        "twinkle",
+        "chime-b",
+        "chime-a"
+      ],
+      "phrase:neon": [
+        "toggle-a",
+        "magic-c"
+      ]
+    },
+    "flash": {
+      "sound": [
+        "shutter-a",
+        "shutter-b",
+        "shutter"
+      ]
+    },
+    "burst": {
+      "sound": [
+        "pop-a",
+        "pop-b",
+        "bubble-b",
+        "pop-c",
+        "bubble-a"
+      ]
     }
   },
   "rules": {

@@ -37,7 +37,7 @@ REQUIRED = {"id": str, "title": str, "summary": str, "intents": list, "expect": 
             "correction": str, "music": dict, "components": dict, "sfx": dict, "compliance": list,
             "references": list}
 CAPTIONS = {"karaoke", "pop", "plain", "none"}
-THEMES = {"cool", "warm", "luxe"}
+THEMES = {"cool", "warm", "luxe", "crimson"}
 DRIVES = {"voice", "music"}
 
 
@@ -302,11 +302,15 @@ def check_one(pb: dict, comps: set[str], grades: set[str], sounds: set[str]) -> 
     for c in pb["components"].get("use", []) + pb["components"].get("avoid", []):
         if c not in comps:
             errs.append(f"component '{c}' is not in the template registry")
-    for section in pb["sfx"].values():
+    for sec, section in pb["sfx"].items():
+        if sec == "rules":  # numbers (minGap, window, maxInWindow, notBefore), not sounds
+            continue
         for v in section.values():
-            name = v.get("sound") if isinstance(v, dict) else v
-            if name and name not in sounds:
-                errs.append(f"sfx override names unknown sound '{name}'")
+            for entry in (v if isinstance(v, list) else [v]):
+                for name in ([entry.get("sound"), *entry.get("also", [])] if isinstance(entry, dict) else [entry]):
+                    for nm in (name if isinstance(name, list) else [name]):
+                        if nm and nm not in sounds:
+                            errs.append(f"sfx override names unknown sound '{nm}'")
     for ref in pb["references"]:
         if not (SKILL / ref).is_file():
             errs.append(f"reference '{ref}' does not exist")

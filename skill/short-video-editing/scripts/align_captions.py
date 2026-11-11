@@ -19,6 +19,8 @@ Options worth knowing:
     --model     tiny|base|small|medium|large-v3   (default small; medium for speech over music)
     --words     words per caption group (default 4; use 2-3 for high energy)
     --lang      language code (default vi)
+    --prompt    words Whisper should expect: brand names and domain terms ("SISMO, TikTok Shop, video media, KOC").
+                Whisper small mishears them otherwise (a brand became "xi xơ mô"); it still needs a hand check.
 
 Requires: faster-whisper, ffmpeg on PATH.
 """
@@ -112,11 +114,11 @@ def resolve_model(size: str) -> str:
     return size
 
 
-def transcribe(audio, model_size: str, lang: str) -> list[Word]:
+def transcribe(audio, model_size: str, lang: str, prompt: str | None = None) -> list[Word]:
     from faster_whisper import WhisperModel
     model = WhisperModel(resolve_model(model_size), device="cpu", compute_type="int8")
     segments, _ = model.transcribe(
-        audio, language=lang, word_timestamps=True, vad_filter=True,
+        audio, language=lang, word_timestamps=True, vad_filter=True, initial_prompt=prompt or None,
     )
     words: list[Word] = []
     for seg in segments:
@@ -262,6 +264,7 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=Path("captions.srt"))
     ap.add_argument("--model", default="small")
     ap.add_argument("--lang", default="vi")
+    ap.add_argument("--prompt", help="brand and domain words to prime Whisper with (initial prompt); correct the transcript by hand anyway")
     ap.add_argument("--words", type=int, default=4, help="Words per caption group")
     ap.add_argument("--json", action="store_true", help="Print groups as JSON instead of SRT")
     ap.add_argument("--words-out", type=Path,
@@ -273,7 +276,7 @@ def main() -> int:
     if not args.audio.exists():
         sys.exit(f"Audio not found: {args.audio}")
 
-    heard = transcribe(decode(args.audio), args.model, args.lang)
+    heard = transcribe(decode(args.audio), args.model, args.lang, args.prompt)
     if not heard:
         sys.exit("Whisper returned no words. Check the audio is not silent.")
     print(f"Whisper heard {len(heard)} word(s)", file=sys.stderr)

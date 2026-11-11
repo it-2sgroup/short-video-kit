@@ -10,6 +10,8 @@ import { Compare, ImageCard, Magnifier, Thumbs } from "./graphics/Media";
 import { Chart, Label, Pin, Specs, Stat } from "./graphics/Info";
 import { Ranking } from "./graphics/Ranking";
 import { LowerThird, Progress } from "./graphics/Bars";
+import { Circled, Counter, Icon, Logo, RawFinal } from "./graphics/Brand";
+import { Arc, Burst, Phrase, Pill, Script, Tag } from "./text/Phrase";
 
 export type OverlayComponent = React.FC<{ ov: Overlay; dur: number; instant: boolean }>;
 
@@ -34,6 +36,17 @@ export const registry: Record<string, OverlayComponent> = {
   stat: Stat,
   chart: Chart,
   image: ImageCard,
+  phrase: Phrase,
+  pill: Pill,
+  arc: Arc,
+  burst: Burst,
+  script: Script,
+  tag: Tag,
+  logo: Logo,
+  counter: Counter,
+  icon: Icon,
+  circled: Circled,
+  rawfinal: RawFinal,
 };
 
 export const resolveOverlay = (name: string): OverlayComponent => {

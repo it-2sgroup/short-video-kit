@@ -6,7 +6,7 @@
 > `plan_to_project.py edit-plan.md --out RENDER/v1.json --voice … --captions … --words … --auto-camera --auto-sfx`
 > Keep the column headers: the scripts find columns by name. Keep this file: it is the footage ledger.
 
-**Playbook:** [id or id:variant — product-demo, real-estate, food-fnb, talking-head, tutorial, fashion-beauty, montage-recap, promo-sale]  
+**Playbook:** [id or id:variant — product-demo, real-estate, food-fnb, talking-head (:testimonial, :agency), tutorial, fashion-beauty, montage-recap, promo-sale]  
 **Platform:** [tiktok, reels; organic or boosted as an ad]  
 **Target runtime:** [from the playbook]  
 **Drive:** [voice: cuts on pauses · music: cuts on beats]  
@@ -34,6 +34,10 @@ lengths; the hook resolves by 3.0 s. Cut on pauses in the voice or on beats of t
   (TIME=ZOOM[@X,Y][ ease], time as a fraction of the scene or `1.2s`). Blank = `--auto-camera` (the playbook's pattern).
   `references/camera-moves.md`.
 - **Speed** — blank (1x), `2x`, `0.5x` (60 fps source), `ramp 1>2.5>1`. `references/cutting-and-pacing.md`.
+- **Optional columns of the agency pitch** (`talking-head:agency`, `references/agency-pitch-recipe.md`; the full syntax is in the docstring of
+  `plan_to_project.py`): **Layout** (blank = the clip fills the frame, `card` = a rounded card over the animated grid, `expand`), **Flash** (`0,2,4 @ mattes/CLIP`:
+  a white silhouette on those frames from the cut) and **Face** (`x,y,r` of the head, from `person_matte.py --faces`, for the beauty light). A caption-bands table
+  (Start | End | Top | Size, optional Highlight; Top `hide` = no captions in that window) sits under the Overlays.
 
 | # | Start | End | Source | In | Type | Transition | Camera | Speed | Shot | Audio |
 |---|-------|-----|--------|----|------|------------|--------|-------|------|-------|

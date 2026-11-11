@@ -28,6 +28,16 @@ open each page, confirm CC0 and the author, download the file linked there). Pix
 scripted requests; the Internet Archive search errored. Keep a `SOURCES.md` beside the tracks (title,
 author, URL, licence) and **ask before downloading**.
 
+### A bed you make yourself: `make_music.py`
+
+When no track is licensed for the account (a business TikTok account is limited to the Commercial Music Library, which a render cannot reach),
+the kit can synthesize a bright pop-corporate bed (numpy + ffmpeg, Am-F-C-G): `scripts/make_music.py --duration D --sections "0:0.55,6.4:1.0,..." --hits
+"6.4,45.9" --bpm 120 --out bed.wav`. Its sections start exactly on the video's section cuts (the beat grid restarts there, so a cut lands on a beat), the
+intensity of a section picks the layers (pad, bass, kick and hats, chord stabs, claps and arpeggio), and each `--hits` time gets a low boom, a crash and a
+riser in the second before it. Level it with `process_audio.py music`, mix it low (`plan_to_project.py --music-levels -8,-8`), and say plainly that nobody has
+listened to it: the numbers (peak -3 dBFS, no clipped sample, RMS per second) are the only check a tool can make. It is a bed, not a song; a licensed track the
+human adds in the app at upload will usually beat it, so deliver a second master without music alongside the one that has it.
+
 ---
 
 ## Choosing the music for the genre

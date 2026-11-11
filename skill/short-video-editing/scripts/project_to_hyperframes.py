@@ -14,8 +14,10 @@ What it does, in order:
      as engine/audio.tsx), so the render needs no audio automation;
   4. links the clips the scenes use, writes index.html, kit.js (the renderer), kit.css, package.json.
 
-Overlay components the HyperFrames kit does not draw yet (magnifier, thumbs, compare, ranking) are listed
-and skipped: render such a video with Remotion instead. Ask the user before the first `npx hyperframes`
+Overlay components the HyperFrames kit does not draw (read from kit.js: today magnifier, thumbs, compare, ranking and the
+agency-pitch set phrase, pill, arc, burst, script, tag, logo, counter, icon, circled, rawfinal) and scene or project features
+only Remotion has (card/expand layouts, the silhouette flash, face light, look, caption highlights and bands, cardSlide and
+cardSwirl) are listed and left out: render such a video with Remotion instead (the agency recipe is Remotion only). Ask the user before the first `npx hyperframes`
 (it downloads the package). Needs ffmpeg; rendering needs Node 22+ and Chrome.
 """
 from __future__ import annotations
@@ -34,7 +36,32 @@ SKILL = Path(__file__).resolve().parent.parent
 TEMPLATE = SKILL / "assets" / "hyperframes-template"
 HF_VERSION = "0.9.26"  # the CLI the kit was tested with; package.json pins it so a re-render is identical
 GSAP = "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"
-NOT_DRAWN = {"magnifier", "thumbs", "compare", "ranking"}
+FACTORY_RE = re.compile(r"^    (\w+)\(\w+, ov\) \{", re.M)   # an overlay drawn by kit.js: `    title(root, ov) {`
+REMOTION_ONLY_SCENE = {"layout": "card/expand layouts over the grid", "flash": "the silhouette flash", "face": "face light"}
+REMOTION_ONLY_PROJECT = {"faceGlow": "face light", "captionHighlight": "caption highlight modes", "captionKeywords": "caption keywords"}
+REMOTION_ONLY_TRANSITIONS = {"cardSlide", "cardSwirl"}
+
+
+def remotion_only(proj: dict) -> list[str]:
+    """Features the plan uses that kit.js does not draw: one short line each, so nothing disappears silently."""
+    out = []
+    for k, why in REMOTION_ONLY_SCENE.items():
+        n = sum(1 for s in proj.get("scenes") or [] if s.get(k))
+        if n:
+            out.append(f"{n} scene(s) with {k} ({why})")
+    for k, why in REMOTION_ONLY_PROJECT.items():
+        if proj.get(k):
+            out.append(f"{k} ({why})")
+    grade = sorted(set(proj.get("look") or {}) - {"vignette", "grain"})   # HyperFrames' own look is only vignette and grain
+    if grade:
+        out.append(f"look {'/'.join(grade)} (the picture grade: bake it into the proxies, or render with Remotion)")
+    bands = [b for b in proj.get("captionBands") or [] if b.get("hide") or b.get("highlight")]
+    if bands:
+        out.append(f"{len(bands)} caption band(s) with hide/highlight")
+    t = sorted({s.get("transition", {}).get("type") for s in proj.get("scenes") or []} & REMOTION_ONLY_TRANSITIONS)
+    if t:
+        out.append(f"transition {', '.join(t)} (drawn as a fade)")
+    return out
 
 DEFAULT_FRAMES = {"cut": 0, "fade": 12, "slide": 14, "wipe": 14, "iris": 18, "pushCut": 11, "zoomThrough": 12,
                   "blurDissolve": 14, "whip": 9, "flip": 16, "crossZoom": 16}
@@ -279,6 +306,7 @@ def main() -> int:
         theme = playbooks.load(a.playbook)["theme"]
     theme = theme or "cool"
     proj["theme"] = theme
+    unsupported = remotion_only(proj)   # before --look replaces the project's own look
     if a.look:
         look = {}
         for part in a.look.split(","):
@@ -322,8 +350,9 @@ def main() -> int:
     if missing:
         sys.exit("missing proxies:\n  " + "\n  ".join(missing))
 
-    skipped = sorted({o["component"] for o in proj.get("overlays") or [] if o["component"] in NOT_DRAWN})
-    proj["overlays"] = [o for o in proj.get("overlays") or [] if o["component"] not in NOT_DRAWN]
+    drawn = set(FACTORY_RE.findall((TEMPLATE / "kit.js").read_text(encoding="utf-8")))
+    skipped = sorted({o["component"] for o in proj.get("overlays") or [] if o["component"] not in drawn})
+    proj["overlays"] = [o for o in proj.get("overlays") or [] if o["component"] in drawn]
     for o in proj["overlays"]:
         if o["component"] == "image":
             img = public / o["props"]["src"]
@@ -350,6 +379,8 @@ def main() -> int:
           f"{len(proj['overlays'])} overlays, audio {'mixed' if has_audio else 'none'})")
     if skipped:
         print(f"  ! not drawn by the HyperFrames kit: {', '.join(skipped)}. Render this video with Remotion, or drop them from the plan.")
+    if unsupported:
+        print("  ! used by this project but only Remotion draws them: " + "; ".join(unsupported) + ". Render it with Remotion.")
     status = 0
     if a.check:
         status = subprocess.run(["npx", "--yes", f"hyperframes@{HF_VERSION}", "check"], cwd=out, shell=os.name == "nt").returncode
