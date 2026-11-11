@@ -62,6 +62,8 @@ short-video-kit/
 | File | Nội dung |
 |---|---|
 | `WORKFLOW.md` | Luồng từ clip thô tới video hoàn chỉnh, từng lệnh, thư mục làm việc chuẩn (tiếng Việt). |
+| `PROMPT-VIDEO.md` | Prompt mẫu tổng quát (mọi thể loại): brief, quy tắc bất biến, quy trình, danh mục kỹ thuật, tiêu chuẩn nghiệm thu, bàn giao. |
+| `PROMPT-LO-VIDEO.md` | Khung viết yêu cầu cho một lô video đăng thật (nhiều nguồn, tăng tốc giọng, bàn giao vào thư mục đồng bộ), kèm các chỗ prompt hay mơ hồ. |
 | `DECISIONS.md` | Giấy phép (Remotion, ElevenLabs), bẫy kỹ thuật đã gặp, số liệu ngách, lý do chọn kiến trúc, các công cụ đã khảo sát, claim vi phạm trong kịch bản hiện hành. |
 | `CAU-TRUC.md` | Chính file này. |
 | `niche-data-queries.sql` | Các truy vấn tái hiện mọi số liệu trong `niche-winning-patterns.md` (bảng `videos`; không cộng `video_metrics_daily` vì lặp chu kỳ 7 ngày). |

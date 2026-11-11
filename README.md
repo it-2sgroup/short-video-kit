@@ -168,6 +168,8 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
 ├── docs/
 │   ├── WORKFLOW.md                Step-by-step workflow (Vietnamese)
 │   ├── CAU-TRUC.md                Every folder and file, tools and techniques (Vietnamese)
+│   ├── PROMPT-VIDEO.md            Generic prompt template for any genre (Vietnamese)
+│   ├── PROMPT-LO-VIDEO.md         Prompt structure for a production batch (Vietnamese)
 │   ├── DECISIONS.md               Tool choices, pitfalls, sources, licence notes
 │   └── niche-data-queries.sql     Reproduces every campaign figure used by the skill
 ├── samples/                       Fixtures used by selftest.sh (a product-demo and a real-estate plan, a voice line)
