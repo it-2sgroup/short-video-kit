@@ -87,6 +87,12 @@ else
   fail "plan_to_project output wrong"; tail -4 "$TMP/p2p.log" | sed 's/^/        /'
 fi
 
+"$PY" -c "import sys; sys.path.insert(0, sys.argv[1]); import plan_to_project as p; \
+t=p.parse_content('title','style=stack; lines=Khởi tố / 10/8/2026; accent=2026'); u=p.parse_content('title','lines=300'); s=p.parse_content('stat','value=5; unit= bị can'); \
+sys.exit(0 if t['accent']=='2026' and u['lines']==['300'] and s['value']==5 and s['unit']=='bị can' else 1)" "$S" \
+  && pass "text keys stay text (accent=2026, lines=300), stat values stay numbers" \
+  || fail "a numeric accent or title line would crash the renderer (plan_to_project value coercion)"
+
 "$PY" "$S/plan_to_project.py" "$KIT/samples/example-real-estate-plan.md" --out "$TMP/re.json" --auto-camera --auto-sfx >"$TMP/re.log" 2>&1 \
   && "$PY" -c "import json,sys; p=json.load(open(sys.argv[1],encoding='utf-8')); s=p['scenes']; \
 sys.exit(0 if s[2].get('ramp')==[1.0,2.0,1.0] and s[6].get('speed')==0.5 and p['captionStyle']=='none' \

@@ -259,13 +259,21 @@ def value(v: str):
     return v
 
 
+# Content keys the template draws as text: a bare number there must stay a string ("accent=2026").
+TEXT_KEYS = {"accent", "sub", "text", "label", "caption", "title", "name", "role", "unit", "prefix", "note", "lines", "items"}
+
+
 def parse_content(component: str, raw: str) -> dict:
     props = {}
     for chunk in filter(None, (c.strip() for c in raw.split(";"))):
         if "=" not in chunk:
             continue
         k, v = chunk.split("=", 1)
-        props[k.strip()] = value(v)
+        k = k.strip()
+        val = value(v)
+        if k in TEXT_KEYS and not isinstance(val, list):
+            val = v.strip()  # "accent=2026" and "lines=300" are words to draw, not numbers
+        props[k] = val
     if component == "title" and isinstance(props.get("lines"), str):
         props["lines"] = [props["lines"]]
     if component == "checklist" and isinstance(props.get("items"), str):
