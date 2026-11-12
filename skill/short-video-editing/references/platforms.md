@@ -56,7 +56,7 @@ Check a real phone before a campaign: a private test post, or Remotion's safe-zo
 - **Originality** (Instagram, 30 Apr 2024; Meta, July 2025) [O]: reposts are replaced by the original
   in recommendations; recommended content must carry no visible watermark; accounts that repeatedly
   repost without meaningful changes lose reach. TikTok: reused content without creative edit, or with
-  another platform's watermark, is ineligible for the For You feed (`Chính sách.md`).
+  another platform's watermark, is ineligible for the For You feed (`policy.md`).
 - **Trial Reels** (Dec 2024) [O]: a Reel can be shown to non-followers first; useful to test two hooks
   of the same edit without hurting the main account.
 
@@ -88,7 +88,7 @@ TikTok app at upload when wanted. Details and levels: `audio-and-music.md`.
 - The product bar and its cart tile are real UI: point at them, never draw a cart.
 - A removed shoppable video still counts toward posting-frequency limits; penalties escalate from a
   warning to removal, points, suspension and deactivation; TikTok Shop Vietnam removes the product and
-  related content on detection (`claims-and-compliance.md`, `Chính sách.md` §2.6).
+  related content on detection (`claims-and-compliance.md`, `policy.md` §2.6).
 
 ## 6. Publishing checklist (every video)
 
@@ -98,4 +98,4 @@ TikTok app at upload when wanted. Details and levels: `audio-and-music.md`.
 - [ ] AI-generated or substantially AI-edited content labelled.
 - [ ] Music licensed for this platform and account type.
 - [ ] Reels ad? Rendered with `--platform reels-ad`, no cart arrow, no before/after comparison.
-- [ ] Posting limits of the market respected (`Chính sách.md` §2.6).
+- [ ] Posting limits of the market respected (`policy.md` §2.6).

@@ -63,7 +63,7 @@ Follow `docs/WORKFLOW.md` (Vietnamese) and the skill's `SKILL.md`. In short:
    `contact_sheet.py CLIPS --out clips.png` (**look** at it), `playbook.py suggest --intent "<the user's
    words>" --analysis analysis.json`, then read `playbooks/<id>.md`. Say which playbook and why in one
    line; when the request and the footage disagree or facts are missing, ask **at most three** questions,
-   each with a default. For a batch, **budget the footage** first (`references/Chính sách.md` §4.1).
+   each with a default. For a batch, **budget the footage** first (`references/policy.md` §4.1).
 3. Footage: `new_remotion_project.py RENDER --playbook <id> --proxies CLIPS` (corrected, graded proxies;
    look at `corrections.json` and a contact sheet of the proxies).
 4. Sound: a supplied voice → `trim_voice.py` if longer than the playbook allows, `process_audio.py voice`,
@@ -89,10 +89,10 @@ Keep work files **outside this repo** (e.g. `<work>/v1/{script.txt,captions.srt,
 finish with `finish_video.py`; prove with `check_lipsync.py` and `mix_report.py`. A technique the kit lacks is researched and added (component + doc row + selftest), not faked. Say what was not
 verified: nobody has listened to the sound bank or the music, and a sentence guessed from a poor transcript or a logo keyed from a sample frame is the human's to confirm.
 
-## Footage rights and duplicate content — read `references/Chính sách.md` first
+## Footage rights and duplicate content — read `references/policy.md` first
 
 Before planning **any batch** of videos, and before using **any footage that is not the user's own or
-licensed**, read `skill/short-video-editing/references/Chính sách.md` (also in the installed skill). Short
+licensed**, read `skill/short-video-editing/references/policy.md` (also in the installed skill). Short
 version, with the evidence in that file:
 
 - **Never download, crawl, cut or splice other people's videos** (Douyin, TikTok, YouTube, a competitor's) into
@@ -225,7 +225,7 @@ version, with the evidence in that file:
 
 `README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
 `skill/short-video-editing/SKILL.md` → `skill/short-video-editing/playbooks/README.md` (genres: how to choose and add) →
-`skill/short-video-editing/references/Chính sách.md` (content-rights and duplicate-content policy) → `references/hyperframes-flow.md` (the second renderer) and
+`skill/short-video-editing/references/policy.md` (content-rights and duplicate-content policy) → `references/hyperframes-flow.md` (the second renderer) and
 `references/capcut-techniques.md` (where each CapCut technique lives in the kit). Adding, renaming or removing a file or script means updating
 `docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
 

@@ -100,7 +100,7 @@ Tám playbook: `product-demo` (+`unboxing`, `listicle`), `real-estate` (+`voiceo
 
 | File | Khi nào đọc |
 |---|---|
-| `Chính sách.md` | **Trước khi lập kế hoạch một lô video hoặc dùng cảnh không phải của mình:** nội dung không gốc, lặp, vi phạm bản quyền; footage hiện có làm được bao nhiêu video; kết luận về crawl Douyin; cách đi hợp lệ để có số lượng lớn. |
+| `policy.md` | **Trước khi lập kế hoạch một lô video hoặc dùng cảnh không phải của mình:** nội dung không gốc, lặp, vi phạm bản quyền; footage hiện có làm được bao nhiêu video; kết luận về crawl Douyin; cách đi hợp lệ để có số lượng lớn. |
 | `claims-and-compliance.md` | Viết lời/chữ có tính quảng cáo: quy tắc chung (Luật Quảng cáo 75/2025, từ "nhất", so sánh đối thủ, khớp giá), theo ngành (gia dụng + bảng câu thay thế, BĐS — Luật KDBĐS 2023 & NĐ 339/2026, thực phẩm/TPBVSK, mỹ phẩm, tài chính, khuyến mãi), luật trước/sau. |
 | `platforms.md` | TikTok vs Reels vs Shorts: định dạng, vùng an toàn (đo thực tế TikTok + vùng quảng cáo Reels của Meta), tín hiệu xếp hạng do nền tảng công bố, nhạc theo nền tảng, đặc thù TikTok Shop, checklist đăng. |
 | `hook-library.md` | Cấu trúc hook 3 kênh, xếp hạng kiểu hook, hook theo từng playbook. |

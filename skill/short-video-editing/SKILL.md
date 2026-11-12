@@ -35,7 +35,7 @@ Checked mechanically where a tool exists. Do not deliver a plan that breaks them
    splice other people's videos (Douyin, TikTok, YouTube, competitors) without a written commercial
    licence; no source range is used twice in a batch (`footage_overlap_checker.py`). When the footage
    cannot reach the batch size, say so with the numbers and propose shooting or licensed creators.
-   Read `references/Chính sách.md` before planning a batch.
+   Read `references/policy.md` before planning a batch.
 7. **Graphics respect the frame**: nothing over a face; nothing in the platform UI zones; titles hug the
    top (y ≈ 236–420), captions the lower third (y ≈ 1340, ≤ 2 lines); the middle belongs to the footage;
    at most two informational elements at once. Reels ads need `--platform reels-ad`.
@@ -94,7 +94,7 @@ Then read `playbooks/<id>.md`. If the request and the footage agree, state the c
 go on. If they disagree, or two playbooks are close, or facts the video needs are missing (price,
 address, offer dates, the voice), ask **at most three** questions in one message, each with your
 default (`playbooks/README.md` → Questions). For a batch: budget the footage first
-(`references/footage-ingest.md` §1b, `Chính sách.md` §4.1).
+(`references/footage-ingest.md` §1b, `policy.md` §4.1).
 
 ### 1b. A reference video to copy ("make it like this sample")
 
@@ -247,7 +247,7 @@ Read as the task requires, not all at once.
 | `playbooks/README.md` | Choosing the playbook; the questions to ask; adding a genre or a client's house style. |
 | `playbooks/<id>.md` | Always, for the chosen playbook: structure, shots needed, editing, sound, look, graphics, compliance, commands. |
 | `references/agency-pitch-recipe.md` | A service or agency pitch, or any "recreate this sample" job where a presenter talks to camera and the voice is cut from their takes: every step, tool and flag, and the pitfalls met. |
-| `references/Chính sách.md` | **Before any batch or any footage that is not the user's own**: originality, duplicates, Douyin, how many videos footage supports. |
+| `references/policy.md` | **Before any batch or any footage that is not the user's own**: originality, duplicates, Douyin, how many videos footage supports. |
 | `references/claims-and-compliance.md` | Writing any script or on-screen claim; category law (real estate, food, cosmetics, finance); before/after rules; the rewrite table. |
 | `references/platforms.md` | TikTok vs Reels vs Shorts: formats, safe zones, ranking signals, music by platform, the publishing checklist. |
 | `references/hook-library.md` | Choosing or writing the opening. |

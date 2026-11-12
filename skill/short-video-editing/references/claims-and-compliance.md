@@ -9,7 +9,7 @@ checklist into the plan; this file holds the rules behind those lines.
   lawyer decides close calls.
 - **[C]** craft convention.
 
-Originality, reuse, duplicate content and footage rights are in `Chính sách.md`.
+Originality, reuse, duplicate content and footage rights are in `policy.md`.
 
 ---
 

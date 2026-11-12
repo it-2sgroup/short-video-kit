@@ -178,7 +178,7 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
     ├── SKILL.md                   Universal rules and workflow loaded by Claude
     ├── playbooks/                 One JSON (rules the scripts read) + one MD (craft) per genre; README = how to choose and add
     ├── references/                Shared craft and policy: platforms, claims and compliance, content-rights policy
-    │                              (Chính sách.md), hooks, cutting and pacing, transitions, camera, image processing,
+    │                              (policy.md), hooks, cutting and pacing, transitions, camera, image processing,
     │                              typography, layout and motion graphics, captions, sync, footage ingest, voiceover,
     │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion,
     │                              HyperFrames flow, CapCut techniques

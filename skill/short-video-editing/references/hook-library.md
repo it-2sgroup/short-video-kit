@@ -109,5 +109,5 @@ Work in this order, because it fails fast:
 4. Otherwise fall back to a reveal, and strengthen the second beat with an open loop.
 
 Two hooks can be tested on the same edit with Trial Reels (shown to non-followers first); never by
-posting near-identical copies, which is repetitive content (`Chính sách.md`). The data rarely
+posting near-identical copies, which is repetitive content (`policy.md`). The data rarely
 says in advance which archetype wins for a given product.

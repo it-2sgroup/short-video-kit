@@ -49,7 +49,7 @@ the same apartment for a sale video and a rental video). Treat it as a budget:
    scenes needs ~42 s, a 40 s property tour with two `ramp 1>2>1` scenes a little more, a jump-cut
    talking head only its own take. Total usable seconds ÷ that is the most videos the footage carries
    without reuse (587 s of product footage → about 14). If the demand is larger, **stop and report the
-   shortfall** (`Chính sách.md` §4.1 has the table for 200–300 videos); reshuffling clips into "new"
+   shortfall** (`policy.md` §4.1 has the table for 200–300 videos); reshuffling clips into "new"
    videos is the repetitive-content pattern TikTok Shop and Instagram penalise.
 2. **Catalogue by kind of moment, not by file.** Kinds are words for what the shot shows, and each
    playbook's camera knows its own (`camera-moves.md`): product-demo `STAIN`, `POUR`, `SOAK`, `LIFT`,

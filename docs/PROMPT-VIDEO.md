@@ -57,7 +57,7 @@ màu, ánh sáng, nhịp, chữ và âm thanh phải chỉn chu.
 6. **Footage của tôi hoặc có giấy phép thương mại. Không dùng video của người khác. Không dùng lại một đoạn nguồn
    hai lần trong cả lô**, không xáo trộn một nguồn thành nhiều video (`footage_overlap_checker.py` trên **mọi**
    plan, kể cả plan dựng lại từ video mẫu). Hết cảnh thì dừng, báo số liệu, đề xuất quay thêm.
-   Đọc `references/Chính sách.md` trước khi lập lô.
+   Đọc `references/policy.md` trước khi lập lô.
 7. **Đồ hoạ tôn trọng khung hình:** không che mặt, không đè vùng giao diện nền tảng, tiêu đề dải trên
    (y ≈ 236–420), phụ đề một phần ba dưới (y ≈ 1340, ≤ 2 dòng), phần giữa dành cho footage, tối đa hai thành
    phần thông tin cùng lúc. Quảng cáo Reels dùng `--platform reels-ad`; không có mũi tên giỏ hàng trên Reels.

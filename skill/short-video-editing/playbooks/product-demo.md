@@ -20,7 +20,7 @@ own products; never against competitors).
 1. The product's name exactly as listed, its price and the product-card URL (on-screen prices must match).
 2. Will the video be **boosted as an ad**? TikTok ads forbid before/after comparisons: plan a version
    without the `compare` card and the TRƯỚC/SAU labels (`references/before-after.md`).
-3. How many videos must this footage feed (batch capacity, `references/Chính sách.md` §4.1)?
+3. How many videos must this footage feed (batch capacity, `references/policy.md` §4.1)?
 
 ## Structure (30–40 s; `playbook.py skeleton product-demo --duration 36`)
 

@@ -124,4 +124,4 @@ labelled on screen. The credible choice and the compliant choice are the same ch
 - **A voice that runs long**: cut breaths and dead air first (15–20% routinely); then drop a point
   rather than stretching scenes past the playbook's maximum.
 - **Under the playbook's minimum runtime**: do not pad; add real content (a second item, another room).
-- **Not enough fresh footage for the batch**: stop and report the numbers (`Chính sách.md` §4.1).
+- **Not enough fresh footage for the batch**: stop and report the numbers (`policy.md` §4.1).

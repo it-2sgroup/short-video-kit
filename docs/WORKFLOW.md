@@ -51,7 +51,7 @@ python3 scripts/playbook.py show real-estate
 Nếu yêu cầu và footage khớp nhau, Claude nói chọn playbook nào và vì sao (một dòng) rồi làm tiếp. Nếu lệch
 nhau hoặc thiếu dữ kiện (giá, diện tích, địa chỉ, ngày khuyến mãi, có giọng hay chỉ nhạc), Claude hỏi **tối
 đa 3 câu**, mỗi câu kèm phương án mặc định. Lô nhiều video: tính ngân sách footage trước
-(`references/footage-ingest.md` §1b, `references/Chính sách.md` §4.1).
+(`references/footage-ingest.md` §1b, `references/policy.md` §4.1).
 
 ### 1b. Khách đưa video mẫu ("làm giống cái này")
 ```bash
