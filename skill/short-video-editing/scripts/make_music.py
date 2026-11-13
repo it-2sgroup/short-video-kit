@@ -7,9 +7,9 @@ yourself has no licence question, and it can follow the edit: its sections start
 cuts, with an impact and a riser into the big ones. It is a plain, bright pop-corporate groove (Am-F-C-G), meant
 to sit under a voice. Levelling to -14 LUFS stays with `process_audio.py music`.
 
-    python scripts/make_music.py --duration 64 --out music.wav \
-        --sections "0:0.55,6.38:1.0,14.69:0.9,19.65:0.5,23.05:0.9,32.4:0.45,37.8:0.9,45.85:1.0,53.14:0.8,62.43:0.0" \
-        --hits "6.38,45.85,62.43" --bpm 120
+    python scripts/make_music.py --duration 40 --out music.wav \
+        --sections "0:0.5,8:1.0,20:0.8,30:0.9,38:0.0" \
+        --hits "8,30,38" --bpm 120
 
 --sections  TIME:INTENSITY pairs. The beat grid restarts at every section start, so cuts land on a beat.
             Intensity 0..1 picks the layers: > 0.1 pad, > 0.3 bass, > 0.45 kick and hats, > 0.6 chord stabs,

@@ -12,7 +12,7 @@ Prints (and exits 1 on any error):
             without music means noise is left in the voice). With --nomusic: the same on the no-music master, and the music bed's
             level = the difference in the pauses.
   cues      with --project: how many sound effects, how many in the busiest 3 s, music source and levels. NONE for music is printed on
-            purpose: a project compiled from a stale file once rendered a whole video without its music and nobody noticed.
+            purpose: a project compiled from a stale file can render a whole video without its music, unnoticed.
 It measures; it does not listen. Say "not listened" in your report unless a person did. Needs numpy (the kit's venv) and ffmpeg.
 """
 from __future__ import annotations

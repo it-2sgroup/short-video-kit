@@ -1,17 +1,18 @@
-// Agency-pitch text: the lines that carry the message when the speaker says it. Where Title is a calm heading,
+// Statement text: large lines that mirror the speech, shown the moment the speaker says it. Where Title is a calm heading,
 // these move: letters that scatter in and fly apart again, a typed pill, an arc of echoing letters, one handwritten
 // phrase. Everything is a pure function of the frame; sizes and colours come from the theme.
-//   phrase  a white lead line over a loud red (or yellow) emphasis line, e.g. "Đang kinh doanh" / "THIẾU VIDEO ĐỂ ĐĂNG MỖI NGÀY"
+//   phrase  a white lead line over a loud red (or yellow) emphasis line, e.g. "Lead line" / "EMPHASIS LINE"
 //   pill    a rounded label (white with red text, or red with white text) whose text types in
 //   arc     curved letters with echoes fanning out behind them (the opening shout)
 //   script  one handwritten phrase in the highlight colour (Pacifico), letters scatter in
-//   tag     a small red label with outlined text, anchored over a card ("SẢN PHẨM")
+//   tag     a small red label with outlined text, anchored over a card ("LABEL")
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useVideoConfig } from "remotion";
 import type { Overlay } from "../../project";
 import { fonts, frame as size, palette, textShadow, zones } from "../../theme";
 import { clamp, fitSize, pop, useEnterExit } from "../anim";
-import { FxText, type FxName, type StrokeProps } from "./Fx";
+import { pickFont } from "../../fonts";
+import { FxText, fxFrames, type FxName, type StrokeProps } from "./Fx";
 
 type Base = { ov: Overlay; dur: number; instant: boolean };
 
@@ -25,16 +26,13 @@ const timing = (dur: number, enterF: number, exitF: number, frame: number) => ({
   x: interpolate(frame, [dur - exitF, dur], [0, 1], clamp),
 });
 
-// frames an effect needs to land (typewriter depends on the length)
-const fxFrames = (fx: FxName, text: string) =>
-  ({ scatter: 11, drop: 18, wave: 16, elastic: 16, flip: 16, slam: 9, stamp: 12, glitch: 14, neon: 10, shine: 12, maskwipe: 12, split: 12, rise: 10, typewriter: Math.max(8, Math.round(Array.from(text).length * 0.75)) })[fx];
-
 // ------------------------------------------------------------------------------------------------ phrase
 // emphAt: seconds after the overlay starts when the emphasis line arrives (the lead line comes first); y: top of the block
 // as a fraction of the frame height (default: just under the title strip). With no emph, only the lead line shows.
 // fx / leadFx: the effect of the emphasis and the lead line (Fx.tsx: scatter drop wave elastic flip slam stamp glitch neon shine
-// maskwipe split typewriter rise). exit: scatter (letters fly apart) or fade.
-export type PhraseProps = { lead?: string; emph?: string; emphAt?: number; y?: number; emphColor?: "red" | "yellow" | "white"; fx?: FxName; leadFx?: FxName; enter?: "scatter" | "rise"; exit?: "scatter" | "fade" };
+// maskwipe split typewriter rise scramble blurin tracking slice popword flap strike draw). exit: scatter (letters fly apart) or fade.
+// font / leadFont: a library font id (fonts.ts) for both lines / for the lead line alone; default: the sans lead over the condensed emphasis.
+export type PhraseProps = { lead?: string; emph?: string; emphAt?: number; y?: number; emphColor?: "red" | "yellow" | "white"; fx?: FxName; leadFx?: FxName; enter?: "scatter" | "rise"; exit?: "scatter" | "fade"; font?: string; leadFont?: string };
 
 export const Phrase: React.FC<Base> = ({ ov, dur, instant }) => {
   const p = (ov.props ?? {}) as PhraseProps;
@@ -45,7 +43,9 @@ export const Phrase: React.FC<Base> = ({ ov, dur, instant }) => {
   const exitMode = p.exit ?? "scatter";
   const top = p.y !== undefined ? p.y * size.height : zones[ov.zone ?? "top"] + 100;
   const emph = p.emph ?? "";
-  const emphSize = fitSize(emph, 940, 118, 64, 0.43);
+  const leadFont = pickFont(p.leadFont ?? p.font, 800, fonts.sans);
+  const emphFont = pickFont(p.font, 900, fonts.condensed);
+  const emphSize = fitSize(emph, 940, 118, 64, emphFont.ratio ?? 0.43);
   const emphF = Math.round((p.emphAt ?? 0.13) * fps); // frames before the emphasis line starts
   const emphFill = p.emphColor === "yellow" ? palette.sky : p.emphColor === "white" ? palette.white : palette.royal;
   const emphStroke = p.emphColor === "yellow" || p.emphColor === "white" ? palette.ink : palette.white;
@@ -58,10 +58,10 @@ export const Phrase: React.FC<Base> = ({ ov, dur, instant }) => {
     <AbsoluteFill>
       <div style={{ position: "absolute", top, left: 40, width: size.width - 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, opacity: fade }}>
         {p.lead ? (
-          <FxText text={p.lead} fx={leadFx} frame={frame} fps={fps} size={fitSize(p.lead, 900, 62, 40, 0.5)} fill={palette.white} stroke={palette.ink} weight={800} width={0.13} shadow={textShadow} k={lk} x={scatterOut} seed={3} spread={0.8} />
+          <FxText text={p.lead} fx={leadFx} frame={frame} fps={fps} size={fitSize(p.lead, 900, 62, 40, leadFont.ratio ?? 0.5)} family={leadFont.family} fill={palette.white} stroke={palette.ink} weight={leadFont.weight} width={0.13} shadow={textShadow} k={lk} x={scatterOut} seed={3} spread={0.8} />
         ) : null}
         {emph ? (
-          <FxText text={emph} fx={emphFx} frame={Math.max(0, frame - emphF)} fps={fps} size={emphSize} family={fonts.condensed} fill={emphFill} stroke={emphStroke} weight={900} width={0.14} shadow={`drop-shadow(0 8px 14px rgba(40,0,6,0.45))`} k={ek} x={scatterOut} seed={11} spread={1} />
+          <FxText text={emph} fx={emphFx} frame={Math.max(0, frame - emphF)} fps={fps} size={emphSize} family={emphFont.family} fill={emphFill} stroke={emphStroke} weight={emphFont.weight} width={0.14} shadow={`drop-shadow(0 8px 14px rgba(40,0,6,0.45))`} k={ek} x={scatterOut} seed={11} spread={1} />
         ) : null}
       </div>
     </AbsoluteFill>
@@ -69,7 +69,7 @@ export const Phrase: React.FC<Base> = ({ ov, dur, instant }) => {
 };
 
 // ------------------------------------------------------------------------------------------------ pill
-export type PillProps = { text: string; variant?: "white" | "red" | "yellow" | "ink"; type?: boolean; at?: [number, number]; size?: number };
+export type PillProps = { text: string; variant?: "white" | "red" | "yellow" | "ink"; type?: boolean; at?: [number, number]; size?: number; font?: string };
 
 export const Pill: React.FC<Base> = ({ ov, dur, instant }) => {
   const { fps } = useVideoConfig();
@@ -79,6 +79,7 @@ export const Pill: React.FC<Base> = ({ ov, dur, instant }) => {
   const bg = v === "white" ? palette.white : v === "yellow" ? palette.sky : v === "ink" ? palette.ink : palette.royal;
   const fg = v === "white" ? palette.royal : v === "yellow" ? palette.ink : palette.white;
   const fontSize = p.size ?? 46;
+  const pf = pickFont(p.font, 900, fonts.sans);
   const k = instant ? 1 : pop(frame, fps, 0);
   const chars = Array.from(p.text);
   const shown = p.type === false ? chars.length : Math.min(chars.length, Math.max(0, Math.floor((frame - 2) / 0.8)));
@@ -97,8 +98,8 @@ export const Pill: React.FC<Base> = ({ ov, dur, instant }) => {
           borderRadius: 16,
           background: bg,
           boxShadow: "0 10px 26px rgba(30,0,6,0.38)",
-          fontFamily: fonts.sans,
-          fontWeight: 900,
+          fontFamily: pf.family,
+          fontWeight: pf.weight,
           fontSize,
           letterSpacing: "0.01em",
           color: fg,
@@ -176,7 +177,7 @@ export const Arc: React.FC<Base> = ({ ov, dur, instant }) => {
 };
 
 // ------------------------------------------------------------------------------------------------ script
-export type ScriptProps = { text: string; at?: [number, number]; rotate?: number; size?: number };
+export type ScriptProps = { text: string; at?: [number, number]; rotate?: number; size?: number; font?: string };
 
 export const Script: React.FC<Base> = ({ ov, dur, instant }) => {
   const p = (ov.props ?? {}) as ScriptProps;
@@ -184,30 +185,32 @@ export const Script: React.FC<Base> = ({ ov, dur, instant }) => {
   const { k, x } = timing(dur, instant ? 0.001 : 15, 9, frame);
   const [ax, ay] = p.at ?? [0.5, 0.0];
   const top = p.at ? ay * size.height : zones[ov.zone ?? "top"] + 160;
-  const fs = p.size ?? fitSize(p.text, 860, 76, 48, 0.55);
+  const sf = p.font ? pickFont(p.font, 700, fonts.script) : pickFont(undefined, 400, fonts.script);
+  const fs = p.size ?? fitSize(p.text, 860, 76, 48, sf.ratio ?? 0.55);
   return (
     <AbsoluteFill>
       <div style={{ position: "absolute", left: ax * size.width, top, translate: "-50% 0", rotate: `${p.rotate ?? -3}deg` }}>
-        <ScatterText text={p.text} size={fs} family={fonts.script} weight={400} fill={palette.sky} stroke={palette.ink} width={0.09} shadow={textShadow} k={k} x={x} seed={21} spread={0.9} />
+        <ScatterText text={p.text} size={fs} family={sf.family} weight={sf.weight} fill={palette.sky} stroke={palette.ink} width={0.09} shadow={textShadow} k={k} x={x} seed={21} spread={0.9} />
       </div>
     </AbsoluteFill>
   );
 };
 
 // ------------------------------------------------------------------------------------------------ tag
-export type TagProps = { text: string; at?: [number, number]; fx?: FxName };
+export type TagProps = { text: string; at?: [number, number]; fx?: FxName; font?: string };
 
-// A short loud label for a card ("SẢN PHẨM", "F&B"): red condensed letters with a white outline, popping in.
+// A short loud label for a card ("LABEL", "TAG"): red condensed letters with a white outline, popping in.
 export const Tag: React.FC<Base> = ({ ov, dur, instant }) => {
   const { fps } = useVideoConfig();
   const p = (ov.props ?? {}) as TagProps;
   const { frame, exit } = useEnterExit(dur, { instant, exit: 6 });
   const k = instant ? 1 : spring({ frame, fps, config: { damping: 11, stiffness: 240, mass: 0.6 } });
   const [ax, ay] = p.at ?? [0.5, 0.235];
+  const tf = pickFont(p.font, 900, fonts.condensed);
   return (
     <AbsoluteFill style={{ opacity: exit }}>
       <div style={{ position: "absolute", left: ax * size.width, top: ay * size.height, translate: "-50% -50%", scale: String(k), rotate: "-2deg" }}>
-        <ScatterText text={p.text} fx={p.fx ?? "rise"} frame={frame} k={interpolate(frame, [0, fxFrames(p.fx ?? "rise", p.text)], [0, 1], clamp)} x={0} size={64} family={fonts.condensed} fill={palette.royal} stroke={palette.white} weight={900} width={0.17} shadow="drop-shadow(0 6px 10px rgba(30,0,6,0.5))" />
+        <ScatterText text={p.text} fx={p.fx ?? "rise"} frame={frame} k={interpolate(frame, [0, fxFrames(p.fx ?? "rise", p.text)], [0, 1], clamp)} x={0} size={64} family={tf.family} fill={palette.royal} stroke={palette.white} weight={tf.weight} width={0.17} shadow="drop-shadow(0 6px 10px rgba(30,0,6,0.5))" />
       </div>
     </AbsoluteFill>
   );
@@ -217,8 +220,8 @@ export const Tag: React.FC<Base> = ({ ov, dur, instant }) => {
 export type BurstProps = { text: string; copies?: number; at?: [number, number]; fill?: string; stroke?: string; hold?: boolean; speed?: number };
 
 // The opening shout as a pile of copies: a gray ghost appears small underneath, then more and more copies pop up around it, each
-// larger, tilted differently and nearer the frame edge, until the pile fills the top of the frame (the "hidden letters jumping
-// up" of social openers). Colour copies carry the fill and outline; the ghosts are a washed gray. All spring in with an overshoot
+// larger, tilted differently and nearer the frame edge, until the pile fills the top of the frame (letters that seem to jump
+// up from behind each other). Colour copies carry the fill and outline; the ghosts are a washed gray. All spring in with an overshoot
 // and then drift a little. `copies` 4-9; `at` moves the whole pile (its centre, as fractions of the frame).
 const BURST = [
   { dx: 0.0, dy: 0.06, rot: -2, size: 0.42, ghost: true, at: 0 },

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Verify the kit works on this machine. Spends no ElevenLabs credits.
-#   ./selftest.sh                  groups 1-14d (a few seconds each; group 4 loads the Whisper model)
-#   ./selftest.sh --render [DIR]   also group 15: typecheck the Remotion template and render one still in
+#   ./selftest.sh                  groups 1-16 (a few seconds each; group 4 loads the Whisper model)
+#   ./selftest.sh --render [DIR]   also group 17: typecheck the Remotion template and render one still in
 #                                  DIR (default: a temp folder). Without node_modules in DIR this runs
 #                                  npm install, which downloads packages and Chromium (~300 MB): ask first.
 set -uo pipefail
@@ -47,7 +47,7 @@ echo "3. playbooks and pacing_checker.py"
   && pass "example real-estate plan passes its playbook" || fail "pacing_checker rejected the real-estate plan"
 "$PY" "$S/pacing_checker.py" "$KIT/samples/example-real-estate-plan.md" --playbook product-demo >/dev/null 2>&1 \
   && fail "a 1.5 s non-hook scene passed product-demo's rules" || pass "the same plan fails product-demo's 2.5 s minimum (rules follow the playbook)"
-"$PY" "$S/playbook.py" suggest --intent "tour căn hộ 2 phòng ngủ" 2>&1 | head -1 | grep -q "real-estate" \
+"$PY" "$S/playbook.py" suggest --intent "tour căn hộ" 2>&1 | head -1 | grep -q "real-estate" \
   && pass "suggest: 'tour căn hộ' -> real-estate" || fail "playbook.py suggest did not pick real-estate"
 printf '| # | Start | End | Type |\n|---|---|---|---|\n| 1 | 0.0 | 6.5 | HOOK |\n' > "$TMP/bad.md"
 "$PY" "$S/pacing_checker.py" "$TMP/bad.md" >/dev/null 2>&1 \
@@ -56,8 +56,11 @@ printf '| # | Start | End | Type |\n|---|---|---|---|\n| 1 | 0.0 | 6.5 | HOOK |\
 echo "4. align_captions.py (Whisper timing, script spelling)"
 if "$PY" "$S/align_captions.py" "$KIT/samples/line_00.mp3" --script "$KIT/samples/line_00.txt" \
      --out "$TMP/c.srt" >"$TMP/align.log" 2>&1; then
-  grep -q "túi xách" "$TMP/c.srt" && pass "caption keeps the script's spelling: 'túi xách'" \
-    || fail "caption lost the script spelling (Whisper's misheard text leaked through)"
+  "$PY" -c "import sys; srt=open(sys.argv[1],encoding='utf-8').read(); \
+txt=' '.join(b.split('\n',2)[2].strip() for b in srt.strip().split('\n\n') if b.count('\n')>=2); \
+sys.exit(0 if txt.split()==open(sys.argv[2],encoding='utf-8-sig').read().split() else 1)" "$TMP/c.srt" "$KIT/samples/line_00.txt" \
+    && pass "captions carry the script's own words, in order (Whisper gives the timing only)" \
+    || fail "caption text differs from the script (Whisper's misheard text leaked through)"
   N=$(grep -cE -- '-->' "$TMP/c.srt"); [[ $N -ge 5 ]] && pass "$N caption groups written" || fail "only $N caption groups"
 else
   fail "align_captions failed"; tail -4 "$TMP/align.log" | sed 's/^/        /'
@@ -88,9 +91,9 @@ else
 fi
 
 "$PY" -c "import sys; sys.path.insert(0, sys.argv[1]); import plan_to_project as p; \
-t=p.parse_content('title','style=stack; lines=Khởi tố / 10/8/2026; accent=2026'); u=p.parse_content('title','lines=300'); s=p.parse_content('stat','value=5; unit= bị can'); \
-sys.exit(0 if t['accent']=='2026' and u['lines']==['300'] and s['value']==5 and s['unit']=='bị can' else 1)" "$S" \
-  && pass "text keys stay text (accent=2026, lines=300), stat values stay numbers" \
+t=p.parse_content('title','style=stack; lines=Text A / 10/8/2026; accent=100'); u=p.parse_content('title','lines=300'); s=p.parse_content('stat','value=5; unit= items'); \
+sys.exit(0 if t['accent']=='100' and u['lines']==['300'] and s['value']==5 and s['unit']=='items' else 1)" "$S" \
+  && pass "text keys stay text (accent=100, lines=300), stat values stay numbers" \
   || fail "a numeric accent or title line would crash the renderer (plan_to_project value coercion)"
 
 "$PY" "$S/plan_to_project.py" "$KIT/samples/example-real-estate-plan.md" --out "$TMP/re.json" --auto-camera --auto-sfx >"$TMP/re.log" 2>&1 \
@@ -120,14 +123,14 @@ for i in range(60):  # 60 words, a pause every 6th: ~24 s of speech
     t += 0.3 + (0.45 if i % 6 == 5 else 0.05)
 json.dump(words, open(f"{tmp}/w.json", "w"))
 json.dump({"gap": 0.5, "spans": [
-    {"clip": "A", "kind": "SOAK", "start": 0, "end": 60, "focus": [0.5, 0.5], "size": "medium"},
-    {"clip": "B", "kind": "SOAK", "start": 0, "end": 60, "focus": [0.5, 0.5], "size": "medium"}]}, open(f"{tmp}/lib.json", "w"))
+    {"clip": "A", "kind": "ACTION", "start": 0, "end": 60, "focus": [0.5, 0.5], "size": "medium"},
+    {"clip": "B", "kind": "ACTION", "start": 0, "end": 60, "focus": [0.5, 0.5], "size": "medium"}]}, open(f"{tmp}/lib.json", "w"))
 PYEOF
 "$PY" "$S/suggest_cuts.py" "$TMP/w.json" --json > "$TMP/cuts.json" 2>"$TMP/cuts.err" \
   && "$PY" -c "import json,sys; c=json.load(open(sys.argv[1])); sys.exit(0 if len(c)>=5 and all(1.2<=x['end']-x['start']<=4.0 for x in c) else 1)" "$TMP/cuts.json" \
   && pass "scene cuts: every scene 1.2-4.0 s" || { fail "suggest_cuts output wrong"; sed 's/^/        /' "$TMP/cuts.err" | head -3; }
 N=$("$PY" -c "import json,sys; print(len(json.load(open(sys.argv[1]))))" "$TMP/cuts.json" 2>/dev/null || echo 0)
-KINDS=$(printf 'SOAK,%.0s' $(seq 1 "$N")); KINDS=${KINDS%,}; TYPES=$(printf 'DEMO,%.0s' $(seq 1 "$N")); TYPES=${TYPES%,}
+KINDS=$(printf 'ACTION,%.0s' $(seq 1 "$N")); KINDS=${KINDS%,}; TYPES=$(printf 'DEMO,%.0s' $(seq 1 "$N")); TYPES=${TYPES%,}
 "$PY" "$S/plan_scenes.py" --library "$TMP/lib.json" --cuts "$TMP/cuts.json" --kinds "$KINDS" --types "$TYPES" > "$TMP/scenes.md" 2>"$TMP/scenes.err" \
   && "$PY" "$S/footage_overlap_checker.py" "$TMP/scenes.md" >/dev/null 2>&1 \
   && pass "plan_scenes filled $N scenes and the overlap checker finds no reuse" || { fail "plan_scenes output reused or missing footage"; sed 's/^/        /' "$TMP/scenes.err" | head -3; }
@@ -288,8 +291,8 @@ cat >"$TMP/agency-plan.md" <<'MDEOF'
 
 | # | Start | End | Component | Zone | Tone | Content |
 |---|-------|-----|-----------|------|------|---------|
-| 1 | 0.0 | 1.4 | phrase | top | – | lead=Đang kinh doanh; emph=THIẾU VIDEO; emphAt=0.5; y=0.2 |
-| 2 | 1.6 | 2.6 | counter | – | – | from=5; to=10; label=NGÀY; at=0.5,0.18 |
+| 1 | 0.0 | 1.4 | phrase | top | – | lead=Text A; emph=TEXT B; emphAt=0.5; y=0.2 |
+| 2 | 1.6 | 2.6 | counter | – | – | from=5; to=10; label=DAYS; at=0.5,0.18 |
 | 3 | 4.0 | 4.9 | logo | – | – | at=0.5,0.4; width=500; tint=white; hold=1 |
 
 | Start | End | Top | Size |
@@ -350,17 +353,18 @@ from pathlib import Path
 S, T = sys.argv[1], Path(sys.argv[2])
 words = []
 t = 3.2
-for i, w in enumerate("Chào bạn, chúng tôi làm video. Hãy inbox ngay cho SISMO nhé!".split()):
+for i, w in enumerate("Hello friends, we make videos. Please reach out to ACME today!".split()):
     words.append({"text": w, "start": round(t, 2), "end": round(t + 0.35, 2)})
     t += 0.42 + (0.25 if w.endswith((",", ".")) else 0)
 (T / "w.json").write_text(json.dumps(words, ensure_ascii=False), encoding="utf-8")
 (T / "m.json").write_text(json.dumps({"TKX": [{"lag": 0.0, "clip_from": 3.2, "clip_to": 8.4, "voice_from": 3.2, "voice_to": 8.4, "corr": 0.99}]}), encoding="utf-8")
 (T / "c.json").write_text(json.dumps([{"clip": "TKX", "start": 0.2, "end": 2.8, "length": 2.6, "person": None, "score": 2.6}, {"clip": "TKX", "start": 9.2, "end": 11.8, "length": 2.6, "person": None, "score": 2.6}]), encoding="utf-8")
-r = subprocess.run([sys.executable, str(Path(S) / "agency_plan.py"), "--words", str(T / "w.json"), "--matches", str(T / "m.json"), "--cutaways", str(T / "c.json"), "--brand", "SISMO", "--out", str(T / "ap.md")], capture_output=True, text=True)
+r = subprocess.run([sys.executable, str(Path(S) / "agency_plan.py"), "--words", str(T / "w.json"), "--matches", str(T / "m.json"), "--cutaways", str(T / "c.json"), "--brand", "ACME", "--out", str(T / "ap.md")], capture_output=True, text=True)
 print(r.stdout, r.stderr)
 assert r.returncode == 0, "agency_plan failed"
 md = (T / "ap.md").read_text(encoding="utf-8")
 assert "talking-head:agency" in md and "phrase" in md and "logo" in md and "card" in md, "plan lacks talking scenes, blocks or cards"
+assert "fx=neon" not in md and "| pill |" not in md, "without --cta there is no call to action block and no closing pill"
 r = subprocess.run([sys.executable, str(Path(S) / "plan_to_project.py"), str(T / "ap.md"), "--out", str(T / "ap.json"), "--words", str(T / "w.json")], capture_output=True, text=True)
 print(r.stdout, r.stderr)
 assert r.returncode == 0, "the drafted plan does not compile"
@@ -369,16 +373,20 @@ talk = [s for s in p["scenes"] if s["clip"] == "TKX" and not s.get("layout")]
 assert talk and abs(talk[0]["in"] - talk[0]["start"]) < 0.01, "In must equal start + lag (lag 0 here)"
 PYEOF
 "$PY" -X utf8 - "$KIT/skill/short-video-editing/assets/remotion-template/src" <<'PYEOF' >/dev/null 2>&1 \
-  && pass "text effects: every effect named in Fx.tsx has a duration in Phrase.tsx and a sound-design key" || fail "text effect names out of step"
+  && pass "text effects: every effect named in Fx.tsx has a duration (FRAMES) and, but for the calm ones, a sound-design key" || fail "text effect names out of step"
 import json, re, sys
 from pathlib import Path
 src = Path(sys.argv[1])
 fx = re.search(r'FX_NAMES: FxName\[\] = \[(.*?)\]', (src / "components/text/Fx.tsx").read_text(encoding="utf-8"), re.S).group(1)
 names = re.findall(r'"(\w+)"', fx)
-phrase = (src / "components/text/Phrase.tsx").read_text(encoding="utf-8")
-frames = re.search(r'const fxFrames = .*?\)\[fx\]', phrase, re.S).group(0)
-missing = [n for n in names if n + ":" not in frames]
-assert not missing, missing
+fx_src = (src / "components/text/Fx.tsx").read_text(encoding="utf-8")
+frames = re.search(r'const FRAMES.*?=\s*\{\n(.*?)\n\};', fx_src, re.S).group(1)
+missing = [n for n in names if not re.search(r'(^|\s)' + n + r':', frames)]
+assert not missing, ("no duration in FRAMES", missing)
+sfx = json.loads((src.parent.parent / "sfx/sfx-map.json").read_text(encoding="utf-8"))
+raw = json.dumps(sfx)
+nosound = [n for n in names if f'"phrase:{n}"' not in raw]
+assert set(nosound) <= {"scatter", "split", "typewriter", "rise"}, ("effects with no sound key (only the calm defaults may have none)", nosound)
 PYEOF
 
 echo "14d. reference analysis, montage, mix report, doctor, and every command the docs name"
@@ -410,23 +418,25 @@ names = [r['name'] for r in rows]
 sys.exit(0 if any('person-segmentation' in n for n in names) and any('Whisper' in n for n in names) else 1)" "$TMP/dr.json" \
   && pass "doctor.py reports the Whisper model and the optional person-segmentation model" || fail "doctor.py model group"
 "$PY" -X utf8 - "$S" <<'PYEOF' >"$TMP/hfw.log" 2>&1 \
-  && pass "project_to_hyperframes.py names every Remotion-only feature (card layout, flash, face, look, bands, cardSlide)" || { fail "project_to_hyperframes.py warnings"; tail -4 "$TMP/hfw.log" | sed 's/^/        /'; }
+  && pass "project_to_hyperframes.py names every Remotion-only feature (card layout, subject, face, look, bands, cardSlide)" || { fail "project_to_hyperframes.py warnings"; tail -4 "$TMP/hfw.log" | sed 's/^/        /'; }
 import sys
 sys.path.insert(0, sys.argv[1])
 import project_to_hyperframes as hf
-p = {"scenes": [{"layout": "card", "transition": {"type": "cardSlide"}}, {"flash": {"frames": [0]}, "face": {"x": .5, "y": .3, "r": .1}}],
+p = {"scenes": [{"layout": "card", "transition": {"type": "cardSlide"}}, {"subject": {"mode": "behind", "frames": [0]}, "face": {"x": .5, "y": .3, "r": .1}}],
      "faceGlow": {"brightness": 1.2}, "look": {"saturate": 1.1}, "captionBands": [{"hide": True}], "captionHighlight": "box"}
 out = " ".join(hf.remotion_only(p))
-for word in ("layout", "flash", "face", "faceGlow", "look", "caption band", "cardSlide", "captionHighlight"):
+for word in ("layout", "subject", "face", "faceGlow", "look", "caption band", "cardSlide", "captionHighlight"):
     assert word in out, (word, out)
 assert hf.remotion_only({"scenes": [{"transition": {"type": "fade"}}], "look": {"vignette": 0.3}}) == []
 PYEOF
-"$PY" "$S/playbook.py" suggest --intent "Tôi có thư mục clip thô quay một người dẫn, một file giọng (voice) cắt từ chính các take đó, và một video mẫu của khách. Hãy dựng lại video giống bản mẫu" 2>&1 | head -1 | grep -q "talking-head:agency" \
-  && pass "playbook.py suggest: the words a client uses for this job (người dẫn, video mẫu, các take) pick talking-head:agency" || fail "playbook.py suggest does not pick talking-head:agency for the agency-pitch request"
-"$PY" "$S/agency_plan.py" --words "$TMP/w.json" --matches "$TMP/m.json" --cutaways "$TMP/c.json" --brand "chúng tôi" --cta "GỌI NGAY" --out "$TMP/ap2.md" >"$TMP/ap2.log" 2>&1 \
-  && grep -q "emph=GỌI NGAY" "$TMP/ap2.md" && grep -q "text=GỌI NGAY" "$TMP/ap2.md" && grep -q "| logo |" "$TMP/ap2.md" && [[ -s "$TMP/ap2.face-keys.txt" ]] \
-  && pass "agency_plan.py: --cta reaches the neon block and the closing card, a two-word brand gets its logo, the face-keys file is written" \
+"$PY" "$S/playbook.py" suggest --intent "Tôi có thư mục clip thô quay một người dẫn, một file giọng (voice) cắt từ chính các take đó, và một video mẫu. Hãy dựng lại video giống bản mẫu" 2>&1 | head -1 | grep -q "talking-head:agency" \
+  && pass "playbook.py suggest: the words a user uses for this job (người dẫn, video mẫu, các take) pick talking-head:agency" || fail "playbook.py suggest does not pick talking-head:agency for the agency-pitch request"
+"$PY" "$S/agency_plan.py" --words "$TMP/w.json" --matches "$TMP/m.json" --cutaways "$TMP/c.json" --brand "we make" --cta "CALL NOW" --cta-word reach --out "$TMP/ap2.md" >"$TMP/ap2.log" 2>&1 \
+  && grep -q "emph=CALL NOW" "$TMP/ap2.md" && grep -q "text=CALL NOW" "$TMP/ap2.md" && grep -q "| logo |" "$TMP/ap2.md" && [[ -s "$TMP/ap2.face-keys.txt" ]] \
+  && pass "agency_plan.py: --cta with --cta-word reaches the neon block and the closing card, a two-word brand gets its logo, the face-keys file is written" \
   || { fail "agency_plan.py --cta / multi-word brand / face keys"; tail -4 "$TMP/ap2.log" | sed 's/^/        /'; }
+"$PY" "$S/agency_plan.py" --words "$TMP/w.json" --matches "$TMP/m.json" --cutaways "$TMP/c.json" --cta-word reach --out "$TMP/ap3.md" >/dev/null 2>&1 \
+  && fail "agency_plan.py accepted --cta-word without --cta" || pass "agency_plan.py: --cta-word without --cta is refused (no content default)"
 mkdir -p "$TMP/rf/empty"
 echo '{"scenes": [{"clip": "TKX", "in": 0.5, "start": 0.0, "end": 2.0}]}' > "$TMP/rf/p2.json"
 "$PY" "$S/check_lipsync.py" "$TMP/rf/p2.json" "$TMP/rf/sample.mp4" --clips "$TMP/rf/empty" >"$TMP/cl.log" 2>&1 \
@@ -471,8 +481,281 @@ for b in bad:
 sys.exit(1 if bad else 0)
 PYEOF
 
+echo "16. technique catalogue and the newer techniques"
+"$PY" -X utf8 "$S/technique.py" check >"$TMP/tech.log" 2>&1 \
+  && pass "technique.py check: every technique has a card, a doc and a test, and every card is in the code ($(head -1 "$TMP/tech.log" | cut -d' ' -f1) cards)" \
+  || { fail "technique catalogue out of step with the code"; tail -14 "$TMP/tech.log" | sed 's/^/        /'; }
+"$PY" -X utf8 "$S/technique.py" search "glitch rgb split" 2>&1 | grep -q "glitchSlice" \
+  && pass "technique.py search finds a technique by the names editors use" || fail "technique.py search"
+"$PY" -X utf8 - "$S" <<'PYEOF' >"$TMP/grades.log" 2>&1 \
+  && pass "grades move a synthetic card the way they claim (teal shadows, lifted blacks, mono, warm, cold; strength mixes)" || { fail "grades move a synthetic card"; tail -4 "$TMP/grades.log" | sed 's/^/        /'; }
+import json, subprocess, sys, tempfile
+from pathlib import Path
+import numpy as np
+
+S = Path(sys.argv[1])  # scripts dir
+sys.path.insert(0, str(S))
+import prepare_footage as pf
+
+GR = json.loads((S.parent / "assets" / "grades.json").read_text(encoding="utf-8"))["grades"]
+tmp = Path(tempfile.mkdtemp())
+W, H = 256, 64
+# card: a grey ramp (top half) and a skin / sky / foliage / red row (bottom half)
+patches = [(224, 172, 140), (90, 140, 210), (70, 130, 60), (200, 50, 50)]
+row = np.zeros((H // 2, W, 3), np.uint8)
+for i, c in enumerate(patches):
+    row[:, i * W // 4:(i + 1) * W // 4] = c
+ramp = np.repeat(np.linspace(0, 255, W, dtype=np.uint8)[None, :, None], H // 2, 0).repeat(3, 2)
+card = np.concatenate([ramp, row], 0)
+(tmp / "card.rgb").write_bytes(card.tobytes())
+
+
+def graded(name):
+    pf.colour_lut("", GR[name]["chain"], 1.0, tmp / f"{name}.png")
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-i", str(tmp / "card.rgb"),
+                        "-i", str(tmp / f"{name}.png"), "-filter_complex", "[0:v][1:v]haldclut=interp=tetrahedral", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+                       capture_output=True)
+    assert r.returncode == 0, r.stderr[-200:]
+    return np.frombuffer(r.stdout, np.uint8).reshape(H, W, 3).astype(float)
+
+
+def sat(a):
+    return float((a.max(2) - a.min(2)).mean())
+
+
+base = card.astype(float)
+ramp_in, row_in = base[:H // 2], base[H // 2:]
+res = {}
+for n in ("teal-orange", "cinematic-fade", "moody", "pastel", "vintage-film", "mono", "bleach-bypass", "golden-hour", "cold-blue"):
+    res[n] = graded(n)
+g = lambda n: (res[n][:H // 2], res[n][H // 2:])
+rb = lambda a: float((a[..., 0] - a[..., 2]).mean())
+shadows, highs = slice(0, W // 4), slice(3 * W // 4, W)
+t = g("teal-orange")[0]
+assert rb(t[:, shadows]) < rb(ramp_in[:, shadows]) - 2, "teal-orange: shadows should move toward teal (less red than blue)"
+assert rb(t[:, highs]) > rb(ramp_in[:, highs]) + 2, "teal-orange: highlights should move toward orange"
+assert g("cinematic-fade")[0][:, :4].mean() > 9, "cinematic-fade: black should be lifted"
+assert g("moody")[0].mean() < ramp_in.mean() - 3, "moody: darker than the input"
+assert g("pastel")[0][:, :4].mean() > 8 and sat(g("pastel")[1]) < sat(row_in), "pastel: blacks lifted, colour softer"
+assert g("vintage-film")[0][:, :4].mean() > 8 and sat(g("vintage-film")[1]) < sat(row_in), "vintage-film: blacks lifted, colour muted"
+assert sat(res["mono"]) < 2, "mono: no colour left"
+assert sat(g("bleach-bypass")[1]) < 0.6 * sat(row_in), "bleach-bypass: strongly desaturated"
+assert rb(res["golden-hour"]) > rb(base) + 4, "golden-hour: warmer than the input"
+assert rb(res["cold-blue"]) < rb(base) - 4, "cold-blue: cooler than the input"
+# strength: 0.5 lands between no grade and the full grade
+pf.colour_lut("", GR["golden-hour"]["chain"], 0.5, tmp / "half.png")
+r = subprocess.run(["ffmpeg", "-hide_banner", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-i", str(tmp / "card.rgb"),
+                    "-i", str(tmp / "half.png"), "-filter_complex", "[0:v][1:v]haldclut=interp=tetrahedral", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True)
+half = np.frombuffer(r.stdout, np.uint8).reshape(H, W, 3).astype(float)
+assert rb(base) + 1 < rb(half) < rb(res["golden-hour"]) - 1, "grade strength 0.5 should land between the input and the full grade"
+print("grades ok")
+PYEOF
+"$PY" -X utf8 - "$S" <<'PYEOF' >"$TMP/new.log" 2>&1 \
+  && pass "camera shake parses; speed presets parse; look fx parses; subject cells parse; every transition of project.ts is plannable" || { fail "newer plan features"; tail -6 "$TMP/new.log" | sed 's/^/        /'; }
+import sys
+sys.path.insert(0, sys.argv[1])
+import plan_to_project as p, footage_overlap_checker as f
+c = p.parse_camera("push 1.1>1.25 shake mild")
+assert c["move"] == "push" and c["shake"]["amp"] == 6.0, c
+assert p.parse_camera("shake 9") == {"move": "hold", "shake": {"amp": 9.0}}
+k = p.parse_camera("keys 0=1.05 ; 1=1.3 shake strong")
+assert k["move"] == "keys" and k["shake"]["amp"] == 14.0, k
+assert f.parse_speed("hero") == (None, [2.0, 0.4, 2.0]) and f.parse_speed("Flash-In")[1] == [3.0, 1.0]
+assert abs(f.speed_factor("montage") - 1.75) < 1e-9
+try:
+    f.parse_speed("sideways")
+    raise SystemExit("an unknown speed name must be refused")
+except ValueError:
+    pass
+s = p.parse_subject("0,2,4 @ mattes/CLIP_A")
+assert s == {"frames": [0, 2, 4], "matte": "mattes/CLIP_A"}, s
+s = p.parse_subject("outline 0-60 @ mattes/CLIP_A; color=#FFD23F; width=12; every=3")
+assert s["mode"] == "outline" and s["show"] == [0, 60] and s["frames"][:3] == [0, 3, 6] and s["color"] == "#FFD23F", s
+s = p.parse_subject("behind 0-80 @ mattes/CLIP_A; text=HELLO / WORLD; size=300")
+assert s["mode"] == "behind" and s["text"] == "HELLO\nWORLD" and s["frames"] == [0], s
+try:
+    p.parse_subject("sparkle 0,2 @ m")
+    raise SystemExit("an unknown subject mode must be refused")
+except ValueError:
+    pass
+for t in ("blinds", "diamond", "doors", "glitchSlice", "spinZoom", "filmBurn", "zoomBlur", "whip", "cardSwirl"):
+    assert t.lower() in p.CANON, t
+PYEOF
+"$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/lookfx.json" --look-fx vignette=0.3,grain=0.06 >/dev/null 2>&1 \
+  && "$PY" -c "import json,sys; l=json.load(open(sys.argv[1]))['look']; assert l=={'vignette':0.3,'grain':0.06}, l" "$TMP/lookfx.json" \
+  && pass "plan_to_project.py --look-fx writes look.vignette and look.grain (look fx parses)" || fail "plan_to_project.py --look-fx"
+bash -s "$KIT/skill/short-video-editing" <<'EDITORTEST' >"$TMP/editor.log" 2>&1 \
+  && pass "editor.py: serves the project, saves with a history snapshot, restores, refuses traversal and foreign hosts" || { fail "editor.py"; grep FAIL "$TMP/editor.log" | head -6 | sed 's/^/        /'; }
+#!/usr/bin/env bash
+# Selftest snippet for scripts/editor.py (stdlib only; needs python3 and curl). Usage: editor-selftest-snippet.sh [SKILL_DIR]
+# SKILL_DIR defaults to skill/short-video-editing relative to the repo root. Prints PASS/FAIL lines, exits 1 on any FAIL.
+set -u
+SKILL="${1:-skill/short-video-editing}"
+TMP="$(mktemp -d)"; PORT_FILE="$TMP/port"; FAILS=0; PID=""
+cleanup() { [[ -n "$PID" ]] && kill "$PID" 2>/dev/null; rm -rf "$TMP"; }
+trap cleanup EXIT
+pass() { echo "PASS  $1"; }
+fail() { echo "FAIL  $1"; FAILS=$((FAILS+1)); }
+check() { if eval "$2"; then pass "$1"; else fail "$1"; fi; }
+
+# a throw-away render folder: the example project, an empty public/ and out/
+mkdir -p "$TMP/render/public/clips" "$TMP/render/out"
+cp "$SKILL/assets/remotion-template/project.example.json" "$TMP/render/v1.json"
+
+python3 "$SKILL/scripts/editor.py" "$TMP/render" --project v1.json --port 0 --no-open >"$TMP/server.log" 2>&1 &
+PID=$!
+URL=""
+for _ in $(seq 1 50); do
+  URL="$(grep -o 'http://127.0.0.1:[0-9]*/' "$TMP/server.log" 2>/dev/null | head -1)"
+  [[ -n "$URL" ]] && break; sleep 0.1
+done
+[[ -n "$URL" ]] || { echo "FAIL  editor.py did not start:"; cat "$TMP/server.log"; exit 1; }
+B="${URL%/}"; J='Content-Type: application/json'
+pass "editor.py started at $URL"
+
+check "page is served"                  'curl -sf "$B/" | grep -q "Trình sửa video"'
+check "GET /api/project returns scenes" 'curl -sf "$B/api/project" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"project\"][\"scenes\"] and d[\"name\"]==\"v1.json\""'
+
+# edit one scene length through the API and save
+python3 - "$TMP/render/v1.json" "$TMP/edited.json" <<'EOF'
+import json, sys
+d = json.load(open(sys.argv[1])); d["scenes"][0]["type"] = "EDITED"; json.dump(d, open(sys.argv[2], "w"))
+EOF
+check "POST save is accepted"           'curl -sf -X POST -H "$J" --data-binary @"$TMP/edited.json" "$B/api/project?name=v1.json" | grep -q "\"ok\": true"'
+check "saved file holds the edit"       'grep -q EDITED "$TMP/render/v1.json"'
+check "history snapshot was written"    'ls "$TMP"/render/.editor-history/v1-*.json >/dev/null 2>&1 && ! grep -q EDITED "$TMP"/render/.editor-history/v1-*.json'
+check "history API lists it"            'curl -sf "$B/api/history?name=v1.json" | python3 -c "import sys,json; assert len(json.load(sys.stdin)[\"items\"])==1"'
+check "invalid project is refused (400)" '[[ "$(curl -s -o /dev/null -w %{http_code} -X POST -H "$J" -d "{\"nope\":1}" "$B/api/project?name=v1.json")" == 400 ]]'
+check "wrong Content-Type is refused (415)" '[[ "$(curl -s -o /dev/null -w %{http_code} -X POST -d "{}" "$B/api/project?name=v1.json")" == 415 ]]'
+
+for p in "/media/../../etc/passwd" "/media/%2e%2e/%2e%2e/etc/passwd" "/out/../v1.json" "/media/.hidden"; do
+  check "traversal refused: $p"         '[[ "$(curl -s --path-as-is -o /dev/null -w %{http_code} "$B$p")" =~ ^4 ]]'
+done
+check "foreign Host header refused"     '[[ "$(curl -s -o /dev/null -w %{http_code} -H "Host: evil.example" "$B/api/info")" == 403 ]]'
+
+kill "$PID"; wait "$PID" 2>/dev/null; PID=""
+check "server stopped"                  '! curl -sf -m 1 "$B/api/info" >/dev/null 2>&1'
+[[ $FAILS -eq 0 ]] && echo "editor selftest: all PASS" || { echo "editor selftest: $FAILS FAIL"; exit 1; }
+EDITORTEST
+sed 's/accent=bạc màu/accent=bạc màu; font=no-such-font/' "$KIT/samples/example-edit-plan.md" >"$TMP/fontplan.md"
+"$PY" "$S/plan_to_project.py" "$TMP/fontplan.md" --out "$TMP/fontplan.json" 2>&1 | grep -q "font=no-such-font is not in the font library" \
+  && pass "plan_to_project.py warns about a font id the library does not have" || fail "plan_to_project.py unknown font warning"
+cat >"$TMP/rep.json" <<'JSON'
+{"transitions": [{"t": 2.4, "frames": 18, "family": "slide", "direction": "left"}, {"t": 5.0, "frames": 12, "family": "dip-to-black", "direction": null}],
+ "shots": [{"start": 0, "end": 2.4, "camera": {"quality": "ok", "driver": "zoom-in", "ease": "ease-in-out", "shake": {"level": "handheld"}}, "speed": {"ramp": "none"}}],
+ "grade": {"nearest": [{"look": "golden-hour"}]}}
+JSON
+"$PY" -X utf8 "$S/technique.py" match "$TMP/rep.json" >"$TMP/match.log" 2>&1 \
+  && grep -q "transition:slide" "$TMP/match.log" && grep -q "camera-move:push" "$TMP/match.log" && grep -q "camera-option:shake" "$TMP/match.log" && grep -q "grade:golden-hour" "$TMP/match.log" \
+  && grep -A1 "dip-to-black" "$TMP/match.log" | grep -q "NO CARD" \
+  && pass "technique.py match maps an analyser report onto cards and says plainly where no card exists" || { fail "technique.py match"; cat "$TMP/match.log" | head -12 | sed 's/^/        /'; }
+cat >"$TMP/analysis-test.sh" <<'ANALYSISTEST'
+# Not part of selftest.sh. Needs ffmpeg (xfade, geq, zoompan, vidstabdetect) and numpy. Usage: bash analysis-selftest-snippet.sh [REPO] [WORKDIR]
+set -euo pipefail
+REPO=${1:?repo root}
+WORK=${2:-$(mktemp -d)}
+SCR=$REPO/skill/short-video-editing/scripts
+PY=${SVK_PYTHON:-python3}
+mkdir -p "$WORK" && cd "$WORK"
+FF="ffmpeg -hide_banner -v error -y"
+
+# ---- sources: three different smooth, colourful stills; a blurred-noise texture (corners to track) for camera tests
+plasma() { $FF -f lavfi -i "nullsrc=s=360x640,geq=r='128+100*sin(X/$1+Y/$2)':g='128+90*sin(X/$3-Y/$4)':b='128+100*sin((X+Y)/$5)'" -frames:v 1 -update 1 "$6"; }
+plasma 9 13 7 11 17 T1.png
+plasma 23 5 31 9 13 T2.png
+plasma 6 19 11 27 8 T3.png
+$FF -f lavfi -i "nullsrc=s=1200x640,geq=random(1)*255:128:128,boxblur=2,eq=contrast=2.5" -frames:v 1 -update 1 pan_tex.png
+$FF -f lavfi -i "nullsrc=s=1080x1920,geq=random(1)*255:128:128,boxblur=3,eq=contrast=2.5" -frames:v 1 -update 1 zoom_tex.png
+
+# ---- 1. transitions: A and B stills alternate, 0.6 s xfade each, 2.0 s hold: transition k starts at 1.4*k s
+FAMS=(fade fadeblack fadewhite dissolve wipeleft wipeup slideleft slideright coverleft revealleft)
+IN=(); FC=""; prev="[0:v]"
+for i in $(seq 0 ${#FAMS[@]}); do
+  [ $((i % 2)) -eq 0 ] && img=T1.png || img=T2.png
+  IN+=(-loop 1 -framerate 30 -t 2.0 -i $img)
+done
+for k in "${!FAMS[@]}"; do
+  n=$((k + 1)); off=$(echo "$n * 1.4" | bc -l)
+  FC+="${prev}[$n:v]xfade=transition=${FAMS[$k]}:duration=0.6:offset=$off[x$n];"; prev="[x$n]"
+done
+$FF "${IN[@]}" -filter_complex "${FC%;}" -map "$prev" -pix_fmt yuv420p -crf 14 xfades.mp4
+
+# ---- 2. a push of known rate: z = 1 + 0.1 * seconds (1.0 -> 1.3 in 3 s), linear
+$FF -i zoom_tex.png -vf "zoompan=z='1+0.1*on/30':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=90:s=360x640:fps=30" -pix_fmt yuv420p -crf 14 push.mp4
+
+# ---- 3. speed: a pan of 1 px/frame for 60 frames, then every 3rd frame (3 px/frame): a 1x -> 3x change; and a 0.8 s freeze
+$FF -loop 1 -framerate 30 -t 12 -i pan_tex.png -vf "crop=360:640:x='t*30':y=0,fps=30,select='if(lt(n,60),1,not(mod(n,3)))',setpts=N/30/TB" -pix_fmt yuv420p -crf 14 speed.mp4
+$FF -loop 1 -framerate 30 -t 3 -i pan_tex.png -vf "crop=360:640:x='t*30':y=0,fps=30,loop=loop=24:size=1:start=45,setpts=N/30/TB" -pix_fmt yuv420p -crf 14 freeze.mp4
+
+# ---- 4. grade: three different stills, warm / untouched / cold, hard cuts
+$FF -loop 1 -framerate 30 -t 1.5 -i T1.png -loop 1 -framerate 30 -t 1.5 -i T2.png -loop 1 -framerate 30 -t 1.5 -i T3.png -filter_complex \
+ "[0:v]colorchannelmixer=rr=1.2:bb=0.8[a];[1:v]null[b];[2:v]colorchannelmixer=rr=0.8:bb=1.2[c];[a][b][c]concat=n=3:v=1:a=0" -pix_fmt yuv420p -crf 14 grade.mp4
+
+# ---- run the analyzer (grade.mp4 also exercises --compare against the push clip)
+for c in xfades push speed freeze; do $PY "$SCR/analyze_reference.py" $c.mp4 --out out_$c --dense auto > log_$c.txt 2>&1 || { cat log_$c.txt; exit 1; }; done
+$PY "$SCR/analyze_reference.py" grade.mp4 --out out_grade --compare push.mp4 > log_grade.txt 2>&1 || { cat log_grade.txt; exit 1; }
+
+REPO_SCR=$SCR $PY - <<'PYEOF'
+import json, sys
+R = lambda n: json.load(open(f"out_{n}/report.json"))
+fails = []
+def check(ok, msg):
+    print(("PASS  " if ok else "FAIL  ") + msg)
+    if not ok: fails.append(msg)
+
+# 1. transition families: (index k, accepted families, direction or None). Geometry of iris/circle/diagonal styles is NOT asserted: not separable.
+rep = R("xfades")
+runs = [t for t in rep["transitions"] if t["kind"] == "run"]
+want = {1: ({"crossfade"}, None), 2: ({"dip-to-black"}, None), 3: ({"dip-to-white"}, None), 4: ({"dissolve"}, None),
+        5: ({"mask-wipe"}, "left"), 6: ({"mask-wipe"}, "up"), 7: ({"slide"}, "left"), 8: ({"slide"}, "right"),
+        9: ({"cover"}, "left"), 10: ({"reveal"}, "left")}
+for k, (fams, d) in want.items():
+    t = min(runs, key=lambda r: abs(r["t"] - 1.4 * k), default=None)
+    ok = t is not None and abs(t["t"] - 1.4 * k) < 0.3
+    check(ok and t["family"] in fams and 15 <= t["frames"] <= 20 and (d is None or t["direction"] == d),
+          f"xfade #{k}: expected {sorted(fams)} {d or ''}, got {None if not ok else (t['family'], t['direction'], t['frames'], t['confidence'])}")
+check(len(rep["evidence"]) >= 4 and all(__import__("os").path.exists(f"out_xfades/{e['file']}") for e in rep["evidence"]), f"evidence strips written ({len(rep['evidence'])})")
+
+# 2. zoom push 1.0 -> 1.3 in 3 s, linear
+sh = R("push")["shots"][0]["camera"]
+check(sh["quality"] == "ok" and sh["driver"] == "zoom-in", f"push: driver {sh.get('driver')} (quality {sh['quality']})")
+check(abs(sh.get("zoom_end", 0) - 1.29) <= 0.05, f"push: zoom_end {sh.get('zoom_end')} vs 1.29 (+-0.05)")
+check(sh.get("ease") == "linear", f"push: ease {sh.get('ease')} (linear expected)")
+
+# 3. speed: 1x -> 3x ramp; freeze of 0.8 s
+sp = R("speed")["shots"][0]["speed"]
+check(sp["ramp"] == "speed-up" and 2.0 <= (sp["ramp_factor"] or 0) <= 4.6, f"speed: {sp['ramp']} x{sp['ramp_factor']} (3x expected; vid.stab reads whole pixels at 480 px, so 1.33 px/frame reads 1 and the ratio up to 4: 2..4.6 accepted)")
+cam = R("speed")["shots"][0]["camera"]
+check(cam.get("quality") == "ok" and cam["driver"] == "pan-right", f"speed clip camera: {cam.get('driver')} (camera moves right = content moves left)")
+fz = [z for sh in R("freeze")["shots"] for z in sh["speed"]["frozen_runs"]]
+check(len(fz) == 1 and 0.7 <= fz[0]["seconds"] <= 0.95, f"freeze: {fz}")
+
+# no clip with a pan, a push or a freeze may report a change of scene
+for n in ("push", "speed", "freeze"):
+    bad = [t for t in R(n)["transitions"] if t["family"] not in ("content-motion", "hard-cut")]
+    check(not bad and len(R(n)["shots"]) == 1, f"{n}: one shot, no transition reported (got {[(t['t'], t['family']) for t in bad]})")
+
+# 4. grade: warmth warm > untouched > cold, shots counted, compare written
+g = R("grade")
+w = [p["warmth_b"] for p in g["grade"]["per_shot"]]
+check(len(g["shots"]) == 3 and w[0] > w[1] + 5 and w[1] > w[2] + 5, f"grade: 3 shots, warmth b* per shot {w}")
+check(len(g["grade"]["global"]["palette"]) >= 3 and g["grade"]["nearest"], "grade: palette and nearest kit looks present")
+import os
+d = open("out_grade/diff.md", encoding="utf-8").read() if os.path.exists("out_grade/diff.md") else ""
+check("| shots | 3 |" in d and "grade warmth" in d, "compare: diff.md lists shots and grade rows")
+check(os.path.exists("out_grade/mine/report.json"), "compare: the recreation was analysed too")
+
+# 5. no drawtext on this build: sheets exist and carry a tile index (labels are optional)
+check(os.path.exists("out_xfades/scenes.png") and rep["sheet_times"].get("scenes.png"), "sheets: scenes.png written with its tile times")
+print("\nFAILED: %d" % len(fails) if fails else "\nALL PASS")
+sys.exit(1 if fails else 0)
+PYEOF
+ANALYSISTEST
+bash "$TMP/analysis-test.sh" "$KIT" >"$TMP/analysis.log" 2>&1 \
+  && pass "analyze_reference.py: transition families, camera zoom and pan, speed ramps, freezes, grade fingerprint, evidence strips and --compare on synthetic clips with known answers" || { fail "analyze_reference.py closed-loop check"; grep FAIL "$TMP/analysis.log" | head -6 | sed 's/^/        /'; tail -3 "$TMP/analysis.log" | sed 's/^/        /'; }
+
 if [[ $RENDER -eq 1 ]]; then
-  echo "15. Remotion render (--render)"
+  echo "17. Remotion render (--render)"
   command -v node >/dev/null 2>&1 || fail "node not found (need 20+)"
   [[ -f "$RENDER_DIR/package.json" ]] || "$PY" "$S/new_remotion_project.py" "$RENDER_DIR" >/dev/null 2>&1
   if (cd "$RENDER_DIR" && { [[ -d node_modules ]] || npm install --no-audit --no-fund; } && npm run typecheck) >"$TMP/tsc.log" 2>&1; then
@@ -484,6 +767,28 @@ if [[ $RENDER -eq 1 ]]; then
   if (cd "$RENDER_DIR" && npx remotion still src/index.ts Short "$TMP/still2.png" --frame=990) >"$TMP/still2.log" 2>&1 \
      && [[ -s "$TMP/still2.png" ]]; then pass "rendered a still of the information graphics (specs, frame 990)"
   else fail "remotion still of the new graphics failed"; tail -5 "$TMP/still2.log" | sed 's/^/        /'; fi
+  # the newer techniques as stills: shader and CSS transitions at mid-cut, a subject outline, handheld shake (synthetic clips; no GPU needed)
+  mkdir -p "$RENDER_DIR/public/clips" "$RENDER_DIR/public/mattes" "$RENDER_DIR/out"
+  ffmpeg -hide_banner -v error -y -f lavfi -i "testsrc2=s=1080x1920:r=30:d=4" -c:v libx264 -pix_fmt yuv420p "$RENDER_DIR/public/clips/CLIP_A.mp4" \
+    && ffmpeg -hide_banner -v error -y -f lavfi -i "smptebars=s=1080x1920:r=30:d=4" -c:v libx264 -pix_fmt yuv420p "$RENDER_DIR/public/clips/CLIP_B.mp4" \
+    && ffmpeg -hide_banner -v error -y -f lavfi -i "color=c=white@0:s=1080x1920,format=rgba" -vf "geq=r=255:g=255:b=255:a='if(lt(pow((X-540)/300,2)+pow((Y-900)/700,2),1),255,0)'" -frames:v 1 "$RENDER_DIR/public/mattes/CLIP_A_0.png"
+  "$PY" -X utf8 - "$RENDER_DIR/showcase.json" <<'PYEOF'
+import json, sys
+types = ["cut", "blinds", "diamond", "doors", "glitchSlice", "spinZoom", "filmBurn", "zoomBlur"]
+scenes = []
+for i, t in enumerate(types):
+    sc = {"clip": "CLIP_A" if i % 2 == 0 else "CLIP_B", "in": 0, "start": float(i), "end": float(i + 1), "transition": {"type": t}}
+    if i == 0:
+        sc["subject"] = {"mode": "outline", "matte": "mattes/CLIP_A", "frames": [0], "show": [0, 40], "color": "#FFD23F", "width": 14}
+    if i == 1:
+        sc["camera"] = {"move": "push", "from": 1.1, "to": 1.25, "shake": {"amp": 14}}
+    scenes.append(sc)
+json.dump({"fps": 30, "width": 1080, "height": 1920, "duration": 8, "scenes": scenes, "overlays": [], "captions": [], "look": {"vignette": 0.3, "grain": 0.06}}, open(sys.argv[1], "w"))
+PYEOF
+  if (cd "$RENDER_DIR" && node stills.mjs showcase.json out/sh 0.5 1.5 2 3 4 5 6 7) >"$TMP/showcase.log" 2>&1 \
+     && [[ "$(ls "$RENDER_DIR"/out/sh_*.jpg 2>/dev/null | wc -l)" -ge 8 ]] && [[ -z "$(find "$RENDER_DIR"/out -name 'sh_*.jpg' -size -4k)" ]]; then
+    pass "rendered stills of the newer techniques: subject outline, shake, blinds, diamond, doors, glitchSlice, spinZoom, filmBurn, zoomBlur, vignette and grain (LOOK at out/sh_*.jpg)"
+  else fail "the newer techniques did not render"; tail -6 "$TMP/showcase.log" | sed 's/^/        /'; fi
 fi
 
 echo

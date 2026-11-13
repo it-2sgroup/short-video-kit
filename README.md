@@ -119,7 +119,7 @@ questions when the request and the footage disagree) and runs the edit:
 
 > Clip trong `~/clips/villa-thao-dien`, căn 3PN giá 28,5 tỷ, dựng video tour 40 giây ghép nhạc cho TikTok và Reels.
 
-> Here are the raw clips in `~/clips/saiza` and the voiceover `kb7.mp3`. Make a 35-second TikTok Shop
+> Here are the raw clips in `~/clips/product-a` and the voiceover `voice.mp3`. Make a 35-second TikTok Shop
 > video for the stain remover combo, and keep enough footage for three more videos.
 
 ### Command line
@@ -160,6 +160,22 @@ python <skill>/scripts/contact_sheet.py out/v1_final.mp4 --project v1.json --out
 title style and component. The plan format is in `skill/short-video-editing/assets/edit-plan-template.md`;
 the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU-TRUC.md`.
 
+## A framework that grows
+
+Every technique the kit can do (31 transitions, 22 text effects, 6 subject effects shaped by a person matte, 31 fonts, 15 colour grades, camera
+moves and options, speed curves, looks, graphics, themes) is one card in `skill/short-video-editing/assets/techniques.json`.
+
+```bash
+python skill/short-video-editing/scripts/technique.py search "glitch rgb split"   # find a technique by the names editors use
+python skill/short-video-editing/scripts/technique.py check                       # cards <-> code <-> docs <-> selftest, both ways
+python skill/short-video-editing/scripts/analyze_reference.py sample.mp4 --out ref/   # measure a reference video's edit techniques
+python skill/short-video-editing/scripts/editor.py RENDER_DIR                     # fix a project by hand on a browser timeline
+```
+
+Handed a reference video, Claude measures it, finds each technique it sees in the catalogue, and adds the ones the kit lacks by one loop
+(`references/adding-techniques.md`): research with sources and licences, implement where its kind lives, a card, a doc row, a selftest.
+Nothing about the video that revealed a technique (client, footage, slogans) is written into the skill; the case goes in `docs/CASE-LOG.md`.
+
 ## Project structure
 
 ```
@@ -170,8 +186,9 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
 │   ├── CAU-TRUC.md                Every folder and file, tools and techniques (Vietnamese)
 │   ├── PROMPT-VIDEO.md            Generic prompt template for any genre (Vietnamese)
 │   ├── PROMPT-LO-VIDEO.md         Prompt structure for a production batch (Vietnamese)
-│   ├── DECISIONS.md               Tool choices, pitfalls, sources, licence notes
-│   └── niche-data-queries.sql     Reproduces every campaign figure used by the skill
+│   ├── DECISIONS.md               Tool choices, technical pitfalls, sources, licence notes
+│   ├── CASE-LOG.md                History of the jobs done for clients (private; not a guide)
+│   └── niche-data-queries.sql     Reproduces the campaign figures behind the product-demo defaults (private)
 ├── samples/                       Fixtures used by selftest.sh (a product-demo and a real-estate plan, a voice line)
 ├── setup.sh · selftest.sh · requirements.txt · .env.example
 └── skill/short-video-editing/
@@ -181,14 +198,18 @@ the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU
     │                              (policy.md), hooks, cutting and pacing, transitions, camera, image processing,
     │                              typography, layout and motion graphics, captions, sync, footage ingest, voiceover,
     │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion,
-    │                              HyperFrames flow, CapCut techniques
+    │                              HyperFrames flow, CapCut techniques, adding techniques (how the kit grows), technique
+    │                              backlog, subject effects, reference analysis, editor
     ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
     │                              make_voiceover, make_sfx, make_music, match_voice_takes, align_captions, suggest_cuts, plan_scenes, pacing_checker,
     │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes,
-    │                              analyze_reference, montage, mix_report, find_cutaways, person_matte, agency_plan, finish_video, check_lipsync
+    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, person_matte, agency_plan, finish_video,
+    │                              check_lipsync, technique (the technique catalogue), editor (browser timeline editor)
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
-    │   ├── grades.json            Colour looks used by the playbooks
+    │   ├── grades.json            15 colour looks (5 used by the playbooks, 9 in the library)
+    │   ├── techniques.json        The technique catalogue: one card per technique (technique.py checks it against the code)
+    │   ├── editor/                The browser editor's page (HTML, CSS, JS; no dependencies)
     │   ├── shot-library.example.json  Shot library format for plan_scenes.py
     │   ├── sfx/                   CC0 sound effects, their sources, the event → sound table
     │   ├── remotion-template/     Render project: theme, engine, components

@@ -66,7 +66,7 @@ its length), `impact-*`, `slam-*`, `shutter-*`, `glitch-*`, `stinger-*`, `boing-
 `sfx-map.json` events may now be a name, a **list** (alternatives, used in turn: the same sound never plays twice in a row) or `{"sound": name-or-list, "offset": s, "also": [names]}` (layers on the same moment,
 e.g. a whoosh with a soft impact). Overlays are looked up by `component:fx` first (`phrase:slam` -> a slam, `phrase:glitch` -> a glitch burst, `phrase:elastic` -> a boing, `phrase:shine` -> a twinkle), then by
 `component`. Extra events: `flash` (a camera click on the first white frame of a silhouette flash) and `burst` (a pop for each of the first copies of a text pile), both played whatever the thinning says.
-A playbook's `sfx.rules` (`minGap`, `window`, `maxInWindow`, `notBefore`) replaces the global thinning: `talking-head:agency` allows 5 sounds per 3 s (a typical SISMO cut: 68 cues in 64 s, 18 families).
+A playbook's `sfx.rules` (`minGap`, `window`, `maxInWindow`, `notBefore`) replaces the global thinning: `talking-head:agency` allows 5 sounds per 3 s (a text-heavy pitch measured 68 cues in 64 s, 18 families).
 Levels: every file peaks at -3 dBFS and `gainDb` sets it 10-16 dB under the voice's peak; chimes and pops -15 to -19, whooshes -13 to -16, impacts -11 to -14.
 
 ---
@@ -129,9 +129,9 @@ step aside.
    `process_audio.py master` then brings the mix to −14 LUFS, ≤ −1 dBTP. To see each effect
    against the voice, subtract the voice-only track from the render and compare peaks in the 0.6 s
    after every cue. Beware: ffmpeg's stereo → mono downmix adds 3 dB to a file with identical
-   channels, so measure stereo sounds per channel or expect +3 dB. In the first KB4/KB7 renders the
-   effects came out 3–14 dB under the voice's peak in the same window, and the click and thud were
-   the closest (3–6 dB), so their `gainDb` was lowered.
+   channels, so measure stereo sounds per channel or expect +3 dB. In the first renders measured this
+   way the effects came out 3–14 dB under the voice's peak in the same window, and the click and thud
+   were the closest (3–6 dB), so their `gainDb` was lowered.
 3. **Listen.** A tool cannot judge whether a swoosh sounds right on a particular cut. Play the video
    with phone speakers and say in the report that it was (or was not) listened to.
 

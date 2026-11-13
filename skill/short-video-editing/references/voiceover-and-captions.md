@@ -7,7 +7,7 @@ makes the whole thing work — **Whisper supplies the timing, the script supplie
 
 ## Why not just use Whisper's transcript
 
-Running Whisper over this project's own Vietnamese voiceover produced:
+Running Whisper over a synthesized Vietnamese voiceover produced:
 
 | Spoken | Whisper heard |
 |---|---|
@@ -82,16 +82,16 @@ Re-check with `GET /v1/models` when this matters — the list changes. Look for 
 plan does not include a commercial license and cannot be used for any commercial purpose."* Audio
 made outside a paid subscription *"(before or after) cannot be used commercially"* — upgrading later
 does not retroactively license it. Free-plan audio is fine for drafts and timing tests; an
-affiliate or client video needs audio generated **during a paid subscription**. `make_voiceover.py`
+affiliate or commercial video needs audio generated **during a paid subscription**. `make_voiceover.py`
 prints this warning whenever it sees a free-tier key.
 
 Also on the free plan: **only `premade` voices work through the API.** Library voices (including
-the professional Vietnamese voice in this account) return HTTP 402. `--list-voices` shows each
+professional Vietnamese voices) return HTTP 402. `--list-voices` shows each
 voice's category.
 
 ### Emotion tags
 
-Scripts written for the Adam workflow carry tags like `[gasp][excited]` and `[laughs softly]`.
+Scripts written for emotional text-to-speech carry tags like `[gasp][excited]` and `[laughs softly]`.
 Only the **v3 family interprets them**; every other model reads them out loud as words. So
 `make_voiceover.py` strips them for non-v3 models and says so, and `align_captions.py` always
 strips them from caption text, since a tag directs the voice but is never spoken. Use
@@ -147,7 +147,7 @@ still flags inside a word are then usually a pause that Whisper's timing hides: 
 
 ## A supplied voice (a recording instead of synthesis)
 
-When the client or creator hands over a recording, skip step 2 and work like this:
+When a creator or brand hands over a recording, skip step 2 and work like this:
 
 1. **Too long?** The ceiling is the playbook's `runtime.max` (`playbook.py show <id>`; 45 s for
    product demos). `python scripts/trim_voice.py voice.mp3 --silences` lists every pause with a

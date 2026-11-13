@@ -34,10 +34,9 @@ from pathlib import Path
 API = "https://api.elevenlabs.io/v1"
 
 # Chosen by asking the API, not by assumption. GET /v1/models reports a `languages` list per
-# model, and eleven_multilingual_v2 -- the obvious default, and the one these docs originally
-# named -- has 29 languages and NO Vietnamese. Models that do list `vi`: eleven_v4,
-# eleven_v4_turbo, eleven_v3, eleven_turbo_v2_5, eleven_flash_v2_5. eleven_turbo_v2_5 was also
-# confirmed to accept stability/similarity/speed settings and to work on the free plan.
+# model, and eleven_multilingual_v2 -- the obvious default -- has 29 languages and NO Vietnamese.
+# Models that do list `vi`: eleven_v4, eleven_v4_turbo, eleven_v3, eleven_turbo_v2_5, eleven_flash_v2_5.
+# eleven_turbo_v2_5 was also confirmed to accept stability/similarity/speed settings and to work on the free plan.
 DEFAULT_MODEL = "eleven_turbo_v2_5"
 
 # Audio tags such as [excited] or [laughs softly] are interpreted by the v3 family. Every other
@@ -259,7 +258,7 @@ def main() -> int:
         print(f"Plan '{tier}', {left} credits left", file=sys.stderr)
         if tier == "free":
             print("! Free plan: ElevenLabs does not license this audio for commercial use. "
-                  "Fine for drafts; not for a monetised or client video.", file=sys.stderr)
+                  "Fine for drafts; not for a monetised or commercial video.", file=sys.stderr)
         if est > left and not args.force:
             sys.exit(f"Not enough credits: need ~{est}, have {left}. Nothing was synthesized, so "
                      "nothing was spent. Run --quota for the reset date, or use --force.")

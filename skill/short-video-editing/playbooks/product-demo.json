@@ -1,7 +1,7 @@
 {
   "id": "product-demo",
   "title": "Review / demo sản phẩm (TikTok Shop), có thể có TRƯỚC/SAU",
-  "summary": "A product shown working: hook with the result, the problem, the demo, the reveal, the cart. Built on 16,242 measured TikTok Shop videos and the client's house style (3-4 s scenes, soft transitions, no text in boxes).",
+  "summary": "A product shown working: hook with the result, the problem, the demo, the reveal, the cart. Built on 16,242 measured TikTok Shop videos; its house style is 3-4 s scenes, soft transitions, no text in boxes.",
   "intents": ["review", "demo", "sản phẩm", "tiktok shop", "affiliate", "koc", "ugc", "giỏ hàng", "tẩy", "vết bẩn", "trước sau", "before after", "đánh giá", "dùng thử", "gia dụng", "product"],
   "expect": {"speech": "voiceover", "motion": "low"},
   "signals": ["hands and the product in close-up, tabletop or top-down", "a visible process with a result (stain, mess, skin, surface)", "little camera movement", "voice recorded separately (or to be synthesized)"],
@@ -48,7 +48,7 @@
     "No absolute superlative (own-sales claims are permitted)",
     "No competitor comparison, no false scarcity",
     "Before/after: same item, same framing, same light and the SAME grade; time compression labelled on screen",
-    "Staged stains labelled (e.g. \"vết thử bằng thuốc đỏ\")",
+    "Staged problems (a mark made on purpose) labelled as a test on screen",
     "No fake UI: the CTA points at the real product bar",
     "Video will be boosted as an ad? Then no before/after comparison (ask the user)",
     "Commercial-content disclosure switched on at upload; music from the Commercial Music Library or original audio"

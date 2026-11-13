@@ -270,7 +270,7 @@
         {
           "type": "LIVING",
           "share": 0.25,
-          "purpose": "portfolio and process on cards over the animated grid, kinds of clients as tags, one proof graphic (RAW/FINAL, counter)",
+          "purpose": "portfolio and process on cards over the animated grid, kinds of work or sector as tags, one proof graphic (RAW/FINAL, counter)",
           "graphics": "tag, counter, rawfinal, icon"
         },
         {
@@ -373,8 +373,8 @@
         }
       },
       "compliance": [
-        "Figures said in the voice (clients served, videos per month, delivery days) are the brand's own and can be shown with evidence: say who must keep it",
-        "Client names, logos and work shown on cards: written consent from each client, or the footage is the agency's own",
+        "Figures said in the voice (customers served, videos per month, delivery days) are the brand's own and can be shown with evidence: say who must keep it",
+        "Customer names, logos and work shown on cards: written consent from each customer, or the footage is the agency's own",
         "RAW / FINAL cards use the same take; no staged 'before' made worse on purpose",
         "Limited-time offers ('chỉ có trong tháng này') are real and dated; commercial-content disclosure on",
         "Music is CC0, self-made or licensed for this account; the TikTok Commercial Music Library for business accounts"

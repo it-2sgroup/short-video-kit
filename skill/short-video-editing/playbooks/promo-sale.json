@@ -41,7 +41,7 @@
     "Every price, discount and date matches the listing or the store's terms",
     "No false scarcity or countdown that is not real",
     "Conditions of the offer stated (minimum order, while stock lasts, dates)",
-    "Logos and artwork are the client's own or licensed",
+    "Logos and artwork are the advertiser's own or licensed",
     "Commercial-content disclosure switched on"
   ],
   "references": ["references/claims-and-compliance.md", "references/typography.md", "references/layout-and-motion-graphics.md"]

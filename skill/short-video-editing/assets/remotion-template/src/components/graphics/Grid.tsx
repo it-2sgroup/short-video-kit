@@ -1,5 +1,5 @@
 // The animated backdrop of card scenes: a net of fine lines on a deep gradient, blown by a slow wind like a
-// banner (the "red checkered cloth" of agency pitch videos). A pure function of the frame: every line point is
+// banner. A pure function of the frame: every line point is
 // displaced by two travelling waves, with soft light and shade drifting over it. Colours come from the theme.
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";

@@ -1,8 +1,9 @@
 # Playbook: product-demo — review / demo of a product (TikTok Shop), with or without before/after
 
 The kit's first and best-evidenced genre: a product shown working, sold through the cart. The numbers
-come from 16,242 measured TikTok Shop videos (`references/niche-winning-patterns.md`) and the client's
-house style (Phương, Nov 2026: 3–4 s scenes, soft transitions, no text in boxes on demos).
+come from 16,242 measured TikTok Shop videos (`references/niche-winning-patterns.md`); the rhythm and
+look are this playbook's house style (3–4 s scenes, soft transitions, no text in boxes on demos), a
+default for this genre, not a rule for every genre.
 
 Variants: `product-demo:unboxing` (first impression), `product-demo:listicle` (top N of the shop's
 own products; never against competitors).
@@ -38,11 +39,12 @@ own products; never against competitors).
   the CTA in the first quarter (hosted business video, not TikTok; directional). About 40% of the
   reference videos had a 0% click-through rate: watched, never tapped.
 - **Runtime** [measured]: CTR and sale rate peaked at 35–44 s; sub-25 s was the worst band. Push back
-  on 15-second requests with that number; do not pad, add a second item or stain instead.
-- **Scene length** [client + data]: the 4 s ceiling is data (a static shot past 4 s is an exit point);
-  the 3–4 s rhythm with soft transitions is the client's requirement (1.5–2 s hard cuts felt *"bị ngắt"*).
+  on 15-second requests with that number; do not pad, add a second item or case instead.
+- **Scene length** [house style + data]: the 4 s ceiling is data (a static shot past 4 s is an exit point);
+  the 3–4 s rhythm with soft transitions is this playbook's default style (with soft transitions, 1.5–2 s hard
+  cuts read as jerky). Fast genres (food, fashion, montage) cut at 1–2 s: say so if the same user asks for another genre.
 - **Re-hook and open loops** [C]: 2–3 small unresolved questions and one mid-point reset around
-  18–20 s ("Cái vết thứ hai mới là cái mình bất ngờ", "Mà có một chỗ nó không ra hẳn, lát mình chỉ").
+  18–20 s ("Cái thứ hai mới là cái mình bất ngờ", "Mà có một chỗ hơi khác, lát mình chỉ").
 
 ## Shots the footage needs (shot list when it must be shot)
 
@@ -60,7 +62,7 @@ the item lifted to camera. Shot-library kinds this playbook's camera knows: `STA
 - **Never hide a cut between the BEFORE and the AFTER.** Hold the take; when the process takes hours,
   same item, same framing, and the compression labelled on screen ("tua nhanh ×8", "sau 2 tiếng").
   A sped-up wait is a `Speed` cell (`4x`) plus that label.
-- A single locked demo take becomes three scenes by scale: wide 0–4 s → punch to the stain 4–8 s →
+- A single locked demo take becomes three scenes by scale: wide 0–4 s → punch to the detail 4–8 s →
   tight on the result 8–12 s (`references/camera-moves.md`).
 
 ## Sound
@@ -86,25 +88,25 @@ for fine detail · one `sticker`. No text in boxes on demos.
 ## Hooks (`references/hook-library.md` for the ranking)
 
 Order of preference: a visible transformation → genuine social proof → a specific pain point →
-a product reveal with an open loop. Written for a laundry stain remover, checked against the claim
-rules:
+a product reveal with an open loop. Examples written for a cleaning-type demo, checked against the claim
+rules (swap in your own item):
 
-- **Result first.** Locked shot, clean collar; a hand pulls it aside to show the stained BEFORE.
-  Text "Cái áo này 10 phút trước" · VO "Chỗ ố này mình tưởng phải bỏ áo luôn rồi…"
-- **Split half.** Half of the cloth treated, half not. Text "Nửa trái ngâm rồi, nửa phải chưa" · VO
-  "Cùng một cái áo, cùng một chỗ nha." Self-evidencing: removes the "they swapped the shirt" doubt.
+- **Result first.** Locked shot, the finished result; a hand moves in to show the BEFORE.
+  Text "Cái này 10 phút trước" · VO "Chỗ này mình tưởng phải bỏ luôn rồi…"
+- **Split half.** Half of the item treated, half not. Text "Nửa trái làm rồi, nửa phải chưa" · VO
+  "Cùng một món, cùng một chỗ nha." Self-evidencing: removes the "they swapped the item" doubt.
 - **Social proof (the one permitted superlative: own sales).** "Bán chạy nhất shop mình tháng này" ·
   "Mà mình vẫn phải tự thử mới dám nói."
-- **Specific pain.** "Áo đồng phục của con, mới mua tháng trước" · "Dính sa tế một cái là coi như xong."
-- **Stain made on camera (anti-fake).** Red antiseptic poured on a clean collar. "Cố tình làm bẩn để test".
+- **Specific pain.** "Món này mới mua tháng trước" · "Hỏng một cái là coi như xong."
+- **Problem made on camera (anti-fake).** A mark made on purpose on a clean item. "Cố tình làm hỏng để test".
 
 ## Compliance
 
 The checklist is printed into the plan by the skeleton. Detail and the rewrite table
 ("Diệt khuẩn 99.9%" → "Làm sạch bụi bẩn bám trên vải", "Không sạch hoàn tiền" → remove) are in
-`references/claims-and-compliance.md` §2. Lines already in circulation for this campaign that must not
-be reused: "Không hiệu quả anh gửi tiền lại liền", "Hổng sạch hổng lấy tiền", "sạch tinh như mới",
-"tẩy sạch mọi vết bẩn cứng đầu". Claims inside a **supplied** voice cannot be edited out silently:
+`references/claims-and-compliance.md` §2. Claim forms that circulate in this category and must not
+be reused: money-back lines ("Không hiệu quả anh gửi tiền lại liền"), guarantee lines ("Hổng sạch hổng lấy tiền"),
+instant or total-result lines ("sạch tinh như mới", "tẩy sạch mọi vết bẩn cứng đầu"). Claims inside a **supplied** voice cannot be edited out silently:
 flag them to the user and keep the on-screen text clear of them.
 
 ## Variant notes
@@ -119,7 +121,7 @@ flag them to the user and keep the on-screen text clear of them.
 
 ```bash
 python scripts/playbook.py skeleton product-demo --cuts cuts.json --title "Tên SP / KOC" > edit-plan.md
-python scripts/plan_scenes.py --library library.json --plan edit-plan.md --kinds "STAIN,LIFT@IMG_0329,..." --used other-plans...
+python scripts/plan_scenes.py --library library.json --plan edit-plan.md --kinds "STAIN,LIFT@CLIP_A,..." --used other-plans...
 python scripts/plan_to_project.py edit-plan.md --out render/v1.json --voice audio/v1.wav --captions captions.srt \
     --words words.json --auto-camera --auto-sfx --punch-keywords "tên sản phẩm"
 ```

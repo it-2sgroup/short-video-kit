@@ -55,7 +55,8 @@ for (const t of times) {
     inputProps: props,
     imageFormat: "jpeg",
     jpegQuality: 88,
-    chromiumOptions: { gl: "angle" },   // shader transitions and light leaks render on Windows with angle
+    chromiumOptions: { gl: process.env.SVK_GL ?? "swangle" },   // shader transitions need WebGL: software ANGLE works everywhere, SVK_GL=angle uses a GPU
+    timeoutInMilliseconds: 120000,   // the template fetches its Google Fonts on the first frame
     logLevel: "error",
   });
 }

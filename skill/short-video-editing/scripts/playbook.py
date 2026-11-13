@@ -8,7 +8,7 @@ recommended graphics and the compliance checklist. The scripts read it instead o
 
     python scripts/playbook.py list
     python scripts/playbook.py show real-estate                    # the rules a plan for it must meet
-    python scripts/playbook.py suggest --intent "tour căn hộ 2 phòng ngủ" [--analysis analysis.json]
+    python scripts/playbook.py suggest --intent "<the user's own words>" [--analysis analysis.json]
     python scripts/playbook.py skeleton real-estate --duration 40 [--cuts cuts.json] > edit-plan.md
     python scripts/playbook.py check                               # validate every playbook (selftest)
 
@@ -266,6 +266,18 @@ def suggest(intent: str, analysis: dict | None) -> list[tuple[float, str, list[s
 
 
 # ----------------------------------------------------------------------------- check
+def ts_union(path: Path, name: str) -> list[str]:
+    """The string members of `type NAME = "a" | "b" ...;` in a TypeScript file, in order (comments ignored)."""
+    text = re.sub(r"//[^\n]*", "", path.read_text(encoding="utf-8") if path.is_file() else "")  # comments may contain ';'
+    m = re.search(r"type\s+" + re.escape(name) + r"\s*=\s*(.*?);", text, re.S)
+    return re.findall(r'"([\w-]+)"', m.group(1)) if m else []
+
+
+def transition_types() -> list[str]:
+    """Every transition the template can draw (TransitionType in assets/remotion-template/src/project.ts)."""
+    return ts_union(SKILL / "assets" / "remotion-template" / "src" / "project.ts", "TransitionType")
+
+
 def registry_components() -> set[str]:
     reg = (SKILL / "assets" / "remotion-template" / "src" / "components" / "registry.tsx").read_text(encoding="utf-8")
     body = reg.split("registry: Record<string, OverlayComponent> = {", 1)[1].split("};", 1)[0]
@@ -354,12 +366,14 @@ def check_all() -> int:
             bad += bool(errs)
             used_comp |= set(pb["components"]["use"])
             used_grade.add(pb["grade"]); used_theme.add(pb["theme"]); used_caps.add(pb["captions"])
-    # Nothing in the kit may sit unused: every component, grade, theme and caption style must be
-    # recommended by at least one playbook, or it is dead weight (or a playbook is missing it).
+    # A component, grade, theme or caption style that no playbook recommends is not an error: the kit is a library, and a
+    # playbook picks what suits its genre. What keeps the library honest is `technique.py check` (every technique has a card, a
+    # doc and a test). Here we only list what is recommended nowhere, so a playbook author can see what exists.
     for label, have, used in (("component", comps - {"punch", "sfx"}, used_comp), ("grade", grades - {"none"}, used_grade),
                               ("theme", THEMES, used_theme), ("caption style", CAPTIONS, used_caps)):
-        for x in sorted(have - used):
-            print(f"FAIL {label} '{x}' is used by no playbook"); bad += 1
+        free = sorted(have - used)
+        if free:
+            print(f"note: {label}(s) no playbook recommends yet: {', '.join(free)}")
     print(f"\n{len(ids())} playbook(s); " + ("all valid." if not bad else f"{bad} problem(s)."))
     return 1 if bad else 0
 

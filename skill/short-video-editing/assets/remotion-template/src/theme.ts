@@ -16,6 +16,7 @@ const number = loadNumber("normal", { weights: ["400"], subsets: SUBSETS });
 const condensed = loadCondensed("normal", { weights: ["800", "900"], subsets: SUBSETS });
 const script = loadScript("normal", { weights: ["400"], subsets: ["latin", "latin-ext", "vietnamese"] });
 
+// The five role fonts below load for every project. The ~30 other families (src/fonts.ts, `font=<id>` in a plan row) load only when an overlay asks.
 export const fonts = {
   sans: sans.fontFamily, // Be Vietnam Pro: titles, labels, captions
   accent: serif.fontFamily, // Playfair Display Italic: one accent word per title
@@ -28,8 +29,8 @@ export const fonts = {
 // demos, tutorials, talking heads and promos; "warm" (ivory, gold, vermilion, brown) for food and
 // amber, wood or candle-lit footage; "luxe" (ivory, champagne gold, charcoal) for real estate, fashion
 // and beauty. `new_remotion_project.py DEST --playbook ID` (or --theme) rewrites this one line.
-// "crimson" (white, brand red, yellow highlight, deep maroon) is the agency-pitch look: red emphasis lines, white
-// pills, a maroon animated grid behind the cards. `new_remotion_project.py DEST --theme crimson`.
+// "crimson" (white, strong red, yellow highlight, deep maroon) is a bold, high-energy look: red emphasis lines,
+// white pills, a maroon animated grid behind the cards. `new_remotion_project.py DEST --theme crimson`.
 type ThemeName = "cool" | "warm" | "luxe" | "crimson";
 const THEME: ThemeName = "cool";
 
@@ -81,7 +82,7 @@ const themes = {
       white: "#FFFFFF",
       ice: "#FFE9E6", // blush: secondary text
       sky: "#FFD23F", // yellow: the spoken word, script text, highlights
-      royal: "#E4262B", // brand red: emphasis lines, red pills, badges
+      royal: "#E4262B", // strong red: emphasis lines, red pills, badges
       navy: "#7A0F1A", // deep maroon: the grid's mid tone, dark text on white pills
       ink: "#1A0407", // near-black red: outlines, grid top
       shadow: "rgba(40,0,6,0.5)",
@@ -162,7 +163,7 @@ export const compare = { height: 620, radius: 28, border: 6, divider: 6, handle:
 export const thumb = { width: 250, height: 232 }; // the three-photo strip: small, so the footage stays visible
 
 // Card layout (a scene with layout "card"/"expand"): the clip plays in a rounded 9:16 card floating over the
-// animated grid (components/graphics/Grid.tsx), the portfolio look of agency pitches. Frame pixels.
+// animated grid (components/graphics/Grid.tsx), a showcase look for presenting several clips. Frame pixels.
 export const card = { width: 690, height: 1227, top: 360, radius: 48, shadow: "0 30px 70px rgba(0,0,0,0.5)", expandFrames: 14 };
 // The animated grid behind the cards: a net of lines blown by a slow wind. `cell` is the mesh pitch in pixels.
 export const grid = { cell: 72, amplitude: 16, speed: 1.0 };

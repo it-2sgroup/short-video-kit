@@ -2,9 +2,9 @@
 """Contact sheets: look at a rendered video, or at a folder of raw clips, without playing anything.
 
     # a rendered video: the middle of every scene plus every cut (transition centre)
-    python scripts/contact_sheet.py out/kb7.mp4 --project kb7.json --out sheet.png
+    python scripts/contact_sheet.py out/video.mp4 --project project.json --out sheet.png
     # a rendered video at explicit seconds
-    python scripts/contact_sheet.py out/kb7.mp4 --times 0.5,2.6,5.5 --out sheet.png
+    python scripts/contact_sheet.py out/video.mp4 --times 0.5,2.6,5.5 --out sheet.png
     # raw footage: one row per clip, evenly spaced frames, to build the shot log
     python scripts/contact_sheet.py /path/to/clips --out clips.png
 
@@ -13,7 +13,9 @@
 --rows    folder mode: clips per sheet (default 6); more clips continue in clips_2.png, clips_3.png...
 --every   folder mode: aim for one frame per this many seconds, at most --cols (default 4)
 
-Prints which frame sits where (rows read left to right, top to bottom). Needs ffmpeg and ffprobe.
+Prints which frame sits where (rows read left to right, top to bottom): that printed index is the label on every build. When this
+ffmpeg has the `drawtext` filter (libfreetype) the time is also burnt into each frame; without it the tiles stay clean. Needs ffmpeg
+and ffprobe.
 """
 from __future__ import annotations
 
@@ -23,6 +25,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import montage  # noqa: E402  (same folder: has_filter / font)
 
 VIDEO_EXT = {".mov", ".mp4", ".m4v", ".mkv"}
 
@@ -37,8 +42,12 @@ def duration(path: Path) -> float:
     return float(out)
 
 
-def grab(video: Path, t: float, width: int, dest: Path) -> None:
-    run("-ss", f"{max(t, 0):.3f}", "-i", str(video), "-frames:v", "1", "-vf", f"scale={width}:-2", str(dest))
+def grab(video: Path, t: float, width: int, dest: Path, label: str | None = None) -> None:
+    vf = f"scale={width}:-2"
+    ft = montage.font() if label else None          # None when there is no drawtext filter or no font: tiles stay unlabelled
+    if ft:
+        vf += f",drawtext=fontfile='{ft}':text='{label}':x=6:y=6:fontsize=22:fontcolor=yellow:box=1:boxcolor=black@0.65"
+    run("-ss", f"{max(t, 0):.3f}", "-i", str(video), "-frames:v", "1", "-vf", vf, str(dest))
 
 
 def tile(frames_glob: str, cols: int, rows: int, out: Path) -> None:
@@ -62,7 +71,7 @@ def sheet_of_video(a: argparse.Namespace) -> None:
     marks.sort(key=lambda m: m[0])
     with tempfile.TemporaryDirectory() as tmp:
         for i, (t, _) in enumerate(marks, 1):
-            grab(a.source, t - 0.02, width, Path(tmp) / f"f{i:03d}.png")
+            grab(a.source, t - 0.02, width, Path(tmp) / f"f{i:03d}.png", f"{t:.2f}s")
         a.out.parent.mkdir(parents=True, exist_ok=True)
         tile(f"{tmp}/f%03d.png", cols, -(-len(marks) // cols), a.out)
     print(f"wrote {a.out}: {len(marks)} frames, {cols} per row")
@@ -82,7 +91,7 @@ def sheets_of_clips(a: argparse.Namespace) -> None:
             n = min(cols, max(2, round(dur / a.every)))
             times = [round(0.3 + (dur - 0.6) * k / (n - 1), 1) for k in range(n)]
             for k, t in enumerate(times):
-                grab(clip, t, width, Path(tmp) / f"c{ci:03d}_{k:02d}.png")
+                grab(clip, t, width, Path(tmp) / f"c{ci:03d}_{k:02d}.png", f"{t:g}s")
             tile(f"{tmp}/c{ci:03d}_%02d.png", cols, 1, Path(tmp) / f"row{ci:03d}.png")
             rows.append((clip, dur, times))
         a.out.parent.mkdir(parents=True, exist_ok=True)

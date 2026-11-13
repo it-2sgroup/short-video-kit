@@ -16,6 +16,37 @@ export type TransitionType =
   | "whip" // fast directional slide with motion blur
   | "flip" // 3D card flip, sparingly
   | "crossZoom" // WebGL radial zoom blur (needs the angle GL renderer)
+  // Shipped by Remotion (@remotion/transitions): WebGL / HTML-in-canvas, rendered with the angle GL renderer; HyperFrames draws them as a fade.
+  | "filmBurn" // warm overexposed burn through the cut
+  | "zoomBlur" // zoom blur between the shots
+  | "dreamyZoom" // soft zoom with a gentle rotation
+  | "linearBlur" // a directional blur dissolve
+  | "crosswarp" // the shots warp into each other
+  | "zoomInOut" // zoom out of the old shot, in to the new
+  | "blurSlide" // slide with a motion blur
+  | "clockWipe" // a clock hand sweeps the new shot in
+  | "ripple" // a water ripple dissolve
+  | "burnDissolve" // a burning edge eats the old shot
+  | "cube" // the shots are two faces of a 3D cube
+  | "bookFlip" // a page turn
+  | "swap" // the two shots swap places in depth
+  // Written for the kit (CSS only, drawn by both renderers)
+  | "blinds" // horizontal blinds open onto the new shot
+  | "diamond" // a diamond opens from the centre
+  | "doors" // the old shot splits in two and slides apart
+  | "glitchSlice" // sliced, shifted, hue-split bands through the cut
+  | "spinZoom" // rotate and scale through a blur
+  | "inkBleed" // ink blobs grow from points and merge into the new shot (SVG goo mask)
+  | "lumaWipe" // a noisy luma mask sweeps the new shot in from the given side
+  | "cutCurve" // the old shot accelerates, a hard swap at peak speed, the new one carries the move on and settles (no blur)
+  // Written for the kit as GL Transitions shaders (engine/glTransitions.tsx, shaders/*.glsl): WebGL, Remotion only, HyperFrames draws a fade
+  | "glPixelate" // square blocks grow to a peak and shrink back
+  | "glDirectionalWarp" // a waving wipe edge that stretches the old shot
+  | "glSwirl" // the picture twists around the centre and untwists into the new shot
+  | "glMosaic" // squares open from the middle of every grid cell
+  | "glRgbSplit" // the colour channels dissolve at different times and slide apart
+  | "glRadialShutter" // a fan of spiral blades opens the new shot
+  | "glRipplePixel" // a pixelated ring spreads from the centre
   | "cardSlide" // card layout: the outgoing card slides off with a trail of copies, the next card slides in
   | "cardSwirl"; // the incoming shot arrives as a stack of tilted cards that straighten into the full frame
 
@@ -37,6 +68,7 @@ export type Camera = {
   focus?: [number, number]; // 0..1 point that stays put while scaling (product, face)
   pan?: [number, number]; // pan distance as a fraction of the frame, e.g. [-0.08, 0]
   roll?: [number, number]; // tilt in degrees from scene start to end, e.g. [-1.2, 1.2] (adds a handheld lean)
+  shake?: { amp: number }; // handheld sway on top of any move: amp = pixels on a 1080-wide frame (mild 6, strong 14); the frame is scaled to hide the edge
 };
 
 // full: the clip fills the frame. card: it plays in a rounded card over the animated grid (a clip of null shows the
@@ -44,14 +76,39 @@ export type Camera = {
 // fabric-like wave warp (use after a card scene, with a "cut" transition so the card carries over).
 export type Layout = "full" | "card" | "expand";
 
-// Silhouette flash: for the listed frames (counted from the planned cut, at the project fps) a white PNG of the person
-// (scripts/person_matte.py -> public/mattes/PREFIX_<offset>.png) is drawn over the footage, inside the same camera framing.
-// The social opener fills the speaker's outline with white for one frame, three times, then plays on.
-export type Flash = { frames: number[]; matte: string; opacity?: number };
+// Subject effect: a matte of the subject (scripts/person_matte.py -> public/mattes/PREFIX_<offset>.png, white on transparent) shapes an
+// effect drawn over the footage inside the same camera framing (engine/Subject.tsx). `frames` are the offsets (frames after the planned
+// cut, at the project fps) that have a matte file. The effect is visible on those offsets (a blink: a fill on frames 0, 2, 4 is the
+// silhouette flash opener) or, with `show: [from, to]`, on every frame of that window, using the latest matte at or before the frame.
+// behind: big `text` drawn BETWEEN the footage and a cut-out copy of the subject, so the subject stands in front of the words (needs a matte
+// for every frame the subject moves: use person_matte.py --range).
+// blur: rack focus, the background (everything outside the matte) blurs while the subject stays sharp; `from` -> `width` is the blur in px
+// at the start and at the end of the `show` window (default 0 -> 14: the background goes soft; from=24, width=0 pulls it back sharp).
+// lift: depth pop, a cut-out copy of the subject grows 100 -> 100+`width` % over the window above the unchanged picture (default 4), anchored
+// at the vertical fraction `y` of the frame (default 0.5), with a soft shadow of `opacity` (default 0.4).
+export type SubjectMode = "fill" | "outline" | "glow" | "dim" | "colorpop" | "behind" | "blur" | "lift";
+export type Subject = {
+  mode?: SubjectMode;
+  frames: number[];
+  matte: string;
+  show?: [number, number];
+  color?: string; // fill / outline / glow colour; the text colour for behind
+  width?: number; // outline / glow size in px; blur: px at the end of the window; lift: extra scale in percent
+  from?: number; // blur: px at the start of the window (default 0)
+  opacity?: number;
+  text?: string; // behind: the words
+  size?: number; // behind: font size in px (default 360)
+  y?: number; // behind: vertical centre as a fraction of the frame (default 0.38)
+};
+
+// Echo / trail: the same clip drawn `copies` more times (1-3), the k-th one `k * delay` frames behind the live picture and `decay ** k` as
+// opaque (default 0.5), above it inside the camera framing. `frames` limits it to that many frames after the planned cut (the last 6 fade out).
+export type Echo = { copies: number; delay: number; decay?: number; frames?: number };
 
 export type Scene = {
   face?: Face;
-  flash?: Flash;
+  subject?: Subject;
+  echo?: Echo;
   layout?: Layout;
   clip: string | null; // file name in public/clips without extension; null renders a placeholder
   in: number; // source timecode (s) of the planned cut
@@ -84,8 +141,8 @@ export type CaptionStyle = "karaoke" | "pop" | "plain" | "none";
 export type CaptionHighlight = "color" | "box" | "underline" | "glow";
 
 export type Caption = { text: string; start: number; end: number };
-// Where the spoken captions sit while a time window is open (default: the lower third). The agency look puts them in
-// a top band above the cards: { start: 14.7, end: 19.6, top: 250, size: 44 }.
+// Where the spoken captions sit while a time window is open (default: the lower third). Example: a top band above
+// the cards: { start: 14.7, end: 19.6, top: 250, size: 44 }.
 export type CaptionBand = { start: number; end: number; top: number; size?: number; hide?: boolean; highlight?: CaptionHighlight }; // hide: no captions in this window (a title already says it)
 export type Word = { text: string; start: number; end: number };
 export type Punch = { at: number; scale?: number }; // keyword punch-in, seconds on the timeline
@@ -94,7 +151,8 @@ export type Music = { src: string; volumeDb?: number; duckDb?: number };
 
 // A final colour push applied to the footage only (never to graphics): CSS filter factors, 1 = unchanged. It is the cheap
 // way to lift a flat 1080p clip toward the punchy look of social video; heavier correction belongs in the proxies (grades.json).
-export type Look = { saturate?: number; contrast?: number; brightness?: number; warm?: number };
+// `vignette` and `grain` (0..1) are drawn over the whole picture, under the graphics: a darkened edge and film grain "on sixes".
+export type Look = { saturate?: number; contrast?: number; brightness?: number; warm?: number; vignette?: number; grain?: number };
 
 // Beauty light on the speaker's face: a soft elliptical patch where the picture is brightened, slightly desaturated and a hair softer
 // (CSS backdrop filter, feathered by a mask), drawn inside the camera framing so it follows every push. `face` of a scene is the

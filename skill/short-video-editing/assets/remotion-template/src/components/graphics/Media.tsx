@@ -61,11 +61,11 @@ export type CompareProps = {
   mode?: "side" | "slider" | "stack"; // side: two panels; slider: left/right divider; stack: top/bottom divider
   beforeLabel?: string;
   afterLabel?: string;
-  note?: string; // honest label under the card, e.g. "sau 1-2 tiếng ngâm · đã rút gọn thời gian"
+  note?: string; // honest label under the card, e.g. "after 20 minutes · time shortened"
   focus?: Point; // point of the source frame (0..1) shown at the centre of each side's area
-  beforeFocus?: Point; // overrides focus for the BEFORE side (the stain is rarely where the clean cloth is)
+  beforeFocus?: Point; // overrides focus for the BEFORE side (the detail to show is rarely at the same spot before and after)
   afterFocus?: Point;
-  zoom?: number; // 1 = the whole frame fits the area; 1.5 magnifies the stain
+  zoom?: number; // 1 = the whole frame fits the area; 1.5 magnifies the detail
 };
 
 // One frozen frame of a clip, scaled so that `focus` lands on (cx, cy) inside a w x h window and
@@ -209,9 +209,9 @@ export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
   );
 };
 
-// A strip of up to 3 framed stills with a caption under each (the "three small photos at the top"
-// header). `delay` (seconds after the strip starts) lets each card land on the word it names; without
-// it the cards follow each other every 4 frames. `focus`/`zoom` frame the stain inside the small card.
+// A strip of up to 3 framed stills with a caption under each (a header of three small
+// photos). `delay` (seconds after the strip starts) lets each card land on the word it names; without
+// it the cards follow each other every 4 frames. `focus`/`zoom` frame the detail inside the small card.
 export type ThumbsProps = { cards: { clip: string; at: number; caption?: string; delay?: number; focus?: Point; zoom?: number }[] };
 
 

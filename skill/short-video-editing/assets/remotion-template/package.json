@@ -1,7 +1,7 @@
 {
   "name": "short-video-remotion",
   "version": "2.0.0",
-  "description": "Data-driven Remotion renderer for short vertical product videos (project.json in, MP4 out).",
+  "description": "Data-driven Remotion renderer for short vertical videos (project.json in, MP4 out).",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -17,8 +17,8 @@
   "dependencies": {
     "@remotion/bundler": "4.0.540",
     "@remotion/cli": "4.0.540",
+    "@remotion/effects": "4.0.540",
     "@remotion/google-fonts": "4.0.540",
-    "@remotion/light-leaks": "4.0.540",
     "@remotion/paths": "4.0.540",
     "@remotion/renderer": "4.0.540",
     "@remotion/transitions": "4.0.540",

@@ -1,7 +1,7 @@
 # CapCut techniques, mapped to this kit
 
 What editors do in CapCut for short vertical video, and how to get the same result here: in the plan, in
-a script, in the HyperFrames renderer, or not at all. Use it two ways: when a client says "make it like a
+a script, in the HyperFrames renderer, or not at all. Use it two ways: when the request says "make it like a
 CapCut edit" (find the technique, find the cell), and when you want a technique and do not know whether
 the kit has it. The renderers: `remotion-output.md`, `hyperframes-flow.md`.
 
@@ -9,7 +9,7 @@ the kit has it. The renderers: `remotion-output.md`, `hyperframes-flow.md`.
 only. **S** a script or an ffmpeg step before the render. **D** a documented how-to that is not wired or
 tested here. **—** not done: the reason is given. The feature lists are CapCut's as publicly described (app
 stores, the desktop and mobile editors); features, tiers and names change, and some are paid ("Pro")
-or need an internet connection: check the current app before promising one to a client [C].
+or need an internet connection: check the current app before promising one [C].
 
 ---
 
@@ -35,7 +35,7 @@ or need an internet connection: check the current app before promising one to a 
 | Normal speed (0.1×–100×) | **K** | `Speed: 2x`, `0.5x`; under 1× needs a 60 fps proxy (`prepare_footage.py --slowmo`); the sync report flags slow motion that would stutter |
 | Speed curve (Montage, Hero, Bullet, Jump cut, Flash in/out, custom) | **K** | `Speed: ramp a>b>c`, speeds spread evenly over the scene and eased (`Easing.inOut(sin)`). Rough equivalents [C]: Montage `ramp 0.6>2.5>0.6`, Hero `ramp 2>0.4>2`, Bullet `ramp 1>0.2`, Flash in `ramp 3>1`. More than five points are not worth it: the ramp is eased between them |
 | Smooth slow motion (optical flow, frame interpolation) | **D** | ffmpeg `minterpolate=fps=60:mi_mode=mci` on a short proxy; slow and it smears fast motion. Prefer shooting 60 fps |
-| Time compression of a process ("ngâm 1–2 tiếng") | **K** | `2x` or a ramp **plus** an on-screen note that time was cut (`progress` overlay: "đã rút gọn thời gian"); never silently (`before-after.md`) |
+| Time compression of a process ("chờ 10 phút") | **K** | `2x` or a ramp **plus** an on-screen note that time was cut (`progress` overlay: "đã rút gọn thời gian"); never silently (`before-after.md`) |
 | Audio follows the speed (pitch) | — | scene audio is not used: the voice is separate and sound effects are placed by the plan |
 
 ## 3. Camera and keyframes
@@ -46,7 +46,7 @@ or need an internet connection: check the current app before promising one to a 
 | Keyframe pan | **K** | `Camera: pan left 6%` |
 | Keyframe rotate / handheld lean | **K** | `Camera: push … roll -1>1` (degrees); spare image is added so the corners never show |
 | Focus on a point (zoom toward the product) | **K** | `focus 0.5,0.4` after the move (fractions of the frame) |
-| Zoom punch on a word | **K** | `plan_to_project.py --punch-keywords "zensip,70"`: a ×1.12–1.15 spring on the keyword that stays until the cut |
+| Zoom punch on a word | **K** | `plan_to_project.py --punch-keywords "product name,70"`: a ×1.12–1.15 spring on the keyword that stays until the cut |
 | Beat zoom pulse | **H** | `+pulse` on the cut: ×1.08 over 10 frames and back |
 | Camera shake | **H** | `+shake` on the cut: decaying shake over 14 frames (an impact or a drop) |
 | Ken Burns on a still photo | **D** | turn the still into a clip (`ffmpeg -loop 1 -i p.jpg -t 4 -r 30 -vf scale=1620:2880:force_original_aspect_ratio=increase,crop=1620:2880 -pix_fmt yuv420p p.mp4`) and give it a `push` |
@@ -72,14 +72,14 @@ or need an internet connection: check the current app before promising one to a 
 | Glitch, RGB split | **H** | `+rgb`, `+glitch` on the cut |
 | Shake / earthquake | **H** | `+shake` |
 | Shader family (ripple, swirl, liquid, burn, domain warp, lens, thermal) | **D** | `@hyperframes/shader-transitions` has 14 (`hyperframes-flow.md` §7); it needs its own scene structure |
-| White silhouette flash (the speaker's outline filled white for a frame, three times) | **K** | scene `Flash` cell `0,2,4 @ mattes/C5074`; `person_matte.py` cuts the person out of those frames with a segmentation model |
+| White silhouette flash (the speaker's outline filled white for a frame, three times) | **K** | scene `Subject` cell `0,2,4 @ mattes/CLIP_A` (other modes: `references/subject-effects.md`); `person_matte.py` cuts the person out of those frames with a segmentation model |
 | Slide with trail, stacked-card slide | **K** | `cardSlide`: card scenes slide off with two fading copies behind (the card layout, `layout-and-motion-graphics.md`) |
 | Spin-in cards, stack zoom | **K** | `cardSwirl`: the incoming shot arrives as three tilted cards that straighten into the frame |
 | Wave warp, bulge, flag wave | **K** | scene layout `expand`: a card grows to the full frame with a fabric-like wave (SVG displacement) |
 | Spin, mirror, pixelate, luma wipe, clone, page curl | — | not built; a hard cut or `whip` carries the same beat |
 
 Playbooks set which transitions a genre uses and how many accents it may spend (`playbooks/<id>.md`,
-`transitions.md`); a client's house style (`product-demo`: 3–4 s scenes, soft transitions) beats a fashion
+`transitions.md`); a playbook's house style (`product-demo`: 3–4 s scenes, soft transitions) beats a fashion
 taste for glitches.
 
 ## 5. Effects and looks
@@ -135,7 +135,7 @@ taste for glitches.
 | Text presets: slam, stamp, glitch, neon, shine, drop, elastic, wave, flip, split, mask wipe, typewriter | **K** | `phrase` `fx=` (14 effects, `layout-and-motion-graphics.md`) |
 | Beauty: skin brighten and soften | **K** | `faceGlow` (a feathered backdrop-filter patch on the head, `Face` column) and `look` warm; `image-processing.md` |
 | Karaoke with a bigger coloured word | **K** | `captionStyle karaoke` (scaled, coloured word) and `captionBands` to move the captions above a card |
-| Text templates, speech bubbles, boxes | — | no text in boxes on product demos (client rule); the `glass` card is the one panel, for busy footage |
+| Text templates, speech bubbles, boxes | — | no text in boxes on product demos (that playbook's house style); the `glass` card is the one panel, for busy footage |
 | Text-to-speech | **K** | ElevenLabs (`make_voiceover.py`; Vietnamese needs `eleven_turbo_v2_5`; a free plan is not commercial) |
 | Auto-translate captions, bilingual | — | not built; a Vietnamese line and an English line would double the text |
 | Lyrics / karaoke for music | — | out of scope |

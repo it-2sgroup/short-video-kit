@@ -1,6 +1,6 @@
 ---
 name: short-video-editing
-description: Plan, edit and render short vertical videos (TikTok, TikTok Shop, Reels, Shorts; 10–90 s) of any kind — product demos and reviews, before/after, unboxing, real-estate tours, food and restaurants, talking heads and testimonials, tutorials and recipes, fashion and beauty, travel/event montages, sale promos. It analyses the footage and the request, picks a genre playbook, then does the edit: footage correction (white balance, exposure, grade, stabilisation, denoise, levelling), voice cleanup and loudness, cuts on voice pauses or music beats, jump cuts, speed ramps, transitions, virtual camera, captions, motion graphics and infographics, sound effects, a Remotion or HyperFrames render (CapCut-style hits and looks) and platform-ready export. It also rebuilds a client's reference video (measures it frame by frame, then recreates its text, cards, flashes, transitions and sound), including a service or agency pitch cut from a presenter's takes with the voice matched to each take for exact lip-sync. Use it whenever someone asks to make, edit, cut, script, caption, colour, mix or improve a short-form video, or several from one batch of footage, even for a small part of the job ("just add captions", "fix the colour", "cut this to the music").
+description: Plan, edit and render short vertical videos (TikTok, TikTok Shop, Reels, Shorts; 10–90 s) of any kind — product demos and reviews, before/after, unboxing, real-estate tours, food and restaurants, talking heads and testimonials, tutorials and recipes, fashion and beauty, travel/event montages, sale promos. It analyses the footage and the request, picks a genre playbook, then does the edit: footage correction (white balance, exposure, grade, stabilisation, denoise, levelling), voice cleanup and loudness, cuts on voice pauses or music beats, jump cuts, speed ramps, transitions, virtual camera, captions, motion graphics and infographics, sound effects, a Remotion or HyperFrames render (CapCut-style hits and looks) and platform-ready export. It also rebuilds a reference video the user supplies (measures it frame by frame, then recreates its text, cards, flashes, transitions and sound), including a service or agency pitch cut from a presenter's takes with the voice matched to each take for exact lip-sync. Use it whenever someone asks to make, edit, cut, script, caption, colour, mix or improve a short-form video, or several from one batch of footage, even for a small part of the job ("just add captions", "fix the colour", "cut this to the music").
 ---
 
 # Short Video Editing
@@ -99,17 +99,19 @@ default (`playbooks/README.md` → Questions). For a batch: budget the footage f
 ### 1b. A reference video to copy ("make it like this sample")
 
 ```bash
-python scripts/analyze_reference.py sample.mp4 --out ref/ --dense 0-3,15-20   # shots, transitions, flashes, colours, loudness, sheets
+python scripts/analyze_reference.py sample.mp4 --out ref/ --dense 0-3,15-20   # shots, transitions (and their family), camera paths, speed, flashes, grade, loudness, sheets
+python scripts/technique.py search "glitch rgb split"                        # is it already in the kit, under the name editors use?
 ```
 
 Open `ref/report.md`, `scenes.png`, every `dense_*.png` (every 2nd frame of a range: a flash on frames 0, 2, 4, a text pile
 assembling) and every `spectrum_*.png` (a click is a vertical streak, a whoosh a slanted band) and **look**. The numbers give the
-frame-exact timing (cut count, shortest shot, transition lengths in frames, flashes, loudness); the sheets give the technique. Write
-down every technique you see (text effects, card layouts, transitions, background, sound on each cut), then find each one in
-`references/capcut-techniques.md` and `references/layout-and-motion-graphics.md`. A technique the kit lacks is **researched and added
-as a component with its doc row and a selftest**, never faked with a lookalike. A presenter talking to camera with a service pitch →
-`references/agency-pitch-recipe.md`, step by step (steps 0-10). The sample's logo and the client's work shown on its cards belong to the
-client: ask for the vector logo and for consent. Do not copy the sample's music or footage.
+frame-exact timing; the sheets give the technique; `references/reference-analysis.md` says which keys are measured and which are Claude's reading.
+Write down every technique you see in neutral words (text effects, card layouts, transitions, camera moves, grade, subject effects, sound on each cut), then
+**find each one in the catalogue** (`technique.py search`, `list`, `show`). Found: use it. Almost found: a new parameter, not a new technique. Not found: **research it,
+implement it where its kind lives, write its card, document it, prove it in selftest.sh** (`references/adding-techniques.md`: one loop for every kind; what
+was researched but not built is in `references/technique-backlog.md`), never fake it with a lookalike. A presenter talking to camera with a service pitch →
+`references/agency-pitch-recipe.md`, step by step. The sample's logo, and any customer work shown on its cards, belong to their owners: ask for the vector
+logo and for consent. Do not copy the sample's music, footage or typeface; the case itself (client, dates, numbers) goes in `docs/CASE-LOG.md`, never in the skill.
 
 ### 2. Prepare the footage
 
@@ -158,8 +160,9 @@ Fill the plan (`assets/edit-plan-template.md`): every scene a Source and In (a k
 already has them), a transition from the playbook, a Camera cell or blank for `--auto-camera`
 (`references/camera-moves.md`; for a scene with an action to follow or reveal, **keyframes**:
 `keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft`), a Speed where it earns its place (`2x` for waiting, `ramp 1>2.5>1`
-through a doorway, `0.5x` on a 60 fps money shot: `references/cutting-and-pacing.md`). Cut on pauses or
-beats, never inside a word, never across a reveal.
+through a doorway, `montage` / `hero` / `bullet` as named curves, `0.5x` on a 60 fps money shot: `references/cutting-and-pacing.md`; a handheld
+`shake mild` on a locked-off take). Cut on pauses or beats, never inside a word, never across a reveal. The whole technique library is searchable by name:
+`python scripts/technique.py list --kind transition` (31 transitions, text effects, subject effects, grades, camera options, speed curves, looks...), `show <id>`, `search "<words>"`.
 
 ### 5. Design the graphics layer
 
@@ -168,7 +171,8 @@ titles (`references/typography.md`: 3–4 styles, never the same twice in a row,
 the information graphics the content needs — `specs` (area, rooms, direction), `pin` (place), `label`
 (room, dish, item), `stat` (a counted-up number), `chart` (bars), `price`, `step`, `checklist`, `thumbs`
 (a spoken list of three), `compare` (before/after), `image` (logo, floor plan), `cart` (TikTok Shop's real
-product bar only). Anchor to words with `@"phrase"`. On-screen text says something **different** from
+product bar only), and effects shaped by a person matte (silhouette flash, outline, glow, spotlight, colour pop, text behind the subject: the `Subject` cell,
+`references/subject-effects.md`). Anchor to words with `@"phrase"`. On-screen text says something **different** from
 the voice. Every number on screen comes from the user or the documents.
 
 ### 6. Check the plan
@@ -233,8 +237,8 @@ against the plan, LUFS, true peak, loudness by 10 s, pauses, cue count, music pr
 `check_lipsync.py RENDER/v1.json final.mp4 --clips ORIGINALS` (every talking scene within a frame). Then report in the user's language: playbook and why, runtime, scenes, the hook, corrections
 applied to the footage, what the sync report still flags, claims changed or flagged (name the rule),
 the publishing checklist (`platforms.md` §6), and what was **not** verified (e.g. not listened to; sounds picked by name and
-measurement; a sentence guessed from a poor transcript; a logo keyed from a sample frame). Facts on screen (figures, client
-names, prices) are the user's or the documents', never invented; client claims inside a voice need the client's evidence.
+measurement; a sentence guessed from a poor transcript; a logo keyed from a sample frame). Facts on screen (figures, customer
+names, prices) are the user's or the documents', never invented; claims a brand makes inside a voice need the brand's evidence.
 
 ---
 
@@ -244,8 +248,13 @@ Read as the task requires, not all at once.
 
 | File | Read it when |
 |---|---|
-| `playbooks/README.md` | Choosing the playbook; the questions to ask; adding a genre or a client's house style. |
+| `playbooks/README.md` | Choosing the playbook; the questions to ask; adding a genre or a house style. |
 | `playbooks/<id>.md` | Always, for the chosen playbook: structure, shots needed, editing, sound, look, graphics, compliance, commands. |
+| `references/adding-techniques.md` | A reference or a request needs a technique the kit lacks: the one loop (search, research, implement, card, doc, test), the kinds and where each lives. |
+| `references/technique-backlog.md` | Before researching a new technique: what was already researched but not built (GL Transitions loader, match cut, rack focus, parallax, OCR...). |
+| `references/subject-effects.md` | Effects shaped by a person matte: silhouette flash, outline, glow, spotlight, colour pop, text behind the subject; the `Subject` plan cell. |
+| `references/reference-analysis.md` | Reading `analyze_reference.py`'s report: what each key means, its thresholds, what is measured and what Claude must read from the evidence images. |
+| `references/editor.md` | Fixing a project by hand in the browser: `editor.py`, the timeline, what is saved where. |
 | `references/agency-pitch-recipe.md` | A service or agency pitch, or any "recreate this sample" job where a presenter talks to camera and the voice is cut from their takes: every step, tool and flag, and the pitfalls met. |
 | `references/policy.md` | **Before any batch or any footage that is not the user's own**: originality, duplicates, Douyin, how many videos footage supports. |
 | `references/claims-and-compliance.md` | Writing any script or on-screen claim; category law (real estate, food, cosmetics, finance); before/after rules; the rewrite table. |
@@ -265,10 +274,10 @@ Read as the task requires, not all at once.
 | `references/audio-processing.md` | Noise reduction, the voice chain, loudness targets, ffmpeg traps. |
 | `references/sound-design.md` | Sound effects: licence-safe sources, the bank, which sound on which event. |
 | `references/before-after.md` | Showing a result honestly: techniques, the `compare` card, choosing the pair. |
-| `references/niche-winning-patterns.md` | Product demos for household products: what the campaign data shows. |
+| `references/niche-winning-patterns.md` | The evidence behind the product-demo playbook's defaults: what 16,242 measured TikTok Shop videos show. |
 | `references/remotion-output.md` | The render pipeline and template. Read the licence section first. |
 | `references/hyperframes-flow.md` | Rendering with HyperFrames instead: which renderer, the flow, `+shake`/`+glitch`/`+rgb`/`+pulse`, `--look`, what `check` says, parity measured, pitfalls. |
-| `references/capcut-techniques.md` | A client wants "a CapCut look", or you need a technique (speed curve, glitch, freeze, text behind subject, auto captions…): where it lives in the kit, or why it does not. |
+| `references/capcut-techniques.md` | The user wants "a CapCut look", or you need a technique (speed curve, glitch, freeze, text behind subject, auto captions…): where it lives in the kit, or why it does not. |
 
 ---
 
@@ -287,7 +296,7 @@ Read as the task requires, not all at once.
 **Measured**: the duration/CTR relationship and reach-not-persuasion (product demos, one niche); the
 audio and image thresholds in `audio-processing.md` and `image-processing.md` (synthetic and one real
 clip). **Documented**: platform policy, law (as researched, not legal advice), ffmpeg and Remotion
-behaviour, licence terms. **Craft convention or client preference**: rhythms, structures, transitions,
+behaviour, licence terms. **Craft convention or a playbook's house style**: rhythms, structures, transitions,
 camera moves, grades, title styles, layout bands, mix levels. Present conventions as informed practice,
 not measurement: several much-quoted short-form statistics turned out to be fabricated or misattributed
 (`platforms.md` §3). If asked whether a hook or style will perform better, the honest answer is usually

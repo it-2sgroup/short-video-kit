@@ -16,7 +16,7 @@ of the precise percentages that circulate survive scrutiny, so the cadence is cr
 
 | Playbook | Scenes (min–target–max) | Why that rhythm |
 |---|---|---|
-| product-demo | 2.5–3.3–4 s | data: past 4 s a static demo shot loses viewers; client: 1.5–2 s hard cuts felt *"bị ngắt"* |
+| product-demo | 2.5–3.3–4 s | data: past 4 s a static demo shot loses viewers; house style: with soft transitions, 1.5–2 s hard cuts read as jerky |
 | tutorial | 2–3.3–4.5 s | each step must be followable |
 | real-estate | 1.8–2.8–4 s | the walk is the motion; cut on bars of the music |
 | talking-head | 1–3.2–5 s | jump cuts on pauses; a new framing every cut |
@@ -84,6 +84,7 @@ counts the footage a fast scene uses (a 3 s scene at 2x reads 6 s).
 | **Montage ramp** (slow → fast → slow) | `ramp 1>2.5>1` | corridors, stairs, doorways, travel; the fast middle carries the viewer to the next place and can hide a cut | any fps, a constant-speed take |
 | **Hero ramp** (fast → slow → fast) | `ramp 1>0.4>1` | a pour, a drop, a spin, the reveal of a dish | high fps |
 | **Slow motion** | `0.5x` | a money shot, a hair flip | 60 fps for 0.5x, 120 fps for 0.25x |
+| **Named curves** | `montage` · `hero` · `bullet` · `flash-in` · `flash-out` · `freeze-hit` | the same ramps by name (CapCut's "velocity" vocabulary): `montage` = `ramp 1>2.5>1`, `hero` = `ramp 2>0.4>2`, `bullet` = `ramp 1>0.15>0.15>1.6` (a near-freeze then release), `flash-in` = `ramp 3>1`, `flash-out` = `ramp 1>3`, `freeze-hit` = `ramp 1>0>0>1` (runs, one held frame for the middle third of the scene, runs) | `hero` and `bullet` need a 60 fps proxy; CapCut publishes no numbers for its presets, these are the kit's own approximations |
 
 - Clean slow motion is the timeline fps ÷ the source fps: 60 fps → 50%, 120 → 25%, 240 → 12.5% on the
   30 fps timeline [S]. Slower than that repeats frames (stutter); interpolation smears texture [S].
@@ -94,6 +95,15 @@ counts the footage a fast scene uses (a 3 s scene at 2x reads 6 s).
 - Implementation: a ramp re-times the source frame by frame inside `<Freeze>` in `engine/Short.tsx`
   (Remotion cannot animate `playbackRate`; its docs re-time per frame too). Mute source audio is the
   kit's default, so no pitch artefacts.
+- **Freeze hit** (`Speed: freeze-hit`): a scene of 0.8-1.6 s holds ONE frame for its middle third (6-15 frames), easing into and out of it. The engine
+  handles a speed of 0 (`advance()` stays constant; two stills 13 frames apart inside the hold were bit-identical) and `plan_to_project.py` does not call
+  it stutter. Dress it on the same beat: `Transition: cut +flash`, a camera `keys` punch of 1.04-1.08, and, over a person, a Subject `outline` or
+  `lift` window of the hold's frames (a 36-frame scene holds from about frame 12 to 24: `outline 12-24 @ mattes/CLIP_A`). Freeze on a sharp frame, and
+  never across a before/after reveal. The scene reads a third of its length in footage (`footage_overlap_checker.py` counts that).
+- **Echo / trail** (`Transition: cut +echo`, or `echo` on a scene of project.json: `{copies: 1-3, delay: frames, decay: 0.5, frames: N}`): the same clip drawn again
+  `k * delay` frames behind the live frame, each copy `decay ** k` as opaque, inside the camera framing. `+echo` = 2 copies, 3 frames apart, for the first 15
+  frames after the cut (the last 6 fade out). It decodes the clip N+1 times: keep it to one scene per video, on fast movement (a spin, a whip, a pour);
+  on a still shot it only doubles the picture. Remotion only.
 
 ---
 

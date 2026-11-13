@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cut a person out of a few frames: white "silhouette" PNGs (alpha = the person) for flash and pop effects.
+"""Cut a person out of a few frames: white "silhouette" PNGs (alpha = the person) for the template's subject effects.
 
 The opening flash of many social videos fills the speaker's outline with white for a frame, three times in a row, and
 then the video starts. This writes one RGBA PNG per frame (white where the person is, transparent elsewhere) from a clip,
@@ -7,14 +7,17 @@ using a person-segmentation ONNX model (U^2-Net human segmentation, Apache-2.0, 
 $SVK_MODEL_DIR, $WHISPER_MODEL_DIR, ~/.cache/short-video-kit/models and ~/.local/share/short-video-kit/models (--model names a file);
 `./setup.sh --person-model` downloads it (ASK THE USER FIRST: 168 MB). onnxruntime comes with faster-whisper in the kit's venv.
 
-    python scripts/person_matte.py clip.mp4 --at 5.22 --frames 0,2,4 --fps 30 --out render/public/mattes/C5074 [--size 1080x1920]
-    python scripts/person_matte.py --faces "C5074@5.22,C5074@7.0,C5079@1.9" --clips render/public/clips   # where the head is
+    python scripts/person_matte.py clip.mp4 --at 5.22 --frames 0,2,4 --fps 30 --out render/public/mattes/CLIP_A [--size 1080x1920]
+    python scripts/person_matte.py clip.mp4 --at 5.22 --range 0-60 --step 3 --out render/public/mattes/CLIP_A   # a moving subject: a matte every 3 frames
+    python scripts/person_matte.py --faces "CLIP_A@5.22,CLIP_A@7.0,CLIP_B@1.9" --clips render/public/clips   # where the head is
 
 --faces    beauty-light mode: for each CLIP@SECONDS print the head as {"x","y","r"} (fractions of the frame; r = half the head width as a
            fraction of the frame width), measured on the person matte: the head is the part above the shoulders. Written to --faces-out JSON.
 
 --at       clip time (s) of the planned cut: the frame the scene starts on (the pictures must match the flashes exactly)
 --frames   frame offsets from --at, at --fps, one PNG each: out_0.png, out_2.png, out_4.png
+--range    A-B with --step N instead of --frames: offsets A, A+N, ... up to B (a matte for a sustained effect on a subject that moves;
+           the plan's Subject cell says `glow 0-60 @ mattes/CLIP_A; every=3`)
 Model: u2net_human_seg.onnx from https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx
 The matte is soft-edged (a 1.5 px blur) and slightly grown so the white fill hides the person's own edge pixels.
 Not a production-grade matte (hair is approximate): it is made for a flash that lasts one frame.
@@ -128,6 +131,8 @@ def main() -> int:
     ap.add_argument("--faces-out", help="with --faces: write the result as JSON")
     ap.add_argument("--at", type=float, help="clip time (s) of the frame the scene starts on")
     ap.add_argument("--frames", default="0,2,4", help="frame offsets from --at (default 0,2,4: three one-frame flashes)")
+    ap.add_argument("--range", help="A-B: every --step frames from A to B instead of --frames")
+    ap.add_argument("--step", type=int, default=3, help="with --range: frames between mattes (default 3)")
     ap.add_argument("--fps", type=float, default=30.0)
     ap.add_argument("--out", help="output prefix: PREFIX_<offset>.png")
     ap.add_argument("--size", default="1080x1920", help="PNG size (the frame size the effect is drawn at)")
@@ -143,7 +148,12 @@ def main() -> int:
     session = ort.InferenceSession(str(find_model(a.model)), providers=["CPUExecutionProvider"])
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    for off in (int(v) for v in a.frames.split(",")):
+    if a.range:
+        lo, hi = (int(v) for v in a.range.split("-"))
+        offsets = list(range(lo, hi + 1, max(1, a.step)))
+    else:
+        offsets = [int(v) for v in a.frames.split(",")]
+    for off in offsets:
         t = a.at + off / a.fps
         m = matte(session, grab(a.video, t))
         path = out.parent / f"{out.name}_{off}.png"

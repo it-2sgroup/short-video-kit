@@ -73,6 +73,26 @@ clipped by a gamma; a clip that is already clipped cannot be rescued, say so.
 | `warm-food` | food-fnb | warm (5400 K at 30%), contrast 1.06, saturation 1.1, highlights kept |
 | `soft-skin` | fashion-beauty | gentle contrast, warm skin, protected highlights, fabric colours not pushed |
 | `vivid` | montage-recap, promo-sale | firm S-curve, saturation 1.12, vibrance |
+| `teal-orange` | (library) | teal shadows, orange highlights, mids untouched so faces barely move (`colorbalance`, `pl=1`); not on white garments or close-up skin |
+| `cinematic-fade` | (library) | lifted blacks (`colorlevels`), slightly muted: the matte filmic look; blacks stay below ~0.07 |
+| `moody` | (library) | darker, cooler, contrast 1.15: night, tech, drama; check caption contrast on a phone |
+| `pastel` | (library) | airy: lifted shadows, saturation 0.85; white text vanishes on it (outline or marker titles) |
+| `vintage-film` | (library) | faded, tinted blacks, muted colour; grain and vignette are the template's `look.grain` / `look.vignette` |
+| `mono` | (library) | black and white (Rec.709 weights), contrast 1.2, S-curve |
+| `bleach-bypass` | (library) | saturation 0.45, contrast 1.25: gritty; kills product colour |
+| `golden-hour` | (library) | 4500 K push, orange highlights; low `wbStrength` (0.3) so the white balance does not undo it |
+| `cold-blue` | (library) | 8500 K, desaturated; keep the strength at 0.5 or less on people |
+
+The "(library)" grades are not recommended by any playbook: pick one on purpose (`--grade NAME`), one look per video. **`colortemperature`: a
+LOWER kelvin is WARMER** (measured on a grey frame: V 144 at 3500 K, 129 at 6500 K, 124 at 9500 K). **`--grade-strength 0..1`** (or a grade's own
+`"strength"`) mixes the look with the corrected picture (`blend all_opacity` inside the LUT): 0.5-0.7 is the usual way to soften a strong look.
+Only colour filters that a 3D LUT can hold belong in a grade chain: no vignette, noise or blur (those are the template's `look`). `selftest.sh`
+checks that each grade moves a synthetic card in the direction it claims (teal shadows, lifted blacks, no colour in `mono`, warmer or cooler...);
+nobody has judged the looks on real footage, so look at stills before using one.
+
+**`look` (vignette and grain):** `plan_to_project.py --look-fx vignette=0.3,grain=0.06` darkens the edge and adds film grain over the whole picture, under the
+graphics (both renderers; strengths 0..1, subtle values). Grain changes every sixth frame; a vignette also darkens the caption band, so check legibility.
+`--look SAT,CON,BRI,WARM` is the separate colour push on the footage (Remotion only).
 
 On a real daylight clip the grades moved mean luma by −3 to +12 and saturation by +1 to +7 (of 255):
 visible but not loud [M]. A `.cube` LUT can become a grade (`"chain": "lut3d=file=…"`) when the user
@@ -123,7 +143,7 @@ AFTER are never corrected differently (`claims-and-compliance.md` §3).
 ```bash
 python scripts/inspect_footage.py CLIPS --measure --json analysis.json        # what each clip needs
 python scripts/prepare_footage.py CLIPS render/public/clips --playbook real-estate --analysis analysis.json \
-    --fix "IMG_0402:rotate=-1.2" --fix "IMG_0410:stabilize=off"
+    --fix "CLIP_A:rotate=-1.2" --fix "CLIP_B:stabilize=off"
 python scripts/contact_sheet.py render/public/clips --out proxies.png        # look at the result
 ```
 
@@ -145,5 +165,5 @@ skin: CapCut's "whitening" and "smooth"). The kit does it in the render, not in 
 (centre and half-width as fractions of the frame, on a person matte: the head is what sits above the shoulders; checked on six scenes), the plan's `Face` cell
 carries it, and `plan_to_project.py --face-glow BRIGHTNESS,SATURATE,BLUR,SIZE,WARM,VEIL` writes `faceGlow`: a soft elliptical patch (CSS backdrop filter, feathered by a
 mask, drawn inside the camera framing so it follows every push) that brightens the picture behind it, takes a little colour out, softens it a hair and lays a pale pink
-veil (1.26, 0.88, 1.0, 1.15, 0, 0.07 matched a hand-edited sample; 1.30 and a 0.10 veil is already pale). It lifts hair and shirt near the face a little too: keep SIZE
+veil (1.26, 0.88, 1.0, 1.15, 0, 0.07 matched a hand-edited reference; 1.30 and a 0.10 veil is already pale). It lifts hair and shirt near the face a little too: keep SIZE
 near 1.15. `look` (`--look SAT,CON,BRI,WARM`) is the global push on the footage: 1.10, 1.05, 1.04 and a 0.06 sepia warms a cool Sony take toward social video.

@@ -5,6 +5,8 @@
     python scripts/process_audio.py music track.mp3 --out public/audio/music.wav      # level a music bed
     python scripts/process_audio.py master out/v1.mp4 --out out/v1_final.mp4 [--phone] # loudness of the mix
     python scripts/process_audio.py measure anything.mp4                              # just the numbers
+    python scripts/process_audio.py duck voice.wav music.wav --out mix.wav [--stem bed.wav]   # music under a voice (sidechain)
+    python scripts/process_audio.py gap music.wav --at 12.40 --out music_gap.wav [--ms 120]   # silence before the drop
 
 voice   Measures the noise floor (5th percentile of 100 ms RMS windows) and the speech level (90th
         percentile) and decides from their distance (speech-to-noise):
@@ -15,9 +17,16 @@ voice   Measures the noise floor (5th percentile of 100 ms RMS windows) and the 
         then high-pass 80 Hz, a little less 250 Hz mud and more 3.5 kHz presence, de-esser, gentle
         compression (3:1), and the level: -16 LUFS integrated, true peak <= -1.5 dBTP. afftdn delays the
         sound by 25 ms; the chain removes that delay so captions and cuts stay in sync. --no-clean keeps
-        only the level; --denoise on|off overrides the decision.
+        only the level; --denoise on|off overrides the decision. --deess off|default|strong and --presence DB
+        (gain at 3.5 kHz, with -2 dB at 250 Hz; 0 = none) tune those two steps; the defaults are the chain above.
 music   Levels a track to -14 LUFS (true peak -1.5 dBTP) so the bed level written into project.json
         (plan_to_project.py: -10 dB in pauses, -18 dB under speech) means the same for every track.
+duck    Mixes a music bed under a voice: the voice drives ffmpeg sidechaincompress on the music (ratio 8, attack 8 ms,
+        release 350 ms), the threshold is LINEAR amplitude set from the MEASURED voice (its loud parts - 13 dB), the bed
+        sits at --music-db (-10) in the pauses and drops by 8-12 dB while the voice speaks; amix normalize=0, so nothing is
+        halved. --stem also writes the ducked bed alone (to measure the drop). The voice sets the length.
+gap     Cuts a silence of --ms (default 120, range 80-150) out of a music track, ending ON --at seconds (the drop or hit),
+        with --ramp ms (default 8, 5-10) fades inside the span so nothing clicks: the music is back at full level on --at.
 master  Levels the rendered mix to -14 LUFS integrated, true peak <= -1 dBTP (common practice: neither
         TikTok nor Instagram publishes a target; references/audio-processing.md), copies the picture,
         writes AAC 192 kb/s 48 kHz with +faststart. --phone also writes <out>_phone.mp4 (CRF 24) for
@@ -120,7 +129,10 @@ def level(src: Path, out: Path, target_i: float, target_tp: float, pre: str = ""
             gain += short
 
 
-def voice_chain(path: Path, m: dict, denoise: str) -> tuple[str, list[str]]:
+DEESS = {"off": None, "default": "deesser=i=0.3:m=0.6", "strong": "deesser=i=0.6:m=0.8"}
+
+
+def voice_chain(path: Path, m: dict, denoise: str, deess: str = "default", presence: float = 3.0) -> tuple[str, list[str]]:
     notes, parts = [], ["highpass=f=80"]
     want = {"auto": m["snr"] < 35, "on": True, "off": False}[denoise]
     if want:
@@ -142,14 +154,82 @@ def voice_chain(path: Path, m: dict, denoise: str) -> tuple[str, list[str]]:
     # The compressor's threshold follows the voice: 8 dB under its loud parts, so loud words lose about
     # 3-5 dB whatever the recording level (a fixed -24 dB took 10 dB off a hot voice and lifted its noise).
     thr = max(-40.0, min(-10.0, m["speech"] - 8))
-    parts += ["equalizer=f=250:t=q:w=1:g=-2", "equalizer=f=3500:t=q:w=1.2:g=3",
-              "deesser=i=0.3:m=0.6", f"acompressor=threshold={thr:.1f}dB:ratio=3:attack=10:release=150:knee=6"]
+    if presence > 0:
+        parts += ["equalizer=f=250:t=q:w=1:g=-2", f"equalizer=f=3500:t=q:w=1.2:g={presence:g}"]
+        notes.append(f"EQ: -2 dB at 250 Hz, +{presence:g} dB at 3.5 kHz")
+    else:
+        notes.append("EQ: none (--presence 0)")
+    if DEESS[deess]:
+        parts.append(DEESS[deess])
+        notes.append(f"de-esser: {DEESS[deess]} ({deess})")
+    else:
+        notes.append("de-esser: off")
+    parts.append(f"acompressor=threshold={thr:.1f}dB:ratio=3:attack=10:release=150:knee=6")
     # Compression narrows the gap between speech and room noise (the level step then lifts both): a
     # gentle expander, at most -10 dB, only below 15 dB over the measured floor, gives the pauses back.
     gate = 10 ** ((m["floor"] - (12 if want else 0) + 15) / 20)
     parts.append(f"agate=threshold={min(0.5, gate):.5f}:ratio=2:range=0.316:attack=5:release=250:knee=4")
     notes.append("pauses: gentle expander (max -10 dB) after compression")
     return ",".join(parts), notes
+
+
+def stereo(path: Path) -> str:
+    """To stereo without the default mono upmix, which lays a mono voice on both sides at -3 dB (measured): copy the channel instead."""
+    n = run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels", "-of", "csv=p=0", str(path)]).stdout.strip()
+    return "pan=stereo|c0=c0|c1=c0" if n == "1" else "aformat=channel_layouts=stereo"
+
+
+DUCK_OVER_DB = 13.0   # threshold = loud parts of the voice minus this: ratio 8 then takes 11 dB off the bed at the loudest words
+
+
+def duck_graph(thr_lin: float, ratio: float, attack: float, release: float, music_db: float, stem: bool = False,
+               to_stereo: tuple[str, str] = ("aformat=channel_layouts=stereo", "aformat=channel_layouts=stereo")) -> str:
+    """Voice [0] and music [1] to one mix. The voice is split: one copy is the trigger of sidechaincompress, which compresses the
+    music; amix normalize=0 keeps every level as set (the 7.0 default halves them). `stem` also exposes the ducked bed alone as [m2]."""
+    return (f"[0:a]{to_stereo[0]},aresample=48000,asplit=2[vo][sc];"
+            f"[1:a]{to_stereo[1]},aresample=48000,volume={music_db:g}dB[bed];"
+            f"[bed][sc]sidechaincompress=threshold={thr_lin:.5f}:ratio={ratio:g}:attack={attack:g}:release={release:g}[m];"
+            + ("[m]asplit=2[m1][m2];" if stem else "[m]anull[m1];") + "[vo][m1]amix=inputs=2:duration=first:normalize=0[mix]")
+
+
+def duck(voice: Path, music: Path, out: Path, stem: Path | None, ratio: float, attack: float, release: float, music_db: float,
+         thr_db: float | None) -> None:
+    v = describe("voice", voice)
+    thr_db = thr_db if thr_db is not None else v["speech"] - DUCK_OVER_DB
+    thr_lin = min(1.0, max(0.00098, 10 ** (thr_db / 20)))     # sidechaincompress accepts 0.00098-1 (linear)
+    print(f"  - threshold {thr_db:.1f} dB = {thr_lin:.4f} linear (voice loud parts {v['speech']:.1f} dBFS - {DUCK_OVER_DB:g}), "
+          f"ratio {ratio:g}, attack {attack:g} ms, release {release:g} ms, bed {music_db:g} dB in the pauses")
+    cmd = ["ffmpeg", "-y", "-v", "error", "-i", str(voice), "-i", str(music), "-filter_complex", duck_graph(thr_lin, ratio, attack, release, music_db, bool(stem), (stereo(voice), stereo(music))),
+           "-map", "[mix]", "-ar", "48000", "-c:a", "pcm_s16le", str(out)]
+    if stem:
+        cmd += ["-map", "[m2]", "-ar", "48000", "-c:a", "pcm_s16le", str(stem)]
+    r = run(cmd)
+    if r.returncode:
+        sys.exit(r.stderr[-600:])
+    describe("mix", out)
+
+
+def gap_expr(at: float, ms: float, ramp: float) -> str:
+    """Gain over time: 1, a linear fall over `ramp` ms, silence, a linear rise that ends exactly on `at`, 1. All inside the span
+    [at - ms, at], so the music is back at full level on the frame of the drop."""
+    t0, r = at - ms / 1000, ramp / 1000
+    return (f"if(lt(t,{t0:.4f}),1,if(lt(t,{t0 + r:.4f}),1-(t-{t0:.4f})/{r:.4f},if(lt(t,{at - r:.4f}),0,"
+            f"if(lt(t,{at:.4f}),(t-{at - r:.4f})/{r:.4f},1))))")
+
+
+def gap(src: Path, out: Path, at: float, ms: float, ramp: float) -> None:
+    if not 80 <= ms <= 150:
+        print(f"  ! a gap of {ms:g} ms is outside the 80-150 ms range editors use: shorter is not heard, longer reads as a dropout")
+    if ramp * 2 >= ms or ramp < 1:
+        sys.exit("--ramp must be at least 1 ms and less than half of --ms")
+    if at * 1000 < ms:
+        sys.exit("--at is earlier than the gap is long")
+    e = gap_expr(at, ms, ramp)
+    af = f"{stereo(src)},aresample=48000,aeval='val(0)*({e})|val(1)*({e})':c=stereo"
+    r = run(["ffmpeg", "-y", "-v", "error", "-i", str(src), "-vn", "-af", af, "-ar", "48000", "-c:a", "pcm_s16le", str(out)])
+    if r.returncode:
+        sys.exit(r.stderr[-600:])
+    print(f"  - silence {at - ms / 1000:.3f}-{at:.3f} s ({ms:g} ms, {ramp:g} ms ramps inside it); the music is at full level on {at:.3f} s")
 
 
 def master(src: Path, out: Path, phone: bool) -> None:
@@ -179,6 +259,16 @@ def main() -> int:
     v = sub.add_parser("voice"); v.add_argument("src", type=Path); v.add_argument("--out", type=Path, required=True)
     v.add_argument("--denoise", choices=["auto", "on", "off"], default="auto")
     v.add_argument("--no-clean", action="store_true", help="only level it (TTS, studio recordings)")
+    v.add_argument("--deess", choices=list(DEESS), default="default", help="de-esser strength (default: the chain's own, i=0.3 m=0.6)")
+    v.add_argument("--presence", type=float, default=3.0, help="dB at 3.5 kHz, with -2 dB at 250 Hz; 0 = no EQ (default 3; 2.5 is the usual starting point for a bright voice)")
+    du = sub.add_parser("duck"); du.add_argument("src", type=Path, help="the voice"); du.add_argument("music", type=Path)
+    du.add_argument("--out", type=Path, required=True); du.add_argument("--stem", type=Path, help="also write the ducked music alone")
+    du.add_argument("--ratio", type=float, default=8.0); du.add_argument("--attack", type=float, default=8.0, help="ms")
+    du.add_argument("--release", type=float, default=350.0, help="ms"); du.add_argument("--music-db", type=float, default=-10.0, help="bed level in the pauses")
+    du.add_argument("--threshold-db", type=float, help="override: dBFS of the voice level at which the bed starts to drop (default: voice loud parts - 13)")
+    ga = sub.add_parser("gap"); ga.add_argument("src", type=Path); ga.add_argument("--out", type=Path, required=True)
+    ga.add_argument("--at", type=float, required=True, help="seconds: the drop / hit the silence ends on")
+    ga.add_argument("--ms", type=float, default=120.0); ga.add_argument("--ramp", type=float, default=8.0, help="ms (default 8)")
     mu = sub.add_parser("music"); mu.add_argument("src", type=Path); mu.add_argument("--out", type=Path, required=True)
     ma = sub.add_parser("master"); ma.add_argument("src", type=Path); ma.add_argument("--out", type=Path, required=True)
     ma.add_argument("--phone", action="store_true", help="also write a CRF 24 copy for sending to a phone")
@@ -187,6 +277,17 @@ def main() -> int:
     if not a.src.is_file():
         sys.exit(f"not found: {a.src}")
 
+    if a.mode == "gap":
+        a.out.parent.mkdir(parents=True, exist_ok=True)
+        gap(a.src, a.out, a.at, a.ms, a.ramp)
+        return 0
+    if a.mode == "duck":
+        if not a.music.is_file():
+            sys.exit(f"not found: {a.music}")
+        a.out.parent.mkdir(parents=True, exist_ok=True)
+        duck(a.src, a.music, a.out, a.stem, a.ratio, a.attack, a.release, a.music_db, a.threshold_db)
+        print("Not listened to: play it before delivering.")
+        return 0
     before = describe("before", a.src)
     if a.mode == "measure":
         return 0
@@ -194,7 +295,7 @@ def main() -> int:
         sys.exit("--out must be a new file")
     a.out.parent.mkdir(parents=True, exist_ok=True)
     if a.mode == "voice":
-        chain, notes = ("", ["level only (--no-clean)"]) if a.no_clean else voice_chain(a.src, before, a.denoise)
+        chain, notes = ("", ["level only (--no-clean)"]) if a.no_clean else voice_chain(a.src, before, a.denoise, a.deess, a.presence)
         for n in notes:
             print(f"  - {n}")
         level(a.src, a.out, VOICE_I, VOICE_TP, chain)

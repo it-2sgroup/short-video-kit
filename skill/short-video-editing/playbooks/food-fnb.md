@@ -33,8 +33,8 @@ Labels: **[S]** sourced, **[C]** craft convention, **[L]** law (research, not le
 | CTA 15% | Price, address, hours, how to order | `price`, `pin`, `stat` (hours) |
 
 A slow exterior opener is the classic weak start [S: restaurant-marketing guides]. Shots of 1.5–3 s for
-sensory moments, 3–4 s for the hero dish [C]. That is faster than the client's 3–4 s rule for product
-demos: say so to the client if the same client asks for food.
+sensory moments, 3–4 s for the hero dish [C]. That is faster than the product-demo playbook's 3–4 s house
+style: say so if the same user asks for food after a product demo.
 
 ## Shots the footage needs
 

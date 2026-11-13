@@ -176,9 +176,9 @@ cách đặt trong ngoặc kép, chạy một việc ffmpeg nặng một lúc.
 
 **Ví dụ A: nhà hàng (`food-fnb`, có giọng và nhạc)**
 
-> … 1 video 30 giây cho quán Kiiro Sushi (Đà Nẵng) từ `…\29_10 Kiiro`, giọng `…\Kiiro kb12.m4a`, nhạc Nhật có giấy phép (hỏi tôi
-> trước khi tải). Video mẫu `Video-filnal(1_3).mp4`: phân tích cách edit của nó. Không trùng cảnh với video 1/3; chỉ cảnh mở quay
-> lia vào quán và cảnh kết mặt tiền được dùng chung. Giữ pha quay xoay nghiêng ở cảnh đầu, bỏ âm thanh chuyển cảnh, chữ theo tông ấm.
+> … 1 video 30 giây cho quán `[tên quán]` (`[thành phố]`) từ `[thư mục footage]`, giọng `[file giọng]`, nhạc `[phong cách]` có giấy phép (hỏi tôi
+> trước khi tải). Video mẫu `[file mẫu]`: phân tích cách edit của nó. Không trùng cảnh với các video khác trong lô; chỉ cảnh mở và cảnh kết
+> được dùng chung. Giữ `[kỹ thuật cần giữ từ mẫu, ví dụ: pha quay xoay nghiêng ở cảnh đầu]`, bỏ âm thanh chuyển cảnh, chữ theo tông ấm.
 
 **Ví dụ B: căn hộ (`real-estate`, chỉ nhạc, cần số liệu)**
 

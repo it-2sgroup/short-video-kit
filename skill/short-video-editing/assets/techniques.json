@@ -1,0 +1,4239 @@
+{
+ "about": "One card per technique the kit can do. scripts/technique.py check compares it with the code (both ways), the docs and selftest.sh; scripts/technique.py search finds a technique by name or by the names editors use. Adding one: references/adding-techniques.md.",
+ "techniques": [
+  {
+   "id": "title",
+   "kind": "overlay",
+   "name": "Title",
+   "about": "A heading in one of five styles (outline, stack, gradient, glass, marker) with one accent word and an optional sub-line. One per beat.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "Overlays: title | top | style=outline; lines=Line A / Line B; accent=B",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "lower title",
+    "headline",
+    "text title"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "callout",
+   "kind": "overlay",
+   "name": "Callout",
+   "about": "A dot pops on a part of the picture, a leader line draws and a frosted label slides in from the margin. Only on a static moment.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "callout | - | label=Part; target=0.4,0.5; side=left",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "annotation",
+    "label line",
+    "pointer"
+   ],
+   "tags": [
+    "graphic",
+    "explain"
+   ]
+  },
+  {
+   "id": "highlight",
+   "kind": "overlay",
+   "name": "Highlight",
+   "about": "A hand-drawn circle, underline or arrow draws on around the subject.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "highlight | - | shape=circle; target=0.5,0.5; size=240",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "circle draw",
+    "scribble",
+    "annotation circle"
+   ],
+   "tags": [
+    "graphic",
+    "explain"
+   ]
+  },
+  {
+   "id": "step",
+   "kind": "overlay",
+   "name": "Step chip",
+   "about": "A numbered chip with one instruction, synced to the voice.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "step | upper | n=1; text=Do A",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "numbered step"
+   ],
+   "tags": [
+    "graphic",
+    "tutorial"
+   ]
+  },
+  {
+   "id": "checklist",
+   "kind": "overlay",
+   "name": "Checklist",
+   "about": "Rows with ticks that draw on, staggered; three or four rows.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "checklist | upper | items=A / B / C; title=Terms",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "bullet list",
+    "tick list"
+   ],
+   "tags": [
+    "graphic",
+    "list"
+   ]
+  },
+  {
+   "id": "price",
+   "kind": "overlay",
+   "name": "Price",
+   "about": "A count-up price with a pulse and an optional struck-through old price; must match the listing exactly.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "price | upper | value=199000; unit=đ; old=249000",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "price tag",
+    "number count"
+   ],
+   "tags": [
+    "graphic",
+    "commerce"
+   ]
+  },
+  {
+   "id": "cart",
+   "kind": "overlay",
+   "name": "Cart arrow",
+   "about": "A hand-drawn arrow curves down onto the TikTok Shop product bar's bag tile, draws on and bobs. Feed videos on TikTok Shop only.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "cart | - | text=Tap here",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "shopping cart pointer",
+    "CTA arrow"
+   ],
+   "tags": [
+    "graphic",
+    "commerce",
+    "tiktok-shop"
+   ]
+  },
+  {
+   "id": "sticker",
+   "kind": "overlay",
+   "name": "Sticker badge",
+   "about": "A rotated badge that pops and wobbles; one per video, never a claim.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "sticker | - | text=New; at=0.8,0.3; rotate=-8",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "badge",
+    "sticker"
+   ],
+   "tags": [
+    "graphic"
+   ]
+  },
+  {
+   "id": "progress",
+   "kind": "overlay",
+   "name": "Progress bar",
+   "about": "A bar that fills across its life, for time passing.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "progress | lower | label=Soak 1 hour",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "loading bar"
+   ],
+   "tags": [
+    "graphic",
+    "time"
+   ]
+  },
+  {
+   "id": "magnifier",
+   "kind": "overlay",
+   "name": "Magnifier",
+   "about": "A lens showing a 2.2x crop of a clip at a point, for fine detail; keep the camera still meanwhile.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "magnifier | - | clip=CLIP_A; in=3.2; target=0.5,0.4; zoom=2.2",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "zoom lens",
+    "loupe",
+    "detail zoom"
+   ],
+   "tags": [
+    "graphic",
+    "detail"
+   ]
+  },
+  {
+   "id": "thumbs",
+   "kind": "overlay",
+   "name": "Three-photo header",
+   "about": "A strip of up to three framed stills across the top with a caption each, landing on the spoken words; turns a spoken list of three into something the eye can scan.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "thumbs | top | cards=CLIP_A@3.0:Item A+@\"item a\" / CLIP_B@1.5:Item B / CLIP_C@0.8:Item C",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "photo strip",
+    "three cards"
+   ],
+   "tags": [
+    "graphic",
+    "list"
+   ]
+  },
+  {
+   "id": "compare",
+   "kind": "overlay",
+   "name": "Before/after card",
+   "about": "BEFORE and AFTER frames of the same item with labels, the AFTER arriving over a dark scrim; honest time note. Not allowed in boosted ads on TikTok.",
+   "doc": "references/before-after.md",
+   "plan": "compare | top | before=CLIP_A@1.6; after=CLIP_A@27.6; mode=side; note=Shortened",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "before and after",
+    "split compare",
+    "slider"
+   ],
+   "tags": [
+    "graphic",
+    "proof"
+   ]
+  },
+  {
+   "id": "ranking",
+   "kind": "overlay",
+   "name": "Ranking podium",
+   "about": "Glossy tiles on podiums for a listicle; no third-party logos without rights.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "ranking | upper | items=A#1 / B#2 / C#3",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "leaderboard",
+    "top three"
+   ],
+   "tags": [
+    "graphic",
+    "list"
+   ]
+  },
+  {
+   "id": "lowerThird",
+   "kind": "overlay",
+   "name": "Lower third",
+   "about": "A name bar with a role, two to three seconds; credentials must be real.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "lowerThird | lower | name=Name; role=Role",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "name tag",
+    "name strap"
+   ],
+   "tags": [
+    "graphic",
+    "people"
+   ]
+  },
+  {
+   "id": "specs",
+   "kind": "overlay",
+   "name": "Spec list",
+   "about": "Up to six facts with line icons, popping in turn; facts come from the documents.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "specs | upper | items=area:85 m² / bed:3 / bath:2; title=Details",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "feature list",
+    "amenities"
+   ],
+   "tags": [
+    "graphic",
+    "list",
+    "real-estate"
+   ]
+  },
+  {
+   "id": "pin",
+   "kind": "overlay",
+   "name": "Map pin",
+   "about": "A pin drops with a ring; the place name and a second line slide in.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "pin | upper | title=Place; sub=Area",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "location pin",
+    "place tag"
+   ],
+   "tags": [
+    "graphic",
+    "place"
+   ]
+  },
+  {
+   "id": "label",
+   "kind": "overlay",
+   "name": "Label",
+   "about": "A quiet tag (name plus detail) with a line drawing under it: rooms, dishes, items.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "label | lower | text=Item; sub=Detail; at=0.1,0.8",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "name label",
+    "tag"
+   ],
+   "tags": [
+    "graphic"
+   ]
+  },
+  {
+   "id": "stat",
+   "kind": "overlay",
+   "name": "Stat",
+   "about": "One figure counting up with a unit and a label; a real number with a source.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "stat | upper | value=85; unit=%; label=Measured",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "big number",
+    "counter number",
+    "kpi"
+   ],
+   "tags": [
+    "graphic",
+    "number"
+   ]
+  },
+  {
+   "id": "chart",
+   "kind": "overlay",
+   "name": "Bar chart",
+   "about": "Two to five horizontal bars growing in turn with counting values, the largest highlighted. Real measurements only.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "chart | upper | items=A#45 / B#120; unit=min; highlight=B",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "bar graph",
+    "infographic"
+   ],
+   "tags": [
+    "graphic",
+    "number"
+   ]
+  },
+  {
+   "id": "image",
+   "kind": "overlay",
+   "name": "Image card",
+   "about": "A still from public/ scaling in, framed or bare: floor plans, logos, packshots.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "image | center | src=images/x.png; width=600; frame=card",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "picture",
+    "packshot",
+    "sticker image"
+   ],
+   "tags": [
+    "graphic",
+    "media"
+   ]
+  },
+  {
+   "id": "burst",
+   "kind": "overlay",
+   "name": "Shout burst",
+   "about": "The opening shout as a pile of tilted copies: a ghost under, then more and more copies each larger and nearer the edge.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "burst | top | text=SHOUT; copies=5; speed=1.7",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "repeat text",
+    "echo text",
+    "stacked copies text"
+   ],
+   "tags": [
+    "text",
+    "hook"
+   ]
+  },
+  {
+   "id": "phrase",
+   "kind": "overlay",
+   "name": "Phrase",
+   "about": "A white lead line over a loud emphasis line; letters scatter in and fly apart. Every spoken thought can be a block; `fx` picks the animation.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; emphColor=yellow; fx=slam",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "kinetic text",
+    "statement text",
+    "big text"
+   ],
+   "tags": [
+    "text",
+    "kinetic"
+   ]
+  },
+  {
+   "id": "pill",
+   "kind": "overlay",
+   "name": "Pill",
+   "about": "A rounded label whose text types in; white or red; lists of two or three offers.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "pill | upper | text=Offer A; variant=red",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "button label",
+    "chip"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "arc",
+   "kind": "overlay",
+   "name": "Arc text",
+   "about": "Letters along an arc with echoes fanning out behind them; the opening shout, once.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "arc | top | text=PLACE; echoes=4",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "curved text",
+    "text on path"
+   ],
+   "tags": [
+    "text",
+    "hook"
+   ]
+  },
+  {
+   "id": "script",
+   "kind": "overlay",
+   "name": "Handwritten phrase",
+   "about": "One handwritten phrase in the highlight colour, letters scattering in; one per video.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "script | upper | text=Warm word; rotate=-6",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "handwriting",
+    "signature text"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "tag",
+   "kind": "overlay",
+   "name": "Tag",
+   "about": "A small loud label popping over a card: kinds of work or clients.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "tag | - | text=KIND; at=0.5,0.3",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "hashtag label",
+    "category tag"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "logo",
+   "kind": "overlay",
+   "name": "Logo",
+   "about": "The brand mark arrives out of a motion blur and snaps sharp; `hold=1` for an end card. Needs the owner's own file.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "logo | upper | at=0.5,0.3; width=360; tint=white",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "brand reveal",
+    "logo sting"
+   ],
+   "tags": [
+    "brand"
+   ]
+  },
+  {
+   "id": "counter",
+   "kind": "overlay",
+   "name": "Range counter",
+   "about": "A number pops, an arrow draws, the second number pops and a unit slides up: one spoken range.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "counter | upper | from=5; to=10; label=days",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "from to number"
+   ],
+   "tags": [
+    "graphic",
+    "number"
+   ]
+  },
+  {
+   "id": "icon",
+   "kind": "overlay",
+   "name": "Pictogram",
+   "about": "A pictogram popping in at a point (target, megaphone, bang, search, check); not on faces.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "icon | - | name=check; at=0.3,0.4; size=140",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "emoji sticker",
+    "symbol"
+   ],
+   "tags": [
+    "graphic"
+   ]
+  },
+  {
+   "id": "circled",
+   "kind": "overlay",
+   "name": "Circled label",
+   "about": "A label that a hand-drawn ellipse draws around, with a pictogram popping in below.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "circled | upper | text=Support; icon=check",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "circled word"
+   ],
+   "tags": [
+    "text",
+    "graphic"
+   ]
+  },
+  {
+   "id": "rawfinal",
+   "kind": "overlay",
+   "name": "Raw vs final",
+   "about": "Two cards side by side playing the same take, the unedited clip and the finished look: an honest 'what editing does'.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "rawfinal | - | raw=raw/CLIP_A.mp4; final=clips/CLIP_A.mp4; at=3.2",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "before after edit",
+    "side by side"
+   ],
+   "tags": [
+    "graphic",
+    "proof"
+   ]
+  },
+  {
+   "id": "punch",
+   "kind": "overlay",
+   "name": "Punch-in",
+   "about": "A pseudo-component: a keyword punch-in on the camera at a moment (a quick scale bump).",
+   "doc": "references/camera-moves.md",
+   "plan": "punch | - | scale=1.12",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "zoom punch",
+    "emphasis zoom",
+    "snap zoom"
+   ],
+   "tags": [
+    "camera"
+   ]
+  },
+  {
+   "id": "sfx",
+   "kind": "overlay",
+   "name": "Sound cue",
+   "about": "A pseudo-component: a sound effect placed at a moment (a name from the sfx bank).",
+   "doc": "references/sound-design.md",
+   "plan": "sfx | - | sound=pop-a",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "sound effect",
+    "sound cue"
+   ],
+   "tags": [
+    "audio"
+   ]
+  },
+  {
+   "id": "cut",
+   "kind": "transition",
+   "name": "Hard cut",
+   "about": "No overlap: the next scene replaces the last on one frame; the default for beat-cut genres.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: cut",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "jump cut",
+    "straight cut"
+   ],
+   "tags": [
+    "basic"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "hard-cut"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "fade",
+   "kind": "transition",
+   "name": "Cross-dissolve",
+   "about": "The incoming scene fades over the outgoing one.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: fade",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "dissolve",
+    "cross fade"
+   ],
+   "tags": [
+    "soft"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "crossfade"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "slide",
+   "kind": "transition",
+   "name": "Slide / push",
+   "about": "The new shot pushes the old one off in a direction.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: slide up",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "push",
+    "slide in"
+   ],
+   "tags": [
+    "soft",
+    "directional"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "slide"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "wipe",
+   "kind": "transition",
+   "name": "Soft wipe",
+   "about": "A soft-edged wipe across the frame; good for before to after.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: wipe right",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "linear wipe",
+    "swipe"
+   ],
+   "tags": [
+    "soft",
+    "directional"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "mask-wipe"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "iris",
+   "kind": "transition",
+   "name": "Iris",
+   "about": "A circle opens from the centre; a hero reveal.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: iris",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "circle reveal",
+    "circle wipe"
+   ],
+   "tags": [
+    "reveal"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "mask-wipe"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "pushCut",
+   "kind": "transition",
+   "name": "Push cut",
+   "about": "A hard cut with a scale punch and a two-frame flash: the TikTok-native accent.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: pushCut",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "punch cut",
+    "flash cut",
+    "impact cut"
+   ],
+   "tags": [
+    "hard",
+    "social"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "hard-cut"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "zoomThrough",
+   "kind": "transition",
+   "name": "Zoom through",
+   "about": "Scale through the cut with a blur peak, as if flying through the picture.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: zoomThrough",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "zoom transition",
+    "zoom in transition",
+    "fly through"
+   ],
+   "tags": [
+    "zoom"
+   ]
+  },
+  {
+   "id": "blurDissolve",
+   "kind": "transition",
+   "name": "Blur dissolve",
+   "about": "A dissolve that passes through a blur.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: blurDissolve",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "blur transition",
+    "defocus"
+   ],
+   "tags": [
+    "soft"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "crossfade"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "whip",
+   "kind": "transition",
+   "name": "Whip pan",
+   "about": "A fast directional slide with motion blur; hides a cut in a camera whip.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: whip left",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "whip pan",
+    "swish pan",
+    "speed slide"
+   ],
+   "tags": [
+    "fast",
+    "directional"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "slide"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "flip",
+   "kind": "transition",
+   "name": "Card flip",
+   "about": "A 3D card flip; sparingly.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: flip",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "page flip",
+    "3d flip"
+   ],
+   "tags": [
+    "3d"
+   ]
+  },
+  {
+   "id": "crossZoom",
+   "kind": "transition",
+   "name": "Cross zoom",
+   "about": "A radial zoom blur between shots (WebGL in Remotion, a zoom-blur dissolve in HyperFrames).",
+   "doc": "references/transitions.md",
+   "plan": "Transition: crossZoom",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "radial blur",
+    "zoom blur",
+    "gl crosszoom"
+   ],
+   "tags": [
+    "zoom",
+    "shader"
+   ],
+   "source": "gl-transitions CrossZoom (MIT)"
+  },
+  {
+   "id": "cardSlide",
+   "kind": "transition",
+   "name": "Card slide",
+   "about": "Card layout: the outgoing card slides off with a trail of copies and the next card slides in.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: cardSlide",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "card swap"
+   ],
+   "tags": [
+    "card",
+    "layout"
+   ],
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "cover"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "cardSwirl",
+   "kind": "transition",
+   "name": "Card swirl",
+   "about": "The incoming shot arrives as a stack of tilted cards that straighten into the full frame.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: cardSwirl",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "card stack"
+   ],
+   "tags": [
+    "card",
+    "layout"
+   ]
+  },
+  {
+   "id": "shake",
+   "kind": "hit",
+   "name": "Camera shake",
+   "about": "A short handheld-style shake on the cut; HyperFrames only.",
+   "doc": "references/capcut-techniques.md",
+   "plan": "Transition: cut +shake",
+   "renderers": [
+    "hyperframes"
+   ],
+   "aliases": [
+    "camera shake",
+    "earthquake",
+    "impact shake"
+   ],
+   "tags": [
+    "accent"
+   ]
+  },
+  {
+   "id": "glitch",
+   "kind": "hit",
+   "name": "Glitch hit",
+   "about": "A digital glitch (slice shifts and colour split) on the cut; HyperFrames only.",
+   "doc": "references/capcut-techniques.md",
+   "plan": "Transition: cut +glitch",
+   "renderers": [
+    "hyperframes"
+   ],
+   "aliases": [
+    "digital glitch",
+    "tv glitch"
+   ],
+   "tags": [
+    "accent",
+    "glitch"
+   ]
+  },
+  {
+   "id": "rgb",
+   "kind": "hit",
+   "name": "RGB split",
+   "about": "A real colour-channel split (SVG filter) that settles; HyperFrames only.",
+   "doc": "references/capcut-techniques.md",
+   "plan": "Transition: cut +rgb",
+   "renderers": [
+    "hyperframes"
+   ],
+   "aliases": [
+    "chromatic aberration",
+    "rgb shift",
+    "channel split"
+   ],
+   "tags": [
+    "accent",
+    "colour"
+   ]
+  },
+  {
+   "id": "pulse",
+   "kind": "hit",
+   "name": "Beat pulse",
+   "about": "A quick scale and brightness pulse on the cut; HyperFrames only.",
+   "doc": "references/capcut-techniques.md",
+   "plan": "Transition: cut +pulse",
+   "renderers": [
+    "hyperframes"
+   ],
+   "aliases": [
+    "beat zoom",
+    "flash pulse",
+    "bounce"
+   ],
+   "tags": [
+    "accent",
+    "beat"
+   ]
+  },
+  {
+   "id": "scatter",
+   "kind": "text-fx",
+   "name": "Scatter",
+   "about": "Letters fly in from random places and settle; fly apart on exit. The default loud line.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=scatter",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "letters fly in",
+    "random letters"
+   ],
+   "tags": [
+    "text",
+    "kinetic"
+   ]
+  },
+  {
+   "id": "drop",
+   "kind": "text-fx",
+   "name": "Drop",
+   "about": "Letters fall from above and bounce.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase leadFx=drop",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "fall",
+    "gravity text"
+   ],
+   "tags": [
+    "text",
+    "kinetic"
+   ]
+  },
+  {
+   "id": "wave",
+   "kind": "text-fx",
+   "name": "Wave",
+   "about": "Letters rise in a ripple and keep rippling.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=wave",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "ripple text",
+    "wavy text"
+   ],
+   "tags": [
+    "text",
+    "kinetic",
+    "loop"
+   ]
+  },
+  {
+   "id": "elastic",
+   "kind": "text-fx",
+   "name": "Elastic",
+   "about": "Rubbery overshoot, letter by letter.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=elastic",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "rubber text",
+    "bounce text",
+    "spring text"
+   ],
+   "tags": [
+    "text",
+    "kinetic"
+   ]
+  },
+  {
+   "id": "flip",
+   "kind": "text-fx",
+   "name": "Letter flip",
+   "about": "Letters flip up in 3D.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=flip",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "3d letters",
+    "flip text"
+   ],
+   "tags": [
+    "text",
+    "kinetic",
+    "3d"
+   ]
+  },
+  {
+   "id": "slam",
+   "kind": "text-fx",
+   "name": "Slam",
+   "about": "The whole line slams in from 3x size and shakes: a shout or claim.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=slam",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "impact text",
+    "smash in",
+    "zoom in text"
+   ],
+   "tags": [
+    "text",
+    "impact"
+   ]
+  },
+  {
+   "id": "stamp",
+   "kind": "text-fx",
+   "name": "Stamp",
+   "about": "Tilted, lands with an overshoot, a double rule pressed round it: a verdict.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=stamp",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "rubber stamp",
+    "approved stamp"
+   ],
+   "tags": [
+    "text",
+    "impact"
+   ]
+  },
+  {
+   "id": "glitch",
+   "kind": "text-fx",
+   "name": "Glitch text",
+   "about": "RGB-split jitter that settles; for the problem or pain.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=glitch",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "rgb text",
+    "digital text"
+   ],
+   "tags": [
+    "text",
+    "glitch"
+   ]
+  },
+  {
+   "id": "neon",
+   "kind": "text-fx",
+   "name": "Neon",
+   "about": "Flickers on then glows; a call to action.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=neon",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "neon sign",
+    "glow text",
+    "flicker text"
+   ],
+   "tags": [
+    "text",
+    "glow"
+   ]
+  },
+  {
+   "id": "shine",
+   "kind": "text-fx",
+   "name": "Shine",
+   "about": "A light sweep crosses the finished text.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=shine",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "light sweep",
+    "glint",
+    "sheen"
+   ],
+   "tags": [
+    "text",
+    "light"
+   ]
+  },
+  {
+   "id": "maskwipe",
+   "kind": "text-fx",
+   "name": "Mask wipe",
+   "about": "A coloured bar wipes the text into view.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=maskwipe",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "bar reveal",
+    "text reveal",
+    "wipe in"
+   ],
+   "tags": [
+    "text",
+    "reveal"
+   ]
+  },
+  {
+   "id": "split",
+   "kind": "text-fx",
+   "name": "Split",
+   "about": "Two halves slide in from opposite sides and join.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=split",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "slice text",
+    "half text"
+   ],
+   "tags": [
+    "text",
+    "reveal"
+   ]
+  },
+  {
+   "id": "typewriter",
+   "kind": "text-fx",
+   "name": "Typewriter",
+   "about": "Letters appear one by one with a cursor.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=typewriter",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "typing",
+    "type on"
+   ],
+   "tags": [
+    "text",
+    "reveal"
+   ]
+  },
+  {
+   "id": "rise",
+   "kind": "text-fx",
+   "name": "Rise",
+   "about": "A quiet rise: the calm default.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase fx=rise",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "fade up",
+    "slide up text"
+   ],
+   "tags": [
+    "text",
+    "calm"
+   ]
+  },
+  {
+   "id": "outline",
+   "kind": "title-style",
+   "name": "Outline title",
+   "about": "Coloured fill with a dark outline drawn under the fill; reads on any footage. The default for demos.",
+   "doc": "references/typography.md",
+   "plan": "title style=outline",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "stroke text",
+    "outlined text"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "stack",
+   "kind": "title-style",
+   "name": "Stack title",
+   "about": "A stacked heading with a gradient main line and an accent word.",
+   "doc": "references/typography.md",
+   "plan": "title style=stack",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "stacked title"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "gradient",
+   "kind": "title-style",
+   "name": "Gradient title",
+   "about": "Gradient-filled heading; avoid over white fabric.",
+   "doc": "references/typography.md",
+   "plan": "title style=gradient",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "gradient text"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "glass",
+   "kind": "title-style",
+   "name": "Glass title",
+   "about": "Frosted glass plate behind dark gradient text.",
+   "doc": "references/typography.md",
+   "plan": "title style=glass",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "glassmorphism",
+    "frosted card"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "marker",
+   "kind": "title-style",
+   "name": "Marker title",
+   "about": "Highlighter-marker blocks behind the words.",
+   "doc": "references/typography.md",
+   "plan": "title style=marker",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "highlighter",
+    "marker highlight"
+   ],
+   "tags": [
+    "text"
+   ]
+  },
+  {
+   "id": "karaoke",
+   "kind": "caption-style",
+   "name": "Karaoke captions",
+   "about": "Whole phrase on screen with the spoken word highlighted.",
+   "doc": "references/captions-and-text.md",
+   "plan": "project captionStyle=karaoke",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "highlight captions",
+    "word highlight"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "pop",
+   "kind": "caption-style",
+   "name": "Pop captions",
+   "about": "One to three words at a time, each popping in on its own timing; talking heads, fashion.",
+   "doc": "references/captions-and-text.md",
+   "plan": "project captionStyle=pop",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "word pop",
+    "hormozi style"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "plain",
+   "kind": "caption-style",
+   "name": "Plain captions",
+   "about": "The phrase only, no highlight.",
+   "doc": "references/captions-and-text.md",
+   "plan": "project captionStyle=plain",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "subtitles"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "none",
+   "kind": "caption-style",
+   "name": "No captions",
+   "about": "No captions at all (the visuals or titles carry the words).",
+   "doc": "references/captions-and-text.md",
+   "plan": "project captionStyle=none",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "captions off"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "color",
+   "kind": "caption-highlight",
+   "name": "Colour highlight",
+   "about": "The spoken word turns the highlight colour and swells.",
+   "doc": "references/captions-and-text.md",
+   "plan": "Caption bands: Highlight=color",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "colour word"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "box",
+   "kind": "caption-highlight",
+   "name": "Box highlight",
+   "about": "A rounded block hugs the spoken word and hops to the next.",
+   "doc": "references/captions-and-text.md",
+   "plan": "Highlight=box",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "boxed word",
+    "active word box"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "underline",
+   "kind": "caption-highlight",
+   "name": "Underline highlight",
+   "about": "A bar draws under the spoken word.",
+   "doc": "references/captions-and-text.md",
+   "plan": "Highlight=underline",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "underline word"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "glow",
+   "kind": "caption-highlight",
+   "name": "Glow highlight",
+   "about": "A halo glows around the spoken word.",
+   "doc": "references/captions-and-text.md",
+   "plan": "Highlight=glow",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "glow word"
+   ],
+   "tags": [
+    "captions"
+   ]
+  },
+  {
+   "id": "push",
+   "kind": "camera-move",
+   "name": "Push in",
+   "about": "A slow visible scale-in toward the focus point.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: push 1.1>1.3",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "zoom in",
+    "dolly in"
+   ],
+   "tags": [
+    "camera"
+   ],
+   "detect": {
+    "measure": "shots.camera.driver",
+    "signature": [
+     "zoom-in"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "pull",
+   "kind": "camera-move",
+   "name": "Pull out",
+   "about": "A scale-out that reveals more of the scene.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: pull 1.3>1.0",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "zoom out",
+    "dolly out"
+   ],
+   "tags": [
+    "camera"
+   ],
+   "detect": {
+    "measure": "shots.camera.driver",
+    "signature": [
+     "zoom-out"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "pan",
+   "kind": "camera-move",
+   "name": "Pan",
+   "about": "A sideways drift across the frame at a fixed scale.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: pan right 8%",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "slide",
+    "truck"
+   ],
+   "tags": [
+    "camera"
+   ],
+   "detect": {
+    "measure": "shots.camera.driver",
+    "signature": [
+     "pan-left",
+     "pan-right",
+     "pan-up",
+     "pan-down"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "hold",
+   "kind": "camera-move",
+   "name": "Hold",
+   "about": "A near-static frame with a tiny scale so the picture is not dead.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: hold",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "static",
+    "locked off"
+   ],
+   "tags": [
+    "camera"
+   ],
+   "detect": {
+    "measure": "shots.camera.driver",
+    "signature": [
+     "static"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "keys",
+   "kind": "camera-move",
+   "name": "Keyframed camera",
+   "about": "Two to four named framings (zoom, point, roll) with an easing per segment, like CapCut keyframes; the frame edge never shows.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "keyframe zoom",
+    "ken burns",
+    "keyframes"
+   ],
+   "tags": [
+    "camera"
+   ]
+  },
+  {
+   "id": "linear",
+   "kind": "camera-ease",
+   "name": "Linear",
+   "about": "Constant rate: mechanical, for loops.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... linear",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "tags": [
+    "easing"
+   ],
+   "detect": {
+    "measure": "shots.camera.ease",
+    "signature": [
+     "linear"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "in",
+   "kind": "camera-ease",
+   "name": "Ease in",
+   "about": "Starts slow, ends fast.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... in",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "ease-in"
+   ],
+   "tags": [
+    "easing"
+   ],
+   "detect": {
+    "measure": "shots.camera.ease",
+    "signature": [
+     "ease-in"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "out",
+   "kind": "camera-ease",
+   "name": "Ease out",
+   "about": "Starts fast, settles: the natural arrival.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... out",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "ease-out"
+   ],
+   "tags": [
+    "easing"
+   ],
+   "detect": {
+    "measure": "shots.camera.ease",
+    "signature": [
+     "ease-out"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "inOut",
+   "kind": "camera-ease",
+   "name": "Ease in-out",
+   "about": "Slow both ends.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... inOut",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "ease-in-out",
+    "smooth"
+   ],
+   "tags": [
+    "easing"
+   ],
+   "detect": {
+    "measure": "shots.camera.ease",
+    "signature": [
+     "ease-in-out"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "soft",
+   "kind": "camera-ease",
+   "name": "Soft",
+   "about": "A gentle in-out with a long tail for premium moves.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... soft",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "tags": [
+    "easing"
+   ]
+  },
+  {
+   "id": "snap",
+   "kind": "camera-ease",
+   "name": "Snap",
+   "about": "Very fast start, hard stop: a punch.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... snap",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "punch ease"
+   ],
+   "tags": [
+    "easing"
+   ]
+  },
+  {
+   "id": "back",
+   "kind": "camera-ease",
+   "name": "Back",
+   "about": "Overshoots by about 8% then settles; once per video.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... back",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "overshoot",
+    "anticipation"
+   ],
+   "tags": [
+    "easing"
+   ]
+  },
+  {
+   "id": "hold",
+   "kind": "camera-ease",
+   "name": "Hold segment",
+   "about": "The value stays until the next key, then jumps.",
+   "doc": "references/camera-moves.md",
+   "plan": "keys ... hold",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "step",
+    "freeze segment"
+   ],
+   "tags": [
+    "easing"
+   ]
+  },
+  {
+   "id": "none",
+   "kind": "grade",
+   "name": "No grade",
+   "about": "No look: corrections only.",
+   "doc": "references/image-processing.md",
+   "plan": "playbook \"grade\": \"none\"",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "tags": [
+    "colour"
+   ]
+  },
+  {
+   "id": "natural",
+   "kind": "grade",
+   "name": "Natural",
+   "about": "True to life with a little punch: demos, tutorials, talking heads.",
+   "doc": "references/image-processing.md",
+   "plan": "grade natural",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "tags": [
+    "colour"
+   ],
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "natural"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "bright-interior",
+   "kind": "grade",
+   "name": "Bright interior",
+   "about": "Lifted shadows and mids, clean whites, slightly warm; colours kept honest.",
+   "doc": "references/image-processing.md",
+   "plan": "grade bright-interior",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "tags": [
+    "colour",
+    "interior"
+   ],
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "bright-interior"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "warm-food",
+   "kind": "grade",
+   "name": "Warm food",
+   "about": "Warm, a little more contrast and saturation, highlights kept.",
+   "doc": "references/image-processing.md",
+   "plan": "grade warm-food",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "tags": [
+    "colour",
+    "food"
+   ],
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "warm-food"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "soft-skin",
+   "kind": "grade",
+   "name": "Soft skin",
+   "about": "Gentle contrast, warm skin, protected highlights; fabric colours not pushed.",
+   "doc": "references/image-processing.md",
+   "plan": "grade soft-skin",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "tags": [
+    "colour",
+    "beauty"
+   ],
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "soft-skin"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "vivid",
+   "kind": "grade",
+   "name": "Vivid",
+   "about": "Rich colour and a firm S-curve, not neon: montages and promos.",
+   "doc": "references/image-processing.md",
+   "plan": "grade vivid",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "tags": [
+    "colour"
+   ],
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "vivid"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "cool",
+   "kind": "theme",
+   "name": "Cool theme",
+   "about": "White and sky blue: demos, tutorials, talking heads, promos.",
+   "doc": "references/typography.md",
+   "plan": "new_remotion_project.py --theme cool",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "palette"
+   ]
+  },
+  {
+   "id": "warm",
+   "kind": "theme",
+   "name": "Warm theme",
+   "about": "Ivory, gold, vermilion, brown: food and amber-lit footage.",
+   "doc": "references/typography.md",
+   "plan": "--theme warm",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "palette"
+   ]
+  },
+  {
+   "id": "luxe",
+   "kind": "theme",
+   "name": "Luxe theme",
+   "about": "Ivory, champagne gold, charcoal: property, fashion, beauty.",
+   "doc": "references/typography.md",
+   "plan": "--theme luxe",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "palette"
+   ]
+  },
+  {
+   "id": "crimson",
+   "kind": "theme",
+   "name": "Crimson theme",
+   "about": "White, strong red, yellow highlight, deep maroon: a bold high-energy look with a maroon animated grid behind cards.",
+   "doc": "references/typography.md",
+   "plan": "--theme crimson",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "palette"
+   ]
+  },
+  {
+   "id": "fill",
+   "kind": "subject-fx",
+   "name": "Silhouette fill / flash",
+   "about": "The subject filled with a colour; blinking on a few frames it is the silhouette flash opener before the video plays.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: 0,2,4 @ mattes/CLIP_A",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "silhouette flash",
+    "person flash",
+    "white flash person",
+    "cutout blink"
+   ],
+   "tags": [
+    "matte",
+    "hook"
+   ]
+  },
+  {
+   "id": "outline",
+   "kind": "subject-fx",
+   "name": "Subject outline",
+   "about": "A ring of a few pixels around the subject (never over it), for one emphasised beat.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: outline 0-45 @ mattes/CLIP_A; color=#FFFFFF; width=10",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "stroke around person",
+    "sticker outline",
+    "rim line"
+   ],
+   "tags": [
+    "matte"
+   ]
+  },
+  {
+   "id": "glow",
+   "kind": "subject-fx",
+   "name": "Subject glow",
+   "about": "A soft coloured halo around the subject.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: glow 0-60 @ mattes/CLIP_A; color=#FF3D6E; width=22",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "halo",
+    "aura",
+    "rim light",
+    "outer glow"
+   ],
+   "tags": [
+    "matte",
+    "light"
+   ]
+  },
+  {
+   "id": "dim",
+   "kind": "subject-fx",
+   "name": "Spotlight (dim)",
+   "about": "Everything except the subject is darkened, a spotlight on the person or product.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: dim 12-90 @ mattes/CLIP_A; opacity=0.65",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "spotlight",
+    "vignette subject",
+    "background darken"
+   ],
+   "tags": [
+    "matte"
+   ]
+  },
+  {
+   "id": "colorpop",
+   "kind": "subject-fx",
+   "name": "Colour pop",
+   "about": "Everything except the subject turns grey; the subject keeps its colour.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: colorpop 12-90 @ mattes/CLIP_A",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "color splash",
+    "selective colour",
+    "b&w background"
+   ],
+   "tags": [
+    "matte",
+    "colour"
+   ]
+  },
+  {
+   "id": "behind",
+   "kind": "subject-fx",
+   "name": "Text behind subject",
+   "about": "Big text between the footage and a cut-out copy of the subject, so the person stands in front of the words. Needs a clean matte on every frame.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: behind 0-80 @ mattes/CLIP_A; every=2; text=WORD; size=320",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "text behind person",
+    "depth text",
+    "text between layers",
+    "title behind subject"
+   ],
+   "tags": [
+    "matte",
+    "text"
+   ]
+  },
+  {
+   "id": "filmBurn",
+   "kind": "transition",
+   "name": "Film burn",
+   "about": "A warm overexposed burn washes through the cut, like a strip of film catching light; food, fashion, nostalgia. Two per video at most, never on a reveal.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: filmBurn",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "film burn",
+    "light leak transition",
+    "overexposure",
+    "burn transition"
+   ],
+   "tags": [
+    "light",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "dip-to-white"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "zoomBlur",
+   "kind": "transition",
+   "name": "Zoom blur",
+   "about": "A zoom-blur between the shots, hiding the cut in a rush toward the centre.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: zoomBlur",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "radial blur",
+    "zoom burst",
+    "zoom transition"
+   ],
+   "tags": [
+    "zoom",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "dreamyZoom",
+   "kind": "transition",
+   "name": "Dreamy zoom",
+   "about": "A soft glowing zoom with a gentle rotation; beauty, travel, wedding.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: dreamyZoom",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "glow zoom",
+    "soft zoom",
+    "dream transition"
+   ],
+   "tags": [
+    "zoom",
+    "soft",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "linearBlur",
+   "kind": "transition",
+   "name": "Linear blur",
+   "about": "A directional blur dissolve: the picture smears along a line while it changes.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: linearBlur",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "directional blur",
+    "motion blur dissolve",
+    "smear"
+   ],
+   "tags": [
+    "blur",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "crosswarp",
+   "kind": "transition",
+   "name": "Cross warp",
+   "about": "The two shots warp into each other along a moving edge.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: crosswarp",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "warp",
+    "morph transition",
+    "liquid"
+   ],
+   "tags": [
+    "warp",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "zoomInOut",
+   "kind": "transition",
+   "name": "Zoom in-out",
+   "about": "Zoom out of the old shot while zooming in to the new one: a push through a tunnel.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: zoomInOut",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "zoom out in",
+    "tunnel zoom"
+   ],
+   "tags": [
+    "zoom",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "blurSlide",
+   "kind": "transition",
+   "name": "Blur slide",
+   "about": "A slide with built-in motion blur; softer than a whip, more modern than a plain slide.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: blurSlide left",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "blur push",
+    "smooth slide"
+   ],
+   "tags": [
+    "directional",
+    "blur",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "slide"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "clockWipe",
+   "kind": "transition",
+   "name": "Clock wipe",
+   "about": "A clock hand sweeps round and reveals the new shot.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: clockWipe",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "radial wipe",
+    "clock transition",
+    "pie wipe"
+   ],
+   "tags": [
+    "wipe",
+    "reveal"
+   ],
+   "source": "Remotion @remotion/transitions clock-wipe",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "mask-wipe"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "ripple",
+   "kind": "transition",
+   "name": "Ripple",
+   "about": "A water ripple spreads from the centre and carries the new shot in.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: ripple",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "water ripple",
+    "wave transition",
+    "shockwave"
+   ],
+   "tags": [
+    "distortion",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "dissolve"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "burnDissolve",
+   "kind": "transition",
+   "name": "Burn dissolve",
+   "about": "A glowing burning edge eats the old shot away to reveal the new one.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: burnDissolve",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "burn",
+    "fire dissolve",
+    "paper burn"
+   ],
+   "tags": [
+    "reveal",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions dissolve (named burnDissolve here to keep 'dissolve' for the cross-dissolve)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "dissolve"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "cube",
+   "kind": "transition",
+   "name": "Cube",
+   "about": "The two shots are faces of a 3D cube that rotates.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: cube left",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "3d cube",
+    "cube rotate"
+   ],
+   "tags": [
+    "3d"
+   ],
+   "source": "Remotion @remotion/transitions cube"
+  },
+  {
+   "id": "bookFlip",
+   "kind": "transition",
+   "name": "Book flip",
+   "about": "A page turn: the old shot folds away like a page.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: bookFlip left",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "page turn",
+    "page flip",
+    "book page"
+   ],
+   "tags": [
+    "3d",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "swap",
+   "kind": "transition",
+   "name": "Swap",
+   "about": "The two shots swap places in depth, one passing in front of the other with a reflection.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: swap",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "card swap",
+    "depth swap",
+    "3d swap"
+   ],
+   "tags": [
+    "3d",
+    "shader"
+   ],
+   "source": "Remotion @remotion/transitions (shader, HTML-in-canvas; MIT-style gl-transitions heritage); software GL: SVK_GL=swangle (default)"
+  },
+  {
+   "id": "blinds",
+   "kind": "transition",
+   "name": "Blinds",
+   "about": "Horizontal blinds open onto the new shot and meet: a clean, graphic wipe.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: blinds",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "venetian blinds",
+    "shutter",
+    "stripe wipe"
+   ],
+   "tags": [
+    "wipe",
+    "css"
+   ],
+   "source": "written for the kit (CSS mask)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "mask-wipe"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "diamond",
+   "kind": "transition",
+   "name": "Diamond reveal",
+   "about": "A diamond opens from the centre of the frame onto the new shot.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: diamond",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "diamond wipe",
+    "shape reveal",
+    "rhombus"
+   ],
+   "tags": [
+    "wipe",
+    "reveal",
+    "css"
+   ],
+   "source": "written for the kit (CSS clip-path)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "mask-wipe"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "doors",
+   "kind": "transition",
+   "name": "Doors",
+   "about": "The old shot splits down the middle and the halves slide apart, uncovering the new shot. HyperFrames shows the new shot through a widening slit instead (halves do not move).",
+   "doc": "references/transitions.md",
+   "plan": "Transition: doors",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "split open",
+    "barn doors",
+    "split reveal",
+    "curtain"
+   ],
+   "tags": [
+    "reveal",
+    "css"
+   ],
+   "source": "written for the kit (CSS clip-path)",
+   "detect": {
+    "measure": "transitions.family",
+    "signature": [
+     "reveal"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "glitchSlice",
+   "kind": "transition",
+   "name": "Glitch slice",
+   "about": "Through the cut the picture is sliced into bands that jump sideways with a hue split; old shot first half, new shot second half. HyperFrames approximates it with one jitter and a hue split.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glitchSlice",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "glitch transition",
+    "digital glitch",
+    "slice glitch",
+    "datamosh look"
+   ],
+   "tags": [
+    "glitch",
+    "fast",
+    "css"
+   ],
+   "source": "written for the kit (CSS clip-path bands)"
+  },
+  {
+   "id": "spinZoom",
+   "kind": "transition",
+   "name": "Spin zoom",
+   "about": "The old shot spins and grows into a blur; the new one spins in from the other side and settles.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: spinZoom",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "spin transition",
+    "rotate zoom",
+    "twirl"
+   ],
+   "tags": [
+    "zoom",
+    "fast",
+    "css"
+   ],
+   "source": "written for the kit (CSS transform + blur)"
+  },
+  {
+   "id": "teal-orange",
+   "kind": "grade",
+   "name": "Teal and orange",
+   "about": "Cinematic split tone, skin-safe: teal shadows, orange highlights, mids untouched. Not for white garments or close-up skin; soften with --grade-strength.",
+   "doc": "references/image-processing.md",
+   "plan": "grade teal-orange",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "orange and teal",
+    "blockbuster look",
+    "cinematic colour"
+   ],
+   "tags": [
+    "colour",
+    "cinematic"
+   ],
+   "source": "ffmpeg colorbalance (docs); numbers are the kit's own, tested for direction in selftest.sh",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "teal-orange"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "cinematic-fade",
+   "kind": "grade",
+   "name": "Cinematic fade",
+   "about": "Lifted blacks and slightly muted colour: the matte filmic look.",
+   "doc": "references/image-processing.md",
+   "plan": "grade cinematic-fade",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "matte look",
+    "lifted blacks",
+    "faded blacks"
+   ],
+   "tags": [
+    "colour",
+    "cinematic"
+   ],
+   "source": "ffmpeg colorlevels (docs); numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "cinematic-fade"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "moody",
+   "kind": "grade",
+   "name": "Moody",
+   "about": "Darker, cooler and contrasty: night, tech, drama; check caption contrast on a phone.",
+   "doc": "references/image-processing.md",
+   "plan": "grade moody",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "dark moody",
+    "dramatic",
+    "low key"
+   ],
+   "tags": [
+    "colour",
+    "dark"
+   ],
+   "source": "ffmpeg curves/colorbalance; numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "moody"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "pastel",
+   "kind": "grade",
+   "name": "Pastel / airy",
+   "about": "Soft, light and airy: lifted shadows, gentle colour. White text vanishes on it.",
+   "doc": "references/image-processing.md",
+   "plan": "grade pastel",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "airy",
+    "soft and bright",
+    "light and airy"
+   ],
+   "tags": [
+    "colour",
+    "soft"
+   ],
+   "source": "ffmpeg curves/eq; numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "pastel"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "vintage-film",
+   "kind": "grade",
+   "name": "Vintage film",
+   "about": "Faded film: tinted lifted blacks, muted colour; add grain and vignette with look.grain / look.vignette.",
+   "doc": "references/image-processing.md",
+   "plan": "grade vintage-film",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "retro",
+    "film look",
+    "faded film",
+    "70s"
+   ],
+   "tags": [
+    "colour",
+    "retro"
+   ],
+   "source": "ffmpeg curves (docs); numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "vintage-film"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "mono",
+   "kind": "grade",
+   "name": "Black and white",
+   "about": "High-contrast black and white with Rec.709 luma weights and an S-curve.",
+   "doc": "references/image-processing.md",
+   "plan": "grade mono",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "black and white",
+    "monochrome",
+    "b&w",
+    "noir"
+   ],
+   "tags": [
+    "colour",
+    "mono"
+   ],
+   "source": "Rec.709 luma coefficients",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "mono"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "bleach-bypass",
+   "kind": "grade",
+   "name": "Bleach bypass",
+   "about": "Desaturated, hard and gritty. Never for fashion, food or beauty demos.",
+   "doc": "references/image-processing.md",
+   "plan": "grade bleach-bypass",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "gritty",
+    "desaturated contrast",
+    "silver retention"
+   ],
+   "tags": [
+    "colour",
+    "gritty"
+   ],
+   "source": "bleach-bypass description (premiumbeat.com tutorial); numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "bleach-bypass"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "golden-hour",
+   "kind": "grade",
+   "name": "Golden hour",
+   "about": "Warm low-sun look: a 4500 K push (lower kelvin is warmer), orange highlights.",
+   "doc": "references/image-processing.md",
+   "plan": "grade golden-hour",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "warm sunset",
+    "sunset look",
+    "magic hour"
+   ],
+   "tags": [
+    "colour",
+    "warm"
+   ],
+   "source": "ffmpeg colortemperature (direction measured here); numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "golden-hour"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "cold-blue",
+   "kind": "grade",
+   "name": "Cold blue",
+   "about": "Cool blue (8500 K), slightly desaturated: tech, winter, clinical; keep strength low on people.",
+   "doc": "references/image-processing.md",
+   "plan": "grade cold-blue",
+   "renderers": [
+    "ffmpeg"
+   ],
+   "aliases": [
+    "cool tone",
+    "winter look",
+    "blue tint"
+   ],
+   "tags": [
+    "colour",
+    "cool"
+   ],
+   "source": "ffmpeg colortemperature; numbers are the kit's own",
+   "test": "grades move a synthetic card",
+   "detect": {
+    "measure": "grade.nearest",
+    "signature": [
+     "cold-blue"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "roll",
+   "kind": "camera-option",
+   "name": "Roll",
+   "about": "A slow tilt of the frame (degrees from scene start to end) that makes a static shot lean like a handheld one.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: push 1.1>1.2 roll -1>1",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "tilt",
+    "dutch angle",
+    "rotate"
+   ],
+   "tags": [
+    "camera"
+   ]
+  },
+  {
+   "id": "focus",
+   "kind": "camera-option",
+   "name": "Focus point",
+   "about": "The point of the footage that stays put while the camera scales: the product, a face.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: push focus 0.5,0.4",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "anchor",
+    "zoom point",
+    "pivot"
+   ],
+   "tags": [
+    "camera"
+   ]
+  },
+  {
+   "id": "pan",
+   "kind": "camera-option",
+   "name": "Pan distance",
+   "about": "How far a pan travels, as a fraction of the frame width.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: pan left 8%",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "slide distance"
+   ],
+   "tags": [
+    "camera"
+   ]
+  },
+  {
+   "id": "shake",
+   "kind": "camera-option",
+   "name": "Handheld shake",
+   "about": "Procedural handheld sway on top of any move (smooth noise on x, y and roll, each axis with its own seed); the frame is scaled to hide the edge. mild = 6 px, strong = 14 px.",
+   "doc": "references/camera-moves.md",
+   "plan": "Camera: push 1.1>1.25 shake mild",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "handheld",
+    "camera shake",
+    "wobble",
+    "documentary shake"
+   ],
+   "tags": [
+    "camera",
+    "organic"
+   ],
+   "source": "smooth value-noise sway (octaves 0.9/2.3/5.1 Hz); recipe from the HyperFrames camera-shake block's design notes, re-derived without its constants",
+   "test": "camera shake parses",
+   "detect": {
+    "measure": "shots.camera.shake.level",
+    "signature": [
+     "handheld"
+    ],
+    "needs_look": false
+   }
+  },
+  {
+   "id": "ramp",
+   "kind": "speed-curve",
+   "name": "Speed ramp",
+   "about": "A custom curve: speeds at evenly spaced points across the scene, eased between (ramp 1>2.5>1).",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: ramp 1>2.5>1",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "velocity curve",
+    "speed curve",
+    "time remap"
+   ],
+   "tags": [
+    "time"
+   ],
+   "detect": {
+    "measure": "shots.speed.ramp",
+    "signature": [
+     "speed-up",
+     "slow-down"
+    ],
+    "needs_look": true
+   }
+  },
+  {
+   "id": "montage",
+   "kind": "speed-curve",
+   "name": "Montage curve",
+   "about": "Slow-fast-slow: a push through the middle of the scene.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: montage",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "velocity montage"
+   ],
+   "tags": [
+    "time"
+   ],
+   "source": "CapCut velocity preset names; the numbers are the kit's own approximations",
+   "test": "speed presets parse"
+  },
+  {
+   "id": "hero",
+   "kind": "speed-curve",
+   "name": "Hero curve",
+   "about": "Fast-slow-fast: a slow moment held in the middle; needs a 60 fps proxy.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: hero",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "velocity hero",
+    "slow mo in the middle"
+   ],
+   "tags": [
+    "time"
+   ],
+   "source": "CapCut velocity preset names; the numbers are the kit's own approximations",
+   "test": "speed presets parse"
+  },
+  {
+   "id": "bullet",
+   "kind": "speed-curve",
+   "name": "Bullet time curve",
+   "about": "A sudden near-freeze then release; needs a 60 fps proxy.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: bullet",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "velocity bullet",
+    "freeze and release",
+    "matrix slow"
+   ],
+   "tags": [
+    "time"
+   ],
+   "source": "CapCut velocity preset names; the numbers are the kit's own approximations",
+   "test": "speed presets parse"
+  },
+  {
+   "id": "flash-in",
+   "kind": "speed-curve",
+   "name": "Flash in",
+   "about": "Starts fast and settles to normal speed.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: flash-in",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "speed in",
+    "fast start"
+   ],
+   "tags": [
+    "time"
+   ],
+   "source": "CapCut velocity preset names; the numbers are the kit's own approximations",
+   "test": "speed presets parse"
+  },
+  {
+   "id": "flash-out",
+   "kind": "speed-curve",
+   "name": "Flash out",
+   "about": "Runs at normal speed then whips away fast.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: flash-out",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "speed out",
+    "fast end"
+   ],
+   "tags": [
+    "time"
+   ],
+   "source": "CapCut velocity preset names; the numbers are the kit's own approximations",
+   "test": "speed presets parse"
+  },
+  {
+   "id": "saturate",
+   "kind": "look",
+   "name": "Saturation push",
+   "about": "A global saturation factor on the footage only (1 = unchanged); the cheap lift of a flat 1080p clip.",
+   "doc": "references/image-processing.md",
+   "plan": "plan_to_project.py --look 1.12,1.05,1.03",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "colour"
+   ]
+  },
+  {
+   "id": "contrast",
+   "kind": "look",
+   "name": "Contrast push",
+   "about": "A global contrast factor on the footage only.",
+   "doc": "references/image-processing.md",
+   "plan": "--look SAT,1.05,BRI",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "colour"
+   ]
+  },
+  {
+   "id": "brightness",
+   "kind": "look",
+   "name": "Brightness push",
+   "about": "A global brightness factor on the footage only.",
+   "doc": "references/image-processing.md",
+   "plan": "--look SAT,CON,1.03",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "colour"
+   ]
+  },
+  {
+   "id": "warm",
+   "kind": "look",
+   "name": "Warm tint",
+   "about": "A sepia-style warm tint on the footage (0.06 = a little).",
+   "doc": "references/image-processing.md",
+   "plan": "--look SAT,CON,BRI,0.06",
+   "renderers": [
+    "remotion"
+   ],
+   "tags": [
+    "colour"
+   ]
+  },
+  {
+   "id": "vignette",
+   "kind": "look",
+   "name": "Vignette",
+   "about": "A darkened edge (0..1, subtle 0.2-0.4) over the whole picture, under the graphics.",
+   "doc": "references/image-processing.md",
+   "plan": "plan_to_project.py --look-fx vignette=0.3",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "dark edges",
+    "edge darkening"
+   ],
+   "tags": [
+    "light"
+   ],
+   "test": "look fx parses"
+  },
+  {
+   "id": "grain",
+   "kind": "look",
+   "name": "Film grain",
+   "about": "Fine noise over the picture that changes every sixth frame (0..1, subtle 0.04-0.1).",
+   "doc": "references/image-processing.md",
+   "plan": "plan_to_project.py --look-fx grain=0.06",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "film grain",
+    "noise",
+    "analog grain"
+   ],
+   "tags": [
+    "texture"
+   ],
+   "test": "look fx parses"
+  },
+  {
+   "id": "scramble",
+   "kind": "text-fx",
+   "name": "Scramble",
+   "about": "Random glyphs flicker, then lock into the real letters left to right (about 0.8 s). 1-3 words; hold it after the lock; never on spoken captions.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=ĐÃ CÓ KẾT QUẢ; fx=scramble",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "decode",
+    "hacker text",
+    "text decode",
+    "matrix text"
+   ],
+   "tags": [
+    "text",
+    "reveal"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "blurin",
+   "kind": "text-fx",
+   "name": "Blur-in",
+   "about": "Each word sharpens out of a soft blur while shrinking from 112%, word after word. A gentle, dreamy opening line.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=Nhẹ như mây; fx=blurin",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "focus pull",
+    "blur reveal",
+    "soft focus text"
+   ],
+   "tags": [
+    "text",
+    "soft"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "tracking",
+   "kind": "text-fx",
+   "name": "Tracking-in",
+   "about": "Wide letter-spacing closes to none while the line fades in. For a short brand or title line (about 14 characters at most).",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=BRAND; fx=tracking",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "letter spacing",
+    "tracking in",
+    "spread letters"
+   ],
+   "tags": [
+    "text",
+    "elegant"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "slice",
+   "kind": "text-fx",
+   "name": "Slice reveal",
+   "about": "Three bands of the line slide in from alternating sides and snap together; the top band stays whole so Vietnamese marks are not cut.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=CẮT LỚP; fx=slice",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "sliced text",
+    "split bands",
+    "cut text"
+   ],
+   "tags": [
+    "text",
+    "sharp"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "popword",
+   "kind": "text-fx",
+   "name": "Word pop",
+   "about": "Each word springs in tilted from 60% and settles, one after another, so the line bounces along with the voice.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=Nhẹ như mây ngọt như mơ; fx=popword",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "bounce words",
+    "word by word pop",
+    "pop in"
+   ],
+   "tags": [
+    "text",
+    "playful"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "flap",
+   "kind": "text-fx",
+   "name": "Split-flap",
+   "about": "Airport-board cells flip through glyphs and land on the real ones. For digits and capitals: a price, a countdown, a short offer.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=ƯU ĐÃI 24H; fx=flap",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "flip board",
+    "airport board",
+    "departure board",
+    "countdown flip"
+   ],
+   "tags": [
+    "text",
+    "numbers"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "strike",
+   "kind": "text-fx",
+   "name": "Strike and replace",
+   "about": "`OLD -> NEW`: a red bar strikes the old text out and dims it, the new text springs in beside it. Only real earlier values.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=OLD -> NEW; fx=strike",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "price strike",
+    "strikethrough",
+    "cross out",
+    "old price new price"
+   ],
+   "tags": [
+    "text",
+    "price"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "draw",
+   "kind": "text-fx",
+   "name": "Underline draw",
+   "about": "The line stays still while a hand-drawn wavy underline wipes in beneath it. Put it on the lowest line of a block.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "phrase | top | emph=Nhẹ như mây; fx=draw",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "squiggle underline",
+    "wavy underline",
+    "hand drawn underline"
+   ],
+   "tags": [
+    "text",
+    "emphasis"
+   ],
+   "source": "assets/remotion-template/src/components/text/Fx.tsx"
+  },
+  {
+   "id": "be-vietnam-pro",
+   "kind": "font",
+   "name": "Be Vietnam Pro",
+   "about": "Be Vietnam Pro (bold ad): The default sans: titles, labels, captions. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=be-vietnam-pro",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "be vietnam pro"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "montserrat",
+   "kind": "font",
+   "name": "Montserrat",
+   "about": "Montserrat (bold ad): 800-900 headlines and price tags. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=montserrat",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "montserrat"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "bricolage-grotesque",
+   "kind": "font",
+   "name": "Bricolage Grotesque",
+   "about": "Bricolage Grotesque (bold ad): Offbeat, quirky hooks. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=bricolage-grotesque",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "bricolage grotesque"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "league-spartan",
+   "kind": "font",
+   "name": "League Spartan",
+   "about": "League Spartan (bold ad): Short punchy geometric titles. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=league-spartan",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "league spartan"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "unbounded",
+   "kind": "font",
+   "name": "Unbounded",
+   "about": "Unbounded (bold ad): Wide modern product names; keep lines short. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=unbounded",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "unbounded"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "tiktok-sans",
+   "kind": "font",
+   "name": "TikTok Sans",
+   "about": "TikTok Sans (bold ad): Titles and captions that look platform-native. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=tiktok-sans",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "tiktok sans"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "plus-jakarta-sans",
+   "kind": "font",
+   "name": "Plus Jakarta Sans",
+   "about": "Plus Jakarta Sans (bold ad): Clean UI-like labels and calls to action. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=plus-jakarta-sans",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "plus jakarta sans"
+   ],
+   "tags": [
+    "font",
+    "bold-ad"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "barlow-condensed",
+   "kind": "font",
+   "name": "Barlow Condensed",
+   "about": "Barlow Condensed (condensed): The default emphasis line (phrase, tag). Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=barlow-condensed",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "barlow condensed"
+   ],
+   "tags": [
+    "font",
+    "condensed"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "anton",
+   "kind": "font",
+   "name": "Anton",
+   "about": "Anton (condensed): Prices, counters, loud one-word lines. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=anton",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "anton"
+   ],
+   "tags": [
+    "font",
+    "condensed"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "league-gothic",
+   "kind": "font",
+   "name": "League Gothic",
+   "about": "League Gothic (condensed): Tall narrow slogans. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=league-gothic",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "league gothic"
+   ],
+   "tags": [
+    "font",
+    "condensed"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "oswald",
+   "kind": "font",
+   "name": "Oswald",
+   "about": "Oswald (condensed): News-style headlines. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=oswald",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "oswald"
+   ],
+   "tags": [
+    "font",
+    "condensed"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "big-shoulders",
+   "kind": "font",
+   "name": "Big Shoulders",
+   "about": "Big Shoulders (condensed): Strong claims, sport and tools. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=big-shoulders",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "big shoulders"
+   ],
+   "tags": [
+    "font",
+    "condensed"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "saira-extra-condensed",
+   "kind": "font",
+   "name": "Saira Extra Condensed",
+   "about": "Saira Extra Condensed (condensed): Spec lines and techy lists. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=saira-extra-condensed",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "saira extra condensed"
+   ],
+   "tags": [
+    "font",
+    "condensed"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "playfair-display",
+   "kind": "font",
+   "name": "Playfair Display",
+   "about": "Playfair Display (serif): The default accent serif; luxe titles. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=playfair-display",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "playfair display"
+   ],
+   "tags": [
+    "font",
+    "serif"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "fraunces",
+   "kind": "font",
+   "name": "Fraunces",
+   "about": "Fraunces (serif): Soft elegant serif for food, fashion and beauty. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=fraunces",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "fraunces"
+   ],
+   "tags": [
+    "font",
+    "serif"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "cormorant-garamond",
+   "kind": "font",
+   "name": "Cormorant Garamond",
+   "about": "Cormorant Garamond (serif): Light luxe serif for real estate; use weight 600 and up. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=cormorant-garamond",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "cormorant garamond"
+   ],
+   "tags": [
+    "font",
+    "serif"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "newsreader",
+   "kind": "font",
+   "name": "Newsreader",
+   "about": "Newsreader (serif): Editorial serif for quotes and testimonials. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=newsreader",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "newsreader"
+   ],
+   "tags": [
+    "font",
+    "serif"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "libre-bodoni",
+   "kind": "font",
+   "name": "Libre Bodoni",
+   "about": "Libre Bodoni (serif): High-contrast fashion headlines. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=libre-bodoni",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "libre bodoni"
+   ],
+   "tags": [
+    "font",
+    "serif"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "nunito",
+   "kind": "font",
+   "name": "Nunito",
+   "about": "Nunito (rounded): Friendly rounded type for kids, home and food. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=nunito",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "nunito"
+   ],
+   "tags": [
+    "font",
+    "rounded"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "baloo-2",
+   "kind": "font",
+   "name": "Baloo 2",
+   "about": "Baloo 2 (rounded): Chunky playful promos. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=baloo-2",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "baloo 2"
+   ],
+   "tags": [
+    "font",
+    "rounded"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "paytone-one",
+   "kind": "font",
+   "name": "Paytone One",
+   "about": "Paytone One (rounded): Sale badges. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=paytone-one",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "paytone one"
+   ],
+   "tags": [
+    "font",
+    "rounded"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "coiny",
+   "kind": "font",
+   "name": "Coiny",
+   "about": "Coiny (rounded): Bubbly fun food and kids. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=coiny",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "coiny"
+   ],
+   "tags": [
+    "font",
+    "rounded"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "pacifico",
+   "kind": "font",
+   "name": "Pacifico",
+   "about": "Pacifico (script): The default script: one handwritten phrase. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=pacifico",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "pacifico"
+   ],
+   "tags": [
+    "font",
+    "script"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "dancing-script",
+   "kind": "font",
+   "name": "Dancing Script",
+   "about": "Dancing Script (script): Signatures and thank-you lines. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=dancing-script",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "dancing script"
+   ],
+   "tags": [
+    "font",
+    "script"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "patrick-hand",
+   "kind": "font",
+   "name": "Patrick Hand",
+   "about": "Patrick Hand (script): Casual notes and annotations. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=patrick-hand",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "patrick hand"
+   ],
+   "tags": [
+    "font",
+    "script"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "playpen-sans",
+   "kind": "font",
+   "name": "Playpen Sans",
+   "about": "Playpen Sans (script): Kid-like handwriting for tutorials. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=playpen-sans",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "playpen sans"
+   ],
+   "tags": [
+    "font",
+    "script"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "space-grotesk",
+   "kind": "font",
+   "name": "Space Grotesk",
+   "about": "Space Grotesk (tech): Gadgets and SaaS. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=space-grotesk",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "space grotesk"
+   ],
+   "tags": [
+    "font",
+    "tech"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "tektur",
+   "kind": "font",
+   "name": "Tektur",
+   "about": "Tektur (tech): Gaming and futuristic squared letters. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=tektur",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "tektur"
+   ],
+   "tags": [
+    "font",
+    "tech"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "bungee",
+   "kind": "font",
+   "name": "Bungee",
+   "about": "Bungee (retro): Retro signage and neon-sign looks; very wide. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=bungee",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "bungee"
+   ],
+   "tags": [
+    "font",
+    "retro"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "sigmar",
+   "kind": "font",
+   "name": "Sigmar",
+   "about": "Sigmar (retro): Loud heavy sale stickers. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=sigmar",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "sigmar"
+   ],
+   "tags": [
+    "font",
+    "retro"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "bangers",
+   "kind": "font",
+   "name": "Bangers",
+   "about": "Bangers (retro): Comic impact words. Vietnamese subset verified.",
+   "doc": "references/typography.md",
+   "plan": "phrase | top | lead=Lead; emph=LOUD; font=bangers",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "bangers"
+   ],
+   "tags": [
+    "font",
+    "retro"
+   ],
+   "source": "assets/remotion-template/src/fonts.ts"
+  },
+  {
+   "id": "inkBleed",
+   "kind": "transition",
+   "name": "Ink bleed",
+   "about": "Ink drops grow from a few points, swell and merge into the new shot: SVG circles blurred and thresholded (goo), the edge torn by a noise displacement, a final fill so the end is the full frame. Both renderers draw the same SVG mask.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: inkBleed",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "ink reveal",
+    "ink drop transition",
+    "liquid reveal",
+    "organic reveal",
+    "paint reveal",
+    "goo transition"
+   ],
+   "tags": [
+    "mask",
+    "organic",
+    "svg",
+    "beauty",
+    "food"
+   ],
+   "source": "written for the kit (SVG goo mask: feGaussianBlur + alpha threshold + feTurbulence displacement)",
+   "licence": "MIT"
+  },
+  {
+   "id": "lumaWipe",
+   "kind": "transition",
+   "name": "Luma wipe",
+   "about": "A luma mask (a gradient from the side the new shot comes from, broken up by noise) is thresholded at a level that rises with the progress, so the dark parts of the mask show the new shot first and the edge is ragged and soft. Direction parameter. Both renderers.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: lumaWipe",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "luma matte transition",
+    "luma fade",
+    "noise wipe",
+    "smoke wipe",
+    "texture wipe",
+    "gradient wipe"
+   ],
+   "tags": [
+    "mask",
+    "luma",
+    "svg",
+    "soft"
+   ],
+   "source": "written for the kit (generated SVG feTurbulence mask, no texture file)",
+   "licence": "MIT"
+  },
+  {
+   "id": "cutCurve",
+   "kind": "transition",
+   "name": "Cut the curve",
+   "about": "A hard cut hidden in a move: the old shot accelerates along the axis, the picture is swapped at peak speed, the new shot carries the same move on and settles. No blur; both shots are scaled up while off centre so no edge shows. Direction parameter; match it to the camera move.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: cutCurve",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "velocity cut",
+    "speed cut",
+    "match cut on motion",
+    "whip cut without blur",
+    "hard cut with motion",
+    "cut on action"
+   ],
+   "tags": [
+    "cut",
+    "motion",
+    "fast",
+    "css",
+    "direction"
+   ],
+   "source": "written for the kit (CSS translate and scale, mirrored accelerating curves)",
+   "licence": "MIT"
+  },
+  {
+   "id": "glPixelate",
+   "kind": "transition",
+   "name": "GL pixelate",
+   "about": "Both shots break into square blocks that grow to a peak in the middle and shrink away again; the swap happens at the peak. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glPixelate",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "pixelate transition",
+    "pixelize",
+    "mosaic blocks",
+    "8-bit transition",
+    "pixel dissolve",
+    "retro transition"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "pixel",
+    "retro",
+    "gaming"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/pixelate.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  },
+  {
+   "id": "glDirectionalWarp",
+   "kind": "transition",
+   "name": "GL directional warp",
+   "about": "A soft wipe whose edge waves, stretching the old shot along the edge while the new shot settles in behind it. Direction parameter. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glDirectionalWarp",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "warp wipe",
+    "wavy wipe",
+    "directional wipe",
+    "liquid wipe",
+    "wave transition"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "wipe",
+    "direction",
+    "fluid"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/directionalWarp.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  },
+  {
+   "id": "glSwirl",
+   "kind": "transition",
+   "name": "GL swirl",
+   "about": "The picture twists around the centre, strongest in the middle of the move, and the new shot untwists out of it. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glSwirl",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "twirl transition",
+    "whirlpool",
+    "spiral transition",
+    "vortex",
+    "dream transition",
+    "flashback transition"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "twist",
+    "dreamy"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/swirl.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  },
+  {
+   "id": "glMosaic",
+   "kind": "transition",
+   "name": "GL mosaic",
+   "about": "The frame is a grid; a square opens from the middle of every cell and grows until the new shot fills it, cells starting in a diagonal order from the side the new shot comes from. Direction parameter. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glMosaic",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "grid reveal",
+    "grid transition",
+    "squares reveal",
+    "tiles transition",
+    "checker reveal",
+    "mosaic reveal"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "grid",
+    "tech",
+    "collection"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/mosaic.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  },
+  {
+   "id": "glRgbSplit",
+   "kind": "transition",
+   "name": "GL RGB split",
+   "about": "A dissolve in which the red, green and blue channels cross-fade at different times and slide apart sideways, so the colours fringe and snap back together. Direction parameter. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glRgbSplit",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "rgb split transition",
+    "chromatic aberration transition",
+    "channel shift",
+    "color split",
+    "rgb glitch transition"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "glitch",
+    "beat",
+    "tech"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/rgbSplit.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  },
+  {
+   "id": "glRadialShutter",
+   "kind": "transition",
+   "name": "GL radial shutter",
+   "about": "The new shot opens through a fan of blades around the centre, like the shutter of a camera lens; a twist parameter bends the blades into a spiral. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glRadialShutter",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "shutter transition",
+    "aperture reveal",
+    "radial wipe",
+    "pinwheel",
+    "fan wipe",
+    "spiral wipe",
+    "iris blades"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "radial",
+    "lens",
+    "reveal"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/radialShutter.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  },
+  {
+   "id": "glRipplePixel",
+   "kind": "transition",
+   "name": "GL ripple pixel",
+   "about": "A ring spreads from the centre; inside it the new shot, outside the old one, and along the ring the picture is pixelated and pushed outward in a wave. GL shader, Remotion only.",
+   "doc": "references/transitions.md",
+   "plan": "Transition: glRipplePixel",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "pixel ripple",
+    "shockwave pixel",
+    "ring wave transition",
+    "pulse transition",
+    "pixel shockwave"
+   ],
+   "tags": [
+    "shader",
+    "glsl",
+    "ripple",
+    "pixel",
+    "beat"
+   ],
+   "source": "kit-original GLSL in the gl-transitions convention (shaders/ripplePixel.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
+   "licence": "MIT"
+  }
+ ]
+}

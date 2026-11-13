@@ -8,29 +8,35 @@ playbook (`**Playbook:**` line, or --playbook).
 
     python scripts/plan_to_project.py plan.md --voice audio/v1.mp3 \
         --captions captions.srt --words words.json --out render/v1.json \
-        [--auto-camera [--analysis analysis.json]] [--punch-keywords "tên sản phẩm,100"] \
+        [--auto-camera [--analysis analysis.json]] [--punch-keywords "product name,100"] \
         [--caption-style karaoke|pop|plain|none] [--music audio/track.mp3] \
         [--auto-sfx [--sfx-map table.json] [--sfx-gain -3]]
 
 Scenes table (columns by name, any order; extra columns are ignored):
-  Start | End | Source | In | Type | Layout | Transition | Camera | Speed | Flash | Face
+  Start | End | Source | In | Type | Layout | Transition | Camera | Speed | Subject | Face
     Face        "0.52,0.50,0.072": where the head is (x, y of its centre and r, half its width, as fractions of the frame; person_matte.py
                 --faces measures it): the beauty light (project "faceGlow", --face-glow) is drawn there
-    Flash       "0,2,4 @ mattes/C5074": a white silhouette of the person on those frames from the cut (person_matte.py wrote
-                public/mattes/C5074_0.png, _2, _4): the social opener's white flash
+    Subject     "[MODE] FRAMES @ MATTE [; color=..; width=..; opacity=..; every=N]": an effect shaped by a matte of the person, drawn inside
+                the camera framing (person_matte.py wrote public/MATTE_<offset>.png). MODE fill (default) | outline | glow | dim | colorpop | behind (text= size= y=: big text behind the subject) |
+                blur (rack focus: from= width= px of background blur at the start and end of the window) | lift (depth pop: width= extra scale %, y= anchor).
+                FRAMES "0,2,4" = visible only on those frames after the cut (a blink: "0,2,4 @ mattes/CLIP_A" is the white silhouette
+                flash opener); "0-30" = visible on every frame of the window (add every=N to say a matte exists every N frames, default
+                one matte at the start). The old column name Flash is read as Subject.
     Layout      blank/full (the clip fills the frame) | card (the clip plays in a rounded card over the animated grid;
                 Source "-" gives the grid alone, for overlays that draw their own cards) | expand (starts as a card and
                 grows to the full frame with a fabric-like wave; follow a card scene with a "cut")
     Transition  fade | slide [left|right|up|down] | wipe [dir] | iris | pushCut | zoomThrough |
                 blurDissolve | whip [dir] | flip [dir] | crossZoom | cardSlide [right] | cardSwirl | cut, optional "14f",
                 optional accent "+flash" or "+leak" (e.g. "slide up +flash"), and CapCut-style hits
-                "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them)
+                "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them) and "+echo" (a trail of 2 delayed copies of
+                the clip for the first 15 frames after the cut: Remotion only)
     Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold [scale], optional
-                "focus 0.5,0.4" and "roll -1>1"; or keyframes "keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft"
+                "focus 0.5,0.4", "roll -1>1" and handheld sway "shake mild|strong|PX"; or keyframes "keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft"
                 (TIME=ZOOM[@X,Y][ ease]: a fraction of the scene or "1.2s"; references/camera-moves.md).
                 Blank + --auto-camera = the playbook's pattern (and
                 `hold` on clips that analysis.json says already move).
-    Speed       blank (1x) | 2x | 0.5x | ramp 1>2.5>1 (speeds spread evenly over the scene, eased).
+    Speed       blank (1x) | 2x | 0.5x | ramp 1>2.5>1 (speeds spread evenly over the scene, eased) | a named curve:
+                montage (slow-fast-slow) | hero (fast-slow-fast) | bullet (near-freeze then release) | flash-in | flash-out | freeze-hit (runs, freezes the middle third, runs).
                 Under 1x needs a 60 fps proxy (prepare_footage.py keeps 60 fps sources at 60).
 
 Overlays table:  Start | End | Component | Zone | Tone | Content
@@ -42,20 +48,20 @@ Overlays table:  Start | End | Component | Zone | Tone | Content
            progress, lowerThird, specs, pin, label, stat, chart, image, phrase, pill, arc, script, tag, logo,
            counter, icon, circled, rawfinal, plus two pseudo-components: punch (camera punch-in) and sfx (sound cue)
     Content  key=value pairs separated by ';'. Lists use ' / ', points use 'x,y' (0..1).
-           e.g.  style=stack; lines=đợi vừa lâu / vừa tốn token; accent=token
-                 label=2 cổng USB-C; target=0.42,0.55; side=left
-                 cards=IMG_0326@40:Áo thun / IMG_0330@17:Tất     (thumbs; a card may end with
-                     +1.2 or +@"word" to land 1.2 s in, or on that word, and ~x,y,zoom to frame the
-                     stain: IMG_0319@33:Áo ố+@"áo trắng bị ố"~0.22,0.34,2)
-                 before=IMG_0327@1.6; after=IMG_0327@27.6; zoom=1.4   (compare: TRƯỚC/SAU card)
-                 items=Claude#1 / Manus#1 / ChatGPT#2           (ranking)
-                 items=area:85 m² / bed:3 PN / bath:2 WC        (specs; icons: area bed bath compass
+           e.g.  style=stack; lines=Text A / Text B; accent=A
+                 label=Text A; target=0.42,0.55; side=left
+                 cards=CLIP_A@40:Label A / CLIP_B@17:Label B     (thumbs; a card may end with
+                     +1.2 or +@"word" to land 1.2 s in, or on that word, and ~x,y,zoom to frame a
+                     detail: CLIP_A@33:Label A+@"spoken words"~0.22,0.34,2)
+                 before=CLIP_A@1.6; after=CLIP_A@27.6; zoom=1.4   (compare: a before/after card)
+                 items=Item A#1 / Item B#1 / Item C#2           (ranking)
+                 items=area:Value A / bed:Value B / pin:Value C  (specs; icons: area bed bath compass
                      car floor tree pool clock tag pin star)
-                 items=Tự làm#45 / Thuê thợ#120; unit= phút       (chart)
-                 src=images/floorplan.png; at=0.5,0.3; width=600 (image, file under public/)
-                 lead=Đang kinh doanh; emph=THIẾU VIDEO; emphColor=yellow (phrase); text=TĂNG NHẬN DIỆN; variant=red (pill)
-                 from=5; to=10; label=NGÀY (counter); name=target|megaphone|bang|search|check; at=0.2,0.3 (icon)
-                 raw=raw/C5099.mp4; final=clips/C5099.mp4; at=3.2 (rawfinal: two cards, the same take unedited and edited)
+                 items=Label A#45 / Label B#120; unit= min        (chart)
+                 src=images/image.png; at=0.5,0.3; width=600 (image, file under public/)
+                 lead=Text A; emph=TEXT B; emphColor=yellow (phrase); text=TEXT C; variant=red (pill)
+                 from=5; to=10; label=DAYS (counter); name=target|megaphone|bang|search|check; at=0.2,0.3 (icon)
+                 raw=raw/CLIP_A.mp4; final=clips/CLIP_A.mp4; at=3.2 (rawfinal: two cards, the same take unedited and edited)
 
 Caption bands (optional table, Start | End | Top | Size): where the spoken captions sit while a window is open, e.g. a
 strip above the cards: | 14.7 | 19.6 | 250 | 44 |; an optional Highlight column (color box underline glow) restyles the spoken word in that window; Top "hide" shows no captions in the window (a title already says it).
@@ -79,8 +85,7 @@ from footage_overlap_checker import parse_speed  # noqa: E402
 FPS = 30
 LEAD = 3 / FPS  # graphics land 3 frames before their word
 KNOWN = playbooks.registry_components()  # the template's registry + punch and sfx
-CANON = {t.lower(): t for t in ["fade", "slide", "wipe", "iris", "pushCut", "zoomThrough",
-                                 "blurDissolve", "whip", "flip", "crossZoom", "cardSlide", "cardSwirl", "cut"]}
+CANON = {t.lower(): t for t in playbooks.transition_types()}  # every TransitionType of the template (project.ts)
 LAYOUTS = {"full", "card", "expand"}
 DIRS = {"left", "right", "up", "down"}
 
@@ -107,6 +112,39 @@ def pick(tabs, *need):
         if all(n in h for n in need):
             return h, rows
     return None, []
+
+
+SUBJECT_MODES = ("fill", "outline", "glow", "dim", "colorpop", "behind", "blur", "lift")
+ECHO_HIT = {"copies": 2, "delay": 3, "frames": 15}  # what "+echo" in the Transition cell asks for (Scene.echo)
+
+
+def parse_subject(text: str) -> dict:
+    """`[MODE] FRAMES @ MATTE [; key=value ...]` -> the project's scene.subject (see the header)."""
+    head, _, tail = text.partition(";")
+    left, at, matte = head.partition("@")
+    words, mode = left.split(), "fill"
+    if words and words[0].lower() in SUBJECT_MODES:
+        mode = words.pop(0).lower()
+    spec = "".join(words)
+    if not at or not matte.strip() or not re.fullmatch(r"\d+(,\d+)*|\d+-\d+", spec):
+        raise ValueError("should look like '0,2,4 @ mattes/CLIP_A' or 'glow 0-30 @ mattes/CLIP_A; color=yellow'")
+    opts = dict(kv.strip().split("=", 1) for kv in tail.split(";") if "=" in kv)
+    out: dict = {"frames": [], "matte": matte.strip()}
+    if mode != "fill":
+        out["mode"] = mode
+    if "-" in spec:
+        lo, hi = (int(x) for x in spec.split("-"))
+        every = int(opts.get("every", 0))
+        out["show"] = [lo, hi]
+        out["frames"] = list(range(lo, hi + 1, every)) if every > 0 else [lo]
+    else:
+        out["frames"] = [int(x) for x in spec.split(",")]
+    for k, cast in (("color", str), ("width", float), ("from", float), ("opacity", float), ("text", str), ("size", float), ("y", float)):
+        if k in opts:
+            out[k] = cast(opts[k])
+    if "text" in out:
+        out["text"] = out["text"].replace(" / ", "\n")  # a table cell has one line: " / " separates the lines of the text
+    return out
 
 
 def cell(h, row, name):
@@ -165,7 +203,7 @@ def parse_transition(raw: str):
     if not raw or raw in "-–":
         return None, None, []
     accent = "flash" if "+flash" in raw else "lightLeak" if "+leak" in raw else None
-    fx = [m for m in re.findall(r"\+(shake|glitch|rgb|pulse)\b", raw)]  # CapCut-style hits: drawn by the HyperFrames renderer only
+    fx = [m for m in re.findall(r"\+(shake|glitch|rgb|pulse|echo)\b", raw)]  # CapCut-style hits: all but echo (a trail, Remotion) are drawn by the HyperFrames renderer only
     parts = re.sub(r"\+\w+", "", raw).split()
     t = {"type": CANON.get(parts[0].lower(), "fade")} if parts else {"type": "fade"}
     for p in parts[1:]:
@@ -216,9 +254,23 @@ def resolve_keys(cam: dict, length: float) -> None:
     cam["keys"].sort(key=lambda k: k["ts"])
 
 
+SHAKE = {"mild": 6.0, "strong": 14.0}  # handheld sway, in pixels on a 1080-wide frame
+
+
 def parse_camera(raw: str):
     if not raw or raw in "-–":
         return None
+    shake = re.search(r"\bshake\s+(mild|strong|\d+(?:\.\d+)?)\b", raw, re.I)  # handheld sway on top of the move: "push 1>1.2 shake mild"
+    if shake:
+        raw = raw.replace(shake.group(0), " ").strip()
+    cam = _parse_camera(raw) if raw else {"move": "hold"}
+    if shake and cam is not None:
+        amp = SHAKE.get(shake.group(1).lower()) or float(shake.group(1))
+        cam["shake"] = {"amp": amp}
+    return cam
+
+
+def _parse_camera(raw: str):
     if raw.strip().lower().startswith("keys"):
         return parse_keys(raw.strip()[4:])
     cam = {}
@@ -259,7 +311,7 @@ def value(v: str):
     return v
 
 
-# Content keys the template draws as text: a bare number there must stay a string ("accent=2026").
+# Content keys the template draws as text: a bare number there must stay a string ("accent=100").
 TEXT_KEYS = {"accent", "sub", "text", "label", "caption", "title", "name", "role", "unit", "prefix", "note", "lines", "items"}
 
 
@@ -272,7 +324,7 @@ def parse_content(component: str, raw: str) -> dict:
         k = k.strip()
         val = value(v)
         if k in TEXT_KEYS and not isinstance(val, list):
-            val = v.strip()  # "accent=2026" and "lines=300" are words to draw, not numbers
+            val = v.strip()  # "accent=100" and "lines=300" are words to draw, not numbers
         props[k] = val
     if component == "title" and isinstance(props.get("lines"), str):
         props["lines"] = [props["lines"]]
@@ -419,9 +471,10 @@ def auto_sfx(scenes, overlays, cfg, manual, offset_db=0.0):
             cand.append((0, cut, key, entry))
     fps = 30
     direct = []  # (time, key, entry): played whatever the thinning says (the silhouette flash, the pops of a text pile)
-    for s in scenes:  # a silhouette flash: a camera click on its first frame
-        if s.get("flash") and ev.get("flash"):
-            direct.append((s["start"] + s["flash"]["frames"][0] / fps, "flash", ev["flash"]))
+    for s in scenes:  # a silhouette flash (a blinking fill): a camera click on its first frame
+        sj = s.get("subject")
+        if sj and not sj.get("show") and sj.get("mode", "fill") == "fill" and ev.get("flash"):
+            direct.append((s["start"] + sj["frames"][0] / fps, "flash", ev["flash"]))
     for o in overlays:  # a burst of copies pops one after another: a pop for each main copy
         if o["component"] == "burst" and ev.get("burst"):
             sp = float(o["props"].get("speed", 1))
@@ -505,8 +558,8 @@ def missing_assets(project: dict, public: Path) -> list[str]:
     """Files the render will ask for (relative to public/) that are not there yet."""
     need = {f"clips/{s['clip']}.mp4" for s in project["scenes"] if s["clip"]}
     for s in project["scenes"]:
-        if s.get("flash"):
-            need.update(f"{s['flash']['matte']}_{n}.png" for n in s["flash"]["frames"])
+        if s.get("subject"):
+            need.update(f"{s['subject']['matte']}_{n}.png" for n in s["subject"]["frames"])
     for o in project["overlays"]:
         p = o["props"]
         if o["component"] == "magnifier" and "clip" in p:
@@ -530,7 +583,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Compile an edit plan into a Remotion project.json")
     ap.add_argument("plan", type=Path)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--voice", help="voiceover path under public/, e.g. audio/kb7.mp3")
+    ap.add_argument("--voice", help="voiceover path under public/, e.g. audio/voice.mp3")
     ap.add_argument("--captions", type=Path, help="SRT from align_captions.py")
     ap.add_argument("--words", type=Path, help="word timings from align_captions.py --words-out")
     ap.add_argument("--music", help="music path under public/, levelled first with process_audio.py music (ducked under speech)")
@@ -548,6 +601,7 @@ def main() -> int:
     ap.add_argument("--caption-highlight", choices=["color", "box", "underline", "glow"], help="how the spoken word is marked in karaoke captions (default color)")
     ap.add_argument("--caption-keywords", default="", help="comma-separated words that are marked all the time in the captions (bigger, coloured)")
     ap.add_argument("--face-glow", help="BRIGHTNESS,SATURATE,BLUR[,SIZE[,WARM[,VEIL]]] of the beauty light on scenes that have a Face (e.g. 1.16,0.92,0.6)")
+    ap.add_argument("--look-fx", metavar="vignette=0.3,grain=0.06", help="a vignette and/or film grain over the whole picture, strength 0..1 (drawn by both renderers; subtle values)")
     ap.add_argument("--look", help="SATURATE,CONTRAST,BRIGHTNESS[,WARM] factors (1 = unchanged; WARM 0 = none, 0.06 = a little) pushed onto the footage only, e.g. 1.12,1.05,1.03,0.06")
     a = ap.parse_args()
 
@@ -572,12 +626,12 @@ def main() -> int:
             continue
         s = {"clip": Path(src).stem.upper() if src and src not in "-–" else None, "in": inn,
              "start": start, "end": end, "type": cell(h, r, "type").upper()}
-        fl = cell(h, r, "flash")
-        m = re.match(r"^([\d,\s]+)@\s*(\S+)$", fl) if fl and fl not in "-–" else None
-        if m:
-            s["flash"] = {"frames": [int(x) for x in m.group(1).replace(" ", "").strip(",").split(",") if x], "matte": m.group(2)}
-        elif fl and fl not in "-–":
-            problems.append(f"scene row {len(scenes) + 1}: flash '{fl}' should look like '0,2,4 @ mattes/C5074'")
+        sj = cell(h, r, "subject") or cell(h, r, "flash")
+        if sj and sj not in "-–":
+            try:
+                s["subject"] = parse_subject(sj)
+            except ValueError as e:
+                problems.append(f"scene row {len(scenes) + 1}: subject '{sj}': {e}")
         fc = cell(h, r, "face")
         if fc and fc not in "-–":
             try:
@@ -595,6 +649,9 @@ def main() -> int:
             s["transition"] = t
         if accent:
             s["accent"] = accent
+        if "echo" in fx:
+            s["echo"] = dict(ECHO_HIT)
+        fx = [f for f in fx if f != "echo"]
         if fx and scenes:
             s["fx"] = fx
         try:
@@ -700,7 +757,8 @@ def main() -> int:
         **({"captionHighlight": a.caption_highlight} if a.caption_highlight else {}),
         **({"captionKeywords": [k.strip() for k in a.caption_keywords.split(",") if k.strip()]} if a.caption_keywords.strip() else {}),
         **({"faceGlow": dict(zip(("brightness", "saturate", "blur", "size", "warm", "veil"), (float(x) for x in a.face_glow.split(","))))} if a.face_glow else {}),
-        **({"look": dict(zip(("saturate", "contrast", "brightness", "warm"), (float(x) for x in a.look.split(","))))} if a.look else {}),
+        **({"look": {**(dict(zip(("saturate", "contrast", "brightness", "warm"), (float(x) for x in a.look.split(",")))) if a.look else {}),
+                     **({k: float(v) for k, v in (kv.split("=") for kv in a.look_fx.split(","))} if a.look_fx else {})}} if (a.look or a.look_fx) else {}),
         "scenes": scenes,
         "overlays": overlays,
         "captions": captions,
@@ -713,6 +771,14 @@ def main() -> int:
     print(f"wrote {a.out}: {len(scenes)} scenes, {len(overlays)} overlays, {len(project['punches'])} punch-ins, "
           f"{len(project['sfx'])} sound cues, {len(captions)} captions, {project['duration']}s")
     warns = report(scenes, overlays, captions, words)
+    fonts_ts = Path(__file__).resolve().parent.parent / "assets" / "remotion-template" / "src" / "fonts.ts"
+    known_fonts = set(re.findall(r'\{\s*id:\s*"([\w-]+)"', fonts_ts.read_text(encoding="utf-8"))) if fonts_ts.is_file() else set()
+    for o in overlays:  # a font id the library does not have falls back to the role font: say so
+        for key in ("font", "leadFont"):
+            f = o["props"].get(key)
+            if known_fonts and isinstance(f, str) and f not in known_fonts:
+                warns.append(f"{o['component']} at {o['start']:.2f}s: {key}={f} is not in the font library (src/fonts.ts); the default font is used. "
+                             f"Known: technique.py list --kind font")
     if a.platform != "tiktok":
         warns += [f"cart at {o['start']:.2f}s: the cart arrow points at TikTok Shop's product bar, which {a.platform} does not have"
                   for o in overlays if o["component"] == "cart"]
@@ -742,7 +808,7 @@ def main() -> int:
     corr = public / "clips" / "corrections.json"  # written by prepare_footage.py: the proxies' real fps
     proxy_fps = {k: v.get("fps", 30) for k, v in json.loads(corr.read_text(encoding="utf-8"))["clips"].items()} if corr.is_file() else {}
     for s in scenes:  # slow motion shows repeated frames unless the proxy has the frames
-        slowest = min(s.get("ramp") or [s.get("speed", 1)])
+        slowest = min([v for v in (s.get("ramp") or [s.get("speed", 1)]) if v > 0] or [1])  # a speed of 0 is a deliberate freeze (freeze-hit), not stutter
         fps = proxy_fps.get(s["clip"] or "", 30 if corr.is_file() else None)
         if slowest < 1 and fps and fps * slowest < FPS - 0.5:
             src = analysis.get(s["clip"] or "", {}).get("fps")

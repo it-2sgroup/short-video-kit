@@ -17,8 +17,8 @@ making all three say the same thing, which wastes two of them.
 
 | Channel | Job | Example |
 |---|---|---|
-| **Visual** | Show the most arresting state — usually the end result, the best view or the worst-case problem | The finished room from the balcony; a cheese pull; a badly stained collar |
-| **On-screen text** | State the promise or the stake in words | "Căn 2PN view sông dưới 4 tỷ" · "Cái áo này suýt bị vứt" |
+| **Visual** | Show the most arresting state — usually the end result, the best view or the worst-case problem | The finished room from the balcony; a cheese pull; the worst-case problem in close-up |
+| **On-screen text** | State the promise or the stake in words | "Căn 2PN view sông dưới 4 tỷ" · "Món này suýt bị vứt" |
 | **Audio** | Start a sentence the viewer needs to finish, or hit the music's first downbeat | VO mid-thought: "...và đây là lúc mình định bỏ nó đi" |
 
 TikTok's own creative guidance is explicit that a video should open with sound rather than a silent
@@ -37,7 +37,7 @@ away a third of the hook.
 
 ## Hook archetypes, ranked
 
-The ranking below comes from the only hook dataset I found with a disclosed methodology: 121,820
+The ranking below comes from the only hook dataset found with a disclosed methodology: 121,820
 hooks analysed by median views (`quso.ai/tools/video-hook-generator`).
 
 **Read the ranking with care.** The spread between the best and worst archetype is only about 31%,
@@ -53,9 +53,9 @@ strong enough to promise that one archetype will beat another on your product.
 | 5 | Pain point | Names the viewer's problem in their own words | Good when specific, weak when generic |
 | 6 | Open loop | Withholds the resolution | Good as a second beat, weak as a first |
 | 7 | Curiosity question | "Why does nobody know about this?" | Mid-pack — weaker than its reputation |
-| 8 | Contrarian / counter-claim | "Stop scrubbing. You're ruining the fabric." | Underperforms its reputation |
-| 9 | Direct command | "Do this before you throw that shirt out" | Avoid |
-| 10 | Authority | "As a textile chemist…" | Avoid as the opening line — worst of the ten tested (credentials belong in a lower third) |
+| 8 | Contrarian / counter-claim | "Stop doing X. You're ruining Y." | Underperforms its reputation |
+| 9 | Direct command | "Do this before you throw that out" | Avoid |
+| 10 | Authority | "As a trained specialist…" | Avoid as the opening line — worst of the ten tested (credentials belong in a lower third) |
 
 **The practical read:** lead with social proof, a product reveal, or the transformation itself.
 Stay away from authority framing and bare commands.
@@ -64,12 +64,11 @@ Stay away from authority framing and bare commands.
 
 ## Hooks by playbook
 
-Each playbook's `.md` has its own examples (product-demo: written and compliance-checked hooks for a
-laundry stain remover). The patterns that fit each genre [C]:
+Each playbook's `.md` has its own examples (product-demo: written and compliance-checked hooks). The patterns that fit each genre [C]:
 
 | Playbook | Visual (0–1.5 s) | Text | Sound |
 |---|---|---|---|
-| product-demo | the result, then the problem; a split half (treated / untreated) | the stake, specific ("Áo đồng phục của con, mới mua tháng trước") | VO mid-thought |
+| product-demo | the result, then the problem; a split half (treated / untreated) | the stake, specific ("Món này mới mua tháng trước") | VO mid-thought |
 | real-estate | the best view or room, a door opening onto it | price + place, or one specific feature ("3,2 tỷ có gì ở Thảo Điền?") | first downbeat |
 | food-fnb | the money shot: pull, pour, sizzle, steam | the dish + one hook word (price, place) | the sizzle itself (J-cut) |
 | talking-head | the speaker mid-sentence on the boldest line, or B-roll of the payoff | the payoff, not the topic | the sentence itself |
@@ -104,7 +103,7 @@ Work in this order, because it fails fast:
 1. **Does the footage contain a visible transformation or a spectacular moment?** Use it. It is the
    best structural fit and needs no claim to carry it.
 2. **Is there genuine social proof** — real comment volume, real sales rank, a real customer? Use it.
-3. **Can you name the problem or the promise specifically** — this garment, this price, this
+3. **Can you name the problem or the promise specifically** — this item, this price, this
    neighbourhood, this step count? Use it.
 4. Otherwise fall back to a reveal, and strengthen the second beat with an open loop.
 

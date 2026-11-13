@@ -1,6 +1,7 @@
 # Quyết định, bẫy đã gặp, và nguồn
 
-Mỗi mục ghi **điều gì đúng**, **vì sao biết**, và **chỗ nào còn chưa chắc**.
+Mỗi mục ghi **điều gì đúng**, **vì sao biết**, và **chỗ nào còn chưa chắc**. Chỉ giữ quyết định và bẫy của **kỹ thuật**;
+việc đã làm cho từng khách (tên khách, số liệu chiến dịch, tên file) nằm ở `docs/CASE-LOG.md`.
 
 ## Giấy phép — hai chỗ tốn tiền / có thể vi phạm
 
@@ -40,21 +41,6 @@ cái — lỗi này đã bắt được nhờ chạy `selftest.sh` trên "máy m
 
 **7. Kho cache Hugging Face mới dùng `blobs/` chung**, nên `du` trên thư mục model báo 2,6MB trong khi model thật
 462MB (symlink). Khi đóng gói phải `cp -L`.
-
-## Số liệu ngách (16.242 video SAIZA tẩy mốc, 02/06/2025 → 03/11/2026)
-
-Tái hiện bằng `docs/niche-data-queries.sql`. Đo được:
-- Top 20% video theo view chiếm **95,1% GMV**; 80% còn lại trung bình **171 view**, nhưng GMV/1.000 view của họ
-  còn *nhỉnh hơn* → nút thắt là **reach**, không phải lời chào hàng.
-- CTR và tỉ lệ ra đơn đạt đỉnh ở **35–44 giây**; dưới 25s tệ nhất. Giữ nguyên khi chỉ xét KOC đã chứng minh.
-  KOC giỏi chỉ làm video dưới 25s đúng ~1% số lần.
-- **9 KOC tạo 59,3% GMV** trong ~2.900 người.
-
-**Dữ liệu KHÔNG có:** retention / tỉ lệ xem hết, loại hook, nhịp cắt, âm thanh. Mọi nhận định về hook và nhịp
-cắt trong skill là **thực hành nghề**, không phải số đo — skill gắn nhãn `[DATA]` / `[HYPOTHESIS]` để phân biệt.
-
-Quy tắc "cảnh ≤ 4 giây" và "hook ≤ 3 giây" đến từ thực hành short-form phổ biến, **không** rút ra từ dữ liệu này.
-Nhịp "3–4 giây một cảnh, chuyển cảnh mượt" là **yêu cầu của khách** (11/2026) — tìm trên web không có nguồn đo nào.
 
 ## Kiến trúc dựng (11/2026)
 
@@ -99,7 +85,7 @@ Cảnh có `speed`/`ramp` được nướng bằng ffmpeg (HyperFrames chỉ ph�
 (`audio/mix.wav`) để không phụ thuộc tự động hoá âm lượng của HyperFrames.
 
 **Đã kiểm thực tế** (Windows, Node 26, HyperFrames 0.9.26, Chrome hệ thống): `check` 0 lỗi (23 cảnh báo `line_unread` do phụ đề
-theo giọng nhanh); video cafe 3 dài 28,5 s render ~55 s, 855 khung; độ ồn −16,3 LUFS và thời lượng giống bản Remotion; 6 khung
+theo giọng nhanh); một video 28,5 s render ~55 s, 855 khung; độ ồn −16,3 LUFS và thời lượng giống bản Remotion; 6 khung
 chuyển cảnh/phụ đề và 7 khung đồ họa so cạnh nhau giống hệt mắt thường; tốc độ 2x, 0,5x và ramp ra đúng số khung của cảnh.
 
 **Chưa kiểm / hạn chế.** Chưa nghe âm thanh bản HyperFrames; chưa render đồ họa `pin`, `label`, `chart`, `specs`, `stat`,
@@ -108,7 +94,7 @@ chuyển cảnh/phụ đề và 7 khung đồ họa so cạnh nhau giống hệt
 WebGL; trên Windows HyperFrames dùng chụp màn hình (không phải đường BeginFrame chỉ có trên Linux) nên không đảm bảo giống
 từng bit với bản render Linux; GSAP tải từ jsDelivr nên lần render đầu cần mạng.
 
-**So sánh khung hình với Remotion** (cùng video cafe 3, 855 khung): SSIM 0,987, PSNR 36,3 dB; 852/855 khung trên 0,95. Lần đo
+**So sánh khung hình với Remotion** (cùng video, 855 khung): SSIM 0,987, PSNR 36,3 dB; 852/855 khung trên 0,95. Lần đo
 đầu chỉ 0,946 vì `perceptual-scale` của Remotion nội suy zoom theo **diện tích** (`√(a² + t(b² − a²))`) chứ không phải hàm mũ
 như bản port đầu: đã sửa. Một clip đếm khung cho thấy hai renderer đọc đúng cùng khung nguồn. Thời gian render (cùng máy,
 mỗi bên một lượt): HyperFrames 56 s (một lượt trước đó 122 s), Remotion 100 s.
@@ -135,17 +121,14 @@ quảng cáo ngắn và kiểm được; `back` (lố 8 %) chỉ dùng một l�
 công thức: Ken Burns = hai keyframe scale cách nhau vài giây, punch-in = hai keyframe sát nhau), nguyên tắc easing/anticipation/
 overshoot trong thiết kế chuyển động (dùng tiết chế).
 
-**Áp dụng cho 3 video cafe.** 27 cảnh có hành động (rót, thả túi, giơ sản phẩm, uống, mở đầu bàn ăn, kết thúc lùi lại) được gán keyframe;
-tọa độ đọc từ ảnh chụp từng cảnh và **kiểm lại ở cuối chuyển động** (chủ thể phải nằm trong khung): vài điểm phải sửa (người ngồi
-thấp hơn dự đoán, đầu bị cắt ở cảnh kết). Clip AI gốc 720×1280 nên zoom bị chặn ở ~1,38: bản đầu zoom 1,6-1,7 sẽ mờ; cảnh báo của
-`plan_to_project.py` giờ nói rõ giới hạn là điểm ảnh của clip chứ không phải của proxy.
+
 
 ## Mở rộng đa thể loại (11/2026)
 
-**Vì sao playbook.** Bộ công cụ ban đầu chỉ cho review sản phẩm tẩy rửa: hằng số nhịp (2,5–4 s, 25–45 s), cấu trúc
+**Vì sao playbook.** Bộ công cụ ban đầu chỉ cho một thể loại (review sản phẩm): hằng số nhịp (2,5–4 s, 25–45 s), cấu trúc
 HOOK→PROBLEM→…→REVEAL, loại shot STAIN/POUR/SOAK, camera và chuyển cảnh đều nằm cứng trong script. Giờ mọi thứ phụ thuộc
-thể loại là dữ liệu trong `playbooks/<id>.json`, có 8 thể loại và 7 biến thể. Luật của khách Phương (cảnh 3–4 s, chuyển
-cảnh mềm, không chữ trong khung) là house style của `product-demo`, không áp cho ẩm thực hay montage (ở đó cảnh 1–2 s theo
+thể loại là dữ liệu trong `playbooks/<id>.json`, có 8 thể loại và 7 biến thể. House style của một khách (cảnh 3–4 s, chuyển
+cảnh mềm, không chữ trong khung) là mặc định của playbook `product-demo`, không áp cho ẩm thực hay montage (ở đó cảnh 1–2 s theo
 beat là chuẩn nghề) — nếu cùng khách làm thể loại khác thì nói rõ với khách.
 
 **Nguyên tắc "kỹ thuật phải được dùng".** `playbook.py check` (selftest chạy) báo lỗi nếu một thành phần đồ họa, grade,
@@ -192,50 +175,28 @@ hiệu lực 01/01/2026, Luật KDBĐS 2023, NĐ 339/2026 thay NĐ 16/2022, cấ
 **Vẫn chưa kiểm:** footage thật quay cầm tay, ban đêm, góc rộng 0,5×, HDR quay thật; nhạc có tempo thay đổi; tai người
 chưa nghe đầu ra nào (bản `mix_final_phone.mp4` đã gửi để nghe thử).
 
-## Video giới thiệu dịch vụ dựng lại từ video mẫu (11/2026)
+## Công cụ cho video người dẫn nói trước camera và dựng lại từ video mẫu
 
-Việc: video quảng cáo agency (SISMO) từ 28 take của một người dẫn + file giọng 62,6 s, theo video mẫu của khách (63,7 s, 60 fps, 31 cảnh). Quy trình
-đầy đủ và các lệnh: `references/agency-pitch-recipe.md`. Tại sao làm như vậy, và cái gì đã thử rồi bỏ:
+Quyết định chung (lịch sử của lần làm đầu tiên nằm ở `CASE-LOG.md`; quy trình đầy đủ: `references/agency-pitch-recipe.md`):
 
-- **File giọng là âm thanh gốc của các take, đã ghép** (tương quan 0,98–1,0). Nên mỗi cảnh người dẫn dùng chính hình của take với `In = start + lag`
-  (`match_voice_takes.py`) và môi khớp từng mẫu âm thanh; `check_lipsync.py` kiểm lại trên bản cuối (21 cảnh lệch ≤ 5 ms). Đoạn không take nào chứa
-  (phần danh mục) lấy hình phụ từ đoạn lặng đầu/cuối của take khác (`find_cutaways.py`), không bao giờ dùng take khác của cùng câu.
-- **Cú nháy silhouette mở đầu**: đo trên mẫu, người dẫn tô trắng trên khung 0, 2, 4 (30 fps) rồi mới tới video. Làm bằng model tách người `u2net_human_seg`
-  (Apache-2.0, 168 MB, để ngoài repo, hỏi trước khi tải) → PNG alpha; cùng model cho vị trí đầu (`--faces`) để làm sáng da. Chọn model này vì chạy CPU bằng
-  onnxruntime (đã có cùng faster-whisper), không cần GPU, không cần tài khoản.
-- **Chữ**: 14 hiệu ứng trong một engine (`Fx.tsx`) thay vì mỗi hiệu ứng một component; mỗi hiệu ứng dùng một hai lần trong video. Vòng elip quanh chữ "stamp"
-  cắt ngang mặt người dẫn → thay bằng khung hai vạch sát chữ; neon nhấp nháy làm mất chữ → mẫu nhấp nháy dịu hơn.
-- **Âm thanh**: một tiếng whoosh và một tiếng pop làm video đơn điệu, nên ngân hàng có 58 bản ghi CC0 (Kenney, OpenGameArt) + 17 âm tự tổng hợp, xoay vòng theo
-  sự kiện (không lặp liền nhau), mỗi hiệu ứng chữ có tiếng riêng, `sfx.rules` của biến thể cho 5 tiếng/3 s. Không ai nghe thử: chọn theo tên, mô tả gói và số đo.
-  **Đã thử và bỏ**: tự nhận diện tiếng hiệu ứng trong bản mix (nhảy năng lượng trên 1 kHz). Thử trên bản mix có 68 tiếng đã biết vị trí: tìm được 5 tiếng, và
-  đo phân biệt giữa thời điểm có tiếng và thời điểm ngẫu nhiên chỉ AUC 0,53–0,58 (gần như tung đồng xu) vì giọng nói che mất. `analyze_reference.py` thay bằng
-  ảnh phổ (`spectrum_*.png`) để người xem; số tiếng, tỷ lệ cắt có tiếng KHÔNG được báo.
-- **Nhạc**: tài khoản doanh nghiệp TikTok chỉ được dùng Commercial Music Library (render không với tới được) → `make_music.py` viết nền tự tạo theo điểm cắt, và giao
-  thêm bản không nhạc. Mức nhạc `--music-levels=-6,-6` (phải có `=`): bản đầu render ra không nhạc vì argparse từ chối `-8,-8` mà không ai đọc dòng "wrote".
+- **Giọng ghép từ chính các take**: khi file giọng là âm thanh gốc của các take đã ghép (tương quan 0,98–1,0), mỗi cảnh người dẫn dùng hình của
+  chính take với `In = start + lag` (`match_voice_takes.py`) nên môi khớp từng mẫu âm thanh; `check_lipsync.py` kiểm lại trên bản cuối. Đoạn không
+  take nào chứa lấy hình phụ từ đoạn lặng đầu/cuối của take khác (`find_cutaways.py`), không bao giờ dùng take khác của cùng câu.
+- **Cú nháy silhouette mở đầu**: người dẫn tô trắng trên vài khung đầu (vd. khung 0, 2, 4 ở 30 fps) rồi mới tới video. Làm bằng model tách người
+  `u2net_human_seg` (Apache-2.0, 168 MB, để ngoài repo, hỏi trước khi tải) → PNG alpha; cùng model cho vị trí đầu (`--faces`). Chọn vì chạy CPU bằng
+  onnxruntime (đã có cùng faster-whisper), không cần GPU hay tài khoản.
+- **Chữ**: các hiệu ứng nằm trong một engine (`Fx.tsx`) thay vì mỗi hiệu ứng một component, mỗi hiệu ứng dùng ít lần trong một video. Vòng elip quanh
+  chữ cắt ngang mặt người → dùng khung hai vạch sát chữ; neon nhấp nháy làm mất chữ → nhấp nháy dịu.
+- **Âm thanh**: ngân hàng nhiều bản CC0 + âm tự tổng hợp, xoay vòng theo sự kiện (không lặp liền nhau), mỗi hiệu ứng chữ có tiếng riêng, `sfx.rules`
+  của biến thể giới hạn số tiếng/3 s. Không ai nghe thử: chọn theo tên, mô tả gói và số đo. **Đã thử và bỏ**: tự nhận diện tiếng hiệu ứng trong bản mix
+  (nhảy năng lượng trên 1 kHz): trên bản mix có 68 tiếng đã biết vị trí, AUC chỉ 0,53–0,58 vì giọng nói che mất. `analyze_reference.py` thay bằng ảnh phổ
+  (`spectrum_*.png`) để người xem; số tiếng và tỷ lệ cắt có tiếng KHÔNG được báo.
+- **Nhạc**: tài khoản doanh nghiệp TikTok chỉ được dùng Commercial Music Library (render không với tới được) → `make_music.py` viết nền tự tạo theo
+  điểm cắt, và giao thêm bản không nhạc. `--music-levels=-6,-6` phải có `=` (argparse từ chối `-8,-8`; không đọc dòng "wrote" thì video ra không nhạc).
 - **Dải màu**: Remotion xuất full-range `yuvj420p`; điện thoại hiện bạc hoặc cháy → `finish_video.py` đổi về limited BT.709, master −14 LUFS / ≤ −1 dBTP.
 - **Render**: 8 luồng báo "No frame found at position" với proxy cao 2880 → `--concurrency=5`.
-- **Logo** được tách nền từ khung hình mẫu (alpha = (R−G+55)/260, ffmpeg `geq`, phóng 4× Lanczos): là giải pháp cuối cùng, hỏi khách file vector.
-- **Chưa kiểm**: không ai nghe âm thanh/nhạc hay xem trọn video; câu 8 của kịch bản đoán từ bản Whisper kém; số liệu trong giọng (hơn 300 thương hiệu, 10–50 video/tháng,
-  5–10 ngày, ưu đãi chỉ trong tháng này) là lời khách cần bằng chứng; tên khách hàng trên thẻ cần sự đồng ý.
-- **Công cụ thêm vì việc này** (đều có trong `docs/CAU-TRUC.md`): `analyze_reference.py`, `montage.py`, `stills.mjs` (template), `mix_report.py`, `match_voice_takes.py`,
-  `find_cutaways.py`, `person_matte.py`, `agency_plan.py`, `make_music.py`, `finish_video.py`, `check_lipsync.py`; `align_captions.py --prompt`; `doctor.py` kiểm
-  onnxruntime, model tách người và các filter ffmpeg mới; `./setup.sh --person-model`; `project_to_hyperframes.py` báo mọi tính năng chỉ Remotion có.
-
-## Kịch bản hiện hành của campaign đang chứa claim vi phạm
-
-Doc Lark *"TQA 6 - REVIEW - GIỌNG ADAM"* (21 kịch bản). Các câu cần viết lại — đối chiếu chính sách TikTok Shop
-trong `references/claims-and-compliance.md` §2:
-
-| Câu | Vấn đề |
-|---|---|
-| "Không hiệu quả anh gửi tiền lại liền" · "Hổng sạch hổng lấy tiền" | Cam kết hoàn tiền / đảm bảo kết quả |
-| "diệt khuẩn", "diệt nấm mốc" | Sản phẩm tẩy rửa không được tuyên bố diệt/ức chế vi khuẩn, **nấm**, virus |
-| "tẩy sạch mọi vết bẩn" · "sạch tinh như mới" | "Giải quyết mọi vấn đề" / phục hồi tức thì |
-| "ngay lập tức" | Hiệu quả tức thì |
-| "tốt nhất thị trường" | Cấp so sánh tuyệt đối không có bằng chứng |
-
-Câu hoàn tiền nằm trên **một trong những video doanh thu cao nhất** của campaign. Chạy được ≠ hợp lệ.
-Đồng thời, TikTok Shop yêu cầu **kịch bản gốc cho từng video** — phát nguyên một kịch bản cho nhiều KOC là rủi ro.
+- **Logo của khách** chỉ tách nền từ khung mẫu khi không còn cách nào (alpha = (R−G+55)/260, ffmpeg `geq`, phóng 4× Lanczos): hỏi khách file vector.
+- **Chưa kiểm khi dùng lần đầu**: không ai nghe âm thanh/nhạc; số liệu nói trong giọng là lời của khách và cần bằng chứng; tên khách hàng trên thẻ cần sự đồng ý.
 
 ## Công cụ đã khảo sát
 

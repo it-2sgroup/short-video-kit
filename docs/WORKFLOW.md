@@ -72,7 +72,7 @@ python3 scripts/contact_sheet.py ~/renders/lo1/public/clips --out proxies.png
 `prepare_footage.py` (được `--proxies` gọi) tự: chuyển HDR iPhone về SDR, cắt khung 9:16, khử nhiễu khi cảnh tối
 và nhiễu, chống rung khi rung, cân bằng trắng (đo trên điểm ảnh trung tính), chỉnh phơi sáng, áp "look" màu của
 playbook (gộp vào một LUT 3D). Video trước/sau (`correction: shared`) dùng **cùng một** hiệu chỉnh cho mọi clip.
-Căn thẳng đường chân trời: `--fix "IMG_0402:rotate=-1.2"`. Cần slow-motion 0,5x: thêm `--slowmo` (giữ 60 fps).
+Căn thẳng đường chân trời: `--fix "CLIP_A:rotate=-1.2"`. Cần slow-motion 0,5x: thêm `--slowmo` (giữ 60 fps).
 Xem `corrections.json` để biết đã làm gì với clip nào.
 
 ### 3. Âm thanh

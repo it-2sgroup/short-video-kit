@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trình sửa video</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/editor.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <strong>Trình sửa video</strong>
+    <span id="dirName" class="muted"></span>
+    <select id="projectSelect" aria-label="Chọn file project"></select>
+  </div>
+  <span id="badge" class="badge" role="status">Đang tải…</span>
+  <span id="dirty" class="dirty" hidden>● chưa lưu</span>
+  <div class="actions">
+    <button id="btnUndo" title="Ctrl+Z">Hoàn tác</button>
+    <button id="btnRedo" title="Ctrl+Y">Làm lại</button>
+    <button id="btnHistory">Lịch sử</button>
+    <button id="btnSave" class="primary" title="Ctrl+S">Lưu project</button>
+    <button id="btnRender">Render lại</button>
+    <button id="btnTheme" class="icon" title="Đổi giao diện sáng / tối" aria-label="Đổi giao diện">◐</button>
+  </div>
+</header>
+
+<main>
+  <section class="preview" aria-label="Xem trước">
+    <div class="stage">
+      <div class="phone" id="phone">
+        <div class="screen" id="screen">
+          <video id="vid" playsinline preload="auto"></video>
+          <div class="noclip" id="noclip" hidden></div>
+          <div class="draft" id="draft"></div>
+          <svg class="zones" id="zones" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+      </div>
+    </div>
+    <div class="note" id="renderNote"></div>
+    <div class="transport">
+      <button id="btnPlay" class="icon" title="Space" aria-label="Phát / dừng">▶</button>
+      <span id="timeLabel" class="time">0:00.00 / 0:00.00</span>
+      <select id="srcSelect" aria-label="Nguồn xem trước"></select>
+      <span class="toggles">
+        <label><input type="checkbox" id="tgSafe"> Vùng an toàn</label>
+        <label><input type="checkbox" id="tgFace"> Vùng mặt</label>
+        <label><input type="checkbox" id="tgDraft"> Nháp chữ</label>
+      </span>
+    </div>
+  </section>
+
+  <aside class="panel" id="panel" aria-label="Thuộc tính"></aside>
+</main>
+
+<section class="timeline" aria-label="Dòng thời gian">
+  <div class="tl-bar">
+    <button id="btnAddText" title="Chèn một tiêu đề tại playhead">+ Thêm chữ</button>
+    <button id="btnAddCaption">+ Phụ đề</button>
+    <button id="btnAddSfx">+ Âm</button>
+    <button id="btnSplit" title="Phím S">Cắt cảnh</button>
+    <label class="chk"><input type="checkbox" id="tgSnap" checked> Bám mép</label>
+    <span class="spacer"></span>
+    <label class="zoom">Thu phóng <input type="range" id="zoom" min="0" max="100" value="40"></label>
+    <button id="btnFit">Vừa khung</button>
+  </div>
+  <div class="tl-scroll" id="tlScroll"><div class="tl-content" id="tlContent"></div></div>
+</section>
+
+<dialog id="dlgHistory">
+  <form method="dialog" class="dlg-head"><strong>Lịch sử lưu</strong><button class="icon" aria-label="Đóng">✕</button></form>
+  <p class="muted" id="historyHint"></p>
+  <div id="historyList" class="list"></div>
+</dialog>
+
+<dialog id="dlgRender">
+  <form method="dialog" class="dlg-head"><strong>Render</strong><button class="icon" aria-label="Đóng">✕</button></form>
+  <div id="renderState" class="render-state"></div>
+  <div class="bar"><div id="renderBar"></div></div>
+  <pre id="renderLog" class="log"></pre>
+  <div class="dlg-foot"><button id="btnCancelRender">Hủy render</button></div>
+</dialog>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+<script src="/editor.js"></script>
+</body>
+</html>

@@ -101,7 +101,7 @@ These follow Remotion's own agent rules (`remotion-dev/skills`, `remotion-best-p
   filter on the footage, never on graphics.
 - Many 2880-tall proxies read by many workers at once can fail with `No frame found at position`: render with `--concurrency=5` (8 failed on a 63 s card-heavy
   video, 5 passed). `cardSlide` and `cardSwirl` render each shot up to three times during the transition, which is why.
-- Scene extras: `flash` (white silhouette PNGs on listed frames), `face` (the head, for `faceGlow`). Project extras: `look`, `faceGlow`, `captionHighlight`,
+- Scene extras: `subject` (an effect shaped by a person matte: silhouette flash, outline, glow, spotlight, colour pop, text behind; `references/subject-effects.md`), `face` (the head, for `faceGlow`). Project extras: `look`, `faceGlow`, `captionHighlight`,
   `captionKeywords`, `captionBands` (with `hide` and a per-band `highlight`). The silhouette matte is drawn inside the camera framing, so it matches the footage even
   while the camera pushes.
 - Render a still at every transition before a full render; a full 35 s render takes ~2 minutes on

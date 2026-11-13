@@ -1,9 +1,9 @@
 // The composition: scenes (with centred transitions and a continuous virtual camera), accents on
 // cuts, overlays on their own timeline, captions, and the soundtrack. Pure function of a Project.
 import React from "react";
-import { AbsoluteFill, Freeze, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Freeze, OffthreadVideo, Sequence, Solid, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { LightLeak } from "@remotion/light-leaks";
+import { lightLeak } from "@remotion/effects";
 import type { Face, FaceGlow, Look, Project, Scene } from "../project";
 import { captionTopFor, captions, card, frame as size, motion, palette } from "../theme";
 import { resolveOverlay } from "../components/registry";
@@ -13,6 +13,7 @@ import { cameraStyle, type ScenePunch } from "./camera";
 import { layoutScenes, toFrames, type SceneSlot } from "./timeline";
 import { presentationFor } from "./transitions";
 import { Soundtrack } from "./audio";
+import { SubjectFx } from "./Subject";
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const isCard = (s: Scene) => (s.layout ?? "full") !== "full";
@@ -61,14 +62,26 @@ const SceneMedia: React.FC<{ slot: SceneSlot; punches: ScenePunch[]; look?: Look
       style={{ width: "100%", height: "100%", objectFit: "cover", filter: lookFilter(look) }}
     />
   ) : null;
-  // silhouette flash: a white person-shaped PNG over the footage on the listed frames (relative to the planned cut)
+  // subject effect (silhouette flash, outline, glow, spotlight...): drawn inside the camera framing, offset counted from the planned cut
   const at = frame - (slot.cut - slot.begin);
-  const flashOn = scene.flash && scene.flash.frames.includes(at);
+  // Echo trail: the same clip again, `k * delay` frames behind the live frame, above it and fainter each time. A Freeze re-times the copy
+  // (the slot's own advance() for a ramp, plain frames for a constant speed, which the video's playbackRate then scales).
+  const echo = scene.echo && scene.clip ? scene.echo : null;
+  const trail =
+    echo && video && at >= 0 && (!echo.frames || at < echo.frames)
+      ? Array.from({ length: Math.min(3, Math.max(1, Math.round(echo.copies))) }, (_, i) => i + 1).map((k) => {
+          const behind = Math.max(0, frame - k * echo.delay);
+          const fade = echo.frames ? Math.min(1, Math.max(0, (echo.frames - at) / 6)) : 1;
+          return (
+            <AbsoluteFill key={`echo${k}`} style={{ opacity: (echo.decay ?? 0.5) ** k * fade }}>
+              <Freeze frame={ramped ? slot.advance(behind) : behind}>{video}</Freeze>
+            </AbsoluteFill>
+          );
+        })
+      : null;
   const inner = (
     <AbsoluteFill style={cameraStyle(frame, duration, fps, scene.camera, punches, slot.cut - slot.begin)}>
-      {flashOn ? (
-        <Img src={staticFile(`${scene.flash!.matte}_${at}.png`)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 2, opacity: scene.flash!.opacity ?? 0.96 }} />
-      ) : null}
+      {scene.subject ? <SubjectFx fx={scene.subject} at={at} id={`subject${slot.index}`} video={video} /> : null}
       {glow && scene.face ? <FaceLight face={scene.face} glow={glow} /> : null}
       {video ? (
         ramped ? <Freeze frame={slot.advance(frame)}>{video}</Freeze> : video
@@ -76,6 +89,7 @@ const SceneMedia: React.FC<{ slot: SceneSlot; punches: ScenePunch[]; look?: Look
         // No footage yet (layout preview): a neutral gradient instead of a broken video.
         <AbsoluteFill style={{ background: `linear-gradient(160deg, #3A4A6B 0%, #1B2338 60%, #0E1322 100%)` }} />
       )}
+      {trail}
     </AbsoluteFill>
   );
   if (layout === "full") return <AbsoluteFill style={{ background: palette.ink, overflow: "hidden" }}>{inner}</AbsoluteFill>;
@@ -114,6 +128,31 @@ const SceneMedia: React.FC<{ slot: SceneSlot; punches: ScenePunch[]; look?: Look
       </div>
     </AbsoluteFill>
   );
+};
+
+// vignette and grain over the picture (project `look`): the edge darkens, fine noise changes every frame of six.
+const LookLayer: React.FC<{ look: Look }> = ({ look }) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      {look.vignette ? <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 45%, transparent 52%, rgba(0,0,0,${0.6 * look.vignette}) 100%)` }} /> : null}
+      {look.grain ? (
+        <svg width="100%" height="100%" style={{ position: "absolute", left: 0, top: 0, mixBlendMode: "overlay", opacity: look.grain }}>
+          <filter id="grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves={2} seed={1 + (frame % 6)} stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#grain)" />
+        </svg>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
+
+// A procedural light leak (Remotion's `lightLeak` effect on a black solid, WebGL): it grows in the first half of the accent and retracts in the second.
+const Leak: React.FC<{ seed: number; length: number }> = ({ seed, length }) => {
+  const frame = useCurrentFrame();
+  return <Solid width={size.width} height={size.height} color="#000000" effects={[lightLeak({ seed, hueShift: 30, progress: frame / Math.max(1, length - 1) })]} style={{ opacity: 0.6, mixBlendMode: "screen" }} />;
 };
 
 const Flash: React.FC = () => {
@@ -177,14 +216,13 @@ export const Short: React.FC<Project> = (project) => {
         </Sequence>
       ))}
       <TransitionSeries>{series}</TransitionSeries>
+      {project.look?.vignette || project.look?.grain ? <LookLayer look={project.look} /> : null}
 
       {slots.map((slot) =>
         slot.index > 0 && slot.scene.accent ? (
           <Sequence key={`a${slot.index}`} from={slot.cut - 10} durationInFrames={20} layout="none">
             {slot.scene.accent === "lightLeak" ? (
-              <AbsoluteFill style={{ opacity: 0.6, mixBlendMode: "screen" }}>
-                <LightLeak seed={slot.index} hueShift={30} />
-              </AbsoluteFill>
+              <Leak seed={slot.index} length={20} />
             ) : (
               <Sequence from={7} layout="none">
                 <Flash />

@@ -24,19 +24,33 @@ import sys
 from pathlib import Path
 
 
+# Named speed curves: the points of a ramp, spread evenly across the scene and eased between. The names are the editor's
+# vocabulary (CapCut's "velocity" presets); CapCut publishes no numbers for them, so these are the kit's own approximations.
+SPEED_PRESETS = {
+    "montage": [1.0, 2.5, 1.0],        # slow-fast-slow: a push through the middle
+    "hero": [2.0, 0.4, 2.0],           # fast-slow-fast: a slow moment held in the middle (needs a 60 fps proxy)
+    "bullet": [1.0, 0.15, 0.15, 1.6],  # a sudden near-freeze, then release (needs a 60 fps proxy)
+    "flash-in": [3.0, 1.0],            # starts fast and settles
+    "flash-out": [1.0, 3.0],           # runs normal then whips away
+    "freeze-hit": [1.0, 0.0, 0.0, 1.0],  # runs, holds one frame for the middle third of the scene, runs again (pair it with +flash and a camera punch)
+}
+
+
 def parse_speed(cell: str):
     """Speed cell -> (speed, ramp): blank = (None, None); "2x" or "0.5" = (2.0, None);
-    "ramp 1>2.5>1" = (None, [1.0, 2.5, 1.0])."""
+    "ramp 1>2.5>1" = (None, [1.0, 2.5, 1.0]); a preset name (montage, hero, bullet, flash-in, flash-out, freeze-hit) = its ramp."""
     cell = (cell or "").strip().lower().replace("×", "x")
     if not cell or cell in "-–":
         return None, None
+    if cell in SPEED_PRESETS:
+        return None, list(SPEED_PRESETS[cell])
     m = re.fullmatch(r"ramp\s+([\d.]+(?:\s*>\s*[\d.]+)+)", cell)
     if m:
         return None, [float(x) for x in m.group(1).split(">")]
     m = re.fullmatch(r"([\d.]+)\s*x?", cell)
     if m and float(m.group(1)) > 0:
         return float(m.group(1)), None
-    raise ValueError(f"cannot read speed '{cell}' (write 2x, 0.5x or ramp 1>2.5>1)")
+    raise ValueError(f"cannot read speed '{cell}' (write 2x, 0.5x, ramp 1>2.5>1 or a preset: {', '.join(SPEED_PRESETS)})")
 
 
 def speed_factor(cell: str) -> float:

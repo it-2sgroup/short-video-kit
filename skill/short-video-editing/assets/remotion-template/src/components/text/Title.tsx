@@ -1,5 +1,5 @@
 // Titles and labels in five styles. Content (lines, accent word, sub-line) comes from props.
-//   outline  - coloured fill + dark outline. Default for product demos (client-approved look).
+//   outline  - coloured fill + dark outline. The default: reads over most footage without a box.
 //   stack    - small lead line over a huge heavy line; one accent word in serif italic gradient.
 //   gradient - big heavy white->sky gradient title with soft shadow, no outline.
 //   glass    - frosted light card with a dark gradient main line (navy->royal, or brown->vermilion in the warm theme). For busy footage only.
@@ -9,10 +9,12 @@ import { AbsoluteFill, interpolate, useVideoConfig } from "remotion";
 import type { Overlay } from "../../project";
 import { fonts, palette, titleColors, toneColor, zones } from "../../theme";
 import { clamp, fitSize, smooth, useEnterExit } from "../anim";
+import { fontRatio, pickFont } from "../../fonts";
 import { GradientText, MaskRise, OutlineText, splitAccent } from "./primitives";
 
 export type TitleStyle = "outline" | "stack" | "gradient" | "glass" | "marker";
-export type TitleProps = { style?: TitleStyle; lines: string[]; accent?: string; sub?: string };
+// font: a library font id (fonts.ts) for every line except the accent word, which keeps the serif; default: Be Vietnam Pro.
+export type TitleProps = { style?: TitleStyle; lines: string[]; accent?: string; sub?: string; font?: string };
 
 const SKY = titleColors.sky;
 const ACCENT = titleColors.accent;
@@ -22,6 +24,8 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
   const { fps } = useVideoConfig();
   const p = (ov.props ?? {}) as TitleProps;
   const style = p.style ?? "outline";
+  const mf = (weight: number) => pickFont(p.font, weight, fonts.sans); // { family, weight, ratio } for a wanted weight
+  const ratio = fontRatio(p.font) ?? 0.56;
   const lines = (p.lines ?? []).filter(Boolean);
   const tone = toneColor[ov.tone ?? "neutral"];
   const { frame, enter, exit } = useEnterExit(dur, { delay: instant ? 0 : 4, instant });
@@ -54,7 +58,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
 
   const subLine = p.sub ? (
     <div style={{ opacity: enter, marginTop: 8 }}>
-      <OutlineText size={32} weight={700}>
+      <OutlineText size={32} family={mf(700).family} weight={mf(700).weight}>
         {p.sub}
       </OutlineText>
     </div>
@@ -62,12 +66,12 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
 
   let body: React.ReactNode;
   if (style === "stack") {
-    const size = fitSize(main, width, 112, 68);
+    const size = fitSize(main, width, 112, 68, ratio);
     body = (
       <>
         {lead ? (
           <div style={{ opacity: enter, translate: `0 ${(1 - enter) * 24}px`, alignSelf: "flex-start", marginLeft: 24 }}>
-            <GradientText size={40} weight={500} stops={`${palette.white}, ${palette.white}`}>
+            <GradientText size={40} family={mf(500).family} weight={mf(500).weight} stops={`${palette.white}, ${palette.white}`}>
               {lead}
             </GradientText>
           </div>
@@ -75,13 +79,13 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
         <MaskRise progress={rise}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: Math.round(size * 0.22) }}>
             {pre.trim() ? (
-              <GradientText size={size} weight={900} stops={SKY} tracking="-0.035em" lineHeight={1.05}>
+              <GradientText size={size} family={mf(900).family} weight={mf(900).weight} stops={SKY} tracking="-0.035em" lineHeight={1.05}>
                 {pre.trim()}
               </GradientText>
             ) : null}
             {accentWord(size)}
             {post.trim() ? (
-              <GradientText size={size} weight={900} stops={SKY} tracking="-0.035em" lineHeight={1.05}>
+              <GradientText size={size} family={mf(900).family} weight={mf(900).weight} stops={SKY} tracking="-0.035em" lineHeight={1.05}>
                 {post.trim()}
               </GradientText>
             ) : null}
@@ -93,7 +97,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
     body = lines.map((line, i) => (
       <MaskRise key={i} progress={instant ? 1 : smooth(frame, fps, 4 + i * 3, 15)}>
         <div style={{ scale: String(interpolate(frame, [0, 20], [1.04, 1], clamp)) }}>
-          <GradientText size={i === lines.length - 1 ? fitSize(line, width, 104, 62) : 42} weight={i === lines.length - 1 ? 900 : 700} stops={SKY} tracking="-0.04em">
+          <GradientText size={i === lines.length - 1 ? fitSize(line, width, 104, 62, ratio) : 42} family={mf(i === lines.length - 1 ? 900 : 700).family} weight={mf(i === lines.length - 1 ? 900 : 700).weight} stops={SKY} tracking="-0.04em">
             {line}
           </GradientText>
         </div>
@@ -119,10 +123,10 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
         }}
       >
         {lead ? (
-          <div style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 32, color: titleColors.glassLead }}>{lead}</div>
+          <div style={{ fontFamily: mf(500).family, fontWeight: mf(500).weight, fontSize: 32, color: titleColors.glassLead }}>{lead}</div>
         ) : null}
         <MaskRise progress={rise}>
-          <GradientText size={fitSize(main, 740 - 68, 84, 50)} weight={900} angle={90} stops={NAVY} tracking="-0.04em" shadow={false}>
+          <GradientText size={fitSize(main, 740 - 68, 84, 50, ratio)} family={mf(900).family} weight={mf(900).weight} angle={90} stops={NAVY} tracking="-0.04em" shadow={false}>
             {main}
           </GradientText>
         </MaskRise>
@@ -130,11 +134,11 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
     );
   } else if (style === "marker") {
     const sweep = instant ? 1 : interpolate(frame, [10, 22], [0, 1], clamp);
-    const size = fitSize(main, width, 80, 54);
+    const size = fitSize(main, width, 80, 54, ratio);
     body = (
       <MaskRise progress={rise}>
-        <div style={{ fontFamily: fonts.sans, fontWeight: 900, fontSize: size, display: "flex", gap: Math.round(size * 0.22), justifyContent: "center", flexWrap: "wrap" }}>
-          {pre.trim() ? <OutlineText size={size} weight={900}>{pre.trim()}</OutlineText> : null}
+        <div style={{ fontFamily: mf(900).family, fontWeight: mf(900).weight, fontSize: size, display: "flex", gap: Math.round(size * 0.22), justifyContent: "center", flexWrap: "wrap" }}>
+          {pre.trim() ? <OutlineText size={size} family={mf(900).family} weight={mf(900).weight}>{pre.trim()}</OutlineText> : null}
           {acc ? (
             // A real highlighter: a solid block sweeps in behind the word, which turns to ink.
             // (An outline here would bury the block, so the accent word has none.)
@@ -151,26 +155,26 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
                   boxShadow: "0 8px 22px rgba(0,0,0,0.35)",
                 }}
               />
-              <span style={{ position: "relative", fontFamily: fonts.sans, fontWeight: 900, fontSize: size, lineHeight: 1.12, color: sweep > 0.5 ? palette.ink : palette.white }}>
+              <span style={{ position: "relative", fontFamily: mf(900).family, fontWeight: mf(900).weight, fontSize: size, lineHeight: 1.12, color: sweep > 0.5 ? palette.ink : palette.white }}>
                 {acc}
               </span>
             </span>
           ) : null}
-          {post.trim() ? <OutlineText size={size} weight={900}>{post.trim()}</OutlineText> : null}
+          {post.trim() ? <OutlineText size={size} family={mf(900).family} weight={mf(900).weight}>{post.trim()}</OutlineText> : null}
         </div>
       </MaskRise>
     );
   } else {
-    const size = fitSize(main, width, 76, 50);
+    const size = fitSize(main, width, 76, 50, ratio);
     body = (
       <>
         {lead ? (
           <div style={{ opacity: enter }}>
-            <OutlineText size={38} weight={700}>{lead}</OutlineText>
+            <OutlineText size={38} family={mf(700).family} weight={mf(700).weight}>{lead}</OutlineText>
           </div>
         ) : null}
         <div style={{ opacity: enter, translate: `0 ${(1 - enter) * 24}px` }}>
-          <OutlineText size={size} weight={800} color={tone}>
+          <OutlineText size={size} family={mf(800).family} weight={mf(800).weight} color={tone}>
             {main}
           </OutlineText>
         </div>

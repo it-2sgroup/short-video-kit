@@ -1,5 +1,5 @@
 // Text building blocks. No boxes or pills behind words: contrast comes from an outline layer
-// drawn UNDER the fill, gradients, and soft drop shadows (client rule, see references/typography.md).
+// drawn UNDER the fill, gradients, and soft drop shadows (see references/typography.md).
 import React from "react";
 import { fonts, palette, textShadow } from "../../theme";
 

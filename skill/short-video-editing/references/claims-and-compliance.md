@@ -47,12 +47,12 @@ Rewrite table (keep the persuasion, lose the claim):
 |---|---|
 | "Diệt khuẩn 99.9%" | "Làm sạch bụi bẩn bám trên vải" |
 | "Tẩy sạch ngay lập tức" | "Ngâm 2 tiếng là thấy khác rõ" |
-| "Sạch mọi vết bẩn" | "Mình thử với vết thâm kim, ố vàng và dầu mỡ" |
+| "Sạch mọi vết bẩn" | "Mình thử với vài loại vết cụ thể (nói rõ từng loại)" |
 | "Trắng bóc như mới" | "Sáng hơn hẳn so với lúc đầu" |
 | "Không sạch hoàn tiền" | *(remove; no compliant rewrite)* |
 | "Tốt nhất thị trường" | "Sản phẩm bán chạy nhất shop mình trên TikTok Shop" |
 | "Hơn hẳn mấy loại khác" | "So với cách mình giặt tay trước đây thì đỡ công hơn" |
-| "Công thức bí mật" | "Công thức OXI hoạt tính" |
+| "Công thức bí mật" | "Thành phần chính ghi trên bao bì (nêu đúng tên)" |
 | "Chỉ còn 3 suất cuối" | *(remove unless the listing shows limited stock)* |
 
 ## 3. Before/after demonstrations (any category)
@@ -62,7 +62,7 @@ Rewrite table (keep the persuasion, lose the claim):
 | No false impression | Before/after creating a false impression of outcomes is prohibited ("problematic comparisons"). | [P] ads.tiktok.com |
 | Same lighting, angle, editing | Different light, angle or editing between before and after is a misleading claim. **The same grade and the same correction** on both (`prepare_footage.py` with `correction: shared`). | [P] seller-us `knowledge_id=4581457528194817` |
 | Real performance, typical results | A demonstration reflects performance under normal use; results are typical or the expected result is disclosed. | [P] FTC guides |
-| Time compression labelled | "tua nhanh ×8", "sau 2 tiếng ngâm" on screen. | [P] instant-effect rule; FTC |
+| Time compression labelled | "tua nhanh ×8", "sau 2 tiếng" on screen. | [P] instant-effect rule; FTC |
 | **Ads: none** | TikTok ads and landing pages must not include before-and-after product effect comparisons. If the video will be boosted, make a version without the `compare` card and TRƯỚC/SAU labels. | [P] ads.tiktok.com "Misleading and false content" |
 | Banned categories | Before/after is banned outright for acne, whitening and anti-hair-loss products. | [P] TikTok Shop listing rules |
 

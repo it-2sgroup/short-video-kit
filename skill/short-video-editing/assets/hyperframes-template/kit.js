@@ -633,6 +633,34 @@
     return out;
   };
 
+  // inkBleed and lumaWipe: masks drawn as SVG images (the same ones the Remotion template draws; a pure function of the progress).
+  const svgMask = (body) => 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' + body + "</svg>") + '")';
+  const maskRand = (i, step) => { const x = Math.sin(i * 127.1 + step * 311.7) * 43758.5453; return x - Math.floor(x); };
+  const inkMask = (p) => {
+    const reach = Math.hypot(W, H) * 0.45;
+    let drops = "";
+    for (let i = 0; i < 7; i++) {
+      const delay = 0.3 * maskRand(i, 3), q = Math.min(1, Math.max(0, (p - delay) / (1 - delay)));
+      drops += '<circle cx="' + ((0.12 + 0.76 * maskRand(i, 1)) * W).toFixed(1) + '" cy="' + ((0.1 + 0.8 * maskRand(i, 2)) * H).toFixed(1) + '" r="' + (reach * Math.pow(q, 1.1)).toFixed(1) + '"/>';
+    }
+    const fill = Math.min(1, Math.max(0, (p - 0.86) / 0.12));
+    return svgMask('<filter id="g" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="26"/>' +
+      '<feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 24 -9" result="goo"/>' +
+      '<feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="4" result="n"/>' +
+      '<feDisplacementMap in="goo" in2="n" scale="80" xChannelSelector="R" yChannelSelector="G"/></filter>' +
+      '<g filter="url(#g)" fill="#fff">' + drops + '</g><rect width="' + W + '" height="' + H + '" fill="#fff" opacity="' + fill.toFixed(3) + '"/>');
+  };
+  const lumaMask = (p, vx, vy) => {
+    const K = 9, level = -0.05 + 1.15 * p;
+    return svgMask('<defs><linearGradient id="a" x1="' + (0.5 + 0.5 * vx) + '" y1="' + (0.5 + 0.5 * vy) + '" x2="' + (0.5 - 0.5 * vx) + '" y2="' + (0.5 - 0.5 * vy) + '"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient>' +
+      '<filter id="l" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">' +
+      '<feTurbulence type="fractalNoise" baseFrequency="0.0045 0.003" numOctaves="3" seed="7" result="t"/>' +
+      '<feColorMatrix in="t" type="matrix" values="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 1" result="n"/>' +
+      '<feComposite in="SourceGraphic" in2="n" operator="arithmetic" k1="0" k2="0.6" k3="0.4" k4="0" result="luma"/>' +
+      '<feColorMatrix in="luma" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ' + -K + ' 0 0 0 ' + (K * level + 0.5).toFixed(3) + '"/></filter></defs>' +
+      '<rect width="' + W + '" height="' + H + '" fill="url(#a)" filter="url(#l)"/>');
+  };
+
   // Presentation state of one scene's wrapper for transition progress p (0..1): entering or exiting.
   const present = (type, dir, enteringScene, p) => {
     const st = { opacity: 1, transform: "", filter: "", clip: "", mask: "" };
@@ -688,6 +716,46 @@
         else { st.opacity = p < 0.5 ? 1 : 0; st.transform = "perspective(1800px) rotate" + axis + "(" + -sign * p * 180 + "deg)"; }
         break;
       }
+      case "blinds": { // horizontal blinds widen until they meet
+        if (e) {
+          const band = H / 8, open = p * band;
+          st.mask = "repeating-linear-gradient(to bottom, #000 0px, #000 " + open + "px, transparent " + open + "px, transparent " + band + "px)";
+        }
+        break;
+      }
+      case "diamond":
+        if (e) { const r = p * 100; st.clip = "polygon(50% " + (50 - r) + "%, " + (50 + r) + "% 50%, 50% " + (50 + r) + "%, " + (50 - r) + "% 50%)"; }
+        break;
+      case "doors": { // Remotion slides the two halves of the old shot apart; here the new shot shows through a widening centre slit
+        if (e) st.transform = "scale(" + (1.05 - 0.05 * p) + ")";
+        else { const g = p * W * 0.52; st.clip = "path('M0 0H" + (W / 2 - g) + "V" + H + "H0Z M" + (W / 2 + g) + " 0H" + W + "V" + H + "H" + (W / 2 + g) + "Z')"; }
+        break;
+      }
+      case "glitchSlice": { // Remotion cuts the picture into shifted bands; here a hard swap in the middle through a jitter and a hue split
+        const k = Math.sin(Math.PI * p), r = Math.sin(Math.floor(p * 12) * 12.9898) * 43758.5453, jr = r - Math.floor(r) - 0.5;
+        st.opacity = e ? (p >= 0.5 ? 1 : 0) : (p < 0.5 ? 1 : 0);
+        st.transform = "translate(" + jr * 2 * 160 * k + "px, 0)";
+        st.filter = "hue-rotate(" + jr * 120 * k + "deg) saturate(" + (1 + 0.6 * k) + ")";
+        break;
+      }
+      case "spinZoom": {
+        const q = e ? 1 - p : p, sign = e ? 1 : -1;
+        st.opacity = e ? interp(p, [0, 0.5], [0, 1]) : interp(p, [0.5, 1], [1, 0]);
+        st.transform = "rotate(" + sign * 28 * q + "deg) scale(" + (1 + 0.6 * q) + ")"; st.filter = "blur(" + 16 * q + "px)";
+        break;
+      }
+      case "inkBleed": // ink drops grow and merge into the new shot (SVG goo mask), as in Remotion
+        if (e) st.mask = inkMask(p);
+        break;
+      case "lumaWipe": // a noisy luma mask thresholded by the progress, as in Remotion
+        if (e) st.mask = lumaMask(p, dv[0], dv[1]);
+        break;
+      case "cutCurve": { // the old shot accelerates, hard swap at peak speed, the new one carries the move on and settles; no blur
+        if (e ? p < 0.5 : p >= 0.5) { st.opacity = 0; break; }
+        const q = e ? 2 * (1 - p) : 2 * p, off = q * q * 0.16 * (e ? 1 : -1);
+        st.transform = "translate(" + off * dv[0] * 100 + "%, " + off * dv[1] * 100 + "%) scale(" + (1 + 2 * Math.abs(off)) + ")";
+        break;
+      }
       default: // fade, cut
         st.opacity = e ? p : 1;
     }
@@ -703,7 +771,12 @@
   const overlays = (P.overlays || []).filter((ov) => FACTORY[ov.component]).map((ov) => {
     const host = mk("div", { position: "absolute", inset: "0", display: "none" }, overlayRoot);
     const from = Math.round(ov.start * FPS), dur = Math.max(1, Math.round(ov.end * FPS) - from);
-    return { host, from, dur, instant: from === 0, update: FACTORY[ov.component](host, ov) };
+    // a library font (props.font) replaces the sans family while this overlay is drawn; the default three stay otherwise
+    const lib = (P.fontLib || {})[(ov.props || {}).font], keep = FONT.sans;
+    if (lib) FONT.sans = '"' + lib.family + '", ' + keep;
+    const update = FACTORY[ov.component](host, ov);
+    FONT.sans = keep;
+    return { host, from, dur, instant: from === 0, update };
   });
   const cartWindows = (P.overlays || []).filter((o) => o.component === "cart").map((o) => [Math.round(o.start * FPS), Math.round(o.end * FPS)]);
   const accents = scenes.filter((s) => s.index > 0 && s.scene.accent).map((s) => ({ s, el: mk("div", { position: "absolute", inset: "0", display: "none" }, $("accents")) }));
@@ -784,14 +857,73 @@
   }
   const renderLook = (frame) => { if (grainSeed) grainSeed.setAttribute("seed", String(1 + (frame % 6))); };
 
+  // ---------- handheld camera shake (scenes[].camera.shake {amp}: the same noise as the Remotion camera) ----------
+  const hash1 = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+  const vnoise = (x, seed) => { const i = Math.floor(x), fr = x - i, u = fr * fr * fr * (fr * (fr * 6 - 15) + 10); return (hash1(i + seed * 17.13) * (1 - u) + hash1(i + 1 + seed * 17.13) * u) * 2 - 1; };
+  const SWAY = [[0.9, 1], [2.3, 0.5], [5.1, 0.22]];
+  const sway = (f, amp, seed) => SWAY.reduce((sum, o) => sum + o[1] * vnoise((f / FPS) * o[0] + seed * 3.7, seed), 0) / 1.72 * amp;
+  const shakeFor = (s, f) => {
+    const sh = s.scene.camera && s.scene.camera.shake;
+    if (!sh) return { dx: 0, dy: 0, dr: 0, cover: 1 };
+    const a = sh.amp;
+    return { dx: sway(f, a, 1), dy: sway(f, a, 2), dr: sway(f, a * 0.05, 3), cover: 1 + (2 * a) / W + ((a * 0.05 * Math.PI) / 180) * (16 / 9) };
+  };
+
+  // ---------- subject effects (scenes[].subject, drawn inside the camera framing like the Remotion engine) ----------
+  // fill, outline, glow, dim, colorpop; `behind` and `lift` need a second copy of the footage and stay Remotion only.
+  const SUBJECT_MODES = ["fill", "outline", "glow", "dim", "colorpop"];
+  const matteAt = (sj, at) => {
+    if (sj.show ? at < sj.show[0] || at > sj.show[1] : sj.frames.indexOf(at) < 0) return null;
+    const have = sj.frames.filter((x) => x <= at);
+    return have.length ? Math.max.apply(null, have) : null;
+  };
+  const maskCss = (url, invert) => {
+    const layers = invert ? "url(" + url + "), linear-gradient(#000, #000)" : "url(" + url + ")";
+    const o = { webkitMaskImage: layers, maskImage: layers, webkitMaskSize: "100% 100%", maskSize: "100% 100%", webkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" };
+    if (invert) { o.webkitMaskComposite = "xor"; o.maskComposite = "exclude"; }
+    return o;
+  };
+  const subjects = scenes.filter((s) => s.scene.subject && SUBJECT_MODES.indexOf(s.scene.subject.mode || "fill") >= 0).map((s) => {
+    const sj = s.scene.subject, mode = sj.mode || "fill", color = sj.color || "#FFFFFF", width = sj.width != null ? sj.width : 14;
+    const base = { position: "absolute", left: "0", top: "0", width: "100%", height: "100%", zIndex: "2", display: "none" };
+    let el;
+    if (mode === "outline" || mode === "glow") {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", 0); svg.setAttribute("height", 0); svg.style.position = "absolute";
+      const grow = mode === "outline"
+        ? '<feMorphology in="SourceAlpha" operator="dilate" radius="' + width + '" result="g"/>'
+        : '<feGaussianBlur in="SourceAlpha" stdDeviation="' + width + '" result="b"/><feComponentTransfer in="b" result="g"><feFuncA type="linear" slope="2.4"/></feComponentTransfer>';
+      svg.innerHTML = '<filter id="subjf' + s.index + '" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' + grow +
+        '<feFlood flood-color="' + color + '" result="c"/><feComposite in="c" in2="g" operator="in" result="ring"/><feComposite in="ring" in2="SourceAlpha" operator="out"/></filter>';
+      s.cam.appendChild(svg);
+      el = document.createElement("img");
+      Object.assign(el.style, base, { objectFit: "cover", filter: "url(#subjf" + s.index + ")" });
+      s.cam.appendChild(el);
+    } else {
+      el = mk("div", base, s.cam);
+    }
+    return { s, sj, mode, color, el };
+  });
+  const renderSubjects = (frame) => subjects.forEach((u) => {
+    const s = u.s, at = frame - s.cut, off = matteAt(u.sj, at);
+    if (off === null || frame < s.begin || frame >= s.begin + s.duration) { u.el.style.display = "none"; return; }
+    const url = u.sj.matte + "_" + off + ".png", opacity = u.sj.opacity != null ? u.sj.opacity : 0.96;
+    u.el.style.display = "block";
+    if (u.mode === "outline" || u.mode === "glow") { if (u.el.getAttribute("src") !== url) u.el.setAttribute("src", url); u.el.style.opacity = String(opacity); return; }
+    if (u.mode === "fill") Object.assign(u.el.style, maskCss(url, false), { background: u.color, opacity: String(opacity) });
+    else if (u.mode === "dim") Object.assign(u.el.style, maskCss(url, true), { background: "#000", opacity: String(u.sj.opacity != null ? u.sj.opacity : 0.6) });
+    else Object.assign(u.el.style, maskCss(url, true), { backdropFilter: "grayscale(1) contrast(1.05)" });
+  });
+
   // ---------- the frame ----------
   const render = (frame) => {
+    renderSubjects(frame);
     scenes.forEach((s) => {
       const f = frame - s.begin;
       if (f < 0 || f >= s.duration) { s.tr.style.display = "none"; return; }
       s.tr.style.display = "block"; s.tr.style.zIndex = String(s.index);
-      const c = cameraFor(s, f), x = fxFor(s, frame);
-      Object.assign(s.cam.style, { transformOrigin: c.origin, translate: c.tx + x.dx + "px " + (c.ty + x.dy) + "px", rotate: c.rot + x.rot + "deg", scale: String(Math.min(c.scale * x.scale, CAM.maxScale * 1.1)) });
+      const c = cameraFor(s, f), x = fxFor(s, frame), sk = shakeFor(s, f);
+      Object.assign(s.cam.style, { transformOrigin: c.origin, translate: c.tx + x.dx + sk.dx + "px " + (c.ty + x.dy + sk.dy) + "px", rotate: c.rot + x.rot + sk.dr + "deg", scale: String(Math.min(c.scale * x.scale * sk.cover, CAM.maxScale * 1.1)) });
       let st = { opacity: 1, transform: "", filter: "", clip: "", mask: "" };
       const t = s.scene.transition || { type: "fade" };
       if (s.index > 0 && s.transitionIn > 0 && f < s.transitionIn) {

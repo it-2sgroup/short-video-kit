@@ -16,15 +16,18 @@ the mastering) is shared; only the last step changes. Nothing here replaces Remo
 |---|---|---|
 | Licence | Free to individuals and companies of up to 3 employees; $25 per seat per month above that, an AI agent writing Remotion code counts as a seat | **Apache-2.0**, no per-render fee and no seat count [D] (`github.com/heygen-com/hyperframes/blob/main/LICENSE`); fonts, footage and music keep their own licences |
 | Overlays drawn | all 20 components | 17: **not drawn: `magnifier`, `thumbs`, `compare`, `ranking`** (the generator lists them and skips them) |
-| Transitions | 11 (`crossZoom` is a real WebGL blur) | the same 11 (`crossZoom` is a zoom-blur dissolve) |
+| Transitions | all of `TransitionType` (the shader ones are WebGL) | the CSS ones (the first 11 and `blinds`, `diamond`, `doors`, `glitchSlice`, `spinZoom`); the shader and card ones are drawn as a `fade` and listed in the report (`crossZoom` is a zoom-blur dissolve here) |
+| Subject effects (`Subject` cell) | fill, outline, glow, dim, colorpop, behind and the newer modes | fill, outline, glow, dim, colorpop (matte PNGs are linked into the project); the modes that need a second copy of the footage (`behind`, `lift`) are Remotion only and listed |
+| Camera `shake` | drawn | drawn (the same noise) |
+| Library fonts (`font=<id>`) | loaded on demand | the converter imports the families an overlay asks for (`assets/fonts.json`) and drawn on the overlays HyperFrames draws (`title`, `label`, ...) |
 | CapCut-style hits (`+shake +glitch +rgb +pulse`), film look (`--look`) | ignored | drawn |
 | Speed ramps | frame-by-frame inside `<Freeze>` | baked into one clip per scene with ffmpeg |
 | Proven here | many videos | one real video and the example project, frame-compared (§6) |
 
-**Use HyperFrames when** the client's studio is above the Remotion seat limit, when a video wants the
+**Use HyperFrames when** the studio is above the Remotion seat limit, when a video wants the
 CapCut-style hits or the film look, or when you want its catalogue (§7). **Use Remotion when** the plan
 needs a before/after `compare`, a `thumbs` strip, a `magnifier` or a `ranking`, or the cleanest `crossZoom`.
-Say which and why in one line, as with the playbook. A client's rule that a video has the same look in both
+Say which and why in one line, as with the playbook. A requirement that a video has the same look in both
 renderers holds: the tokens, easings and layout come from the same `theme.ts` numbers (§6).
 
 ## 2. What HyperFrames is [D]
@@ -36,8 +39,8 @@ renderers holds: the tokens, easings and layout come from the same `theme.ts` nu
   it: headless Chrome seeks to each frame, screenshots it, and FFmpeg encodes. Video is pre-extracted to
   frames, so the render is deterministic as long as the page is a pure function of time: no `Date.now()`,
   no unseeded `Math.random()`, no network at render time.
-- Requirements: **Node 22+**, **FFmpeg**, Chrome (the CLI uses the system Chrome when it finds one; on this
-  machine it did, so nothing was downloaded beyond the npm package).
+- Requirements: **Node 22+**, **FFmpeg**, Chrome (the CLI uses the system Chrome when it finds one, so then
+  nothing is downloaded beyond the npm package).
 - CLI (`npx hyperframes@VERSION …`): `check` (lint, runtime, layout, motion and contrast in one command),
   `snapshot --at 1,3,5` (PNG frames to look at), `preview`, `render` (`--quality draft|standard|high`,
   `--format mp4|mov|webm|gif|png-sequence`, `--fps`, `--workers`, `--docker`, `--output`), `transcribe`,

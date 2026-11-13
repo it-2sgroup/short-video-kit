@@ -1,11 +1,14 @@
-# Niche Winning Patterns — Evidence from Real Campaign Data
+# Evidence behind the product-demo playbook defaults — measured TikTok Shop data
 
-Everything here comes from one real TikTok Shop dataset: **16,242 videos** for a Vietnamese
-laundry stain/mould remover (SAIZA), posted 2025-06-02 → 2026-11-03, totalling **45.5M views**,
-**2,967,050,809 VND GMV** and **33,067 units sold**.
+Everything here comes from one real TikTok Shop dataset: **16,242 videos** for one Vietnamese
+household-cleaning product (a stain remover), posted 2025-06-02 → 2026-11-03, totalling **45.5M views**,
+**2,967,050,809 VND GMV** and **33,067 units sold**. It is the evidence for the numbers in
+`playbooks/product-demo.json` (runtime band, hook-first structure, early cart).
 
 Read this before writing an edit plan for a household-cleaning or similar demo-driven product.
-It tells you where the leverage actually is, which is not where most editing advice assumes.
+It tells you where the leverage actually is, which is not where most editing advice assumes. One
+product in one market is one data point: the findings justify the playbook's defaults, they are not
+laws for other genres.
 
 Each finding is tagged:
 - **[DATA]** — measured directly in the dataset, with the numbers shown.
@@ -22,7 +25,7 @@ Each finding is tagged:
 4. [Creator concentration beats volume](#4-creator-concentration-beats-volume)
 5. [Caption patterns: real but weak](#5-caption-patterns-real-but-weak)
 6. [Posting time](#6-posting-time)
-7. [The proven demo format for this product](#7-the-proven-demo-format-for-this-product)
+7. [The demo format: the transformation is the hook](#7-the-demo-format-the-transformation-is-the-hook)
 8. [What the data cannot tell you](#8-what-the-data-cannot-tell-you)
 9. [Data quality caveats](#9-data-quality-caveats)
 
@@ -50,14 +53,14 @@ converted them just fine.
 by early retention, which is driven by the hook and the cut rhythm. This is why the hard rules in
 SKILL.md are about the first 3 seconds and scene length, not about how well you explain features.
 
-When a client asks you to "make the product benefits clearer", recognise that this dataset says
+When asked to "make the product benefits clearer", recognise that this dataset says
 that is rarely the binding constraint. Push the effort to the hook instead.
 
 ---
 
 ## 2. Duration: the sweet spot is 35–44s
 
-**[DATA]** Video length comes from `raw_json.duration`. Across 15,607 videos with a duration:
+**[DATA]** Video length comes from each video's duration field. Across 15,607 videos with a duration:
 
 | Duration | Videos | Avg views | Avg CTR | % that made any sale |
 |---|---|---|---|---|
@@ -119,30 +122,31 @@ verbally pointed at, not just mentioned. See `captions-and-text.md` for cart-poi
 
 ## 4. Creator concentration beats volume
 
-**[DATA]** Out of roughly 2,900 creators who posted about this product:
+**[DATA]** Out of roughly 2,900 creators who posted about this product, the nine highest by GMV
+(creators are anonymised here):
 
-| Creator | Videos | Total views | Total GMV | Avg views | GMV per 1k views | Cumulative share of GMV |
-|---|---|---|---|---|---|---|
-| huongmesamoliu | 96 | 6,141,949 | 412,238,089 | 63,979 | 67,118 | 13.9% |
-| phuongnhi220920 | 144 | 4,961,042 | 297,321,276 | 34,452 | 59,931 | 23.9% |
-| mebegauvoi | 73 | 2,646,494 | 235,735,468 | 36,253 | 89,075 | 31.9% |
-| thanhgiadungne | 173 | 4,738,220 | 210,588,576 | 27,389 | 44,445 | 39.0% |
-| huyn07712 | 33 | 1,449,341 | 166,516,199 | 43,919 | 114,891 | 44.6% |
-| memamnuoicon | 264 | 1,417,951 | 117,674,718 | 5,371 | 82,989 | 48.6% |
-| tranthomtiktok | 48 | 1,341,877 | 114,486,858 | 27,956 | 85,318 | 52.4% |
-| phamquyen980 | 32 | 1,748,598 | 103,496,574 | 54,644 | 59,188 | 55.9% |
-| changg.dayne3 | 51 | 1,379,213 | 98,832,965 | 27,043 | 71,659 | 59.3% |
+| Creator | Videos | Total views | Avg views | GMV per 1k views (VND) | Cumulative share of GMV |
+|---|---|---|---|---|---|
+| A | 96 | 6,141,949 | 63,979 | 67,118 | 13.9% |
+| B | 144 | 4,961,042 | 34,452 | 59,931 | 23.9% |
+| C | 73 | 2,646,494 | 36,253 | 89,075 | 31.9% |
+| D | 173 | 4,738,220 | 27,389 | 44,445 | 39.0% |
+| E | 33 | 1,449,341 | 43,919 | 114,891 | 44.6% |
+| F | 264 | 1,417,951 | 5,371 | 82,989 | 48.6% |
+| G | 48 | 1,341,877 | 27,956 | 85,318 | 52.4% |
+| H | 32 | 1,748,598 | 54,644 | 59,188 | 55.9% |
+| I | 51 | 1,379,213 | 27,043 | 71,659 | 59.3% |
 
 **Nine creators produced 59.3% of all revenue. Fifteen produced 68%.**
 
-Volume on its own does not substitute. The single most prolific creator, `nhasachkhongmoc`, posted
-**642 videos** — more than anyone — and averaged 1,545 views, delivering 1.71% of GMV. Meanwhile
-`huyn07712` posted 33 videos and delivered 5.62%, a 19× better return per video.
+Volume on its own does not substitute. The single most prolific creator posted **642 videos**, more
+than anyone, and averaged 1,545 views, delivering 1.71% of GMV. Meanwhile creator E posted 33 videos
+and delivered 5.62%, a 19× better return per video.
 
-**[DATA] Reach and conversion are different skills.** Compare two creators:
-- `phuongnhi220920`: 34,452 avg views, 59,931 VND per 1k views — high reach, average conversion.
-- `hangmexigi`: 5,894 avg views, **144,101 VND per 1k views** — low reach, outstanding conversion.
-- `memamnuoicon`: 5,371 avg views, 82,989 VND per 1k views — low reach, strong conversion.
+**[DATA] Reach and conversion are different skills.** Compare creators:
+- Creator B: 34,452 avg views, 59,931 VND per 1k views — high reach, average conversion.
+- A creator with 5,894 avg views and **144,101 VND per 1k views** — low reach, outstanding conversion.
+- Creator F: 5,371 avg views, 82,989 VND per 1k views — low reach, strong conversion.
 
 A creator who converts well but cannot get reach is an editing problem you can fix: give them a
 stronger hook and tighter pacing, and their existing conversion carries the rest. A creator with
@@ -159,27 +163,27 @@ plan applied to both wastes the advantage each already has.
 
 | Caption feature | Top 20% | Bottom 80% | Lift |
 |---|---|---|---|
-| Avg distinct stain types named | 0.95 | 0.64 | 1.5× |
-| Captions naming 3+ stain types | 11.2% | 6.1% | 1.8× |
+| Avg distinct problem types (stain types) named | 0.95 | 0.64 | 1.5× |
+| Captions naming 3+ problem types | 11.2% | 6.1% | 1.8× |
 | Avg hashtag count | 3.1 | 2.7 | 1.1× |
 | Mentions colored fabric safety | 2.3% | 1.2% | 1.9× |
 | Makes a result claim ("như mới", "trắng bóc", "sạch bong") | 3.9% | 2.1% | 1.9× |
 | Avg caption length (chars) | 78 | 65 | 1.2× |
 
 Every signal points the same way, at roughly 2×, but all are low-prevalence — even among winners,
-only 11% name three or more stain types. **Caption is a real but minor lever.** Do not spend much
-of the edit budget here, and do not claim to a client that caption rewriting will fix a video.
+only 11% name three or more problem types. **Caption is a real but minor lever.** Do not spend much
+of the edit budget here, and do not promise that caption rewriting will fix a video.
 
 What the winning captions actually do, from reading the top 25 by GMV:
-- Enumerate specific stains rather than claiming general cleaning power:
-  *"tẩy được thâm kim quần áo, ố vàng, sa tế, dầu mỡ, trà, cf"*
-- Lead with a reaction, not a feature: *"Đỉnh thật luôn tẩy sạch như mới"*, *"Không tin được..."*
-- Carry 3–4 specific hashtags (`#taythamkim #taymocquanao #tayovang #saiza`), not a hashtag wall.
+- Enumerate the specific problems the product handles (a list of named cases) rather than claiming
+  general power.
+- Lead with a reaction, not a feature (*"Không tin được..."*).
+- Carry 3–4 specific hashtags that name the use, not a hashtag wall.
 
-**Caution on one observed pattern.** A high-earning caption read *"Hổng sạch hổng lấy tiền"*
-("not clean, no payment"). This is a guaranteed-results / money-back claim. It performed well here,
-but see `claims-and-compliance.md` — guarantee claims are a documented moderation risk. **Do not copy it.**
-That it worked for one video is not a reason to put a client's account at risk.
+**Caution on one observed pattern.** A high-earning caption promised "no payment if it is not
+clean". This is a guaranteed-results / money-back claim. It performed well here, but see
+`claims-and-compliance.md` — guarantee claims are a documented moderation risk. **Do not copy it.**
+That it worked for one video is not a reason to put an account at risk.
 
 ---
 
@@ -201,23 +205,23 @@ sample, and which creators post late is uncontrolled — the top creators may si
 
 ---
 
-## 7. The proven demo format for this product
+## 7. The demo format: the transformation is the hook
 
-**[DATA]** The brand's own creator brief names one technique as the campaign's "điểm win": stage a
-visible colour change. Wet the collar or underarm of a white shirt, apply diluted red antiseptic to
-create a convincing stain, pour the pink bottle on it, and hold the shot while the colour
-disappears. The brief requires the before/after result to be visible **within the first 3 seconds**.
-
-This is consistent with the duration and CTR findings: the transformation *is* the hook, and it is
-what earns the early retention that drives distribution.
+**[CONVENTION, consistent with the data]** The default format of the product-demo playbook stages a
+visible change and holds the shot while it happens: apply the product to a prepared problem (for a
+cleaning product, a stain made on camera) and keep the camera on it until the change is visible, with the
+before/after result on screen **within the first 3 seconds**. This is consistent with the duration and
+CTR findings: the transformation *is* the hook, and it is what earns the early retention that drives
+distribution. The dataset cannot rank formats (it has no hook-type column, §8); this is the format
+that product's creators were asked to use, not a measured winner.
 
 **[HYPOTHESIS]** Three refinements that follow from the demo format but are not measured:
 - Shoot the before and after from a locked, identical camera position. A matched frame reads as
   evidence; a re-framed one reads as a cut-away and invites suspicion.
 - Keep lighting constant between before and after. A brighter "after" shot is the single most
   common reason viewers call a cleaning demo fake.
-- Show the stain being *created* on camera when possible. Viewers who watch the stain appear are
-  far less likely to assume two different garments were swapped.
+- Show the problem being *created* on camera when possible. Viewers who watch it appear are
+  far less likely to assume two different items were swapped.
 
 See `cutting-and-pacing.md` for how to place the reveal on the timeline.
 
@@ -225,7 +229,7 @@ See `cutting-and-pacing.md` for how to place the reveal on the timeline.
 
 ## 8. What the data cannot tell you
 
-Be honest about these limits when reporting to a client. The dataset has no column for:
+Be honest about these limits when reporting. The dataset has no column for:
 
 - **Hook type.** There is no label for whether a video opened with a question, a shock claim, or a
   result-first reveal. The hook taxonomy in `hook-library.md` comes from published editing research,
@@ -244,12 +248,12 @@ pacing and hook guidance is informed practice. Keep the two apart when you expla
 
 ## 9. Data quality caveats
 
-- The `click_through_rate` field contains some impossible values (a maximum of 4.0, i.e. 400%).
+- The click-through-rate field contains some impossible values (a maximum of 4.0, i.e. 400%).
   A small number of records are corrupt. The quintile analysis is robust to this because it ranks
   rather than averages raw values, but do not quote a single video's CTR without sanity-checking it.
-- There is a companion table, `video_metrics_daily`, whose rows repeat on a 7-day cycle. Summing it
-  overstates totals by more than 100×. Every figure above comes from the `videos` snapshot table
-  instead. If you re-run this analysis, use `videos`, not the daily table.
+- There is a companion daily-metrics table whose rows repeat on a 7-day cycle. Summing it
+  overstates totals by more than 100×. Every figure above comes from the per-video snapshot table
+  instead. If you re-run this analysis, use the snapshot, not the daily table.
 - About 40% of videos show exactly 0% CTR. Some of this is genuine (no one clicked); some may be
   unattributed. Treat the bottom two CTR quintiles as "no measurable commercial signal" rather than
   as a precise zero.

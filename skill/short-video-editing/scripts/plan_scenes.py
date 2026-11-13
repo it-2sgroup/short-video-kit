@@ -2,7 +2,7 @@
 """Fill the Scenes table of an edit plan from a shot library, without reusing any footage.
 
     python scripts/plan_scenes.py --library library.json --plan skeleton.md \
-        --kinds "STAIN,STAIN,STAIN|SOAK,POUR,LIFT@IMG_0329" --used v4/edit-plan.md v7/edit-plan.md --seed 3
+        --kinds "DETAIL,DETAIL,DETAIL|ACTION,WIDE,ACTION@CLIP_B" --used plan_a.md plan_b.md --seed 3
     python scripts/plan_scenes.py --library library.json --cuts cuts.json --types "HOOK,HOOK,DEMO,..." \
         --kinds "..." --playbook product-demo
 
@@ -16,10 +16,10 @@
             every range keeps `gap` seconds (default 0.5) from the ones taken.
 --seed      varies which candidate is picked, so two videos from one library differ.
 
-library.json (see assets/shot-library.example.json): {"gap": 0.5, "spans": [{"clip": "IMG_0319",
-"kind": "POUR", "start": 0, "end": 15, "focus": [0.3, 0.4], "size": "close", "move": "push"}, ...]}.
+library.json (see assets/shot-library.example.json): {"gap": 0.5, "spans": [{"clip": "CLIP_A",
+"kind": "ACTION", "start": 0, "end": 15, "focus": [0.3, 0.4], "size": "close", "move": "push"}, ...]}.
 A span is a stretch of a clip where one kind of shot holds. Kinds are your own words for the footage
-(ROOM, VIEW, MACRO, FACE, STAIN...); `focus` is where the action is (0..1), `size` wide | medium | close,
+(WIDE, DETAIL, ACTION, FACE...); `focus` is where the action is (0..1), `size` wide | medium | close,
 `move` an optional camera hint. The camera cell comes from `move`, else the playbook's `camera.byKind`
 (a kind starting with that key), else the shot size. A scene with a Speed reads speed x length of footage.
 

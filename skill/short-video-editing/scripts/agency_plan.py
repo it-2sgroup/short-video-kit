@@ -6,8 +6,8 @@ animated grid, a brand mark that lands on its name and a closing card. The mecha
 this script writes it; the creative half (which words become a block, which effect, which picture) is a first draft you refine in the plan.
 
     python scripts/agency_plan.py --words words.json --matches matches.json --cutaways cutaways.json \
-        --brand SISMO --out edit-plan.md [--faces faces.json] [--flash C5074] [--tail 1.4] [--title "SISMO pitch"] \
-        [--cta "INBOX NGAY" --cta-word inbox]
+        --brand BRAND --out edit-plan.md [--faces faces.json] [--flash CLIP_A] [--tail 1.4] [--title "BRAND pitch"] \
+        [--cta "CALL TO ACTION" --cta-word SPOKEN_WORD]
 
 Run it TWICE: the first run writes the plan and `<out>.face-keys.txt` (the CLIP@seconds list to measure); run `person_matte.py --faces "$(cat
 <out>.face-keys.txt)" --clips render/public/clips --faces-out faces.json`, then run this again with `--faces faces.json`.
@@ -23,12 +23,12 @@ What it decides:
   * Card scenes: every stretch of the voice that no take holds (0.8 s or more) is cut on its phrases into 0.8-1.6 s cards with the best
     unused cutaways (never one range twice, never two cards from one clip in a row); a long last card grows to full frame (`expand`).
   * Text: every clause the speaker says on camera becomes a `phrase` block (a lead line and a loud emphasis line, effects rotating so no two
-    neighbours match), the brand word (one or several words: --brand "Kiiro Sushi") triggers a `logo`, "từ N đến M" a `counter`, --cta-word
-    (default "inbox") a neon call to action, and a phrase that would share the top with a logo or counter drops to y=0.285; the first words are a
-    `burst` with the silhouette `Flash` on frame 0 when --flash CLIP is given. The closing card repeats the --cta text. Captions are hidden where a block says the words and run (box, glow,
-    underline in turn) above the cards.
+    neighbours match), the brand word (one or several words: --brand "Acme Studio") triggers a `logo`, "từ N đến M" a `counter`, the spoken --cta-word
+    (with --cta, the text) a neon call to action (off unless both are given), and a phrase that would share the top with a logo or counter drops to
+    y=0.285; the first words are a `burst` with the silhouette `Subject` flash on frame 0 when --flash CLIP is given. The closing card repeats the --cta
+    text when there is one. Captions are hidden where a block says the words and run (box, glow, underline in turn) above the cards.
   * A closing card of --tail seconds with the logo.
-Writes `edit-plan.md` for plan_to_project.py (Layout, Flash and Face columns included), then run pacing_checker.py and read the plan:
+Writes `edit-plan.md` for plan_to_project.py (Layout, Subject and Face columns included), then run pacing_checker.py and read the plan:
 the draft is a starting point, not the answer. Needs nothing but Python 3.
 """
 from __future__ import annotations
@@ -154,15 +154,17 @@ def main() -> int:
     ap.add_argument("--cutaways", type=Path, required=True)
     ap.add_argument("--faces", type=Path, help="person_matte.py --faces-out JSON (CLIP@seconds keys)")
     ap.add_argument("--brand", default="", help="the brand name as spoken (one or more words): its word gets the logo")
-    ap.add_argument("--cta", default="INBOX NGAY", help="the call to action on the neon block and the closing card (default INBOX NGAY)")
-    ap.add_argument("--cta-word", default="inbox", help="the spoken word that triggers the neon call to action (default inbox)")
-    ap.add_argument("--flash", metavar="CLIP", help="the first take: its first frames get the silhouette Flash (run person_matte.py first)")
+    ap.add_argument("--cta", default="", help="the call to action text on the neon block and the closing card (no default: without it there is no neon block and no closing pill)")
+    ap.add_argument("--cta-word", default="", help="the spoken word that triggers the neon call to action (needs --cta; no default)")
+    ap.add_argument("--flash", metavar="CLIP", help="the first take: its first frames get the silhouette flash (run person_matte.py first)")
     ap.add_argument("--voice-stem", default="", help="stem of the voice file inside the clips folder (skipped as a take)")
     ap.add_argument("--min-corr", type=float, default=0.85)
     ap.add_argument("--tail", type=float, default=1.4, help="seconds of closing card after the voice")
     ap.add_argument("--title", default="Service pitch")
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args()
+    if a.cta_word and not a.cta:
+        ap.error("--cta-word needs --cta (the text to show)")
 
     words = load(a.words)
     vend = words[-1]["end"] + 0.15
@@ -338,9 +340,9 @@ def main() -> int:
                 and t0 - logo_until > 8 and on_camera(t0, t0 + 0.3):
             ov.append((round(t0 - 0.05, 2), round(t0 + 2.9, 2), "logo", "at=0.5,0.185; width=380"))
             logo_until = t0 + 2.9
-        if a.cta_word and clean(w["text"]).lower() == a.cta_word.lower():
+        if a.cta_word and a.cta and clean(w["text"]).lower() == a.cta_word.lower():
             ov.append((round(t0 - 0.05, 2), round(t0 + 1.1, 2), "phrase", f"emph={a.cta}; y=0.16; emphColor=yellow; fx=neon; exit=fade"))
-    # a phrase that would share the top with a logo or counter (the same strip, y 0.185) drops below it, as in the hand-finished SISMO plan
+    # a phrase that would share the top with a logo or counter (the same strip, y 0.185) drops below it
     logos = [(o0, o1) for o0, o1, c, _ in ov if c == "logo"]
     dropped = [o for o in ov if o[2] == "counter" and any(o[0] < b0 and o[1] > a0 for a0, b0 in logos)]   # one mark at a time in the top strip
     ov = [o for o in ov if o not in dropped]
@@ -348,7 +350,8 @@ def main() -> int:
     ov = [(o0, o1, c, content.replace("y=0.20", "y=0.285") if c == "phrase" and any(o0 < b0 and o1 - a0 > 0.15 for a0, b0 in tops) else content)
           for o0, o1, c, content in ov]
     ov.append((round(vend + 0.17, 2), round(total + 2, 2), "logo", "at=0.5,0.40; width=620; tint=white; hold=1"))
-    ov.append((round(vend + 0.27, 2), round(total + 2, 2), "pill", f"text={a.cta}; variant=white; at=0.5,0.60; size=64"))
+    if a.cta:
+        ov.append((round(vend + 0.27, 2), round(total + 2, 2), "pill", f"text={a.cta}; variant=white; at=0.5,0.60; size=64"))
 
     # captions: hidden where a block says the words, a strip above the cards elsewhere
     cur_h = 0
@@ -410,7 +413,7 @@ This is a DRAFT written by scripts/agency_plan.py: read every row, fix the text 
 
 ## Scenes
 
-| # | Start | End | Source | In | Type | Layout | Transition | Camera | Speed | Flash | Face | Shot |
+| # | Start | End | Source | In | Type | Layout | Transition | Camera | Speed | Subject | Face | Shot |
 |---|-------|-----|--------|----|------|--------|------------|--------|-------|-------|------|------|
 """ + "\n".join(rows) + """
 

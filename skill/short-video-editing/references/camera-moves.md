@@ -7,7 +7,7 @@ choose it from what the shot shows.
 
 **A move that nobody notices is wasted.** On a phone, a 5% push is invisible. On a locked shot the
 camera has to be *seen*: at least ~12% change of scale or ~8% of the frame in a pan, aimed at the action
-(the stain, the pour, the face, the dish), with the shot size changing from scene to scene.
+(the detail, the pour, the face, the dish), with the shot size changing from scene to scene.
 
 **Footage that already moves is the exception.** A gimbal walk through a room, a pan across a market,
 a handheld follow: a virtual move on top of a real one reads as a wobble. `inspect_footage.py
@@ -21,11 +21,12 @@ patterns subtle (pans of 5–6%, pushes to ~1.12) for the same reason.
 
 | Move | Plan syntax | Magnitude | Use |
 |---|---|---|---|
-| Push-in | `push 1.22>1.46 focus 0.5,0.4` | +12–30% over the scene | Stains, pours: move toward the detail the voice talks about |
-| Pull-out reveal | `pull 1.32>1.0 focus 0.5,0.45` | −20–35% | The lifted garment / result: start tight, open to the whole piece |
-| Pan / reframe | `pan left 8% 1.2>1.32 focus …` | 8% of frame width with a small zoom | Fake a second angle on a soaking bowl; follow the action |
+| Push-in | `push 1.22>1.46 focus 0.5,0.4` | +12–30% over the scene | Details, pours: move toward the detail the voice talks about |
+| Pull-out reveal | `pull 1.32>1.0 focus 0.5,0.45` | −20–35% | The revealed result: start tight, open to the whole piece |
+| Pan / reframe | `pan left 8% 1.2>1.32 focus …` | 8% of frame width with a small zoom | Fake a second angle on a static setup; follow the action |
 | Roll (lean) | `… roll 1.0>-1.0` | ±1–2° | A handheld lean that makes a static shot feel like a new angle; ≤ 1 scene in 4 |
 | Hold | `hold` (≈1.04) or `hold 1.22 focus 0.5,0.35` | a fixed framing | Reveals that must read; footage that moves; talking-head jump cuts alternating wide (`hold 1.0`) and tight (`hold 1.22` on the face) |
+| Handheld shake | `… shake mild` (6 px) · `shake strong` (14 px) · `shake 9` | smooth noise on x, y and roll, three octaves (0.9, 2.3 and 5.1 Hz), each axis its own seed; the frame is scaled up just enough to hide the edge | A locked-off take that should feel handheld or documentary; ≤ 1 scene in 4, never with `keys` that must land exactly (the sway adds to them). Remotion only; the `+shake` hit of the Transition column (HyperFrames) is a different, one-off jolt on the cut |
 | Focus point | `… focus 0.45,0.55` | — | The point that stays put while scaling: aim it at the action, not the middle of the frame |
 | Keyframes | `keys 0=1.05 ; 0.5=1.38@0.4,0.5 out ; 1=1.38@0.4,0.5` | 2-4 named framings with an easing each | A scene with an action to follow or reveal (the Keyframes section below) |
 | Keyword punch-in | Overlays row `punch` at `@"word"`, or `--punch-keywords` | ×1.15 over 6 frames, holds to the scene end | Emphasis on a product name, number, "boom" |
@@ -149,7 +150,7 @@ computed from the voice). Both renderers read `keys` (`engine/camera.ts`, `hyper
 ## Rules for varying the camera (`--auto-camera`, `plan_scenes.py`)
 
 - Every shot gets a move; never the same move twice in a row.
-- Aim `focus` at the action. A shot library records it per span (`focus`: the stain, the pour spout);
+- Aim `focus` at the action. A shot library records it per span (`focus`: the detail, the pour spout);
   a blank focus defaults to the centre and looks generic.
 - Change the shot size at least every scene or two (ladder above); the hook's two beats differ in size.
 - Named beats follow the playbook's `camera.byType` (product-demo: REVEAL pulls out, CTA-CLOSE a calm

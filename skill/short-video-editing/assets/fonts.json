@@ -1,0 +1,356 @@
+{
+ "about": "Generated from assets/remotion-template/src/fonts.ts (family and weights from @remotion/google-fonts getInfo): the HyperFrames converter reads it to import the library fonts a project uses. technique.py check compares its ids with fonts.ts.",
+ "fonts": {
+  "be-vietnam-pro": {
+   "family": "Be Vietnam Pro",
+   "mood": "bold",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "montserrat": {
+   "family": "Montserrat",
+   "mood": "bold",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "bricolage-grotesque": {
+   "family": "Bricolage Grotesque",
+   "mood": "bold",
+   "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800
+   ]
+  },
+  "league-spartan": {
+   "family": "League Spartan",
+   "mood": "bold",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "unbounded": {
+   "family": "Unbounded",
+   "mood": "bold",
+   "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "tiktok-sans": {
+   "family": "TikTok Sans",
+   "mood": "bold",
+   "weights": [
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "plus-jakarta-sans": {
+   "family": "Plus Jakarta Sans",
+   "mood": "bold",
+   "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800
+   ]
+  },
+  "barlow-condensed": {
+   "family": "Barlow Condensed",
+   "mood": "condensed",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "anton": {
+   "family": "Anton",
+   "mood": "condensed",
+   "weights": [
+    400
+   ]
+  },
+  "league-gothic": {
+   "family": "League Gothic",
+   "mood": "condensed",
+   "weights": [
+    400
+   ]
+  },
+  "oswald": {
+   "family": "Oswald",
+   "mood": "condensed",
+   "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+   ]
+  },
+  "big-shoulders": {
+   "family": "Big Shoulders",
+   "mood": "condensed",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "saira-extra-condensed": {
+   "family": "Saira Extra Condensed",
+   "mood": "condensed",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "playfair-display": {
+   "family": "Playfair Display",
+   "mood": "serif",
+   "weights": [
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "fraunces": {
+   "family": "Fraunces",
+   "mood": "serif",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "cormorant-garamond": {
+   "family": "Cormorant Garamond",
+   "mood": "serif",
+   "weights": [
+    300,
+    400,
+    500,
+    600,
+    700
+   ]
+  },
+  "newsreader": {
+   "family": "Newsreader",
+   "mood": "serif",
+   "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800
+   ]
+  },
+  "libre-bodoni": {
+   "family": "Libre Bodoni",
+   "mood": "serif",
+   "weights": [
+    400,
+    500,
+    600,
+    700
+   ]
+  },
+  "nunito": {
+   "family": "Nunito",
+   "mood": "rounded",
+   "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "baloo-2": {
+   "family": "Baloo Two",
+   "mood": "rounded",
+   "weights": [
+    400,
+    500,
+    600,
+    700,
+    800
+   ]
+  },
+  "paytone-one": {
+   "family": "Paytone One",
+   "mood": "rounded",
+   "weights": [
+    400
+   ]
+  },
+  "coiny": {
+   "family": "Coiny",
+   "mood": "rounded",
+   "weights": [
+    400
+   ]
+  },
+  "pacifico": {
+   "family": "Pacifico",
+   "mood": "script",
+   "weights": [
+    400
+   ]
+  },
+  "dancing-script": {
+   "family": "Dancing Script",
+   "mood": "script",
+   "weights": [
+    400,
+    500,
+    600,
+    700
+   ]
+  },
+  "patrick-hand": {
+   "family": "Patrick Hand",
+   "mood": "script",
+   "weights": [
+    400
+   ]
+  },
+  "playpen-sans": {
+   "family": "Playpen Sans",
+   "mood": "script",
+   "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800
+   ]
+  },
+  "space-grotesk": {
+   "family": "Space Grotesk",
+   "mood": "tech",
+   "weights": [
+    300,
+    400,
+    500,
+    600,
+    700
+   ]
+  },
+  "tektur": {
+   "family": "Tektur",
+   "mood": "tech",
+   "weights": [
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+   ]
+  },
+  "bungee": {
+   "family": "Bungee",
+   "mood": "retro",
+   "weights": [
+    400
+   ]
+  },
+  "sigmar": {
+   "family": "Sigmar",
+   "mood": "retro",
+   "weights": [
+    400
+   ]
+  },
+  "bangers": {
+   "family": "Bangers",
+   "mood": "retro",
+   "weights": [
+    400
+   ]
+  }
+ }
+}

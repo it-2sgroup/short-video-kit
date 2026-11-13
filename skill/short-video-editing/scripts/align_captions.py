@@ -2,8 +2,8 @@
 """Turn a voiceover into burned-in caption groups with accurate text and accurate timing.
 
 Why this is not just "run Whisper and use its output": Whisper mishears. Transcribing a
-Vietnamese voiceover of this project's own script produced "mua tui sach" for "mua tui xach"
-and "kieu gian" for "kieu dang". Those errors are invisible in a transcript and glaring when
+Vietnamese voiceover of a known script swaps similar-sounding syllables (s/x, d/gi, a missing
+tone) for the written word. Those errors are invisible in a transcript and glaring when
 burned onto a video.
 
 But we already know the exact words — we wrote them and sent them to the TTS. So Whisper is
@@ -19,8 +19,8 @@ Options worth knowing:
     --model     tiny|base|small|medium|large-v3   (default small; medium for speech over music)
     --words     words per caption group (default 4; use 2-3 for high energy)
     --lang      language code (default vi)
-    --prompt    words Whisper should expect: brand names and domain terms ("SISMO, TikTok Shop, video media, KOC").
-                Whisper small mishears them otherwise (a brand became "xi xơ mô"); it still needs a hand check.
+    --prompt    words Whisper should expect: brand names and domain terms ("BRAND, PRODUCT NAME, TikTok Shop").
+                Whisper small mishears them otherwise (a spelled-out brand comes out as unrelated syllables); it still needs a hand check.
 
 Requires: faster-whisper, ffmpeg on PATH.
 """
@@ -181,7 +181,7 @@ def align(script_words: list[str], heard: list[Word]) -> list[Word]:
 
 
 def snap_to_silences(words: list[Word], audio: Path) -> int:
-    """Whisper sometimes stretches a word across a pause ("Vừa" 24.74-25.50 s when the voice is silent
+    """Whisper sometimes stretches a word across a pause (a word stamped 24.7-25.5 s when the voice is silent
     until 25.3 s), so the caption shows before the speech. Measure the real silences (>= 0.2 s at -35 dB)
     and pull any word that overlaps one back to the sound: a word that starts in a pause starts when the
     pause ends; a word that ends in a pause ends when it begins. Returns how many words moved."""

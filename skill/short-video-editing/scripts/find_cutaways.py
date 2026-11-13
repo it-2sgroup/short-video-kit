@@ -3,7 +3,7 @@
 
 A talking-head pitch needs pictures for the stretches of the voice that no take holds (the portfolio part, the process
 part). With no B-roll, the best free material is what surrounds the takes: the pre-roll (the speaker settles, smiles,
-fixes her hair, steps into an empty frame), the walk-off after the line, the empty establishing shot before she enters.
+adjusts, steps into an empty frame), the walk-off after the line, the empty establishing shot before the speaker enters.
 This script finds those stretches by the clip's own audio energy (speech = loud, in 50 ms windows) and ranks them:
 
     python scripts/find_cutaways.py /path/to/clips [--min 1.0] [--avoid used.json] [--json out.json] [--person MODEL]

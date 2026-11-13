@@ -64,9 +64,10 @@ short-video-kit/
 | `WORKFLOW.md` | Luồng từ clip thô tới video hoàn chỉnh, từng lệnh, thư mục làm việc chuẩn (tiếng Việt). |
 | `PROMPT-VIDEO.md` | Prompt mẫu tổng quát (mọi thể loại): brief, quy tắc bất biến, quy trình, danh mục kỹ thuật, tiêu chuẩn nghiệm thu, bàn giao. |
 | `PROMPT-LO-VIDEO.md` | Khung viết yêu cầu cho một lô video đăng thật (nhiều nguồn, tăng tốc giọng, bàn giao vào thư mục đồng bộ), kèm các chỗ prompt hay mơ hồ. |
-| `DECISIONS.md` | Giấy phép (Remotion, ElevenLabs), bẫy kỹ thuật đã gặp, số liệu ngách, lý do chọn kiến trúc, các công cụ đã khảo sát, claim vi phạm trong kịch bản hiện hành. |
+| `DECISIONS.md` | Chỉ phần **kỹ thuật**: giấy phép (Remotion, ElevenLabs), bẫy kỹ thuật đã gặp, lý do chọn kiến trúc, renderer thứ hai, keyframe camera, các công cụ đã khảo sát. Việc đã làm cho từng khách nằm ở `CASE-LOG.md`. |
+| `CASE-LOG.md` | **Lịch sử**, không phải hướng dẫn: số liệu ngách, các việc đã làm cho khách (tên khách, tên file, kết quả đo, điều chưa kiểm), phân tích prompt của một lô. Bài học dùng lại đã được chuyển thành kỹ thuật trong skill. Chứa tên khách và số liệu chiến dịch nên repo phải private. |
 | `CAU-TRUC.md` | Chính file này. |
-| `niche-data-queries.sql` | Các truy vấn tái hiện mọi số liệu trong `niche-winning-patterns.md` (bảng `videos`; không cộng `video_metrics_daily` vì lặp chu kỳ 7 ngày). |
+| `niche-data-queries.sql` | Các truy vấn tái hiện số liệu trong `niche-winning-patterns.md` (bảng `videos`; không cộng `video_metrics_daily` vì lặp chu kỳ 7 ngày). Dữ liệu của một chiến dịch thật: chỉ ở `docs/`, không đưa vào skill. |
 
 ## 5. `samples/` — dữ liệu mẫu
 
@@ -123,6 +124,11 @@ Tám playbook: `product-demo` (+`unboxing`, `listicle`), `real-estate` (+`voiceo
 | `remotion-output.md` | Giấy phép Remotion, pipeline render, bố cục template, ranh giới ffmpeg ↔ Remotion. |
 | `hyperframes-flow.md` | Luồng render bằng **HyperFrames** (Apache-2.0): chọn renderer nào, các bước, cú pháp `+shake/+glitch/+rgb/+pulse` và `--look`, `check` báo gì, đối chiếu với Remotion (số đo), bẫy, cách mở rộng. |
 | `capcut-techniques.md` | Danh mục kỹ thuật CapCut (cắt, tốc độ, camera, chuyển cảnh, hiệu ứng, mặt nạ, màu, chữ, âm thanh, AI) ánh xạ sang bộ công cụ: có ở đâu, bằng lệnh nào, hoặc vì sao chưa; công thức review kiểu CapCut. |
+| `adding-techniques.md` | **Cách bộ công cụ lớn lên**: một vòng duy nhất để thêm một kỹ thuật mới (tìm trước, nghiên cứu có nguồn và giấy phép, cài ở đúng chỗ theo loại, thẻ, tài liệu, test), các loại kỹ thuật và file cài của từng loại. |
+| `technique-backlog.md` | Những kỹ thuật **đã nghiên cứu nhưng chưa làm** (nạp shader GL Transitions, match cut, mặt nạ/ink reveal, rack focus, parallax 2.5D, OCR…), kèm cách dựng, bẫy, giấy phép; xóa dòng khi đã làm. |
+| `subject-effects.md` | Hiệu ứng theo mặt nạ người (cột `Subject`): nháy silhouette, viền, quầng sáng, đèn rọi, giữ màu, chữ nằm sau người; cách làm mặt nạ (`person_matte.py --frames/--range`), khi nào dùng, bẫy. |
+| `reference-analysis.md` | Cách đọc báo cáo của `analyze_reference.py`: từng khóa đo (họ chuyển cảnh, đường camera, tốc độ, dấu vân tay màu, bằng chứng, `--compare`), ngưỡng, điều gì đã đo và điều gì Claude phải tự đọc từ ảnh. |
+| `editor.md` | Trình sửa video trên trình duyệt (`editor.py`): khởi động, các vùng màn hình, phím tắt, lưu ở đâu, giới hạn. |
 
 ### 6.4 `scripts/` — công cụ dòng lệnh
 
@@ -133,6 +139,9 @@ bộ công cụ); phần còn lại chỉ cần Python 3 và ffmpeg (bản đủ
 |---|---|---|
 | `doctor.py` | **Chạy đầu tiên trên máy mới.** Kiểm tra mọi thứ skill cần: Python, venv (faster-whisper, numpy), ffmpeg và từng bộ lọc/encoder mà script gọi (vidstab, zscale, haldclut, afftdn…), mô hình Whisper, Node, khoá ElevenLabs (không in giá trị), dung lượng ổ đĩa; nói rõ thiếu gì và cách cài theo hệ điều hành. Không đổi gì; `--json`, `--only NHÓM`. Chỉ dùng thư viện chuẩn. | máy → báo cáo, mã thoát 0/1 |
 | `playbook.py` | Nạp playbook (kể cả biến thể `id:variant`); `list`, `show`, `suggest` (xếp hạng playbook theo lời yêu cầu + số đo footage), `skeleton` (khung kế hoạch đúng luật thể loại, từ `cuts.json` nếu có), `check` (kiểm mọi playbook; selftest chạy). Các script khác import nó. | yêu cầu/plan → playbook |
+| `technique.py` | **Danh mục kỹ thuật**: `list`, `kinds`, `show`, `search` (tìm theo tên, bí danh của CapCut/Premiere/After Effects, thẻ), `scaffold KIND ID` (in các file phải sửa để thêm một kỹ thuật), `check` (so thẻ trong `assets/techniques.json` với code, tài liệu và selftest, hai chiều). | từ khóa → thẻ; code ↔ thẻ |
+| `editor.py` | Trình sửa video chạy cục bộ (chỉ thư viện chuẩn của Python, nghe `127.0.0.1`): mở `project.json`, kéo thả cảnh/chữ/phụ đề trên timeline, sửa thuộc tính, lưu có ảnh chụp lịch sử, render lại. Giao diện ở `assets/editor/`. | project.json → project.json |
+| `ref_measure.py` | Các phép đo cho `analyze_reference.py` (không cần thư viện mới): họ chuyển cảnh, đường camera từ vid.stab, tốc độ và khung đứng, dấu vân tay màu. | clip → số đo |
 | `inspect_footage.py` | Đọc thuộc tính thật của clip (thời lượng, độ phân giải, xoay, fps, tiếng, HDR), cảnh báo clip ngang, thiếu tiếng, lệch định dạng; `--log` in shot log trống; `--measure` đo độ sáng, ám màu (trên điểm ảnh trung tính), nhiễu, rung/di chuyển camera (vid.stab), có người nói, rồi đề xuất hiệu chỉnh; `--json FILE` ghi `analysis.json`. | thư mục clip → báo cáo / `analysis.json` |
 | `prepare_footage.py` | Làm proxy: chuyển HDR, khung 9:16, khử nhiễu, chống rung 2 lượt, sửa méo/căn thẳng (`--fix`), 30 hoặc 60 fps (`--slowmo`), cân trắng + phơi sáng + grade của playbook gộp vào một LUT 3D, làm nét nhẹ; `correction: shared` cho cùng một hiệu chỉnh mọi clip; ghi `corrections.json`. | clip thô → `public/clips/*.mp4` |
 | `process_audio.py` | `voice`: đo nền nhiễu/mức giọng, khử ồn bằng mẫu nhiễu khi cần, EQ, de-ess, nén theo mức giọng, expander, −16 LUFS; `music`: cân về −14 LUFS; `master`: cả video về −14 LUFS, đỉnh ≤ −1 dBTP, AAC, `--phone` bản nhẹ; `measure`. | âm thanh/video → bản đã xử lý |
@@ -165,7 +174,9 @@ bộ công cụ); phần còn lại chỉ cần Python 3 và ffmpeg (bản đủ
 | Đường dẫn | Chức năng |
 |---|---|
 | `edit-plan-template.md` | Mẫu kế hoạch dựng: đầu trang (Playbook, Platform, Drive, Look…), bảng **Scenes** (Start, End, Source, In, Type, Transition, Camera, Speed, Shot, Audio), bảng **Overlays** (Start, End, Component, Zone, Tone, Content), checklist tuân thủ. |
-| `grades.json` | Các "look" màu (natural, bright-interior, warm-food, soft-skin, vivid; none): chuỗi lọc ffmpeg + mức cân trắng `wbStrength`; mỗi cái được ít nhất một playbook dùng. |
+| `grades.json` | 15 "look" màu: 5 của các playbook (natural, bright-interior, warm-food, soft-skin, vivid) và 9 thư viện (teal-orange, cinematic-fade, moody, pastel, vintage-film, mono, bleach-bypass, golden-hour, cold-blue); chuỗi lọc ffmpeg chỉ gồm bộ lọc màu nướng được vào LUT 3D + `wbStrength`; `--grade-strength 0..1` pha look với ảnh đã chỉnh. |
+| `techniques.json` | **Danh mục kỹ thuật**: một thẻ cho mỗi kỹ thuật (chuyển cảnh, hiệu ứng chữ, hiệu ứng theo mặt nạ, grade, camera, tốc độ, look, font, đồ họa, theme…): id, loại, nó trông thế nào, cú pháp trong kế hoạch, renderer, tài liệu, test, nguồn và giấy phép. `technique.py check` giữ nó khớp với code. |
+| `editor/` | `index.html`, `editor.css`, `editor.js`: giao diện của `scripts/editor.py` (JavaScript thuần, không CDN, không thư viện). |
 | `shot-library.example.json` | Mẫu thư viện shot cho `plan_scenes.py`: `kind`, `focus`, `size`, `move` tùy chọn. |
 | `sfx/` | Bộ hiệu ứng âm thanh: 5 file ghi âm CC0 (`whoosh`, `whip`, `switch`, `mouse-click`, `shutter-modern`), `SOURCES.md` (tác giả, nguồn, giấy phép từng file), `sfx-map.json` (tiếng nào cho sự kiện nào, mức dB, độ dẫn trước). |
 | `remotion-template/` | Dự án Remotion điều khiển bằng dữ liệu (mục 7). |
@@ -186,16 +197,18 @@ Một composition duy nhất, `Short`, đọc `project.json` qua `--props`. **Kh
 | Đường dẫn | Chức năng |
 |---|---|
 | `stills.mjs` | Render nhiều ảnh tĩnh của một project từ MỘT lần bundle (`--cuts`, `--every S --from A --to B`, hoặc liệt kê giây): để nhìn từng chuyển cảnh và hiệu ứng trước khi render đầy đủ; ghép bằng `montage.py`. |
-| `package.json` · `tsconfig.json` · `remotion.config.ts` | Phụ thuộc ghim đúng phiên bản; cấu hình TypeScript; bộ GL `angle` để chuyển cảnh shader và light leak chạy trên Windows. |
+| `package.json` · `tsconfig.json` · `remotion.config.ts` | Phụ thuộc ghim đúng phiên bản; cấu hình TypeScript; bộ GL mặc định `swangle` (phần mềm, chạy mọi máy; `SVK_GL=angle` cho máy có GPU) để chuyển cảnh shader và light leak chạy. |
 | `project.example.json` | Thư viện mẫu không cần footage: đủ kiểu chữ và đồ họa (cả `pin`, `label`, `chart`, `specs`, `stat`); mở bằng `npm run studio`. |
 | `src/index.ts` · `src/Root.tsx` | Đăng ký composition; độ dài lấy từ `duration` và `fps` trong dữ liệu (`calculateMetadata`). |
 | `src/project.ts` | **Hợp đồng dữ liệu**: kiểu `Project` (cả `layout`), `Scene` (cả `speed`, `ramp`), `Overlay`, `CaptionStyle`, `Word`, `Camera`… |
 | `src/theme.ts` | **Mọi token thiết kế**: font, **bốn bảng màu** (`cool`: trắng, xanh da trời; `warm`: trắng ngà, vàng, đỏ, nâu cho ẩm thực/ánh vàng; `luxe`: trắng ấm, vàng champagne, than chì cho BĐS/thời trang; `crimson`: trắng, đỏ thương hiệu, vàng, đỏ đô cho quảng cáo agency; một dòng `THEME` do playbook quyết định), font điều kiện (Barlow Condensed) và chữ viết tay (Pacifico), kích thước thẻ video + lưới (`card`, `grid`), màu chữ tiêu đề, vùng bố cục, dải phụ đề theo layout (feed / reels-ad), điểm giỏ hàng (112, 1677; đo từ ảnh chụp TikTok thật), kích thước đồ họa thông tin, đường cong chuyển động, giới hạn camera, thẻ so sánh. Đổi diện mạo ở đây. |
 | `src/engine/timeline.ts` | Dàn cảnh với chuyển cảnh **căn giữa điểm cắt**; tính lại khung nguồn cho `speed` và `ramp` (khung nguồn tại điểm cắt luôn là `In`). |
-| `src/engine/transitions.tsx` | Bảng chuyển cảnh: có sẵn của Remotion + `zoomThrough`, `blurDissolve`, `whip`. |
-| `src/engine/camera.ts` | Camera ảo: push, pull, pan, hold, phóng theo từ khóa; và **keyframe** (`keys`): danh sách khung hình (zoom, điểm giữa, roll) với easing cho từng đoạn (`inOut soft out in snap back linear hold`), zoom nội suy theo diện tích, mép khung không bao giờ lộ. |
+| `src/engine/transitions.tsx` | Bảng chuyển cảnh (31 tên): có sẵn của Remotion (cả nhóm shader `filmBurn`, `zoomBlur`, `crosswarp`…), `zoomThrough`, `blurDissolve`, `whip` khớp tốc độ (mờ theo chiều chuyển động), và 5 cái viết bằng CSS (`blinds`, `diamond`, `doors`, `glitchSlice`, `spinZoom`). |
+| `src/engine/Subject.tsx` | Hiệu ứng theo mặt nạ người (`Scene.subject`): fill/nháy silhouette, outline, glow, dim, colorpop, behind (chữ giữa nền và bản cắt của người); vẽ trong khung camera nên bám theo mọi cú đẩy. |
+| `src/fonts.ts` | Thư viện 31 font Google (OFL, có subset tiếng Việt) theo tâm trạng, chọn bằng `font=<id>` trên từng lớp chữ; chỉ tải font mà dự án dùng. |
+| `src/engine/camera.ts` | Camera ảo: push, pull, pan, hold, phóng theo từ khóa; và **keyframe** (`keys`): danh sách khung hình (zoom, điểm giữa, roll) với easing cho từng đoạn (`inOut soft out in snap back linear hold`), zoom nội suy theo diện tích, mép khung không bao giờ lộ; thêm `shake` (rung tay: nhiễu mượt trên x, y, roll, mỗi trục một seed). |
 | `src/engine/audio.tsx` | Giọng, nhạc nền tự hạ khi có lời, hiệu ứng âm; nằm ngoài chuỗi chuyển cảnh nên không bị xê dịch. |
-| `src/engine/Short.tsx` | Composition: nối cảnh, camera, tốc độ (ramp đọc lại khung nguồn từng khung trong `<Freeze>`), lớp đồ họa, phụ đề, âm thanh. |
+| `src/engine/Short.tsx` | Composition: nối cảnh, camera, tốc độ (ramp đọc lại khung nguồn từng khung trong `<Freeze>`), lớp đồ họa, phụ đề, âm thanh, lớp `look` (vignette, grain). |
 | `src/components/registry.tsx` | Tên thành phần dùng trong `project.json`; tên lạ sẽ báo lỗi. |
 | `src/components/anim.ts` | Hàm hoạt họa dùng chung (vào/ra, spring, vừa khung). |
 | `src/components/text/` | `Title.tsx` (5 kiểu: outline, stack, gradient, glass, marker), `Captions.tsx` (karaoke / pop / plain; dải phụ đề `captionBands`, có `hide`), `primitives.tsx` (chữ viền, chữ gradient, chữ trồi qua mặt nạ), `Phrase.tsx` (`phrase`, `pill`, `arc`, `script`, `tag`, `burst`), `Fx.tsx` (14 hiệu ứng chữ: scatter, slam, stamp, glitch, drop, elastic, wave, flip, maskwipe, split, shine, neon, typewriter, rise). |

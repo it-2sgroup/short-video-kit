@@ -3,7 +3,7 @@
 
     python scripts/prepare_footage.py RAW_CLIPS render/public/clips --playbook real-estate
     python scripts/prepare_footage.py RAW_CLIPS OUT --analysis analysis.json --grade natural --height 1920
-    python scripts/prepare_footage.py RAW_CLIPS OUT --fix "IMG_0332:rotate=-1.5,stabilize=on" --fix "IMG_0400:lens=-0.12:0.03"
+    python scripts/prepare_footage.py RAW_CLIPS OUT --fix "CLIP_A:rotate=-1.5,stabilize=on" --fix "CLIP_B:lens=-0.12:0.03"
 
 Per clip, in this order (references/image-processing.md explains each step and its thresholds):
 
@@ -98,23 +98,29 @@ def build_chain(m: dict, fix: dict, grade: dict, gains, gamma, w: int, h: int, s
         f.append(f"rotate={a:.5f}:c=black,scale=ceil(iw*{z:.4f}/2)*2:ceil(ih*{z:.4f}/2)*2,crop={w}:{h}")
         done.append(f"levelled {fix['rotate']}°")
     f.append(f"fps={m['proxy_fps']}")
-    colour = []  # white balance, exposure and the grade: baked into one 3D LUT (see colour_lut)
+    colour = []  # white balance and exposure; with the grade they are baked into one 3D LUT (see colour_lut)
     if gains and fix.get("wb") != "off":
         colour.append(f"colorchannelmixer=rr={gains[0]}:gg={gains[1]}:bb={gains[2]}")
         done.append(f"white balance R{gains[0]:.3f} G{gains[1]:.3f} B{gains[2]:.3f}")
     if gamma != 1.0 and fix.get("exposure") != "off":
         colour.append(f"eq=gamma={gamma}"); done.append(f"exposure gamma {gamma}")
-    if grade["chain"]:
-        colour.append(grade["chain"])
-    return ",".join(f), ",".join(colour), done
+    return ",".join(f), (",".join(colour), grade["chain"]), done
 
 
-def colour_lut(chain: str, out: Path) -> None:
+def colour_lut(correct: str, grade: str, strength: float, out: Path) -> None:
     """Run the colour chain once over an identity Hald CLUT (64^3 colours). Applying that one image with
     `haldclut` costs a single RGB pass instead of one per filter: on 4K60 footage the full chain took
-    113 s for 6 s, the LUT path a fraction, and the two pictures differ by 46 dB PSNR (invisible)."""
+    113 s for 6 s, the LUT path a fraction, and the two pictures differ by 46 dB PSNR (invisible).
+    `strength` < 1 mixes the graded colours with the corrected ones (all_opacity of `blend`): the same look, weaker."""
+    graph = f"[0:v]{correct or 'null'}[c]"
+    if grade and strength < 1:
+        graph += f";[c]split[a][b];[b]{grade}[g];[a][g]blend=all_mode=normal:all_opacity={strength:.3f}"
+    elif grade:
+        graph += f";[c]{grade}"
+    else:
+        graph += ";[c]null"
     run(["ffmpeg", "-hide_banner", "-v", "error", "-y", "-f", "lavfi", "-i", "haldclutsrc=level=8", "-frames:v", "1",
-         "-vf", chain, "-pix_fmt", "rgb24", str(out)])
+         "-filter_complex", graph, "-pix_fmt", "rgb24", str(out)])
 
 
 def run(cmd: list[str]) -> None:
@@ -129,10 +135,11 @@ def main() -> int:
     ap.add_argument("dest", type=Path, help="proxy folder, normally <render project>/public/clips")
     ap.add_argument("--playbook", help="playbook id[:variant]: its grade and correction mode")
     ap.add_argument("--grade", help="override the grade (assets/grades.json)")
+    ap.add_argument("--grade-strength", type=float, help="0..1: mix the grade with the corrected picture (default: the grade's own \"strength\", else 1)")
     ap.add_argument("--analysis", type=Path, help="analysis.json from inspect_footage.py --measure --json")
     ap.add_argument("--height", type=int, default=2880, choices=[1920, 2880, 3840])
     ap.add_argument("--no-correct", action="store_true", help="tone-map and frame only: no denoise, stabilise, WB or exposure")
-    ap.add_argument("--fix", action="append", default=[], help='per-clip overrides, e.g. "IMG_0332:rotate=-1.5,stabilize=on"')
+    ap.add_argument("--fix", action="append", default=[], help='per-clip overrides, e.g. "CLIP_A:rotate=-1.5,stabilize=on"')
     ap.add_argument("--slowmo", action="store_true", help="keep 60 fps for 50+ fps sources (for 0.5x slow motion)")
     ap.add_argument("--force", action="store_true", help="rebuild proxies that already exist")
     a = ap.parse_args()
@@ -143,6 +150,7 @@ def main() -> int:
     if gname not in grades:
         sys.exit(f"unknown grade '{gname}' (known: {', '.join(grades)})")
     grade, shared = grades[gname], (pb["correction"] == "shared") if pb else False
+    strength = min(1.0, max(0.0, a.grade_strength if a.grade_strength is not None else grade.get("strength", 1.0)))
     fixes = parse_fix(a.fix)
 
     clips = sorted(p for p in ([a.src] if a.src.is_file() else a.src.rglob("*")) if p.suffix.lower() in VIDEO_EXT)
@@ -207,9 +215,9 @@ def main() -> int:
             chain, colour, done = build_chain(m, fix if not a.no_correct else {}, grade, gains, gamma, w, a.height, trf)
             print(f"proxy {p.name} -> {out.name}: " + (", ".join(done) or "no correction") + f"; grade {gname}")
             post = "unsharp=5:5:0.5:5:5:0.0,format=yuv420p"
-            if colour:
+            if colour[0] or colour[1]:
                 lut = Path(tmp) / "lut.png"
-                colour_lut(colour, lut)
+                colour_lut(*colour, strength, lut)
                 inputs, graph = ["-i", str(p), "-i", str(lut)], f"[0:v]{chain}[v];[v][1:v]haldclut=interp=tetrahedral,{post}[out]"
             else:
                 inputs, graph = ["-i", str(p)], f"[0:v]{chain},{post}[out]"

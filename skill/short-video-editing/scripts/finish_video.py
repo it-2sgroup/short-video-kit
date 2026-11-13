@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turn a Remotion render into the files you hand over: limited-range H.264, mastered sound, a copy without music, a phone copy, a cover.
 
-    python scripts/finish_video.py render/out/video.mp4 --name SISMO_KB1 --out-dir render/out/final \
+    python scripts/finish_video.py render/out/video.mp4 --name BRAND_V1 --out-dir render/out/final \
         [--audio-nomusic render/out/audio_nomusic.wav] [--cover-at 3.9] [--preview720]
 
 What it does, in order:
@@ -34,7 +34,7 @@ def run(cmd: list[str], what: str) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Turn a Remotion render into the delivery files.")
     ap.add_argument("render", type=Path, help="the Remotion mp4 (picture + the project's soundtrack)")
-    ap.add_argument("--name", required=True, help="file name prefix, e.g. SISMO_KB1")
+    ap.add_argument("--name", required=True, help="file name prefix, e.g. BRAND_V1")
     ap.add_argument("--out-dir", type=Path, required=True)
     ap.add_argument("--audio-nomusic", type=Path, help="WAV of the same project rendered without music")
     ap.add_argument("--cover-at", type=float, default=0.0, help="seconds of the cover frame (default: none)")

@@ -19,7 +19,7 @@ Nhãn độ tin cậy: **[P]** trang chính sách chính thức đã đọc; **[
 1. **Không dùng cảnh quay của bên thứ ba** (Douyin, TikTok, Kuaishou, YouTube, Facebook, shop đối thủ,
    video của creator khác) khi chưa có **giấy phép thương mại bằng văn bản** của chủ sở hữu. Hỏi người
    dùng; không tự tải, không tự cắt.
-2. **Không chạy, không sửa, không dựng lại** quy trình kiểu `crawl-video-douyin` (tải Douyin không
+2. **Không chạy, không sửa, không dựng lại** quy trình kiểu "crawl video Douyin" (tải Douyin không
    watermark → cắt → lồng tiếng → đăng lại) cho video bán hàng. Mục 4.3 giải thích vì sao.
 3. **Một đoạn nguồn không dùng ở hai video trong cùng một lô** (mặc định `r = 1`, mục 5). Muốn nhiều
    video hơn số cảnh quay cho phép thì **nói số liệu và đề xuất quay thêm**, không xáo trộn cảnh.
@@ -27,7 +27,7 @@ Nhãn độ tin cậy: **[P]** trang chính sách chính thức đã đọc; **[
    đích danh "đăng lại cùng video chỉ đổi thứ tự clip" và "dùng cùng một kịch bản bán hàng chung cho
    nhiều sản phẩm" là nội dung lặp (mục 2.2). Đổi nhạc, giọng, nền **không** cứu được.
 5. **Cảnh quay phải là của đúng sản phẩm đang quảng cáo.** Không ghép kết quả của sản phẩm khác để làm
-   "sau khi tẩy" (mục 2.5). Cảnh dựng sẵn hoặc tua nhanh phải gắn nhãn trên màn hình.
+   "kết quả" (mục 2.5). Cảnh dựng sẵn hoặc tua nhanh phải gắn nhãn trên màn hình.
 6. **Hỏi thị trường và giới hạn đăng.** Mỗi thị trường có giới hạn riêng (mục 2.6); thị trường Việt Nam
    chưa kiểm chứng được. Không lên lịch đăng hàng trăm video dồn vào một tài khoản, và không đăng cùng
    nội dung lên nhiều tài khoản.
@@ -68,7 +68,7 @@ Bản Malaysia của bài *Content Posting Limit* liệt kê thêm: số lượn
 kreatif yang minimum" (gần giống nhau, ít biến thể sáng tạo) và "menyiarkan video yang serupa pada beberapa
 akaun" (đăng video tương tự trên nhiều tài khoản). [P] seller-my.tiktok.com (bản Malay, 2026-10-16).
 
-**Đây là điểm trúng đích với kế hoạch "một nguồn → 200–300 video":** xáo cảnh từ một nguồn quay chính là
+**Đây là điểm trúng đích với kế hoạch "một nguồn → hàng trăm video":** xáo cảnh từ một nguồn quay chính là
 "đổi thứ tự clip".
 
 Ngưỡng định lượng ("giống bao nhiêu phần trăm thì bị đánh") **không được công bố** [?]. Blog nói TikTok
@@ -131,7 +131,7 @@ nó thành "nội dung mới" (mục 2.1).
   suspension". [P] seller-us.tiktok.com (2026-06-25)
 - Before/after phải cùng ánh sáng, góc máy, không dựng khác biệt; demo phải phản ánh hiệu quả thật. Xem
   `claims-and-compliance.md` §3.
-- Video demo "sau khi tẩy" lấy từ chai tẩy khác (như clip Douyin) cho người xem tưởng là kết quả của SAIZA là
+- Video demo "kết quả" lấy từ sản phẩm khác (như clip Douyin) cho người xem tưởng là kết quả của sản phẩm đang bán là
   **quảng cáo sai sự thật**, chưa kể rủi ro bản quyền. Việt Nam: Luật Quảng cáo cấm quảng cáo gây nhầm lẫn;
   Nghị định 38/2021/NĐ-CP có khung phạt, nguồn thứ cấp ghi 60–80 triệu đồng cho quảng cáo không đúng hoặc gây
   nhầm lẫn, trần 100 triệu (cá nhân) và 200 triệu (tổ chức), và một nguồn nói đã đổi từ 2026-05-15 [S][?].
@@ -168,24 +168,24 @@ trong quảng cáo và trang đích [P]; xem `before-after.md`. Hỏi người d
 
 ---
 
-## 4. Áp dụng vào bài toán của người dùng
+## 4. Áp dụng: một nguồn quay phải ra nhiều video
 
-### 4.1 "Từ một source phải ra 200–300 video"
+### 4.1 "Từ một nguồn phải ra 200–300 video": cần bao nhiêu cảnh quay
 
-Nguồn hiện có (17 clip iPhone): **587 giây ≈ 9,8 phút**. Một video 12 cảnh cần khoảng **42 giây nguồn riêng**
-(12 cảnh × 3,5 giây gồm khoảng đệm 0,5 giây giữa hai đoạn của cùng một clip, xem `footage-ingest.md` §1b).
-Gọi `r` là số video được dùng chung cùng một đoạn nguồn:
+Một video 12 cảnh cần khoảng **42 giây nguồn riêng** (12 cảnh × 3,5 giây gồm khoảng đệm 0,5 giây giữa hai
+đoạn của cùng một clip, xem `footage-ingest.md` §1b). Ví dụ một nguồn 587 giây ≈ 9,8 phút đủ cho khoảng 14
+video khi không dùng lại cảnh nào. Gọi `r` là số video được dùng chung cùng một đoạn nguồn:
 
 | Số video | `r = 1` (không dùng lại) | `r = 2` | `r = 3` | `r = 5` |
 |---|---|---|---|---|
-| 14 (mức nguồn hiện có chịu được) | 9,8 phút | | | |
+| 14 | 9,8 phút | | | |
 | 200 | 140 phút | 70 phút | 47 phút | 28 phút |
 | 250 | 175 phút | 88 phút | 58 phút | 35 phút |
 | 300 | 210 phút | 105 phút | 70 phút | 42 phút |
 
 (Cần bao nhiêu phút **cảnh quay dùng được** để đạt số video với mức dùng lại `r`.)
 
-- Với nguồn hiện có, 200–300 video chỉ làm được nếu **mỗi đoạn nguồn dùng lại khoảng 14–21 lần**. Đó là mô
+- Với một nguồn cỡ 10 phút, 200–300 video chỉ làm được nếu **mỗi đoạn nguồn dùng lại khoảng 14–21 lần**. Đó là mô
   hình "đăng lại, đổi thứ tự clip" mà TikTok Shop nêu tên là nội dung lặp (mục 2.2).
 - Đổi giọng, nhạc, nền, crop, tốc độ **không** cứu: chính sách nói thay đổi nhỏ về nhạc, lời đọc, nền không
   làm hết lặp, và "visuals" nằm trong danh sách yếu tố so sánh.
@@ -202,26 +202,26 @@ Gọi `r` là số video được dùng chung cùng một đoạn nguồn:
 | Video của đối thủ hoặc shop khác | **Không** | Cùng lý do, thêm nguy cơ khiếu nại bản quyền và thương hiệu |
 | Video khách hàng gửi | Chỉ khi có **đồng ý bằng văn bản** cho phép dùng thương mại và đăng lên kênh | Quyền thuộc về người quay |
 | Video creator/KOC được thuê | **Được** nếu hợp đồng nêu rõ quyền dùng thương mại và quyền chỉnh sửa; Spark Ads cần mã ủy quyền | Có quyền chia sẻ (mục 2.1) |
-| Kho video bản quyền (stock) | Chỉ làm **cảnh nền / không khí**, không làm "kết quả tẩy" | Quyền dùng thương mại có, nhưng không phải cảnh của sản phẩm mình (mục 2.5) |
-| Cảnh AI tạo | **Không** cho kết quả tẩy | Cấm demo hiệu quả phi thực tế và phải gắn nhãn AI (`claims-and-compliance.md` §3) |
+| Kho video bản quyền (stock) | Chỉ làm **cảnh nền / không khí**, không làm "kết quả của sản phẩm" | Quyền dùng thương mại có, nhưng không phải cảnh của sản phẩm mình (mục 2.5) |
+| Cảnh AI tạo | **Không** cho kết quả của sản phẩm | Cấm demo hiệu quả phi thực tế và phải gắn nhãn AI (`claims-and-compliance.md` §3) |
 | Xem Douyin làm **tham khảo ý tưởng**, rồi tự quay lại | **Được** | Ý tưởng, kiểu cảnh không phải tác phẩm; quay mới là nội dung gốc |
 
-### 4.3 Repo `crawl-video-douyin` (đã đọc, chỉ đọc, không chạy)
+### 4.3 Quy trình "tải Douyin → lồng tiếng → đăng lại" (đã đọc một repo mẫu, chỉ đọc, không chạy)
 
-Repo `NguyenKimTien-AI-Engineer/crawl-video-douyin` (công khai, Python 3.12) làm đúng một việc: **tải video
+Các repo mã nguồn mở kiểu "crawl video Douyin" (một repo Python công khai đã được đọc làm mẫu) làm đúng một việc: **tải video
 Douyin không watermark** (đổi `/playwm/` thành `/play/` trong đường dẫn playback, dựa vào cấu trúc trang
 nội bộ của Douyin; hoặc yt-dlp; hoặc công cụ ngoài như `Douyin_TikTok_Download_API`, `f2` để tải hàng loạt
 theo user / hashtag), rồi **STT → dịch → TTS → làm mờ caption gốc → chèn phụ đề → đăng lên TikTok** bằng
-Content Posting API. Nó không có phần nào nhận diện "quần áo bẩn / sau khi tẩy" hay cắt theo cảnh.
+Content Posting API. Repo mẫu không có phần nào nhận diện nội dung sản phẩm hay cắt theo cảnh.
 
 Vì sao **không** nên dùng cho video bán hàng:
 - Tải bằng cách scrape trang nội bộ, tránh watermark = đúng các điều Douyin cấm (5.1, 5.3-4, 5.3-5, 2.4).
 - Dùng thương mại bị cấm khi chưa có giấy phép viết tay (5.3-7).
 - Quy trình "tải → lồng tiếng → đăng lại" là mô hình **nội dung tái sử dụng**, cùng loại mà mục 2.1 nói
   không đủ điều kiện lên For You và có thể bị gỡ.
-- README của chính repo ghi: "Chỉ tải/lồng tiếng/đăng lại video công khai cho mục đích cá nhân/nghiên cứu …
+- README của repo mẫu ghi: "Chỉ tải/lồng tiếng/đăng lại video công khai cho mục đích cá nhân/nghiên cứu …
   Không dùng để tải hàng loạt/re-upload thương mại … mà không có sự cho phép của chủ sở hữu."
-- Phần đăng của repo dùng ứng dụng chưa qua audit của TikTok, chỉ đăng được ở chế độ riêng tư.
+- Phần đăng của repo mẫu dùng ứng dụng chưa qua audit của TikTok, chỉ đăng được ở chế độ riêng tư.
 
 Nếu sau này cần cảnh từ Douyin: **xin giấy phép thương mại từ chủ video** (liên hệ trực tiếp, mua bản quyền),
 lưu văn bản, rồi mới đưa vào kho cảnh quay với dòng ghi nguồn. Khi đó mới dùng công cụ cắt cảnh. Claude không
@@ -249,9 +249,9 @@ lưu văn bản, rồi mới đưa vào kho cảnh quay với dòng ghi nguồn.
 
 ## 6. Cách đi hợp lệ để có số lượng lớn
 
-- **Quay theo ma trận biến thể** thay vì quay một lần rồi xáo: mỗi tổ hợp *áo (trắng, màu, polo, tất…) × vết
-  (mốc, ố vàng, dầu mỡ, thuốc đỏ…) × sản phẩm (chai hồng, chai xanh, combo) × góc (từ trên, ngang, cận)* ra một bộ
-  clip riêng gồm trước, đổ, ngâm, sau. Dự trù **~42 giây cảnh dùng được cho mỗi video**.
+- **Quay theo ma trận biến thể** thay vì quay một lần rồi xáo: mỗi tổ hợp *đối tượng (loại vật liệu, màu, kiểu…) ×
+  tình huống (vấn đề cần giải quyết) × mẫu sản phẩm (loại, cỡ, combo) × góc quay (từ trên, ngang, cận)* ra một bộ
+  clip riêng gồm trước, thao tác, kết quả. Dự trù **~42 giây cảnh dùng được cho mỗi video**.
 - **Mạng creator / KOC**: mỗi người tự quay và đăng nội dung của mình, bạn dùng quyền dùng lại bằng hợp đồng
   hoặc mã Spark Ads. Đây là cách TikTok Shop thiết kế để mở rộng quy mô [C].
 - **Video khách hàng** có đồng ý bằng văn bản.
@@ -288,5 +288,5 @@ Thứ cấp: BigSeller (bài 3778, 3766, 4377, 4203), PPC Land (hai bài tháng 
 technode, caixin, ipkitten về vụ Douyin kiện Huopai; các bài tổng hợp luật của luatvietnam.vn, lsvn.vn,
 thuvienphapluat.vn về Điều 28 Luật SHTT, Nghị định 341/2025 và Nghị định 38/2021.
 
-Repo đã đọc: `github.com/NguyenKimTien-AI-Engineer/crawl-video-douyin` (đọc README và mã `downloaders/`,
-`publishing/`, `cli.py` qua GitHub API; không tải, không chạy).
+Repo mẫu đã đọc: một repo mã nguồn mở công khai kiểu "crawl video Douyin" (đọc README và mã tải/đăng qua GitHub API;
+không tải, không chạy).

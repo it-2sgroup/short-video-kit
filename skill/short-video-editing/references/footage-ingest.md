@@ -41,24 +41,24 @@ exceeds the height.
 
 ## 1b. Budget the footage across ALL the videos it has to feed
 
-Raw footage is often shot once and used for many scripts (the same products cut into KB1, KB2, KB3…;
+Raw footage is often shot once and used for many scripts (the same product cut into video 1, video 2, video 3…;
 the same apartment for a sale video and a rental video). Treat it as a budget:
 
 1. **Count the demand first, then the supply.** How many videos are waiting? Ask if unknown. A video
    uses about `runtime × average speed + scenes × 0.5 s` of fresh footage: a 36 s product demo of 12
    scenes needs ~42 s, a 40 s property tour with two `ramp 1>2>1` scenes a little more, a jump-cut
    talking head only its own take. Total usable seconds ÷ that is the most videos the footage carries
-   without reuse (587 s of product footage → about 14). If the demand is larger, **stop and report the
+   without reuse (e.g. 587 s of product footage → about 14). If the demand is larger, **stop and report the
    shortfall** (`policy.md` §4.1 has the table for 200–300 videos); reshuffling clips into "new"
    videos is the repetitive-content pattern TikTok Shop and Instagram penalise.
 2. **Catalogue by kind of moment, not by file.** Kinds are words for what the shot shows, and each
    playbook's camera knows its own (`camera-moves.md`): product-demo `STAIN`, `POUR`, `SOAK`, `LIFT`,
    `PRODUCT`; real-estate `EXTERIOR`, `ROOM`, `WALK`, `DETAIL`, `VIEW`; food `MACRO`, `POUR`, `TABLE`,
-   `FACE`… Note which are scarce: in the SAIZA product footage the hero shot existed in one 13 s clip
-   while clear BEFORE/AFTER moments existed in a dozen.
+   `FACE`… Note which are scarce: a hero shot may exist in only one 13 s clip while clear BEFORE/AFTER
+   moments exist in a dozen, and the scarce kind caps how many videos can use it.
 3. **Allocate before cutting.** Give every video its own source ranges. Rotate which clips a video
-   leans on so the videos do not look alike (video 1 opens on socks, video 2 on a tee, video 3 on a
-   shirt) while the scarce shots go where they carry the most weight.
+   leans on so the videos do not look alike (video 1 opens on item A, video 2 on item B, video 3 on
+   item C) while the scarce shots go where they carry the most weight.
 4. **Never reuse inside a video.** Two scenes from overlapping ranges of one clip read as a repeat even
    with different crops. Keep at least 0.5s between used ranges of the same clip (transitions borrow
    ~0.2s of handle on each side).
@@ -66,7 +66,7 @@ the same apartment for a sale video and a rental video). Treat it as a budget:
    ledger. Run:
 
    ```bash
-   python scripts/footage_overlap_checker.py plans/kb7.md plans/kb4.md --clips /path/to/clips
+   python scripts/footage_overlap_checker.py plans/v7.md plans/v4.md --clips /path/to/clips
    ```
 
    It fails on any overlap within or between plans and prints the free ranges left per clip. Plan
@@ -80,10 +80,10 @@ the same apartment for a sale video and a rental video). Treat it as a budget:
 
    ```bash
    python scripts/suggest_cuts.py words.json --playbook product-demo --json --prefer 8.4,15.2 > cuts.json   # or --music
-   python scripts/playbook.py skeleton product-demo --cuts cuts.json > kb7/edit-plan.md
-   python scripts/plan_scenes.py --library library.json --plan kb7/edit-plan.md \
-       --kinds "STAIN@IMG_0329,LIFT@IMG_0329,SOAK|POUR,..." \
-       --used kb4/edit-plan.md --reserve IMG_0330:STAIN,IMG_0330:LIFT --seed 3
+   python scripts/playbook.py skeleton product-demo --cuts cuts.json > v7/edit-plan.md
+   python scripts/plan_scenes.py --library library.json --plan v7/edit-plan.md \
+       --kinds "STAIN@CLIP_A,LIFT@CLIP_A,SOAK|POUR,..." \
+       --used v4/edit-plan.md --reserve CLIP_B:STAIN,CLIP_B:LIFT --seed 3
    ```
 
    `plan_scenes.py` fills Source/In so no range is used twice (0.5 s kept between; a scene at 2x needs
@@ -104,8 +104,8 @@ one row per file — a 40-second clip often contains three separate beats worth 
 
 | Clip | In | Out | What happens | Usable for |
 |------|----|-----|--------------|------------|
-| clip_03.mp4 | 12.4 | 16.0 | Pink bottle poured directly on the collar stain | DEMO (POUR) |
-| clip_05.mp4 | 2.0 | 5.2 | Shirt lifted from basin, stain visibly faded | REVEAL (LIFT) |
+| clip_03.mp4 | 12.4 | 16.0 | Product poured directly on the problem area | DEMO (POUR) |
+| clip_05.mp4 | 2.0 | 5.2 | Treated item lifted from the basin, the problem visibly gone | REVEAL (LIFT) |
 | villa_02.mov | 0.0 | 9.5 | Gimbal walk from the door into the living room, constant speed | ARRIVAL (WALK, ramp) |
 | villa_02.mov | 11.0 | 14.0 | Pool from the balcony, sunset | HOOK / FEATURE (VIEW) |
 
@@ -119,7 +119,7 @@ While logging, note specifically:
   reframed, that pair cannot be cut together — see `claims-and-compliance.md` §3. Reshoot the after at
   the original time of day rather than colour-matching in post.
 - **Any unusable stretch**: blown highlights, the creator talking off-script, a competitor's
-  product in frame, a visible brand that is not the client's.
+  product in frame, a visible brand that is not the advertised one.
 
 ---
 
@@ -136,9 +136,9 @@ footage. `pacing_checker.py` ignores the extra columns. A human editor gets the 
 Say so plainly rather than delivering a plan that cannot be cut. The useful response names the
 specific gap and the cheapest fix:
 
-> The brief calls for showing colour-safety on coloured fabric, but all five clips are white
-> shirts. Either cut that beat, or shoot a 10-second pickup — one coloured item dropped into the
-> same basin, same tripod, same light. The pickup is about two minutes of shooting.
+> The brief calls for showing the product on a second kind of surface, but all five clips use the
+> same one. Either cut that beat, or shoot a 10-second pickup — one other item in the same
+> setup, same tripod, same light. The pickup is about two minutes of shooting.
 
 A missing shot is a shooting problem with a known cost. A plan that pretends the shot exists is an
 editing problem discovered at the timeline, which is more expensive.

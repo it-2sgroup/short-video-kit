@@ -23,6 +23,18 @@ whenever there is a voice. Captions take the **words from the script** and the *
 | `plain` | the phrase, no highlight | promo-sale, testimonials, calm or serious content | static sentences read as sober |
 | `none` | nothing | real-estate, montage-recap (music only) | no voice, nothing to caption |
 
+### How the spoken word is marked (`captionHighlight`, or `Highlight` in a caption band)
+
+| Value | Look |
+|---|---|
+| `color` (default) | the word turns the highlight colour and swells |
+| `box` | a rounded block hugs the word and hops to the next |
+| `underline` | a bar draws under the word |
+| `glow` | a halo glows around the word |
+
+Keywords (`captionKeywords`) are marked all the time (bigger, coloured) whatever the value. Pick the one that stays readable on the
+footage: `box` on busy backgrounds, `underline` on calm ones.
+
 **Why no word-by-word reveal** [S]: viewers read ahead. Deaf and hard-of-hearing viewers preferred 6- and
 12-word lines over single words (ASSETS 2021, they split attention between captions and picture), and
 highlighting 5–15% of the important words improved comprehension without distracting (ASSETS 2019).
@@ -52,7 +64,7 @@ rail), lifted 120 px while a `cart` arrow is on screen. Reels ads move it to y �
 footage: big captions in the middle pull the eye off the subject.
 
 - Never centre with `left: 50%; translate(-50%)`: long text clips. Use a full-width container.
-- Never over the subject at the moment that matters (the stain, the dish, the face): move it or drop it.
+- Never over the subject at the moment that matters (the detail, the dish, the face): move it or drop it.
 
 ## Contrast
 
@@ -67,15 +79,15 @@ a channel — that is why **titles** say something else.
 
 | Moment | Voice says | Title says |
 |---|---|---|
-| Hook (demo) | "Chỗ ố này mình tưởng phải bỏ áo luôn" | "Cái áo này 10 phút trước" |
+| Hook (demo) | "Chỗ này mình tưởng phải bỏ luôn" | "Cái này 10 phút trước" |
 | Room (property) | "Phòng khách đón nắng cả buổi sáng" | `label`: "Phòng khách · 32 m²" |
-| Step (tutorial) | "Mình đổ chai hồng lên trước" | `step`: "Bước 1 — ngâm 5 phút" |
+| Step (tutorial) | "Mình cho nguyên liệu này vào trước" | `step`: "Bước 1 — chờ 5 phút" |
 | Point (talking head) | "Phần lớn mọi người mất tiền ở bước này" | `stat`: "73% · khảo sát của shop" |
 | CTA | "Mình để ở giỏ hàng góc trái rồi" | "Giỏ hàng ↙" |
 
 Procedural facts (steps, timings, quantities, prices, areas) read faster than they are heard. Three
 kinds of text pull extra weight: **search keywords** (the problem, the dish, the neighbourhood);
-**time-compression labels** ("tua nhanh ×8", "sau 2 tiếng"), required in spirit by the instant-effect
+**time-compression labels** ("tua nhanh ×8", "sau 10 phút"), required in spirit by the instant-effect
 rules; **evidence labels** ("Cùng một góc máy", "hình minh hoạ", "ước tính").
 
 ## Pointing at the cart (TikTok Shop only)

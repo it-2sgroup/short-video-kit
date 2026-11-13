@@ -45,7 +45,7 @@ before planning anything:
 | A person on a fixed mark in several outfits or looks; face close-ups with cosmetics | sell clothes or cosmetics | `fashion-beauty` |
 | One person speaking to the lens most of the time | authority, followers, explain | `talking-head` |
 | A customer talking about the product | trust, ads | `talking-head:testimonial` |
-| A presenter pitching a service or agency, the voice cut from their takes, a sample to match | win clients | `talking-head:agency` (`references/agency-pitch-recipe.md`) |
+| A presenter pitching a service or agency, the voice cut from their takes, a sample to match | win customers | `talking-head:agency` (`references/agency-pitch-recipe.md`) |
 | Many clips of places, people, moments; little speech | reach, event, travel, brand | `montage-recap` |
 | Packshots, logo, offer artwork, little action | announce an offer | `promo-sale` |
 | Talking head + product demo | sell with authority | `talking-head` for the A-roll, demo shots as B-roll |
@@ -95,9 +95,9 @@ references that exist, and that the playbook's own skeleton passes its own pacin
 its ideal runtime. It also fails when a component, grade, theme or caption style is used by **no**
 playbook: the kit carries no technique that nothing uses.
 
-## Adding a playbook (or a client's house style)
+## Adding a playbook (or a house style)
 
-1. Prefer a **variant** when the new kind shares most rules with an existing playbook (a client's
+1. Prefer a **variant** when the new kind shares most rules with an existing playbook (a brand's
    house style for product demos, a rental flavour of real estate): add it under `variants` with only
    the keys that differ.
 2. Otherwise copy the closest `<id>.json` to `<new-id>.json`, set `id` to the file name, and change

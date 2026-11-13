@@ -130,7 +130,7 @@ def keyframe_light(path: Path, pre: str) -> dict:
 def neutral_rgb(path: Path, pre: str) -> tuple[list[float], float]:
     """Average RGB of the keyframes' near-neutral pixels (walls, concrete, white cloth: low saturation,
     neither black nor clipped) and their share of the frame. Plain grey-world averages every pixel, so a
-    green bowl or a red wall reads as a colour cast; the neutral pixels are what white balance is about."""
+    large green object or a red wall reads as a colour cast; the neutral pixels are what white balance is about."""
     raw = ffmpeg_out(["-skip_frame", "nokey", "-i", str(path), "-an", "-vf", f"{pre}scale=96:-2,format=rgb24",
                       "-frames:v", "8", "-f", "rawvideo", "-"], binary=True)
     total, picked = 0, [0.0, 0.0, 0.0, 0]

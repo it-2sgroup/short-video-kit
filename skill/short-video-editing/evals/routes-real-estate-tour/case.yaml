@@ -5,7 +5,7 @@ expected_outcome: |
   rules: the plan header says `**Playbook:** real-estate`, the cuts follow the music (no voiceover),
   scenes follow the visitor's route (arrival, living, kitchen, bedrooms, bath, the feature, the facts,
   the CTA) with lengths inside the real-estate playbook, and the pacing checker passes. The facts the
-  user gave appear on screen exactly as given (price, area with its type, rooms, direction, district)
+  user gave appear on screen exactly as given (price, area with its type, rooms, direction, location)
   through the specs, price and pin graphics; no cart arrow is used; nothing is invented (no legal
   status, no travel times without an "ước tính" label). Compliance points for property are raised
   (no promised returns, renders labelled, music licensed for a business account).

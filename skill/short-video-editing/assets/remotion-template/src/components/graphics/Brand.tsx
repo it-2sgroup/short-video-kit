@@ -1,10 +1,11 @@
-// Brand and proof graphics of the agency-pitch look: the logo that blurs in, a "5 -> 10" counter, the little
+// Brand and proof graphics: the logo that blurs in, a "from -> to" counter, the little
 // pictograms (target, megaphone, !!!, search, check), the hand-circled label, and the RAW / FINAL pair of cards.
 import React from "react";
 import { AbsoluteFill, Img, OffthreadVideo, interpolate, spring, staticFile, useVideoConfig } from "remotion";
 import { evolvePath } from "@remotion/paths";
 import type { Overlay } from "../../project";
 import { card, fonts, frame as size, palette, textShadow, zones } from "../../theme";
+import { pickFont } from "../../fonts";
 import { clamp, pop, useEnterExit } from "../anim";
 import { ScatterText } from "../text/Phrase";
 import { Glyph } from "./Glyph";
@@ -44,7 +45,7 @@ export const Logo: React.FC<Base> = ({ ov, dur, instant }) => {
 };
 
 // ------------------------------------------------------------------------------------------------ counter
-export type CounterProps = { from: number; to: number; label?: string; at?: [number, number] };
+export type CounterProps = { from: number; to: number; label?: string; at?: [number, number]; font?: string };
 
 // "5 -> 10": the first number pops, the arrow draws itself, the second number pops, the unit slides up.
 export const Counter: React.FC<Base> = ({ ov, dur, instant }) => {
@@ -53,6 +54,7 @@ export const Counter: React.FC<Base> = ({ ov, dur, instant }) => {
   const { frame, exit } = useEnterExit(dur, { instant, exit: 8 });
   const [ax, ay] = p.at ?? [0.5, 0.0];
   const top = p.at ? ay * size.height : zones[ov.zone ?? "top"] + 110;
+  const lf = pickFont(p.font, 900, fonts.condensed); // the label under the numbers; the numbers stay in the counter font
   const a = pop(frame, fps, 0);
   const draw = evolvePath(interpolate(frame, [6, 18], [0, 1], clamp), "M 0 50 L 190 50");
   const head = interpolate(frame, [15, 21], [0, 1], clamp);
@@ -77,7 +79,7 @@ export const Counter: React.FC<Base> = ({ ov, dur, instant }) => {
       </div>
       {p.label ? (
         <div style={{ position: "absolute", left: ax * size.width, top: top + 200, translate: "-50% 0", opacity: unit, transform: `translateY(${(1 - unit) * 30}px)` }}>
-          <ScatterText text={p.label} size={70} family={fonts.condensed} fill={palette.white} stroke={palette.royal} weight={900} width={0.2} shadow="drop-shadow(0 6px 10px rgba(30,0,6,0.45))" k={1} x={0} />
+          <ScatterText text={p.label} size={70} family={lf.family} fill={palette.white} stroke={palette.royal} weight={lf.weight} width={0.2} shadow="drop-shadow(0 6px 10px rgba(30,0,6,0.45))" k={1} x={0} />
         </div>
       ) : null}
     </AbsoluteFill>
@@ -121,7 +123,7 @@ export const Icon: React.FC<Base> = ({ ov, dur, instant }) => {
 // ------------------------------------------------------------------------------------------------ circled
 export type CircledProps = { text: string; at?: [number, number]; icon?: string };
 
-// A label that a red hand-drawn ellipse is drawn around, with a pictogram popping in below it ("HỖ TRỢ" + search).
+// A label that a red hand-drawn ellipse is drawn around, with a pictogram popping in below it ("LABEL" + search).
 export const Circled: React.FC<Base> = ({ ov, dur, instant }) => {
   const { fps } = useVideoConfig();
   const p = (ov.props ?? {}) as CircledProps;

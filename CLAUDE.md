@@ -89,6 +89,15 @@ Keep work files **outside this repo** (e.g. `<work>/v1/{script.txt,captions.srt,
 finish with `finish_video.py`; prove with `check_lipsync.py` and `mix_report.py`. A technique the kit lacks is researched and added (component + doc row + selftest), not faked. Say what was not
 verified: nobody has listened to the sound bank or the music, and a sentence guessed from a poor transcript or a logo keyed from a sample frame is the human's to confirm.
 
+## Growing the kit: the technique catalogue
+
+The kit is a framework, not a record of past videos. Every technique it can do is one card in `skill/short-video-editing/assets/techniques.json`
+(`python skill/short-video-editing/scripts/technique.py list | kinds | show ID | search "words"`; the search knows the names editors use). When a request
+or a reference needs something the kit lacks: search first (it may exist under another name), then follow `references/adding-techniques.md`
+(research with sources and licences, implement where its kind lives, card, doc, selftest, `technique.py check`). What was researched but not built is in
+`references/technique-backlog.md`. Nothing client-specific (names, footage names, slogans, dates) goes into `skill/`, the template, scripts, examples or help
+strings: use placeholders (`CLIP_A`, `BRAND`, `Text A`); the case itself is written in `docs/CASE-LOG.md`.
+
 ## Footage rights and duplicate content — read `references/policy.md` first
 
 Before planning **any batch** of videos, and before using **any footage that is not the user's own or
@@ -102,8 +111,8 @@ version, with the evidence in that file:
 - **Reshuffling one source into many videos is the pattern TikTok Shop names as repetitive content**
   ("re-posting the same video at high volume with only order of clips changed"). Changing music, voice or
   background does not fix it. The default is **no source range reused across videos of a batch**
-  (`footage_overlap_checker.py` over all plans). The current 17 clips (9.8 min) support about **14** videos at
-  that rule; 200–300 would need roughly 140–210 minutes of usable footage. When the footage runs out,
+  (`footage_overlap_checker.py` over all plans). Count what the footage supports (a scene takes a whole short clip; about 40 s of usable
+  footage per video) before promising a batch size. When the footage runs out,
   stop and say so with these numbers and propose shooting more, hiring KOCs with licences, or consented
   customer video; do not reshuffle.
 - The footage must show **the advertised product's own result**; never another product's.
@@ -122,8 +131,8 @@ version, with the evidence in that file:
 - **Third-party footage of any kind**, and **how many videos** a batch should have when the footage cannot
   support it: put the numbers to the user (see the rights section above); never decide by reshuffling.
 - **Trimming a supplied voiceover** or dropping a claim: say exactly which sentences/claims.
-- **Claims already inside a supplied voice** ("sạch tinh", "tiết kiệm tiền trăm tiền triệu", "Hết lại
-  tiếc đó!"): flag them against `references/claims-and-compliance.md`; keep the on-screen text clear of them.
+- **Claims already inside a supplied voice** (absolute results, instant effect, savings, scarcity pressure):
+  flag them against `references/claims-and-compliance.md`; keep the on-screen text clear of them.
 - **The playbook**, when the request and the footage disagree: ask, do not force footage into a genre.
 - **Facts on screen** (prices, areas, legal status of a property, offer dates): only what the user or the
   documents give; never invented or rounded.
@@ -136,14 +145,13 @@ version, with the evidence in that file:
 - Whisper mishears Vietnamese ("túi xách" → "tui sách"): captions take **words from the script**,
   **timing from Whisper**. Supplied voice files often differ from the written script — transcribe,
   correct by hand, then align.
-- Client rules (Phương, Nov 2026): scenes 3–4 s with soft transitions (1.5–2 s hard cuts felt jerky);
-  no text in boxes on product demos; one batch of footage must feed many videos with no reused range.
-  These are the `product-demo` playbook's house style, not rules for every genre (food, fashion and
-  montages cut on the beat at 1–2 s): say so if the same client asks for another genre.
+- A client's house style (e.g. scenes 3–4 s with soft transitions, no text in boxes) belongs to the playbook it was
+  given for (`product-demo`), not to every genre (food, fashion and montages cut on the beat at 1–2 s): say so if
+  the same client asks for another genre.
 - Rules that depend on the kind of video live in `playbooks/<id>.json`; the scripts read the plan's
   `**Playbook:**` line. Never hard-code a genre's number in a script; add or change a playbook (or a
-  variant) and run `playbook.py check`, which also fails when a component, grade, theme or caption
-  style is used by no playbook.
+  variant) and run `playbook.py check`. The kit is a library: a technique no playbook recommends is allowed
+  (`playbook.py check` lists it as a note); what keeps the library honest is `technique.py check` (every technique has a card, a doc and a test).
 - Footage correction (measured, `references/image-processing.md`): white balance only from near-neutral
   pixels (a green bowl fooled grey-world); denoise only when dark or very noisy (texture fools the
   meter); an RGB filter right after `vidstabtransform` segfaults ffmpeg 7.0 (the script inserts
@@ -160,8 +168,8 @@ version, with the evidence in that file:
   does not work); slow motion needs a 60 fps proxy (`prepare_footage.py --slowmo`).
 - Reels ads keep the bottom 35% clear (Meta): `plan_to_project.py --platform reels-ad`; there is no
   TikTok Shop product bar on Reels, so no cart arrow there.
-- Shader transitions (`crossZoom`) and light leaks render on Windows with the `angle` GL renderer
-  (set in the template's `remotion.config.ts`).
+- Shader transitions (`crossZoom`, `filmBurn`, `zoomBlur`...) and light leaks need WebGL in headless Chrome; without it the render throws
+  ("Failed to create WebGL2 context"). The template defaults to the software renderer `swangle` (works with or without a GPU); `SVK_GL=angle` selects the GPU path.
 - iPhone footage is 4K HEVC with rotation metadata: render from ffmpeg proxies
   (`new_remotion_project.py --proxies`), not the originals.
 - White text vanishes on white fabric: over white garments use the `outline` or `marker` title style, not
@@ -174,7 +182,7 @@ version, with the evidence in that file:
 - Before/after: the reveal gets a `compare` card (TRƯỚC/SAU frames of the same garment from ranges
   already on screen, with an honest time note); TikTok's **ad** policy bars before-and-after
   comparisons, so ask whether the video will be boosted. Details: `references/before-after.md`.
-- Viewer-first layout (client feedback, Nov 2026; product demos: the `talking-head:agency` variant deliberately puts captions in a strip above its cards instead): titles hug the top edge (y 236–420), captions are the
+- Viewer-first layout (default for the feed playbooks; the `talking-head:agency` variant deliberately puts captions in a strip above its cards instead): titles hug the top edge (y 236–420), captions are the
   lower third (y ≈ 1340, 58 px, ≤ 2 lines), the middle ~900 px belongs to the footage. Title/caption blocks
   in the middle made viewers read instead of watch. Camera moves must be visible (≥ ~12% scale or ~8% pan,
   `focus` on the action, shot size alternating); render from 2880-tall proxies so the zoom stays sharp.
@@ -193,7 +201,6 @@ version, with the evidence in that file:
 - A render project is a **copy** of the template: after the template changes, run
   `new_remotion_project.py <render dir> --update` (replaces `src/` and config, keeps `public/`,
   `node_modules/` and your `*.json` projects).
-- Don't sum `video_metrics_daily` in the campaign database; it repeats on a 7-day cycle.
 - Windows PowerShell 5.1: `python -I` ignores `PYTHONIOENCODING`, use `python -X utf8`; the `python3`
   command may be the Microsoft Store stub (use the venv's `Scripts\python.exe`); a program installed by
   winget is not on PATH until a new terminal; `Get-Content` needs `-Encoding utf8` for Vietnamese files.
@@ -203,18 +210,10 @@ version, with the evidence in that file:
   SVG filter (a `drop-shadow` on an opaque frame only paints the edges); Python's `round()` is not JS `Math.round`
   (use the half-up helper); Remotion's `perceptual-scale` eases zoom in area (`√(a²+t(b²−a²))`), not geometrically
   (the first port got it wrong: SSIM 0.946 → 0.987 once fixed); `selftest.sh` needs `PYTHONUTF8=1` on Windows (it now exports it).
-- Footage for a batch (measured, Nov 2026, 8 videos x 41 s from 148 AI clips + 16 new ones): a scene uses a whole short clip (a 4 s clip hosts one scene of <= 3.2 s; two ranges of one clip need 0.5 s between them), so supply is about one scene per clip and the AI library carried 8 videos only just. Allocate **round-robin over all videos** (scene 1 of every video, then scene 2...; product beats before drinking shots), or the last video gets every leftover. Reserve one closing-shot clip per video. File names must not contain a dot (`…` becomes `...` and `Path.stem` cuts it: two clips collapse into one name). `plan_scenes.py --used` is case-insensitive since this batch; plans store clip names in upper case. A client's "40% new footage" is limited by the same arithmetic: 70 s of new clips are about 14-20% of 8 x 41 s without reuse; say so with the numbers.
-- A supplied voice that is the camera audio of the chosen takes, spliced (SISMO ad, Nov 2026: `voice_video_11-11.mp3` against clips C5074-C5109) matches each take sample for sample
-  (normalised correlation 0.98-1.0): `match_voice_takes.py` gives the lag per take; use the take's own picture with `In = start + lag` and the lips are exact. Lines no take holds
-  (the portfolio part of the pitch) get cutaways from the silent pre-roll and walk-off of the other takes, never another take of the same line. The other takes of a line
-  (C5075/76 for C5074's line) are for cutaways only. Whisper `small` mishears Vietnamese company talk: give it `initial_prompt` with the brand and domain words, and correct by hand.
-- Agency-pitch look (`talking-head:agency`, theme `crimson`): card scenes over the wind-blown grid, `cardSlide`/`cardSwirl`, `phrase`/`pill`/`arc`/`logo`; the logo PNG was keyed out of the
-  client's own sample frame (a red mark on sky: alpha = (R-G+55)/260 with ffmpeg `geq`, 4x Lanczos): ask the client for the vector instead. 8 render workers fail with
-  `No frame found at position` on 2880-tall proxies; `--concurrency=5` passes.
-- Agency pitch, second pass (SISMO v2, Nov 2026): the sample's opening is the speaker's silhouette filled white on frames 0, 2, 4 (30 fps), then the video; its "hidden letters jumping up" is a pile of tilted copies (gray ghosts under, colour copies larger and nearer the edge): `burst`.
-  A backlit face is grey beside a hand edit: `faceGlow` (brightness 1.26, saturate 0.88, blur 1, size 1.15, veil 0.07, head from `person_matte.py --faces`) matched it; a ring or ellipse effect must never cross the face.
-  The person model `u2net_human_seg.onnx` (168 MB) is not in the repo: `./setup.sh --person-model` downloads it next to the Whisper model (ask first); `doctor.py` checks it. Full recipe: `references/agency-pitch-recipe.md`;
-  draft the plan with `agency_plan.py`, finish with `finish_video.py`, prove the lips with `check_lipsync.py`.
+- Footage for a batch (measured): a scene uses a whole short clip (a 4 s clip hosts one scene of <= 3.2 s; two ranges of one clip need 0.5 s between them), so supply is about one scene per clip. Allocate **round-robin over all videos** (scene 1 of every video, then scene 2...; product beats before drinking shots), or the last video gets every leftover. Reserve one closing-shot clip per video. File names must not contain a dot (`…` becomes `...` and `Path.stem` cuts it: two clips collapse into one name). `plan_scenes.py --used` is case-insensitive; plans store clip names in upper case. A client's "X% new footage" is limited by the same arithmetic: say so with the numbers.
+- A supplied voice that is the camera audio of the chosen takes, spliced, matches each take sample for sample (normalised correlation 0.98-1.0): `match_voice_takes.py` gives the lag per take; use the take's own picture with `In = start + lag` and the lips are exact. Lines no take holds get cutaways from the silent pre-roll and walk-off of the other takes, never another take of the same line; the other takes of a line are for cutaways only. Whisper `small` mishears Vietnamese company talk: give it `initial_prompt` with the brand and domain words, and correct by hand.
+- Card layouts over the animated grid (`talking-head:agency`, theme `crimson`): `cardSlide`/`cardSwirl` transitions, `phrase`/`pill`/`arc`/`logo`. A logo keyed out of a sample frame (alpha = (R-G+55)/260 with ffmpeg `geq`, 4x Lanczos) is the last resort: ask the owner for the vector. 8 render workers fail with `No frame found at position` on 2880-tall proxies; `--concurrency=5` passes.
+- A silhouette flash opener fills the speaker's outline with white on a few early frames (e.g. 0, 2, 4 at 30 fps), then plays the video; "hidden letters jumping up" is a pile of tilted copies (grey ghosts under, colour copies larger and nearer the edge): `burst`. A backlit face is grey beside a hand edit: `faceGlow` (brightness 1.26, saturate 0.88, blur 1, size 1.15, veil 0.07, head from `person_matte.py --faces`) matches it; a ring or ellipse effect must never cross the face. The person model `u2net_human_seg.onnx` (168 MB) is not in the repo: `./setup.sh --person-model` downloads it next to the Whisper model (ask first); `doctor.py` checks it. Full recipe: `references/agency-pitch-recipe.md`; draft the plan with `agency_plan.py`, finish with `finish_video.py`, prove the lips with `check_lipsync.py`.
 - Sound bank: 63 recorded CC0 files in `assets/sfx` (Kenney, OpenGameArt, Remotion's CDN) + 17 sounds `make_sfx.py` synthesizes into each render project, rotated per event so nothing repeats; nobody listened to them: say so. `--music-levels=-6,-6` needs the `=`.
 - No licensed track is bakeable into a business-account video (TikTok: Commercial Music Library only, not reachable by a render): `make_music.py` writes a self-made bed that follows the cuts;
   deliver a second master without music so the human can add a CML track at upload.
@@ -226,19 +225,21 @@ version, with the evidence in that file:
 `README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
 `skill/short-video-editing/SKILL.md` → `skill/short-video-editing/playbooks/README.md` (genres: how to choose and add) →
 `skill/short-video-editing/references/policy.md` (content-rights and duplicate-content policy) → `references/hyperframes-flow.md` (the second renderer) and
-`references/capcut-techniques.md` (where each CapCut technique lives in the kit). Adding, renaming or removing a file or script means updating
+`references/capcut-techniques.md` (where each CapCut technique lives in the kit) → `references/adding-techniques.md` (how the kit grows) → `docs/CASE-LOG.md` (the history of jobs done: not a guide). Adding, renaming or removing a file or script means updating
 `docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
 
 ## Working in this repo
 
 - **Never commit** `.env*`, `bin/`, `models/`, `dist/`, media files. `.gitignore` enforces it; still
   read `git status` before every commit.
-- **The repo must stay private**: `docs/` and `niche-winning-patterns.md` hold real GMV figures and
-  creator handles. Do not paste them into external services.
+- **The repo must stay private**: `docs/CASE-LOG.md` and `docs/niche-data-queries.sql` hold client names and real campaign figures.
+  Do not paste them into external services. Nothing under `skill/` (the part that is installed and shared) may name a client, a person or a
+  real footage file: describe techniques, use placeholders (`CLIP_A`, `BRAND`, `Text A`) in every comment, example and help string.
 - **Keep it clean**: no dead code, no unused files, no video content hard-coded in the template (it
   belongs in the plan / `project.json`). New genre or house style → a playbook or a variant
-  (`playbooks/README.md`); new look → `theme.ts` or `assets/grades.json`; new graphic → a component plus a
-  row in `references/layout-and-motion-graphics.md` — each used by a playbook, or `playbook.py check` fails.
+  (`playbooks/README.md`); any new technique (transition, text effect, subject effect, grade, camera option, speed curve, look, graphic) →
+  the loop in `references/adding-techniques.md`: implement where its kind lives, a card in `assets/techniques.json`, a doc row, a selftest —
+  `technique.py check` fails otherwise.
 - After changing anything under `skill/short-video-editing/`, run `./selftest.sh`; after changing the
   template, run `./selftest.sh --render <render project>` and look at stills.
 - Never label a staged or designed graphic as a "real customer review".

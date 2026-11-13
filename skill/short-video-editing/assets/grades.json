@@ -1,5 +1,5 @@
 {
-  "about": "Looks applied by prepare_footage.py after the per-clip corrections (white balance, exposure), so every clip of a video shares one grade. Each playbook names one (playbooks/<id>.json \"grade\"). chain = an ffmpeg filter chain on 8-bit SDR video; wbStrength = how much of a measured colour cast is removed (1 = all of it), lower where warm light is part of the look. Checked on stills of real footage: see references/image-processing.md before changing a number.",
+  "about": "Looks applied by prepare_footage.py after the per-clip corrections (white balance, exposure), so every clip of a video shares one grade. Each playbook names one (playbooks/<id>.json \"grade\"). chain = an ffmpeg filter chain on 8-bit SDR video; wbStrength = how much of a measured colour cast is removed (1 = all of it), lower where warm light is part of the look. Checked on stills of real footage: see references/image-processing.md before changing a number. Only colour filters that can be baked into a 3D LUT belong in a chain (no vignette, noise, blur): those are looks of the template. `--grade-strength 0..1` (or a grade's own \"strength\") mixes the look with the corrected picture.",
   "grades": {
     "none": {
       "about": "No look: corrections only.",
@@ -30,6 +30,51 @@
       "about": "Montages and promos: rich colour and a firm S-curve, not neon.",
       "chain": "curves=master='0/0 0.25/0.22 0.75/0.8 1/1',eq=saturation=1.12,vibrance=intensity=0.15",
       "wbStrength": 0.6
+    },
+    "teal-orange": {
+      "about": "Cinematic split tone, skin-safe: teal in the shadows, orange in the highlights, mids untouched so faces barely move. Not for white garments (white goes yellow) or close-up skin; use --grade-strength 0.5-0.7 to soften.",
+      "chain": "colorbalance=rs=-0.05:bs=0.08:rh=0.05:bh=-0.04:pl=1,eq=saturation=1.04",
+      "wbStrength": 0.6
+    },
+    "cinematic-fade": {
+      "about": "Lifted blacks and a slightly muted colour: the filmic, matte look. Black output about 0.045 (12/255, after the contrast step) reads against the platform's black bars; do not lift above about 0.07.",
+      "chain": "colorlevels=romin=0.065:gomin=0.065:bomin=0.075:romax=0.96:gomax=0.96:bomax=0.95,eq=saturation=0.92:contrast=1.03",
+      "wbStrength": 0.6
+    },
+    "moody": {
+      "about": "Darker, cooler, contrasty: night, tech, drama. Phone screens in daylight crush it: check caption and title contrast on a still.",
+      "chain": "eq=contrast=1.15:saturation=0.85:gamma=0.92,curves=master='0/0 0.3/0.21 0.7/0.68 1/0.95',colorbalance=rs=-0.04:bs=0.06:bm=0.02:rh=0.03:bh=-0.02",
+      "wbStrength": 0.6
+    },
+    "pastel": {
+      "about": "Airy, soft and light: lifted shadows, gentle colour, a little cool-warm split. White text vanishes on it (use outline or marker titles); apply to well-exposed clips only.",
+      "chain": "curves=master='0/0.05 0.4/0.5 1/1',eq=saturation=0.85:contrast=0.92:brightness=0.02,colortemperature=temperature=6800:mix=0.3:pl=1,colorbalance=rs=0.03:bs=0.04:rh=0.02:bh=0.02",
+      "wbStrength": 0.6
+    },
+    "vintage-film": {
+      "about": "Faded film: lifted and tinted blacks, muted colour, warm highlights. The grain and vignette belong to the template's look (look.grain, look.vignette), not to the proxies.",
+      "chain": "curves=r='0/0.06 0.5/0.52 1/0.96':g='0/0.02 0.5/0.5 1/0.95':b='0/0.10 0.5/0.46 1/0.82',eq=saturation=0.9",
+      "wbStrength": 0.4
+    },
+    "mono": {
+      "about": "High-contrast black and white (Rec.709 luma weights, a firm S-curve). Never for a product whose colour is the claim.",
+      "chain": "colorchannelmixer=.2126:.7152:.0722:0:.2126:.7152:.0722:0:.2126:.7152:.0722,eq=contrast=1.2,curves=master='0/0 0.25/0.17 0.75/0.84 1/1'",
+      "wbStrength": 0.7
+    },
+    "bleach-bypass": {
+      "about": "Desaturated, hard and gritty: a firm S-curve and 45% saturation. Kills product colour: never for fashion, food or beauty demos.",
+      "chain": "eq=saturation=0.45:contrast=1.25:gamma=0.95,curves=master='0/0 0.25/0.18 0.75/0.82 1/1'",
+      "wbStrength": 0.7
+    },
+    "golden-hour": {
+      "about": "Warm low sun: a 4500 K push (lower kelvin = warmer), orange highlights, a little more saturation. Leave white balance mostly alone (low wbStrength) or the correction undoes the warmth.",
+      "chain": "colortemperature=temperature=4500:mix=0.6:pl=1,colorbalance=rm=0.03:bm=-0.03:rh=0.06:gh=0.02:bh=-0.06,eq=saturation=1.1:contrast=1.05",
+      "wbStrength": 0.3
+    },
+    "cold-blue": {
+      "about": "Cool blue (8500 K), slightly desaturated: tech, winter, clinical. Skin turns grey: keep --grade-strength <= 0.5 on people; never on food.",
+      "chain": "colortemperature=temperature=8500:mix=0.6:pl=1,colorbalance=rs=-0.03:bs=0.07:rm=-0.02:bm=0.04:bh=0.03,eq=saturation=0.9:contrast=1.06",
+      "wbStrength": 0.4
     }
   }
 }

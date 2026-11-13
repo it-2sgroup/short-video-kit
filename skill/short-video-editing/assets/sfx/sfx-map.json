@@ -604,7 +604,45 @@
       "phrase:neon": [
         "toggle-a",
         "magic-c"
-      ]
+      ],
+      "phrase:scramble": [
+        "type-a",
+        "tick-a"
+      ],
+      "phrase:blurin": [
+        "whoosh-soft"
+      ],
+      "phrase:tracking": [
+        "whoosh-s4",
+        "whoosh-soft"
+      ],
+      "phrase:slice": [
+        "slidepop-a",
+        "slidepop-b"
+      ],
+      "phrase:popword": [
+        "pop-a",
+        "pop-b",
+        "bubble-b"
+      ],
+      "phrase:flap": [
+        "tick-b",
+        "click-a"
+      ],
+      "phrase:strike": {
+        "sound": [
+          "slam-thwack",
+          "impact-wood"
+        ],
+        "offset": 0.4
+      },
+      "phrase:draw": {
+        "sound": [
+          "whoosh-s1",
+          "whoosh-s2"
+        ],
+        "offset": 0.3
+      }
     },
     "flash": {
       "sound": [

@@ -1,7 +1,7 @@
 // Text effects. One engine, many looks: `FxText` draws a line of text (a stroke layer under a fill layer, so the outline
-// never eats the letters) and animates it with a named effect. Every effect has an entrance driven by `k` (0..1), an exit
-// driven by `x` (0..1, letters fly apart or the effect's own way out), and some have a loop that runs on `frame`.
-// A pure function of its props: nothing here reads the clock.
+// never eats the letters) and animates it with a named effect. Every effect has an entrance driven by `k` (0..1, over
+// `fxFrames(fx, text)` frames), an exit driven by `x` (0..1, letters fly apart or the effect's own way out), and some have
+// a loop that runs on `frame`. A pure function of its props: nothing here reads the clock.
 //   scatter  letters fly in from random places and settle            drop     letters fall and bounce
 //   wave     letters rise in a ripple, then keep rippling            elastic  rubbery overshoot, letter by letter
 //   flip     letters flip up in 3D                                   slam     the whole line slams in big and shakes
@@ -9,9 +9,13 @@
 //   neon     flickers on, then glows                                 shine    a light sweep runs across after it lands
 //   maskwipe a coloured bar wipes the text into view                 split    two halves slide in and join
 //   typewriter letters appear one by one with a cursor               rise     a quiet rise (the calm default)
+//   scramble random glyphs lock into the real letters, left to right blurin   words sharpen out of a soft blur, one after another
+//   tracking letters glide together from wide spacing                slice    three bands slide in from alternating sides and snap together
+//   popword  each word springs in, tilted, then settles              flap     split-flap board: every cell flips through glyphs
+//   strike   "OLD -> NEW": a bar strikes the old text, the new pops  draw     a hand-drawn wavy underline strokes in under the line
 import React from "react";
-import { Easing, interpolate } from "remotion";
-import { fonts } from "../../theme";
+import { Easing, interpolate, spring } from "remotion";
+import { fonts, toneColor } from "../../theme";
 import { clamp } from "../anim";
 
 export const rand = (i: number, k: number) => {
@@ -19,8 +23,40 @@ export const rand = (i: number, k: number) => {
   return x - Math.floor(x);
 };
 
-export type FxName = "scatter" | "drop" | "wave" | "elastic" | "flip" | "slam" | "stamp" | "glitch" | "neon" | "shine" | "maskwipe" | "split" | "typewriter" | "rise";
-export const FX_NAMES: FxName[] = ["scatter", "drop", "wave", "elastic", "flip", "slam", "stamp", "glitch", "neon", "shine", "maskwipe", "split", "typewriter", "rise"];
+export type FxName =
+  | "scatter" | "drop" | "wave" | "elastic" | "flip" | "slam" | "stamp" | "glitch" | "neon" | "shine" | "maskwipe" | "split" | "typewriter" | "rise"
+  | "scramble" | "blurin" | "tracking" | "slice" | "popword" | "flap" | "strike" | "draw";
+export const FX_NAMES: FxName[] = [
+  "scatter", "drop", "wave", "elastic", "flip", "slam", "stamp", "glitch", "neon", "shine", "maskwipe", "split", "typewriter", "rise",
+  "scramble", "blurin", "tracking", "slice", "popword", "flap", "strike", "draw",
+];
+
+const wordCount = (text: string) => Math.max(1, text.trim().split(/\s+/).filter(Boolean).length);
+
+// Frames an effect needs to land (the callers turn this into `k`). The ones that stagger words or letters depend on the text.
+const FRAMES: Record<FxName, number | ((text: string) => number)> = {
+  scatter: 11, drop: 18, wave: 16, elastic: 16, flip: 16, slam: 9, stamp: 12, glitch: 14, neon: 10, shine: 12, maskwipe: 12, split: 12, rise: 10,
+  typewriter: (t) => Math.max(8, Math.round(Array.from(t).length * 0.75)),
+  scramble: 26,
+  blurin: (t) => 14 + 3 * (wordCount(t) - 1),
+  tracking: 18,
+  slice: 18,
+  popword: (t) => 14 + 4 * (wordCount(t) - 1),
+  flap: 26,
+  strike: 24,
+  draw: 24,
+};
+export const fxFrames = (fx: FxName, text: string): number => {
+  const f = FRAMES[fx];
+  return typeof f === "number" ? f : f(text);
+};
+
+// Split a word into letters the way a reader sees them (a base letter and its marks stay together).
+const glyphs = (w: string): string[] => {
+  const Seg = (Intl as unknown as { Segmenter?: new (l: string, o: { granularity: string }) => { segment: (s: string) => Iterable<{ segment: string }> } }).Segmenter;
+  return Seg ? Array.from(new Seg("vi", { granularity: "grapheme" }).segment(w), (s) => s.segment) : Array.from(w);
+};
+const plain = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
 
 export type StrokeProps = { size: number; fill: string; stroke: string; family?: string; weight?: number; width?: number; shadow?: string; tracking?: string; glow?: string };
 
@@ -35,22 +71,39 @@ const base = (p: StrokeProps): React.CSSProperties => ({
 
 const easeOutBack = Easing.bezier(0.34, 1.56, 0.64, 1);
 const easeOutExpo = Easing.bezier(0.16, 1, 0.3, 1);
+const easeBar = Easing.bezier(0.5, 0, 0.1, 1);
+const unit = (v: number) => Math.min(1, Math.max(0, v));
 
 type FxProps = StrokeProps & { text: string; fx?: FxName; frame: number; k: number; x: number; seed?: number; spread?: number; fps?: number };
+
+// A line drawn as an outline layer under a fill layer (the strike effect draws two of them side by side).
+const Dual: React.FC<{ p: StrokeProps; text: string; fillStyle?: React.CSSProperties }> = ({ p, text, fillStyle }) => (
+  <div style={{ position: "relative" }}>
+    <div aria-hidden style={{ ...base(p), position: "absolute", inset: 0, color: p.stroke, WebkitTextStroke: `${Math.round(p.size * (p.width ?? 0.16))}px ${p.stroke}` }}>
+      {text}
+    </div>
+    <div style={{ ...base(p), position: "relative", color: p.fill, ...fillStyle }}>{text}</div>
+  </div>
+);
 
 export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, seed = 0, spread = 1, fps = 30, ...p }) => {
   const t = text.normalize("NFC");
   const words = t.split(" ");
   const starts: number[] = [];
+  const wordOf: number[] = []; // letter index -> word index
   let acc = 0;
-  words.forEach((w) => {
+  words.forEach((w, wi) => {
     starts.push(acc);
-    acc += Array.from(w).length;
+    const len = glyphs(w).length;
+    for (let c = 0; c < len; c++) wordOf.push(wi);
+    acc += len;
   });
   const n = Math.max(1, acc);
   const sec = frame / fps;
+  const ef = k * fxFrames(fx, t); // frames since the effect began (float)
   const stagger = (i: number, per: number, win = 0.45) => interpolate(k, [Math.min(0.55, i * per), Math.min(0.55, i * per) + win], [0, 1], clamp);
   const away = (i: number) => (x > 0 ? interpolate(x, [Math.min(0.5, i * 0.012), Math.min(0.5, i * 0.012) + 0.5], [0, 1], clamp) : 0);
+  const pool = Array.from(new Set(plain(t).replace(/\s/g, ""))).concat("#@%&*".split("")); // scramble: the letters of the line, plain Latin, plus symbols
 
   // the style of letter i (a scatter-style exit is shared by all letter effects)
   const letter = (i: number, layer: "stroke" | "fill"): React.CSSProperties => {
@@ -142,10 +195,29 @@ export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, s
         }
         break;
       }
+      case "scramble": {
+        // letter i locks at frame 4 + i * step (the whole line is done by ~22 f); until then it flickers at half strength
+        const lockAt = 4 + i * Math.min(2, 18 / n);
+        const since = ef - lockAt;
+        op = k <= 0 ? 0 : since >= 0 ? 1 : 0.55;
+        if (since >= 0 && since < 3) sc = 1 + 0.16 * (1 - since / 3); // a small pop as it locks
+        break;
+      }
+      case "tracking":
+        op = unit(ef / 8);
+        break;
+      case "flap":
+        op = k > 0 ? 1 : 0;
+        break;
       case "shine":
       case "typewriter":
       case "maskwipe":
       case "split":
+      case "slice":
+      case "strike":
+      case "draw":
+      case "blurin":
+      case "popword":
       case "rise":
       default: {
         break;
@@ -163,6 +235,68 @@ export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, s
     };
   };
 
+  // the style of a whole word (blurin and popword move words, not letters)
+  const wordStyle = (wi: number): React.CSSProperties => {
+    if (fx === "blurin") {
+      const lf = ef - wi * 3;
+      const e = easeOutExpo(unit(lf / 14));
+      const b = (1 - e) * p.size * 0.22;
+      return { opacity: unit(lf / 6), scale: String(1.12 - 0.12 * e), filter: b > 0.05 ? `blur(${b}px)` : undefined };
+    }
+    if (fx === "popword") {
+      const lf = ef - wi * 4;
+      const s = lf >= 14 ? 1 : spring({ frame: Math.max(0, lf), fps, config: { mass: 1, damping: 9, stiffness: 170 }, durationInFrames: 14 });
+      return { opacity: lf <= 0 ? 0 : unit(lf / 2), scale: String(0.6 + 0.4 * s), rotate: `${-5 * (1 - s)}deg`, translate: `0 ${18 * (1 - s)}px` };
+    }
+    return {};
+  };
+
+  // scramble: the glyph a cell shows right now, and the split-flap cell (flap)
+  const scrambled = (ch: string, i: number) => {
+    if (ef >= 4 + i * Math.min(2, 18 / n)) return ch;
+    const g = pool[Math.floor(rand(i + seed * 3, Math.floor(frame / 2) + 1) * pool.length)];
+    return ch !== ch.toLowerCase() ? g.toUpperCase() : g;
+  };
+  const flapCell = (ch: string, i: number, layer: "stroke" | "fill") => {
+    const cls = /\d/.test(ch) ? "0123456789" : ch !== ch.toLowerCase() ? "ABCDEGHKLMNOPRSTUVXY" : ch !== ch.toUpperCase() ? "abcdeghkmnoprsuvxy" : "";
+    const flips = cls ? 3 + Math.floor(rand(i + seed, 9) * 3) : 0;
+    const per = 3; // frames per flip
+    const local = ef - i * Math.min(1.2, 8 / n);
+    if (!cls || local >= per * flips) return <span key={i} style={letter(i, layer)}>{ch}</span>;
+    const seq = Array.from({ length: flips }, (_, j) => cls[Math.floor(rand(i + seed, 20 + j) * cls.length)]).concat(ch);
+    const j = Math.min(flips - 1, Math.max(0, Math.floor(local / per)));
+    const tt = local < 0 ? 0 : (local - j * per) / per; // 0..1 inside flip j
+    const topAngle = tt < 0.5 ? -90 * Easing.in(Easing.quad)(tt * 2) : -90;
+    const botAngle = tt < 0.5 ? 90 : 90 * (1 - Easing.out(Easing.quad)((tt - 0.5) * 2));
+    const half = (g: string, which: "top" | "bottom", angle?: number, hidden?: boolean) => (
+      <span
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          clipPath: which === "top" ? "inset(-30% -30% 50% -30%)" : "inset(50% -30% -30% -30%)",
+          transform: angle === undefined ? undefined : `perspective(${p.size * 5}px) rotateX(${angle}deg)`,
+          backfaceVisibility: "hidden",
+          visibility: hidden ? "hidden" : "visible",
+        }}
+      >
+        {g}
+      </span>
+    );
+    return (
+      <span key={i} style={{ ...letter(i, layer), position: "relative" }}>
+        <span style={{ visibility: "hidden" }}>{ch}</span>
+        {half(seq[j + 1], "top")}
+        {half(seq[j], "bottom")}
+        {half(seq[j], "top", topAngle, tt >= 0.5)}
+        {half(seq[j + 1], "bottom", botAngle, tt < 0.5)}
+        {layer === "fill" ? <span style={{ position: "absolute", left: "-3%", right: "-3%", top: "50%", height: Math.max(2, p.size * 0.014), background: "rgba(0,0,0,0.5)" }} /> : null}
+      </span>
+    );
+  };
+
   const strokePx = Math.round(p.size * (p.width ?? 0.16));
   const render = (layer: "stroke" | "fill") => {
     const color = layer === "stroke" ? p.stroke : p.fill;
@@ -171,6 +305,12 @@ export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, s
       color,
       ...(layer === "stroke" ? { WebkitTextStroke: `${strokePx}px ${p.stroke}` } : {}),
     };
+    if (fx === "tracking") {
+      // wide spacing closes to none; the trailing space of the last letter is padded on the left so the line stays centred
+      const ls = Math.min(0.35, 3 / n) * (1 - easeOutExpo(unit(ef / 18)));
+      style.letterSpacing = p.tracking ? `calc(${p.tracking} + ${ls}em)` : `${ls}em`;
+      style.paddingLeft = `${ls}em`;
+    }
     if (fx === "shine" && layer === "fill") {
       // a diagonal highlight travels across the finished text: clip a gradient to the glyphs
       const prog = interpolate(frame, [Math.round(fps * 0.45), Math.round(fps * 0.45) + 18], [-0.3, 1.3], clamp);
@@ -189,12 +329,23 @@ export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, s
     ...words.map((w, wi) => (
       <React.Fragment key={wi}>
         {wi > 0 ? " " : null}
-        <span style={{ display: "inline-block" }}>
-          {Array.from(w).map((ch, ci) => (
-            <span key={ci} style={letter(starts[wi] + ci, layer)}>
-              {ch}
-            </span>
-          ))}
+        <span style={{ display: "inline-block", ...wordStyle(wi) }}>
+          {glyphs(w).map((ch, ci) => {
+            const i = starts[wi] + ci;
+            if (fx === "flap") return flapCell(ch, i, layer);
+            return (
+              <span key={ci} style={fx === "scramble" ? { ...letter(i, layer), position: "relative" } : letter(i, layer)}>
+                {fx === "scramble" ? (
+                  <>
+                    <span style={{ visibility: "hidden" }}>{ch}</span>
+                    <span style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>{scrambled(ch, i)}</span>
+                  </>
+                ) : (
+                  ch
+                )}
+              </span>
+            );
+          })}
         </span>
       </React.Fragment>
     )),
@@ -205,7 +356,7 @@ export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, s
     ) : null,
   ];
 
-  // container-level effects: a wipe bar, a split in two halves, a cursor
+  // container-level effects: a wipe bar, halves, bands, a strike bar, an underline
   let wrapStyle: React.CSSProperties = { position: "relative", textAlign: "center", filter: p.shadow };
   let bar: React.ReactNode = null;
   if (fx === "maskwipe") {
@@ -226,6 +377,68 @@ export const FxText: React.FC<FxProps> = ({ text, fx = "scatter", frame, k, x, s
         <div style={{ visibility: "hidden" }}>{render("fill")}</div>
         {half("inset(0 0 50% 0)", -1)}
         {half("inset(50% 0 0 0)", 1)}
+      </div>
+    );
+  }
+  if (fx === "slice") {
+    // three bands cut across the line (the top one whole, so the marks over capitals are never split) slide in from alternating
+    // sides, 2 f apart; the cuts overlap by half a percent so no seam shows
+    const bands = [
+      { clip: "inset(-30% -15% 60% -15%)", dir: -1 },
+      { clip: "inset(39.5% -15% 34% -15%)", dir: 1 },
+      { clip: "inset(65.5% -15% -40% -15%)", dir: -1 },
+    ];
+    return (
+      <div style={{ position: "relative", textAlign: "center", filter: p.shadow, opacity: 1 - (x > 0 ? x : 0) }}>
+        <div style={{ visibility: "hidden" }}>{render("fill")}</div>
+        {bands.map((b, bi) => {
+          const bf = ef - bi * 2;
+          return (
+            <div key={bi} style={{ position: "absolute", inset: 0, clipPath: b.clip, translate: `${b.dir * (1 - easeOutExpo(unit(bf / 12))) * 140}px 0`, opacity: unit(bf / 3) }}>
+              <div aria-hidden style={{ position: "absolute", inset: 0 }}>{render("stroke")}</div>
+              {render("fill")}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  if (fx === "strike") {
+    // "OLD -> NEW": a tilted bar strikes OLD out (OLD dims), then NEW springs in beside it; without an arrow the whole line is struck
+    const parts = t.split(/\s*(?:→|->|=>)\s*/);
+    const oldText = parts[0];
+    const newText = parts.length > 1 ? parts.slice(1).join(" ") : "";
+    const bar0 = easeBar(unit((ef - 2) / 8));
+    const dim = 1 - 0.45 * unit((ef - 2) / 8);
+    const s = ef >= 22 ? 1 : spring({ frame: Math.max(0, ef - 8), fps, config: { mass: 1, damping: 8, stiffness: 170 }, durationInFrames: 14 });
+    const thick = Math.max(6, p.size * 0.1);
+    return (
+      <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "baseline", gap: p.size * 0.5, filter: p.shadow, opacity: 1 - (x > 0 ? x : 0) }}>
+        <div style={{ position: "relative", opacity: k > 0 ? 1 : 0 }}>
+          <Dual p={p} text={oldText} fillStyle={{ opacity: dim }} />
+          <div style={{ position: "absolute", left: "-0.1em", right: "-0.1em", top: "56%", height: thick, marginTop: -thick / 2, borderRadius: thick / 2, background: toneColor.before, boxShadow: `0 0 0 ${Math.max(2, p.size * 0.025)}px ${p.stroke}`, transformOrigin: "left center", scale: `${bar0} 1`, rotate: "-4deg" }} />
+        </div>
+        {newText ? (
+          <div style={{ opacity: ef <= 8 ? 0 : unit((ef - 8) / 3), scale: String(0.6 + 0.4 * s), rotate: `${-4 * (1 - s)}deg`, transformOrigin: "50% 80%" }}>
+            <Dual p={p} text={newText} />
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+  if (fx === "draw") {
+    // the line sits still; a wavy underline is wiped in under it, left to right (a tiled wave, so it fits any width), low enough to
+    // clear the Vietnamese dots below the baseline
+    const prog = easeOutExpo(unit((ef - 8) / 14));
+    const wave = "M-20 8 Q-10 0 0 8 T 20 8 T 40 8 T 60 8";
+    const tile = (color: string, w: number) => `<path d='${wave}' fill='none' stroke='${color}' stroke-width='${w}' stroke-linecap='round'/>`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 16'>${tile(p.stroke, 8)}${tile(toneColor.cta, 4)}</svg>`;
+    const tw = p.size * 0.6;
+    return (
+      <div style={{ ...wrapStyle, opacity: unit(ef / 6) * (1 - (x > 0 ? x : 0)) }}>
+        <div aria-hidden style={{ position: "absolute", inset: 0 }}>{render("stroke")}</div>
+        {render("fill")}
+        <div style={{ position: "absolute", left: "2%", right: "2%", top: "100%", height: tw * 0.4, backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(svg)}")`, backgroundSize: `${tw}px ${tw * 0.4}px`, backgroundRepeat: "repeat-x", clipPath: `inset(0 ${(1 - prog) * 100}% 0 0)` }} />
       </div>
     );
   }

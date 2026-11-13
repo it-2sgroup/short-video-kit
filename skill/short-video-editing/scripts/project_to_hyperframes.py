@@ -16,7 +16,7 @@ What it does, in order:
 
 Overlay components the HyperFrames kit does not draw (read from kit.js: today magnifier, thumbs, compare, ranking and the
 agency-pitch set phrase, pill, arc, burst, script, tag, logo, counter, icon, circled, rawfinal) and scene or project features
-only Remotion has (card/expand layouts, the silhouette flash, face light, look, caption highlights and bands, cardSlide and
+only Remotion has (card/expand layouts, subject effects (silhouette flash...), face light, look, caption highlights and bands, cardSlide and
 cardSwirl) are listed and left out: render such a video with Remotion instead (the agency recipe is Remotion only). Ask the user before the first `npx hyperframes`
 (it downloads the package). Needs ffmpeg; rendering needs Node 22+ and Chrome.
 """
@@ -37,14 +37,21 @@ TEMPLATE = SKILL / "assets" / "hyperframes-template"
 HF_VERSION = "0.9.26"  # the CLI the kit was tested with; package.json pins it so a re-render is identical
 GSAP = "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"
 FACTORY_RE = re.compile(r"^    (\w+)\(\w+, ov\) \{", re.M)   # an overlay drawn by kit.js: `    title(root, ov) {`
-REMOTION_ONLY_SCENE = {"layout": "card/expand layouts over the grid", "flash": "the silhouette flash", "face": "face light"}
+REMOTION_ONLY_SCENE = {"layout": "card/expand layouts over the grid", "face": "face light"}
 REMOTION_ONLY_PROJECT = {"faceGlow": "face light", "captionHighlight": "caption highlight modes", "captionKeywords": "caption keywords"}
-REMOTION_ONLY_TRANSITIONS = {"cardSlide", "cardSwirl"}
+# Drawn by Remotion only (card layouts, and the WebGL / HTML-in-canvas presentations Remotion ships); the HyperFrames renderer draws a fade instead.
+REMOTION_ONLY_TRANSITIONS = {"cardSlide", "cardSwirl", "filmBurn", "zoomBlur", "dreamyZoom", "linearBlur", "crosswarp", "zoomInOut", "blurSlide",
+                             "clockWipe", "ripple", "burnDissolve", "cube", "bookFlip", "swap",
+                             # kit-written GL Transitions shaders (engine/glTransitions.tsx, shaders/*.glsl)
+                             "glPixelate", "glDirectionalWarp", "glSwirl", "glMosaic", "glRgbSplit", "glRadialShutter", "glRipplePixel"}
 
 
 def remotion_only(proj: dict) -> list[str]:
     """Features the plan uses that kit.js does not draw: one short line each, so nothing disappears silently."""
     out = []
+    modes = sorted({sc["subject"].get("mode", "fill") for sc in proj.get("scenes") or [] if sc.get("subject")} - set(HF_SUBJECT_MODES))
+    if modes:
+        out.append(f"subject mode(s) {', '.join(modes)} (they draw a second copy of the footage: Remotion only; fill, outline, glow, dim and colorpop are drawn here)")
     for k, why in REMOTION_ONLY_SCENE.items():
         n = sum(1 for s in proj.get("scenes") or [] if s.get(k))
         if n:
@@ -63,8 +70,14 @@ def remotion_only(proj: dict) -> list[str]:
         out.append(f"transition {', '.join(t)} (drawn as a fade)")
     return out
 
-DEFAULT_FRAMES = {"cut": 0, "fade": 12, "slide": 14, "wipe": 14, "iris": 18, "pushCut": 11, "zoomThrough": 12,
-                  "blurDissolve": 14, "whip": 9, "flip": 16, "crossZoom": 16}
+def _default_frames() -> dict[str, int]:
+    """The Remotion template's table (engine/timeline.ts DEFAULT_FRAMES): the two renderers share one set of lengths."""
+    ts = (Path(__file__).resolve().parent.parent / "assets" / "remotion-template" / "src" / "engine" / "timeline.ts").read_text(encoding="utf-8")
+    block = ts.split("DEFAULT_FRAMES", 1)[1].split("};", 1)[0]
+    return {k: int(v) for k, v in re.findall(r"(\w+):\s*(\d+)", block)}
+
+
+DEFAULT_FRAMES = _default_frames()
 
 
 # ---------------------------------------------------------------- layout (engine/timeline.ts)
@@ -233,6 +246,29 @@ def link(src: Path, dst: Path) -> None:
         shutil.copy2(src, dst)
 
 
+HF_SUBJECT_MODES = ("fill", "outline", "glow", "dim", "colorpop")  # the rest (behind, lift...) need a second copy of the footage: Remotion only
+
+
+def font_library() -> dict:
+    """The font library (assets/fonts.json, generated from the template's src/fonts.ts): id -> family, weights."""
+    path = TEMPLATE.parent / "fonts.json"
+    return json.loads(path.read_text(encoding="utf-8"))["fonts"] if path.is_file() else {}
+
+
+def used_fonts(proj: dict) -> dict:
+    lib = font_library()
+    ids = {o["props"].get(k) for o in proj.get("overlays") or [] for k in ("font", "leadFont") if isinstance(o.get("props", {}).get(k), str)}
+    return {i: lib[i] for i in sorted(ids) if i in lib}
+
+
+def fonts_link(used: dict) -> str:
+    """One Google Fonts stylesheet for the library fonts the overlays use (HyperFrames inlines it at render time)."""
+    if not used:
+        return ""
+    fams = "&".join("family=" + f["family"].replace(" ", "+") + ":wght@" + ";".join(str(w) for w in f["weights"]) for f in used.values())
+    return f'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?{fams}&display=block" />'
+
+
 def build_html(proj: dict, slots: list[dict], fps: int, has_audio: bool) -> str:
     w, h, dur = proj["width"], proj["height"], proj["duration"]
     rows = []
@@ -257,6 +293,7 @@ def build_html(proj: dict, slots: list[dict], fps: int, has_audio: bool) -> str:
 <meta charset="UTF-8" />
 <meta name="viewport" content="width={w}, height={h}" />
 <link rel="stylesheet" href="kit.css" />
+{fonts_link(proj.get("fontLib") or {})}
 <script src="{GSAP}"></script>
 </head>
 <body>
@@ -360,6 +397,17 @@ def main() -> int:
                 link(img, out / o["props"]["src"])
             else:
                 print(f"  ! missing image {img}")
+
+    for sc in proj["scenes"]:  # the matte pictures of the subject effects this renderer draws
+        sj = sc.get("subject")
+        if sj and sj.get("mode", "fill") in HF_SUBJECT_MODES:
+            for n in sj["frames"]:
+                png = public / f"{sj['matte']}_{n}.png"
+                if png.exists():
+                    link(png, out / f"{sj['matte']}_{n}.png")
+                else:
+                    print(f"  ! missing matte {png}")
+    proj["fontLib"] = used_fonts(proj)
 
     has_audio = mix_audio(proj, public, out / "audio" / "mix.wav", fps)
     proj["slots"] = [{k: v for k, v in s.items() if k not in ("advance", "baked")} for s in slots]
