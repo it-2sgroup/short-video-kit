@@ -4234,6 +4234,198 @@
    ],
    "source": "kit-original GLSL in the gl-transitions convention (shaders/ripplePixel.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
    "licence": "MIT"
+  },
+  {
+   "id": "sweep",
+   "kind": "overlay",
+   "name": "Light sweep",
+   "about": "A diagonal band of light crosses once in 0.6-0.8 s. Without text it lightens a feathered box; with text it draws the words and the band shines only on the letters.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "sweep | top | text=PRICE; band=16; angle=15",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "shine",
+    "light streak across text",
+    "glint"
+   ],
+   "tags": [
+    "light",
+    "text"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a title, a price or a product box that earns one flash of attention",
+   "avoid_when": "on every beat: repeated light reads as a template"
+  },
+  {
+   "id": "flare",
+   "kind": "overlay",
+   "name": "Lens flare",
+   "about": "A white-hot disc with a soft halo rises in 5 frames and decays, with ghosts along the line through the frame centre. One white frame at the peak with flash=1.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "flare | center | at=0.8,0.2; ghosts=3; flash=1",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "sun flare",
+    "lens glare",
+    "light leak disc"
+   ],
+   "tags": [
+    "light"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a bright source that is really in the picture (window, lamp, sun), once per video",
+   "avoid_when": "on a face, or without a visible light source"
+  },
+  {
+   "id": "streak",
+   "kind": "overlay",
+   "name": "Anamorphic streak",
+   "about": "The horizontal blue line of an anamorphic lens: a white core in a coloured halo that grows from the centre in 7 frames and fades over the last 10.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "streak | center | at=0.5,0.4; length=900",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "anamorphic flare",
+    "horizontal flare",
+    "blue streak"
+   ],
+   "tags": [
+    "light"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a bright light in the shot, about 0.8 s, once per video",
+   "avoid_when": "a scene with no point light"
+  },
+  {
+   "id": "knockout",
+   "kind": "overlay",
+   "name": "Knockout text",
+   "about": "A colour plate over the frame with the words cut out, so the footage keeps playing inside the letters. With zoom the letters grow until their hole fills the frame, a reveal of the next shot.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "knockout | center | text=NEW / DROP; zoom=30; through=0.5,0.5",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "text mask",
+    "cut-out text",
+    "text reveal",
+    "title mask transition"
+   ],
+   "tags": [
+    "text",
+    "reveal"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a heavy short word (12 letters per line at most) that opens or closes a video",
+   "avoid_when": "busy footage under thin letters: add stroke or a darker plate"
+  },
+  {
+   "id": "echo",
+   "kind": "hit",
+   "name": "Echo trail",
+   "about": "The same clip is drawn again a few frames behind the live frame, each copy fainter, inside the camera framing. +echo gives 2 copies, 3 frames apart, for the first 15 frames of the scene.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Transition: cut +echo",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "trail",
+    "ghost trail",
+    "afterimage",
+    "motion trail"
+   ],
+   "tags": [
+    "accent"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a fast move or a whip that should leave a trail",
+   "avoid_when": "a calm shot: the copies just look like a stutter"
+  },
+  {
+   "id": "blur",
+   "kind": "subject-fx",
+   "name": "Rack focus (subject)",
+   "about": "The background (everything outside the person matte) goes from one blur radius to another over the window while the subject stays sharp. One video decode, no second copy.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: blur 0-60 @ mattes/CLIP_A; every=3; from=0; width=24",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "rack focus",
+    "background blur",
+    "focus pull",
+    "depth of field"
+   ],
+   "tags": [
+    "matte",
+    "focus"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a reveal that should pull the eye onto the person",
+   "avoid_when": "footage with no clean matte: a bad edge shows"
+  },
+  {
+   "id": "lift",
+   "kind": "subject-fx",
+   "name": "Depth pop (subject)",
+   "about": "A cut-out copy of the subject grows a few percent above the unchanged picture with a soft shadow that fades in, a 3D pop-out look.",
+   "doc": "references/subject-effects.md",
+   "plan": "Subject: lift 0-45 @ mattes/CLIP_A; every=3; width=5; y=0.8; opacity=0.4",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "pop out",
+    "3D pop",
+    "depth look",
+    "subject pop"
+   ],
+   "tags": [
+    "matte",
+    "depth"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "a freeze-hit beat over a person",
+   "avoid_when": "a striped or very busy background, where only the shadow reads",
+   "pairs_with": [
+    "freeze-hit"
+   ]
+  },
+  {
+   "id": "freeze-hit",
+   "kind": "speed-curve",
+   "name": "Freeze hit",
+   "about": "A scene of 0.8-1.6 s runs, holds ONE frame for its middle third and runs again, easing in and out. Dress it on the same beat with +flash and a camera punch.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Speed: freeze-hit",
+   "renderers": [
+    "remotion",
+    "hyperframes"
+   ],
+   "aliases": [
+    "freeze frame",
+    "hit stop",
+    "impact freeze",
+    "frame hold"
+   ],
+   "tags": [
+    "time"
+   ],
+   "test": "light, subject and speed techniques compile",
+   "use_when": "an impact or a pose that should land",
+   "avoid_when": "across a before/after reveal",
+   "pairs_with": [
+    "lift"
+   ]
   }
  ]
 }

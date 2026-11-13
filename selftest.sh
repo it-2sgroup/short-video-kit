@@ -29,6 +29,32 @@ ffprobe -version >/dev/null 2>&1 && pass "ffprobe runs" || fail "ffprobe not run
 if OUT=$("$PY" "$S/doctor.py" --only ffmpeg 2>&1); then pass "ffmpeg has every filter and encoder the scripts call"
 else fail "ffmpeg lacks something the scripts call:"; echo "$OUT" | grep -E '✗|->' | sed 's/^/        /'; fi
 "$PY" "$S/doctor.py" --json >/dev/null 2>&1; [[ $? -le 1 ]] && pass "doctor.py runs (exit 0 or 1)" || fail "doctor.py crashed"
+# What setup.sh installs must cover what the scripts import: a new third-party import without a line in requirements*.txt fails here, not on someone else's machine.
+if OUT=$("$PY" -I - "$S" "$KIT" << 'PY' 2>&1
+import ast, re, sys, pathlib
+scripts, kit = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+std, local = set(sys.stdlib_module_names), {p.stem for p in scripts.glob("*.py")}
+alias = {"cv2": "opencv-python-headless", "faster_whisper": "faster-whisper"}
+need = {}
+for f in scripts.glob("*.py"):
+    for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+        mods = [a.name for a in n.names] if isinstance(n, ast.Import) else [n.module] if isinstance(n, ast.ImportFrom) and n.level == 0 and n.module else []
+        for m in mods:
+            m = m.split(".")[0]
+            if m not in std and m not in local and m != "__future__":
+                need.setdefault(alias.get(m, m).lower().replace("_", "-"), f.name)
+have = set()
+for r in kit.glob("requirements*.txt"):
+    for line in r.read_text(encoding="utf-8").splitlines():
+        line = line.split("#")[0].strip()
+        if line:
+            have.add(re.split(r"[=<>!~\[ ]", line)[0].lower().replace("_", "-"))
+missing = {k: v for k, v in need.items() if k not in have}
+if missing:
+    sys.exit("imported but in no requirements*.txt: " + ", ".join(f"{k} ({v})" for k, v in sorted(missing.items())))
+print(f"{len(need)} third-party packages imported, all in requirements*.txt")
+PY
+); then pass "$OUT"; else fail "$OUT"; fi
 
 echo "2. inspect_footage.py reads a real clip"
 ffmpeg -loglevel error -y -f lavfi -i testsrc=size=1080x1920:rate=30 -f lavfi -i sine=frequency=440 \
@@ -551,7 +577,7 @@ assert rb(base) + 1 < rb(half) < rb(res["golden-hour"]) - 1, "grade strength 0.5
 print("grades ok")
 PYEOF
 "$PY" -X utf8 - "$S" <<'PYEOF' >"$TMP/new.log" 2>&1 \
-  && pass "camera shake parses; speed presets parse; look fx parses; subject cells parse; every transition of project.ts is plannable" || { fail "newer plan features"; tail -6 "$TMP/new.log" | sed 's/^/        /'; }
+  && pass "camera shake parses; speed presets parse; look fx parses; subject cells parse; light, subject and speed techniques compile; every transition of project.ts is plannable" || { fail "newer plan features"; tail -6 "$TMP/new.log" | sed 's/^/        /'; }
 import sys
 sys.path.insert(0, sys.argv[1])
 import plan_to_project as p, footage_overlap_checker as f
@@ -580,6 +606,12 @@ except ValueError:
     pass
 for t in ("blinds", "diamond", "doors", "glitchSlice", "spinZoom", "filmBurn", "zoomBlur", "whip", "cardSwirl"):
     assert t.lower() in p.CANON, t
+# label: light, subject and speed techniques compile
+assert {"sweep", "flare", "streak", "knockout"} <= set(p.KNOWN), "light overlays and knockout text must be in the registry"
+assert f.parse_speed("freeze-hit") == (None, [1.0, 0.0, 0.0, 1.0]), "freeze-hit holds one frame in the middle"
+assert p.parse_transition("cut +echo")[2] == ["echo"] and p.ECHO_HIT["copies"] == 2, "+echo is a transition hit"
+for m in ("blur", "lift"):
+    assert p.parse_subject(m + " 0-60 @ mattes/CLIP_A; every=3; width=5")["mode"] == m, m
 PYEOF
 "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/lookfx.json" --look-fx vignette=0.3,grain=0.06 >/dev/null 2>&1 \
   && "$PY" -c "import json,sys; l=json.load(open(sys.argv[1]))['look']; assert l=={'vignette':0.3,'grain':0.06}, l" "$TMP/lookfx.json" \

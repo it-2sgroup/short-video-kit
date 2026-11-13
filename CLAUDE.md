@@ -34,6 +34,7 @@ Do these in order. Show real output; never summarise a failure as success.
    `git pull` so the installed skill matches the repo (`./setup.sh --check` shows drift).
 2. **ffmpeg missing?** Let the user choose: `brew install ffmpeg` / `apt install ffmpeg` /
    `winget install Gyan.FFmpeg`, or `./setup.sh --download-ffmpeg` (Linux static build, ~40 MB).
+   Optional extras, each a download to **ask about**: `./setup.sh --ocr` (~85 MB, `analyze_reference.py` text events), `./setup.sh --person-model` (168 MB), `./setup.sh --all` (all of them).
    **Ask before any download.**
 3. **No ElevenLabs key?** Only needed to synthesize a voice; a supplied voice works without one. The
    user runs **`./setup.sh --set-key` themselves** (typed hidden). **Never** ask for the key in chat;

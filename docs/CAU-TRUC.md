@@ -30,7 +30,8 @@ short-video-kit/
 ├── CLAUDE.md                 Chỉ dẫn cho Claude khi mở repo (Claude tự đọc đầu tiên)
 ├── README.md                 Giới thiệu, cài đặt, cách dùng (tiếng Anh, chuẩn repo quốc tế)
 ├── setup.sh · selftest.sh    Cài đặt và kiểm tra máy
-├── requirements.txt          Thư viện Python (faster-whisper, numpy)
+├── requirements.txt          Thư viện Python (faster-whisper, numpy, onnxruntime)
+├── requirements-ocr.txt      Thư viện OCR tùy chọn (rapidocr, opencv), cài bằng setup.sh --ocr
 ├── .env.example              Mẫu file khóa ElevenLabs (không chứa khóa)
 ├── .gitignore · .gitattributes
 ├── docs/                     Tài liệu cho người đọc
@@ -50,9 +51,10 @@ short-video-kit/
 |---|---|
 | `CLAUDE.md` | Chỉ dẫn cho Claude: kiểm tra máy đầu phiên, các bước cài đặt, quy trình khi người dùng nhờ dựng video, việc phải hỏi người dùng (tải về, gói ElevenLabs, giấy phép Remotion), các bài học đã trả giá. |
 | `README.md` | Tổng quan, yêu cầu hệ thống, cài đặt (có Windows), cách dùng, giấy phép bên thứ ba, hạn chế đã biết. |
-| `setup.sh` | Cài mọi thứ vào `$HOME`: venv Python, thư viện, mô hình Whisper (~460 MB), khóa ElevenLabs (nếu có `.env.local`), chép skill vào `~/.claude/skills`. Chạy lại an toàn. Tùy chọn: `--check` (chỉ báo cáo), `--set-key` (nhập khóa ẩn), `--no-model`, `--person-model` (tải thêm model tách người 168 MB cho quy trình agency; hỏi người dùng trước), `--no-skill`, `--download-ffmpeg` (Linux), `--package` (đóng gói `.skill` cho app desktop). |
+| `setup.sh` | Cài mọi thứ vào `$HOME`: venv Python, thư viện, mô hình Whisper (~460 MB), khóa ElevenLabs (nếu có `.env.local`), chép skill vào `~/.claude/skills`. Chạy lại an toàn. Tùy chọn: `--check` (chỉ báo cáo), `--set-key` (nhập khóa ẩn), `--no-model`, `--person-model` (tải thêm model tách người 168 MB cho quy trình agency; hỏi người dùng trước), `--ocr` (RapidOCR + OpenCV ~85 MB cho analyze_reference.py; hỏi trước), `--all` (mọi thứ tùy chọn tải được không cần gõ: OCR, model tách người, ffmpeg tĩnh), `--no-skill`, `--download-ffmpeg` (Linux), `--package` (đóng gói `.skill` cho app desktop). |
 | `selftest.sh` | 13 nhóm kiểm tra không tốn credit: công cụ; soi clip; playbook (mọi playbook/biến thể hợp lệ, khung của nó qua luật nhịp của chính nó, mọi thành phần/grade/theme/kiểu phụ đề đều được ít nhất một playbook dùng) và luật nhịp theo playbook; căn phụ đề; khóa ElevenLabs; biên dịch kế hoạch (review sản phẩm + tour BĐS có speed ramp và đồ hoạ thông tin); trùng footage (tính cả cảnh tua nhanh); cắt theo chỗ lặng và theo beat; cắt giọng và jump cut; bảng khung hình; dựng khung dự án; hiệu ứng âm thanh; làm sạch giọng + master; đo và hiệu chỉnh footage. `--render [DIR]` thêm nhóm 14: typecheck template và render ảnh tĩnh (cả đồ hoạ thông tin). |
-| `requirements.txt` | `faster-whisper==1.2.1` và `numpy`. |
+| `requirements.txt` | `faster-whisper==1.2.1`, `numpy`, `onnxruntime`. |
+| `requirements-ocr.txt` | `rapidocr` và `opencv-python-headless` (ghim phiên bản). Tùy chọn. `selftest.sh` nhóm 1 kiểm mọi gói bên thứ ba mà scripts import đều có trong một file `requirements*.txt`. |
 | `.env.example` | Chỉ có dòng `ELEVENLABS_API_KEY=`. Khóa thật nằm ở `.env.local` (bị `.gitignore` chặn) hoặc `~/.config/short-video-kit/env`. |
 | `.gitignore` | Chặn khóa (`.env*`), media (`*.mp4`, `*.mp3`), `models/`, `bin/`, `dist/`, `node_modules/`, `out/`, `renders/`. |
 | `.gitattributes` | Ép LF cho file văn bản, để Git for Windows không biến `.sh` thành CRLF làm bash lỗi. |

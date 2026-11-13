@@ -7,6 +7,10 @@
 #   ./setup.sh --no-model         skip the Whisper model (it then downloads on first use)
 #   ./setup.sh --person-model     also download the person-segmentation model (u2net_human_seg.onnx, 168 MB; ASK THE USER FIRST).
 #                                 Only the agency-pitch recipe needs it: silhouette flash, beauty light, cutaways (person_matte.py)
+#   ./setup.sh --ocr              also install RapidOCR + OpenCV into the venv (requirements-ocr.txt, ~85 MB; ASK THE USER FIRST).
+#                                 Only analyze_reference.py needs it (text events and caption style of a reference video)
+#   ./setup.sh --all              everything optional that can be fetched unattended: --ocr, --person-model, --download-ffmpeg if none.
+#                                 Never the ElevenLabs key (--set-key is typed by the person) and never Node or Chrome (see the list printed at the end)
 #   ./setup.sh --no-skill         do not install the skill into ~/.claude/skills
 #   ./setup.sh --set-key          type the ElevenLabs key (hidden) and store it, then exit
 #   ./setup.sh --package          build dist/short-video-editing.skill (for the Claude desktop app), then exit
@@ -25,7 +29,7 @@ VENV="$SHARE/venv"
 MODEL_DIR="${WHISPER_MODEL_DIR:-$HOME/.cache/short-video-kit/models}"   # same override align_captions.py reads
 KEYDIR="$HOME/.config/short-video-kit"; KEYFILE="$KEYDIR/env"
 
-INSTALL_SKILL=1; GET_MODEL=1; GET_PERSON=0; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0; CHECK=0
+INSTALL_SKILL=1; GET_MODEL=1; GET_PERSON=0; GET_OCR=0; GET_FFMPEG=0; SET_KEY=0; PACKAGE=0; CHECK=0
 PERSON_URL="https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx"
 PERSON_SHA256="01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c"   # the file this kit was tested with
 # where person_matte.py looks for it (same order)
@@ -37,6 +41,8 @@ for a in "$@"; do
     --no-skill) INSTALL_SKILL=0 ;;
     --no-model) GET_MODEL=0 ;;
     --person-model) GET_PERSON=1 ;;
+    --ocr) GET_OCR=1 ;;
+    --all) GET_OCR=1; GET_PERSON=1; GET_FFMPEG=1 ;;
     --download-ffmpeg) GET_FFMPEG=1 ;;
     --set-key) SET_KEY=1 ;;
     --package) PACKAGE=1 ;;
@@ -93,6 +99,11 @@ if [[ $CHECK -eq 1 ]]; then
   DOCTOR="$KIT/skill/short-video-editing/scripts/doctor.py"
   if person_model_file >/dev/null; then ok "person-segmentation model (optional): $(person_model_file)"
   else warn "no person-segmentation model. Optional: only the agency-pitch recipe needs it (silhouette flash, beauty light). ./setup.sh --person-model (168 MB: ask the user first)"; fi
+  ocr_ok()    { [[ -n "$VPY" ]] && "$VPY" -c 'import cv2, rapidocr'; }
+  if ocr_ok >/dev/null 2>&1; then ok "OCR (optional): rapidocr + opencv in the venv"
+  else warn "no OCR packages. Optional: only analyze_reference.py's text events and caption style need them. ./setup.sh --ocr (~85 MB: ask the user first)"; fi
+  node22_ok() { command -v node >/dev/null && [[ "$(node -v | sed 's/^v//; s/\..*//')" -ge 22 ]]; }
+  node22_ok >/dev/null 2>&1 && ok "Node 22+ (optional: the HyperFrames renderer)" || warn "Node is older than 22 or missing. Optional: only the HyperFrames renderer needs 22+ (Remotion needs 20.19+)"
   deep_ok()   { [[ -n "$PY" ]] && "$PY" "$DOCTOR" --only ffmpeg; }
   chk "ffmpeg has every filter and encoder the scripts call" "run: python skill/short-video-editing/scripts/doctor.py --only ffmpeg (names what is missing and the build to install)" deep_ok
   if [[ -f "$KEYFILE" || -n "${ELEVENLABS_API_KEY:-}" ]]; then ok "ElevenLabs key present (value not shown)"
@@ -139,6 +150,13 @@ VBIN="$(vbin)"
 if "$VBIN/python" -m pip install --quiet -r "$KIT/requirements.txt"; then
   ok "installed $(grep -v '^#' "$KIT/requirements.txt" | grep -v '^$' | tr '\n' ' ')"
 else bad "pip install failed (needs internet)"; PROBLEMS=$((PROBLEMS+1)); fi
+if [[ $GET_OCR -eq 1 ]]; then
+  if "$VBIN/python" -m pip install --quiet -r "$KIT/requirements-ocr.txt"; then
+    ok "installed OCR: $(grep -v '^#' "$KIT/requirements-ocr.txt" | grep -v '^$' | tr '\n' ' ')"
+  else bad "OCR packages failed to install (needs internet)"; PROBLEMS=$((PROBLEMS+1)); fi
+elif ! "$VBIN/python" -c 'import cv2, rapidocr' >/dev/null 2>&1; then
+  echo "      (optional) OCR packages not installed: only analyze_reference.py's text events need them. ./setup.sh --ocr"
+fi
 
 # ------------------------------------------------------------------ 2. ffmpeg / ffprobe
 download_ffmpeg() {
@@ -259,6 +277,8 @@ step "5/6  Node.js (needed only for Remotion rendering)"
 if command -v node >/dev/null; then
   NV=$(node -v | sed 's/^v//'); [[ ${NV%%.*} -ge 20 ]] && ok "node $NV" || warn "node $NV is older than 20; the render template needs 20.19+"
 else warn "node not found. Install Node 20+ before rendering (Windows: winget install OpenJS.NodeJS.LTS)."; fi
+echo "      Each render project needs its own npm install (npm packages + Remotion's Chromium, ~450 MB): ./selftest.sh --render DIR or new_remotion_project.py --install."
+echo "      The HyperFrames renderer is optional: Node 22+, Chrome, and the first npx hyperframes downloads its package (ask first)."
 
 # Remember where this repo is, so a new chat on this machine (even outside the repo) can find setup.sh.
 mkdir -p "$SHARE"; printf '%s\n' "$KIT" > "$SHARE/repo-path"

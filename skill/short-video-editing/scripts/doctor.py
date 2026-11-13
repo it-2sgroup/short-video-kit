@@ -147,6 +147,12 @@ def check_venv(rep: Report) -> None:
         else:
             rep.add("venv", f"{pin.split('==')[0]} in the venv", "missing", "import failed",
                     f"{vpy} -m pip install {pin}   (or {setup_hint()})")
+    ocr = run([vpy, "-c", "import cv2, rapidocr; print(rapidocr.__version__ if hasattr(rapidocr, '__version__') else 'ok')"])
+    if ocr.strip() and "Error" not in ocr:
+        rep.add("venv", "rapidocr + opencv (optional OCR)", "ok", ocr.strip().splitlines()[-1])
+    else:
+        rep.add("venv", "rapidocr + opencv (optional OCR)", "warn",
+                "not installed: only analyze_reference.py's text events and caption style need it", "./setup.sh --ocr (about 85 MB: ask the user first)")
 
 
 def check_ffmpeg(rep: Report) -> None:

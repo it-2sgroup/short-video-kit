@@ -1,0 +1,5 @@
+# Optional: OCR for analyze_reference.py (text events, caption style of a reference video).
+# Installed by `./setup.sh --ocr` (about 85 MB; ask the user first). Without it scripts/ref_text.py returns None and the analyzer says so.
+# Pinned to the versions this kit was tested with.
+rapidocr==3.10.0
+opencv-python-headless==5.0.0.93

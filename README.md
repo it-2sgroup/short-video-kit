@@ -98,7 +98,7 @@ cd short-video-kit
 `setup.sh` installs everything under `$HOME` (venv in `~/.local/share/short-video-kit`, model in
 `~/.cache/short-video-kit`, key in `~/.config/short-video-kit/env`, skill in
 `~/.claude/skills/short-video-editing`) and can be re-run safely. Options: `--download-ffmpeg`
-(Linux static build), `--no-model`, `--person-model` (the 168 MB person-segmentation model the agency recipe needs; ask first), `--no-skill`, `--package` (builds
+(Linux static build), `--no-model`, `--person-model` (the 168 MB person-segmentation model the agency recipe needs; ask first), `--ocr` (RapidOCR + OpenCV for `analyze_reference.py`, ~85 MB; ask first), `--all` (every optional download that needs no typing: OCR, person model, static ffmpeg), `--no-skill`, `--package` (builds
 `dist/short-video-editing.skill` for the Claude desktop app).
 
 **Windows:** run `setup.sh` and `selftest.sh` from Git Bash. Install prerequisites with
@@ -190,7 +190,7 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
 │   ├── CASE-LOG.md                History of the jobs done for clients (private; not a guide)
 │   └── niche-data-queries.sql     Reproduces the campaign figures behind the product-demo defaults (private)
 ├── samples/                       Fixtures used by selftest.sh (a product-demo and a real-estate plan, a voice line)
-├── setup.sh · selftest.sh · requirements.txt · .env.example
+├── setup.sh · selftest.sh · requirements.txt · requirements-ocr.txt · .env.example
 └── skill/short-video-editing/
     ├── SKILL.md                   Universal rules and workflow loaded by Claude
     ├── playbooks/                 One JSON (rules the scripts read) + one MD (craft) per genre; README = how to choose and add
