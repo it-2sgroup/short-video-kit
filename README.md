@@ -110,6 +110,22 @@ PATH refreshes. If the venv lives elsewhere, set `SVK_PYTHON` to its `python.exe
 session. Claude reads `CLAUDE.md` and the skill from the repository; nothing depends on a chat or a
 local memory. After every `git pull`, re-run `./setup.sh` so the installed skill matches.
 
+**What `./setup.sh` does not install, and what is not verified yet.** `setup.sh` installs the Python venv and packages, the Whisper model
+and the skill; with `--ocr`, `--person-model`, `--download-ffmpeg` (or `--all`) the optional extras. It cannot, or must not, do these:
+
+| Needs a person or the OS package manager | How |
+|---|---|
+| Git, Python 3.10+, Node 20+ (22+ for HyperFrames), a **full** ffmpeg build | `apt`, `brew` or `winget` (commands above); `./setup.sh --check` and `doctor.py` name what is missing |
+| GitHub login to clone this private repo | `gh auth login --web && gh auth setup-git`, once per machine |
+| ElevenLabs key | `./setup.sh --set-key`, typed hidden by the person; never in a chat |
+| npm packages and Chromium of each render project (~450 MB) | `new_remotion_project.py DIR --install`, or `./selftest.sh --render DIR`; ask first |
+| HyperFrames renderer (optional) | Node 22+, Chrome; the first `npx hyperframes` downloads a package, ask first |
+| Internet at render time | Remotion fetches the Google Fonts a video uses |
+
+Not verified: a run on Windows or macOS; the Whisper download from Hugging Face and `--download-ffmpeg` on a machine that has neither
+(only a clean `HOME` on Linux, reusing the existing model and ffmpeg). A new machine's `./setup.sh --check`, `doctor.py` and `./selftest.sh`
+output is the evidence to bring back.
+
 ## Usage
 
 ### With Claude

@@ -50,6 +50,10 @@ Do these in order. Show real output; never summarise a failure as success.
 7. Confirm `~/.claude/skills/short-video-editing/SKILL.md` exists and tell the user to start a **new**
    Claude Code session so the skill loads.
 
+What `setup.sh` cannot install (OS packages, `gh auth login`, the key, each render project's npm install, HyperFrames, internet for Google Fonts at
+render time) and what is still unverified (Windows, macOS, a first-time model or ffmpeg download) is listed in `README.md`, "Moving to another
+computer". When a machine run shows a gap, fix `setup.sh`/`doctor.py` and that list in the same commit.
+
 Machine-specific locations are overridable: `SVK_PYTHON` (the venv's python), `WHISPER_MODEL_DIR`
 (folder holding `faster-whisper-small/`), `SVK_MODEL_DIR` (where `u2net_human_seg.onnx` is looked for first). If drive C: is small, put the venv, model and work folders on
 another drive and set these two variables for the user.
