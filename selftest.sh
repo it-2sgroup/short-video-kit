@@ -29,6 +29,21 @@ ffprobe -version >/dev/null 2>&1 && pass "ffprobe runs" || fail "ffprobe not run
 if OUT=$("$PY" "$S/doctor.py" --only ffmpeg 2>&1); then pass "ffmpeg has every filter and encoder the scripts call"
 else fail "ffmpeg lacks something the scripts call:"; echo "$OUT" | grep -E '✗|->' | sed 's/^/        /'; fi
 "$PY" "$S/doctor.py" --json >/dev/null 2>&1; [[ $? -le 1 ]] && pass "doctor.py runs (exit 0 or 1)" || fail "doctor.py crashed"
+# SKILL.md frontmatter: a plain "description: ... edit: ..." (colon + space) breaks YAML parsers (VS Code, skill loaders); the text must be a folded block or quoted, and <= 1024 chars.
+if OUT=$("$PY" -I - "$KIT/skill/short-video-editing/SKILL.md" << 'PY' 2>&1
+import re, sys
+fm = open(sys.argv[1], encoding="utf-8").read().split("---")[1].split("\n")
+i = next(k for k, l in enumerate(fm) if l.startswith("description:"))
+head = fm[i][len("description:"):].strip()
+body = [l.strip() for l in fm[i + 1:] if l.startswith(" ")] if head[:1] in ("", ">", "|") or head.startswith((">-", "|-")) else [head]
+text = " ".join(body)
+if head[:1] not in ("", ">", "|", '"', "'") and ": " in head:
+    sys.exit("description is a plain scalar containing ': ' (YAML error): use '>-' or quotes")
+if len(text) > 1024:
+    sys.exit(f"description is {len(text)} chars (limit 1024)")
+print(f"SKILL.md description parses and is {len(text)} chars")
+PY
+); then pass "$OUT"; else fail "$OUT"; fi
 # What setup.sh installs must cover what the scripts import: a new third-party import without a line in requirements*.txt fails here, not on someone else's machine.
 if OUT=$("$PY" -I - "$S" "$KIT" << 'PY' 2>&1
 import ast, re, sys, pathlib
