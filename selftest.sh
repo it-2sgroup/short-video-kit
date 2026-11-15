@@ -631,12 +631,13 @@ PYEOF
 "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/lookfx.json" --look-fx vignette=0.3,grain=0.06 >/dev/null 2>&1 \
   && "$PY" -c "import json,sys; l=json.load(open(sys.argv[1]))['look']; assert l=={'vignette':0.3,'grain':0.06}, l" "$TMP/lookfx.json" \
   && pass "plan_to_project.py --look-fx writes look.vignette and look.grain (look fx parses)" || fail "plan_to_project.py --look-fx"
-bash -s "$KIT/skill/short-video-editing" <<'EDITORTEST' >"$TMP/editor.log" 2>&1 \
+SVK_SELFTEST_PY="$PY" bash -s "$KIT/skill/short-video-editing" <<'EDITORTEST' >"$TMP/editor.log" 2>&1 \
   && pass "editor.py: serves the project, saves with a history snapshot, restores, refuses traversal and foreign hosts" || { fail "editor.py"; grep FAIL "$TMP/editor.log" | head -6 | sed 's/^/        /'; }
 #!/usr/bin/env bash
-# Selftest snippet for scripts/editor.py (stdlib only; needs python3 and curl). Usage: editor-selftest-snippet.sh [SKILL_DIR]
+# Selftest snippet for scripts/editor.py (stdlib only; needs curl and a working Python 3: SVK_SELFTEST_PY, else python3). Usage: editor-selftest-snippet.sh [SKILL_DIR]
 # SKILL_DIR defaults to skill/short-video-editing relative to the repo root. Prints PASS/FAIL lines, exits 1 on any FAIL.
 set -u
+PYX="${SVK_SELFTEST_PY:-python3}"   # on Windows "python3" may be the Microsoft Store stub: selftest.sh passes the Python it tested
 SKILL="${1:-skill/short-video-editing}"
 TMP="$(mktemp -d)"; PORT_FILE="$TMP/port"; FAILS=0; PID=""
 cleanup() { [[ -n "$PID" ]] && kill "$PID" 2>/dev/null; rm -rf "$TMP"; }
@@ -649,7 +650,7 @@ check() { if eval "$2"; then pass "$1"; else fail "$1"; fi; }
 mkdir -p "$TMP/render/public/clips" "$TMP/render/out"
 cp "$SKILL/assets/remotion-template/project.example.json" "$TMP/render/v1.json"
 
-python3 "$SKILL/scripts/editor.py" "$TMP/render" --project v1.json --port 0 --no-open >"$TMP/server.log" 2>&1 &
+"$PYX" "$SKILL/scripts/editor.py" "$TMP/render" --project v1.json --port 0 --no-open >"$TMP/server.log" 2>&1 &
 PID=$!
 URL=""
 for _ in $(seq 1 50); do
@@ -661,17 +662,17 @@ B="${URL%/}"; J='Content-Type: application/json'
 pass "editor.py started at $URL"
 
 check "page is served"                  'curl -sf "$B/" | grep -q "Trình sửa video"'
-check "GET /api/project returns scenes" 'curl -sf "$B/api/project" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"project\"][\"scenes\"] and d[\"name\"]==\"v1.json\""'
+check "GET /api/project returns scenes" 'curl -sf "$B/api/project" | "$PYX" -c "import sys,json; d=json.load(sys.stdin); assert d[\"project\"][\"scenes\"] and d[\"name\"]==\"v1.json\""'
 
 # edit one scene length through the API and save
-python3 - "$TMP/render/v1.json" "$TMP/edited.json" <<'EOF'
+"$PYX" - "$TMP/render/v1.json" "$TMP/edited.json" <<'EOF'
 import json, sys
 d = json.load(open(sys.argv[1])); d["scenes"][0]["type"] = "EDITED"; json.dump(d, open(sys.argv[2], "w"))
 EOF
 check "POST save is accepted"           'curl -sf -X POST -H "$J" --data-binary @"$TMP/edited.json" "$B/api/project?name=v1.json" | grep -q "\"ok\": true"'
 check "saved file holds the edit"       'grep -q EDITED "$TMP/render/v1.json"'
 check "history snapshot was written"    'ls "$TMP"/render/.editor-history/v1-*.json >/dev/null 2>&1 && ! grep -q EDITED "$TMP"/render/.editor-history/v1-*.json'
-check "history API lists it"            'curl -sf "$B/api/history?name=v1.json" | python3 -c "import sys,json; assert len(json.load(sys.stdin)[\"items\"])==1"'
+check "history API lists it"            'curl -sf "$B/api/history?name=v1.json" | "$PYX" -c "import sys,json; assert len(json.load(sys.stdin)[\"items\"])==1"'
 check "invalid project is refused (400)" '[[ "$(curl -s -o /dev/null -w %{http_code} -X POST -H "$J" -d "{\"nope\":1}" "$B/api/project?name=v1.json")" == 400 ]]'
 check "wrong Content-Type is refused (415)" '[[ "$(curl -s -o /dev/null -w %{http_code} -X POST -d "{}" "$B/api/project?name=v1.json")" == 415 ]]'
 
@@ -722,7 +723,7 @@ for i in $(seq 0 ${#FAMS[@]}); do
   IN+=(-loop 1 -framerate 30 -t 2.0 -i $img)
 done
 for k in "${!FAMS[@]}"; do
-  n=$((k + 1)); off=$(echo "$n * 1.4" | bc -l)
+  n=$((k + 1)); off=$(awk -v n="$n" 'BEGIN { printf "%.1f", n * 1.4 }')
   FC+="${prev}[$n:v]xfade=transition=${FAMS[$k]}:duration=0.6:offset=$off[x$n];"; prev="[x$n]"
 done
 $FF "${IN[@]}" -filter_complex "${FC%;}" -map "$prev" -pix_fmt yuv420p -crf 14 xfades.mp4
@@ -798,7 +799,7 @@ print("\nFAILED: %d" % len(fails) if fails else "\nALL PASS")
 sys.exit(1 if fails else 0)
 PYEOF
 ANALYSISTEST
-bash "$TMP/analysis-test.sh" "$KIT" >"$TMP/analysis.log" 2>&1 \
+SVK_PYTHON="$PY" bash "$TMP/analysis-test.sh" "$KIT" >"$TMP/analysis.log" 2>&1 \
   && pass "analyze_reference.py: transition families, camera zoom and pan, speed ramps, freezes, grade fingerprint, evidence strips and --compare on synthetic clips with known answers" || { fail "analyze_reference.py closed-loop check"; grep FAIL "$TMP/analysis.log" | head -6 | sed 's/^/        /'; tail -3 "$TMP/analysis.log" | sed 's/^/        /'; }
 
 if [[ $RENDER -eq 1 ]]; then
