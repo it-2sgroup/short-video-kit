@@ -104,3 +104,19 @@ a riser, an excerpt) are marked; CC0 allows derivatives.
 | `slidepop-a.wav` | slidepop_0.mp3 | oga-a-slide-pop-sound | ezduzziteh | https://opengameart.org/content/a-slide-pop-sound | CC0 1.0 |
 | `slidepop-b.wav` | phaseJump5.ogg | kenney-digital-audio | Kenney (kenney.nl) | https://kenney.nl/assets/digital-audio | CC0 1.0 |
 | `slidepop-c.wav` | phaserUp5.ogg | kenney-digital-audio | Kenney (kenney.nl) | https://kenney.nl/assets/digital-audio | CC0 1.0 |
+
+## Recorded files, third batch (CC0, BigSoundBank)
+
+Fetched on 2026-11-15 from BigSoundBank (bigsoundbank.com), author Joseph Sardin. Each detail page states "CC0 (public domain): free and royalty-free" (checked per file on that date).
+Each is converted from the site's 24-bit 48 kHz WAV to a 48 kHz mono 16-bit WAV, peak -3 dBFS, leading silence trimmed; the two long applause files are cut to 4 s and the others
+to their length, each with a 0.4 s fade-out. Nobody listened to them (`references/sound-design.md`). They are in the bank but no event of `sfx-map.json` plays them: pick one by name in a plan.
+
+| File here | Original title | Original page | Author | Licence |
+|---|---|---|---|---|
+| `cash-register-beep.wav` | Beep of a cash register #2 (s3527, 0.1 s) | https://bigsoundbank.com/bip-de-caisse-2-s3527.html | Joseph Sardin | CC0 |
+| `applause-a.wav` | Applause Concert Bar #4 (s2482) | https://bigsoundbank.com/sound-2482.html | Joseph Sardin | CC0 |
+| `applause-b.wav` | Applause concert bar #3 (s2481) | https://bigsoundbank.com/sound-2481.html | Joseph Sardin | CC0 |
+| `applause-c.wav` | Applause Concert Bar #1 (s2479, cut to 4 s) | https://bigsoundbank.com/sound-2479.html | Joseph Sardin | CC0 |
+| `applause-d.wav` | Applause #1 (s2363, cut to 4 s) | https://bigsoundbank.com/sound-2363.html | Joseph Sardin | CC0 |
+
+Kenney "Casino Audio" (50 files, CC0) was considered and not added: kenney.nl answers an automated download with `forbidden`, so the pack has to be fetched by a person in a browser.

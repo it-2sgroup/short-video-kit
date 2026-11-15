@@ -67,7 +67,7 @@ CLIP@seconds list the next step measures. `--voice-stem` is the voice file's nam
   (talking sections 0.45-0.6, the first card section after the hook 0.9-1.0, a calm proof section 0.45-0.5, the offer and call to action 0.9-1.0, 0 after the last hit for silence under the closing card);
   an impact (`--hits`) goes on the biggest changes only (the brand's entrance, the offer, the end). Then `process_audio.py music music.wav --out RENDER/public/audio/music.wav`.
   `--music-levels=VOLUME,DUCK` (the `=` is needed for negatives): the bed's level in the pauses, then the extra dip under speech. The default `-10,-8` was too quiet for a loud, fast voice: `-6,-6` (bed -6 dB in the pauses, -12 dB under speech) held up. Check `mix_report.py ... --nomusic` (it prints how far the bed sits above the voice-only pauses), and say the music was not listened to.
-- Effects: `--auto-sfx`; the bank (`assets/sfx`, `references/sound-design.md`) holds 63 recorded CC0 files (5 core and 58 added for variety) and the 17 sounds `make_sfx.py` synthesizes into every render project;
+- Effects: `--auto-sfx`; the bank (`assets/sfx`, `references/sound-design.md`) holds 68 recorded CC0 files (5 core and 58 added for variety) and the 17 sounds `make_sfx.py` synthesizes into every render project;
   events rotate through alternatives so no sound repeats in a row, a text effect has its own (slam, stamp, glitch, boing...), the silhouette flash is a camera click, a burst of copies pops.
   `rules` of the variant allow 5 sounds per 3 s.
 

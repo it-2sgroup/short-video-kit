@@ -405,6 +405,31 @@
       "file": "sfx/slam.wav",
       "gainDb": -12,
       "lead": 0.0
+    },
+    "cash-register-beep": {
+      "file": "sfx/cash-register-beep.wav",
+      "gainDb": -12,
+      "lead": 0.0
+    },
+    "applause-a": {
+      "file": "sfx/applause-a.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "applause-b": {
+      "file": "sfx/applause-b.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "applause-c": {
+      "file": "sfx/applause-c.wav",
+      "gainDb": -14,
+      "lead": 0.0
+    },
+    "applause-d": {
+      "file": "sfx/applause-d.wav",
+      "gainDb": -14,
+      "lead": 0.0
     }
   },
   "events": {
