@@ -13,6 +13,7 @@ import { LowerThird, Progress } from "./graphics/Bars";
 import { Circled, Counter, Icon, Logo, RawFinal } from "./graphics/Brand";
 import { Arc, Burst, Phrase, Pill, Script, Tag } from "./text/Phrase";
 import { Flare, Streak, Sweep } from "./graphics/Light";
+import { Impact, ObjectDrop } from "./graphics/Drop";
 import { Knockout } from "./text/Knockout";
 
 export type OverlayComponent = React.FC<{ ov: Overlay; dur: number; instant: boolean }>;
@@ -53,6 +54,8 @@ export const registry: Record<string, OverlayComponent> = {
   flare: Flare,
   streak: Streak,
   knockout: Knockout,
+  objectDrop: ObjectDrop,
+  impact: Impact,
 };
 
 export const resolveOverlay = (name: string): OverlayComponent => {

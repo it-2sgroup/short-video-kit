@@ -92,7 +92,33 @@ const SceneMedia: React.FC<{ slot: SceneSlot; punches: ScenePunch[]; look?: Look
       {trail}
     </AbsoluteFill>
   );
-  if (layout === "full") return <AbsoluteFill style={{ background: palette.ink, overflow: "hidden" }}>{inner}</AbsoluteFill>;
+  // Jolt: on the planned cut the whole picture is smeared sideways and shaken, both decaying to nothing (the hit of a landing, scene.jolt).
+  const j = scene.jolt;
+  const decay = j && at >= 0 && at < j.frames ? (1 - at / j.frames) ** 2 : 0;
+  const sigma = decay * (j?.blur ?? 36);
+  const amp = decay * (j?.shake ?? 26);
+  const jolted =
+    decay > 0 ? (
+      <AbsoluteFill
+        style={{
+          translate: `${(amp * Math.sin(at * 2.9 + 1.3)).toFixed(2)}px ${(amp * 0.8 * Math.cos(at * 3.7 + 0.4)).toFixed(2)}px`,
+          scale: String(1 + (2 * amp) / size.width),
+          filter: sigma > 0.5 ? `url(#jolt${slot.index})` : undefined,
+        }}
+      >
+        <svg width={0} height={0} style={{ position: "absolute" }}>
+          <defs>
+            <filter id={`jolt${slot.index}`} x="-10%" y="-5%" width="120%" height="110%">
+              <feGaussianBlur stdDeviation={`${sigma.toFixed(2)} 0`} />
+            </filter>
+          </defs>
+        </svg>
+        {inner}
+      </AbsoluteFill>
+    ) : (
+      inner
+    );
+  if (layout === "full") return <AbsoluteFill style={{ background: palette.ink, overflow: "hidden" }}>{jolted}</AbsoluteFill>;
   if (!scene.clip) return <AbsoluteFill />; // grid only: overlays draw their own cards
 
   const p = layout === "expand" ? motion.easeInOut(Math.min(1, Math.max(0, at / card.expandFrames))) : 0;

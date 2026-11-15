@@ -59,7 +59,7 @@ the video will be boosted as an ad (no before/after in ads).
 
 Run scripts from this skill's folder (`~/.claude/skills/short-video-editing` once installed). They
 need Python 3 and a full ffmpeg; the scripts that need faster-whisper or numpy (`align_captions.py`, `suggest_cuts.py --music`,
-`match_voice_takes.py`, `find_cutaways.py`, `person_matte.py`, `check_lipsync.py`, `mix_report.py`, `make_music.py`, `analyze_reference.py`)
+`match_voice_takes.py`, `find_cutaways.py`, `person_matte.py`, `object_cutout.py`, `check_lipsync.py`, `mix_report.py`, `make_music.py`, `analyze_reference.py`)
 re-launch themselves in the kit's venv (`$SVK_PYTHON`, or the one `setup.sh` built).
 
 ### 0. Is this machine ready? (first time in a chat, and whenever a tool is "not found")
@@ -130,6 +130,8 @@ horizon. Look at `contact_sheet.py RENDER/public/clips` and read `corrections.js
 - **Supplied voice**: several files → match by name and ask when unsure. Too long for the playbook's
   band → `trim_voice.py voice.mp3 --silences`, keep whole sentences with `--keep`, tell the user which
   were dropped. Then `process_audio.py voice voice.mp3 --out RENDER/public/audio/v1.wav`.
+- **Landmarks that land (road trips, montages, tours):** `objectDrop` + `impact` overlays and `object_cutout.py`; the recipe is "The object drop" in
+  `references/layout-and-motion-graphics.md` (cut the next shot's object out of its first frame, start the overlay `fall/fps` before the cut).
 - **Agency pitch end to end:** `references/agency-pitch-recipe.md` — `match_voice_takes.py` (lag per take), `find_cutaways.py`, `person_matte.py` (silhouette flash,
   head positions for the beauty light), `agency_plan.py` (draft plan), 14 text effects, caption highlights, `make_music.py`, a varied CC0 sound bank,
   `finish_video.py` (masters), `check_lipsync.py` and `mix_report.py` (proof).

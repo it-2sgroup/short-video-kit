@@ -34,7 +34,7 @@
   "correction": "per-clip",
   "music": {"bpm": [100, 140], "mood": "energetic with a clear drop; the edit follows its sections"},
   "components": {
-    "use": ["title", "pin", "stat", "lowerThird", "image"],
+    "use": ["title", "pin", "stat", "lowerThird", "image", "objectDrop", "impact"],
     "avoid": ["checklist", "step", "cart"]
   },
   "sfx": {"transition": {"cut": null, "whip": "whip"}, "sceneStart": {"HOOK>HOOK": null}},

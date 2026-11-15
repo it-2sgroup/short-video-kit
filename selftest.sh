@@ -631,6 +631,39 @@ PYEOF
 "$PY" "$S/plan_to_project.py" "$KIT/samples/example-edit-plan.md" --out "$TMP/lookfx.json" --look-fx vignette=0.3,grain=0.06 >/dev/null 2>&1 \
   && "$PY" -c "import json,sys; l=json.load(open(sys.argv[1]))['look']; assert l=={'vignette':0.3,'grain':0.06}, l" "$TMP/lookfx.json" \
   && pass "plan_to_project.py --look-fx writes look.vignette and look.grain (look fx parses)" || fail "plan_to_project.py --look-fx"
+# label: object drop: cutout script and overlays
+mkdir -p "$TMP/od"
+ffmpeg -hide_banner -v error -y -f lavfi -i "color=c=0x87CEEB:s=270x480,drawbox=x=60:y=200:w=150:h=160:color=0x333333@1:t=fill" -frames:v 1 "$TMP/od/frame.png" >/dev/null 2>&1
+"$PY" "$S/object_cutout.py" "$TMP/od/frame.png" --size 270x480 --poly "0.222,0.4167 0.778,0.4167 0.778,0.75 0.222,0.75" --out "$TMP/od/public/objects/OBJ_A.png" >"$TMP/od/cut.log" 2>&1 \
+  && "$PY" "$S/object_cutout.py" "$TMP/od/frame.png" --size 270x480 --grid "$TMP/od/grid.png" >/dev/null 2>&1 \
+  && ffmpeg -hide_banner -v error -i "$TMP/od/public/objects/OBJ_A.png" -f rawvideo -pix_fmt rgba "$TMP/od/obj.rgba" \
+  && "$PY" -X utf8 - "$TMP/od" "$S" <<'PYEOF' >"$TMP/od/check.log" 2>&1 \
+  && pass "object_cutout.py: a hand outline cuts an opaque object with a clear background, prints the plan cell (src, at, width, aspect), writes a grid; objectDrop and impact are known overlays and sit on a cut without a warning" \
+  || { fail "object drop: cutout script and overlays"; tail -6 "$TMP/od/check.log" | sed 's/^/        /'; }
+import re, subprocess, sys
+import numpy as np
+d, s = sys.argv[1], sys.argv[2]
+log = open(d + "/cut.log", encoding="utf8").read()
+m = re.search(r"src=objects/OBJ_A\.png; at=([\d.]+),([\d.]+); width=(\d+); aspect=([\d.]+)", log)
+assert m, log
+ax, ay, w, asp = float(m[1]), float(m[2]), int(m[3]), float(m[4])
+assert abs(ax - 0.5) < 0.01 and abs(ay - 0.75) < 0.01 and 150 <= w <= 160, (ax, ay, w)
+h = round(w * asp)
+a = np.fromfile(d + "/obj.rgba", np.uint8)
+assert a.size == w * h * 4, (a.size, w, h)
+a = a.reshape(h, w, 4)
+assert a[h // 2, w // 2, 3] == 255 and a[0, 0, 3] == 0 and a[-1, -1, 3] == 0, "centre opaque, corners clear"
+assert tuple(a[h // 2, w // 2, :3]) == (51, 51, 51), "the object keeps its own colour"
+assert (a[..., 3] > 0).mean() > 0.85, "the PNG is cropped to the object"
+assert subprocess.run([sys.executable, s + "/object_cutout.py", d + "/frame.png", "--size", "270x480", "--poly", "0.1,0.1 0.1,0.1 0.1,0.1", "--out", d + "/x.png"],
+                      capture_output=True).returncode == 1, "an empty outline must be refused"
+r = subprocess.run([sys.executable, s + "/object_cutout.py", d + "/frame.png", "--size", "270x480", "--model", "no-such-model.onnx", "--out", d + "/x.png"], capture_output=True)
+assert r.returncode == 1 and b"ships and downloads no object model" in r.stderr + r.stdout, "a missing model must say the kit supplies none"
+sys.path.insert(0, s)
+import plan_to_project as p
+assert {"objectDrop", "impact"} <= set(p.KNOWN) and {"objectDrop", "impact"} == set(p.LANDS_ON_CUT), "both overlays are registered and exempt from the cut-edge warning"
+assert p.parse_transition("cut +jolt")[2] == ["jolt"] and p.JOLT_HIT == {"frames": 7, "blur": 36, "shake": 26}, "+jolt is a transition hit with its default"
+PYEOF
 SVK_SELFTEST_PY="$PY" bash -s "$KIT/skill/short-video-editing" <<'EDITORTEST' >"$TMP/editor.log" 2>&1 \
   && pass "editor.py: serves the project, saves with a history snapshot, restores, refuses traversal and foreign hosts" || { fail "editor.py"; grep FAIL "$TMP/editor.log" | head -6 | sed 's/^/        /'; }
 #!/usr/bin/env bash
@@ -712,8 +745,11 @@ plasma() { $FF -f lavfi -i "nullsrc=s=360x640,geq=r='128+100*sin(X/$1+Y/$2)':g='
 plasma 9 13 7 11 17 T1.png
 plasma 23 5 31 9 13 T2.png
 plasma 6 19 11 27 8 T3.png
-$FF -f lavfi -i "nullsrc=s=1200x640,geq=random(1)*255:128:128,boxblur=2,eq=contrast=2.5" -frames:v 1 -update 1 pan_tex.png
-$FF -f lavfi -i "nullsrc=s=1080x1920,geq=random(1)*255:128:128,boxblur=3,eq=contrast=2.5" -frames:v 1 -update 1 zoom_tex.png
+# Texture for the camera tests: a hash of X and Y, not geq random(): random() keeps one state per filter slice, so with 16 threads the picture repeats every 120 rows
+# and a zoom looks like a pan to vid.stab (the measured zoom came out inverted on a 16-core machine).
+NOISE="255*((sin(X*12.9898+Y*78.233)*43758.5453)-floor(sin(X*12.9898+Y*78.233)*43758.5453))"
+$FF -f lavfi -i "nullsrc=s=1200x640,geq=$NOISE:128:128,boxblur=2,eq=contrast=2.5" -frames:v 1 -update 1 pan_tex.png
+$FF -f lavfi -i "nullsrc=s=1080x1920,geq=$NOISE:128:128,boxblur=3,eq=contrast=2.5" -frames:v 1 -update 1 zoom_tex.png
 
 # ---- 1. transitions: A and B stills alternate, 0.6 s xfade each, 2.0 s hold: transition k starts at 1.4*k s
 FAMS=(fade fadeblack fadewhite dissolve wipeleft wipeup slideleft slideright coverleft revealleft)

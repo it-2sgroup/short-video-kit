@@ -104,6 +104,10 @@ counts the footage a fast scene uses (a 3 s scene at 2x reads 6 s).
   `k * delay` frames behind the live frame, each copy `decay ** k` as opaque, inside the camera framing. `+echo` = 2 copies, 3 frames apart, for the first 15
   frames after the cut (the last 6 fade out). It decodes the clip N+1 times: keep it to one scene per video, on fast movement (a spin, a whip, a pour);
   on a still shot it only doubles the picture. Remotion only.
+- **Jolt** (`Transition: cut +jolt`, or `jolt` on a scene of project.json: `{frames: 7, blur: 36, shake: 26}`): the hit of a landing. On the planned cut the whole
+  picture is smeared sideways by a horizontal blur and shaken, both decaying with the square of the time left to nothing over `frames` frames. Measured on a
+  reference, the landing frames are smeared like this across the whole picture for about two frames before the sparks. Put it on the scene an `objectDrop` lands
+  into (the overlay starts `fall` frames before the cut, the jolt is on the cut); one per beat, not on every cut. Card layouts ignore it. Remotion only.
 
 ---
 

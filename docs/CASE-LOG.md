@@ -51,6 +51,18 @@ Việc: video quảng cáo agency (SISMO) từ 28 take của một người dẫ
   `find_cutaways.py`, `person_matte.py`, `agency_plan.py`, `make_music.py`, `finish_video.py`, `check_lipsync.py`; `align_captions.py --prompt`; `doctor.py` kiểm
   onnxruntime, model tách người và các filter ffmpeg mới; `./setup.sh --person-model`; `project_to_hyperframes.py` báo mọi tính năng chỉ Remotion có.
 
+## Kỹ thuật "thả vật thể" học từ một video TikTok công khai (15/11/2026)
+
+Việc: người dùng gửi https://vt.tiktok.com/ZSpqrEJLQ/ (video 14,6 s, 576x1024, "Trên đường về nhà", kênh vantien96666, tag #editcapcut) và nhờ nghiên cứu kỹ thuật "đặt vật thể". Chỉ xem trong trình duyệt, **không tải, không lấy hình ảnh** của họ vào kit.
+
+Đo được (khung 1/30 s quanh giây 6,1): vật thể (cổng) vào từ mép trên ở 6,10, rơi 3-4 khung, **cắt cứng** sang cảnh mới ở 6,20 kèm chớp nổ vàng-cam ở chân cổng (4 khung), rồi khói xám 2 khung, hết ở 6,33. Cùng kiểu ở 0,6 (xe cẩu), 2,5 (nhà xây dở), 12,2 (tòa tháp), 12,6 (nhà thờ rơi chồng lên sau tòa tháp); thêm chuyển cảnh trượt dọc (2,9 / 4,0 / 11,4 s) và xoay nghiêng (9,0-9,6 s). Âm thanh: nhạc liên tục có nhịp ~0,4-0,6 s, nhịp to hơn 6-8 dB ngay sau lần chạm đất ở 6,2 và sau cú cắt ở 8,1 (đo mức, chưa nghe).
+
+Chưa kiểm: người làm dùng công cụ nào để tách vật thể (tìm kiếm tiếng Việt và tiếng Anh không ra tên kỹ thuật hay hướng dẫn); chưa nghe âm thanh; chưa có ai xin phép dùng video đó làm mẫu (kit chỉ lấy kỹ thuật).
+
+Xây vào kit: overlay `objectDrop` và `impact` (`Drop.tsx`), `scripts/object_cutout.py` (`--poly` không cần model; `--model` chỉ chạy với model người dùng đưa, mới thử với `u2net_human_seg` trên cảnh có người, **chưa thử với `isnet-*`**), cách làm ở `references/layout-and-motion-graphics.md` ("The object drop"). Giấy phép trọng số tách nền kiểm ngày 15/11/2026 qua trang GitHub: SAM 2 Apache-2.0 (code và checkpoint); rembg MIT nhưng mỗi model có giấy phép riêng; `isnet-general-use` trang DIS không nêu; RMBG-2.0 cần thỏa thuận trả phí; BiRefNet code MIT, trọng số không nêu. Chưa render video đầy đủ bằng kỹ thuật này; mới xem ảnh tĩnh từng khung rơi và nổ trên cảnh thử.
+
+Bản demo SISMO lần 1 (4 cú rơi, mỗi cảnh 2,4 s, người dẫn đứng yên, chớp nổ tròn to) bị chấm 4/10: so với video gốc, 4 sự kiện trong 12,4 s thay vì ~22 trong 14,6 s, chuyển động trung vị 1,7 thay vì 9,7, chớp nổ là một vầng sáng tròn che cả thân người. Đo video gốc từng khung (bộ đo: chênh lệch độ sáng giữa hai khung liên tiếp ở 72x128, đếm điểm ảnh vàng): mỗi cú rơi gồm rơi 3-4 khung, cắt cứng, nhòe ngang cả khung 2 khung, chùm tia vàng-trắng mảnh dẹt trên mặt đất (rộng ~29% khung, cao ~10%), bụi nâu loãng dần. Viết lại `impact` theo cách xếp lớp của người làm hậu kỳ (pop phơi sáng, lõi nhỏ, tia lửa có vệt, hạt lửa rơi theo trọng lực, bụi nhiễu có cạnh sần, bóng tiếp đất, vòng sóng rất mờ), thêm hit `+jolt` (nhòe ngang và rung giảm dần lúc cắt). Bản 2: 12 cảnh 0,8-1,6 s, 11 cú rơi, đo lại 11 sự kiện trong 11,6 s, chuyển động trung vị 3,8. Vẫn chưa bằng bản gốc về chuyển động (camera tĩnh, đẩy giả) và vẫn có hai người dẫn trong 4 khung lúc rơi vì cảnh cũ cũng có cô ấy. Chưa nghe âm thanh.
+
 ## Kịch bản hiện hành của campaign đang chứa claim vi phạm
 
 Doc Lark *"TQA 6 - REVIEW - GIỌNG ADAM"* (21 kịch bản). Các câu cần viết lại — đối chiếu chính sách TikTok Shop

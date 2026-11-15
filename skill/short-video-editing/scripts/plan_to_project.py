@@ -28,8 +28,9 @@ Scenes table (columns by name, any order; extra columns are ignored):
     Transition  fade | slide [left|right|up|down] | wipe [dir] | iris | pushCut | zoomThrough |
                 blurDissolve | whip [dir] | flip [dir] | crossZoom | cardSlide [right] | cardSwirl | cut, optional "14f",
                 optional accent "+flash" or "+leak" (e.g. "slide up +flash"), and CapCut-style hits
-                "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them) and "+echo" (a trail of 2 delayed copies of
-                the clip for the first 15 frames after the cut: Remotion only)
+                "+shake" "+glitch" "+rgb" "+pulse" (drawn by the HyperFrames renderer only; Remotion ignores them), "+echo" (a trail of 2 delayed copies of
+                the clip for the first 15 frames after the cut: Remotion only) and "+jolt" (the hit of a landing: a sideways smear and a shake that decay over
+                the first 7 frames: Remotion only)
     Camera      push [a>b] | pull [a>b] | pan left|right|up|down [6%] | hold [scale], optional
                 "focus 0.5,0.4", "roll -1>1" and handheld sway "shake mild|strong|PX"; or keyframes "keys 0=1.05 ; 0.4=1.38@0.34,0.5 out ; 1=1.38@0.32,0.54 soft"
                 (TIME=ZOOM[@X,Y][ ease]: a fraction of the scene or "1.2s"; references/camera-moves.md).
@@ -86,6 +87,7 @@ FPS = 30
 LEAD = 3 / FPS  # graphics land 3 frames before their word
 KNOWN = playbooks.registry_components()  # the template's registry + punch and sfx
 CANON = {t.lower(): t for t in playbooks.transition_types()}  # every TransitionType of the template (project.ts)
+LANDS_ON_CUT = {"objectDrop", "impact"}  # overlays whose edge belongs on a cut (references/layout-and-motion-graphics.md)
 LAYOUTS = {"full", "card", "expand"}
 DIRS = {"left", "right", "up", "down"}
 
@@ -116,6 +118,7 @@ def pick(tabs, *need):
 
 SUBJECT_MODES = ("fill", "outline", "glow", "dim", "colorpop", "behind", "blur", "lift")
 ECHO_HIT = {"copies": 2, "delay": 3, "frames": 15}  # what "+echo" in the Transition cell asks for (Scene.echo)
+JOLT_HIT = {"frames": 7, "blur": 36, "shake": 26}  # what "+jolt" asks for (Scene.jolt): a sideways smear and a shake that decay over the first frames of the scene
 
 
 def parse_subject(text: str) -> dict:
@@ -203,7 +206,7 @@ def parse_transition(raw: str):
     if not raw or raw in "-–":
         return None, None, []
     accent = "flash" if "+flash" in raw else "lightLeak" if "+leak" in raw else None
-    fx = [m for m in re.findall(r"\+(shake|glitch|rgb|pulse|echo)\b", raw)]  # CapCut-style hits: all but echo (a trail, Remotion) are drawn by the HyperFrames renderer only
+    fx = [m for m in re.findall(r"\+(shake|glitch|rgb|pulse|echo|jolt)\b", raw)]  # CapCut-style hits: all but echo and jolt (Remotion) are drawn by the HyperFrames renderer only
     parts = re.sub(r"\+\w+", "", raw).split()
     t = {"type": CANON.get(parts[0].lower(), "fade")} if parts else {"type": "fade"}
     for p in parts[1:]:
@@ -520,6 +523,8 @@ def report(scenes, overlays, captions, words):
                              f"({w['start']:.2f}-{w['end']:.2f}s); move it to the nearest pause")
                 break
     for o in overlays:
+        if o["component"] in LANDS_ON_CUT:
+            continue  # an object that lands on the cut and its burst are built to sit on it
         for edge in ("start", "end"):
             t = o[edge]
             near = [c for c in cuts if abs(t - c) < 3 / FPS - 1e-6]
@@ -651,7 +656,9 @@ def main() -> int:
             s["accent"] = accent
         if "echo" in fx:
             s["echo"] = dict(ECHO_HIT)
-        fx = [f for f in fx if f != "echo"]
+        if "jolt" in fx:
+            s["jolt"] = dict(JOLT_HIT)
+        fx = [f for f in fx if f not in ("echo", "jolt")]
         if fx and scenes:
             s["fx"] = fx
         try:

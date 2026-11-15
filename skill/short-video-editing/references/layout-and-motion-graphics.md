@@ -107,9 +107,38 @@ go. Put it on the shot list.
 | `flare` | A lens flare: a white-hot disc with a soft halo that rises in 5 frames and decays, ghosts (rings and discs) along the line through the frame centre, one white frame at the peak with `flash=1` | `at=x,y, drift=dx,dy, color, size, ghosts, flash, opacity` | One per video, aimed at a bright source that is in the picture (window, lamp, sun); never on faces; Remotion only |
 | `streak` | The horizontal blue line of an anamorphic lens: a white core in a coloured halo growing from the centre in 7 frames, fading in the last 10 | `at=x,y, color, length, thickness, opacity` | On a bright light, about 0.8 s; once per video; Remotion only |
 | `knockout` | A colour plate over the frame with the words cut out, the footage playing through the letters. `zoom=30` grows the letters about `through=x,y` over the last `zoomFrames` (20) until the hole fills the frame, a reveal of the next shot | `text=WORD / WORD, color, opacity, size, at=x,y, stroke, zoom, through=x,y, zoomFrames` | Heavy short words (<= 12 letters per line); busy footage hurts contrast (`stroke`, a darker plate); the plate also fades over the last 30% of the zoom, so a missed `through` still ends clean; Remotion only |
+| `objectDrop` | An object cut out of the NEXT shot falls in from the top edge (position ~ t², a vertical smear that grows with speed, a lean that straightens, a size that grows to the landed size, a ground shadow that darkens); on the touchdown frame the picture cuts to that shot, where the real object stands on the same spot, and the ground burst plays over the cut for 18 frames | `src, at=x,y, width, aspect, fall, tilt, scaleFrom, drift, enter, shadow, impact, burstY` + the burst's `size, heat, dust, sparks, flat, ring, flash, seed` | A montage or road trip where each shot has one clear object on the ground (gate, house, vehicle, person, a product on a table); a landing every 0.7-1 s is the measured pace of the reference, never over a face; Remotion only. See "The object drop" below |
+| `impact` | The ground burst, layered like a compositor's hit: a one-frame exposure pop, a small white-hot core, 56 spark streaks that fly out fast and drag to a stop, embers that fall back under gravity, dust that spreads along the ground with noisy ragged edges and thins out over 15 frames, a contact shadow, a faint flat shockwave ring. Sparks, core and ring are screen-blended, dust is not; the whole burst is squashed by `flat` (0.32) so it lies on the ground. SVG shapes seeded by `seed`, 18 frames | `at=x,y, size, heat, dust, sparks, flat, ring, flash, seed` | The beat where something lands or is set down hard; one burst on screen at a time; never a round soft glow (that reads as a sun); Remotion only |
 
 Coordinates are fractions of the frame (`0.62,0.55`), measured on the **rendered** frame (the camera
 may have zoomed). Check with a still.
+
+### The object drop (`objectDrop`, `impact`)
+
+What it is, measured on a public short video (30 fps): a landmark is cut out of the next shot and falls in from the top edge over the current
+one; **on the frame it touches the ground the picture cuts** to the next shot, whose own object stands where the cutout landed.
+Fall 3-4 frames, then on the landing frame the cut, a horizontal smear over the whole picture and a flat starburst of fine yellow-white rays on the ground (about 29% of the frame wide and 10% tall, strong for 2 frames, gone by frame 5), and tan dust that lingers a few frames longer; about 12 landings in 14.6 s (one every 0.66 s) with a moving camera all the time. Measured median frame-to-frame change 9.7 on that video against 1.7 on a static talking head: the motion matters as much as the effect.
+It is an in-camera-looking transition: the road keeps rolling, each place arrives by landing on it. (How the creator cut the objects out, and what
+sound sits on the hit, is not visible in the video: the sound there was a continuous beat track with a louder hit just after one landing and one cut,
+measured, not listened to.)
+
+How the kit makes it:
+1. **Pick the object** on the first frame of the next shot: one object standing on the ground, away from the frame edge. `python scripts/object_cutout.py CLIP --at T --grid grid.png`
+   writes the frame with a coordinate grid; look at it.
+2. **Cut it out**: `--poly "x,y x,y ..."` (an outline you read off the grid; no model, nothing to download, the right choice for straight edges) or
+   `--model FILE.onnx [--box x0,y0,x1,y1]` (a salient-object model you supply; the kit ships none). `--preview check.png` paints the background magenta:
+   look at the edge. It prints the cell: `src=objects/NAME.png; at=0.5,0.66; width=412; aspect=0.74`.
+3. **Plan it**: an `objectDrop` row whose **start = cut time - fall/fps** (`fall=4` at 30 fps: 0.133 s earlier) and whose end = start + (fall + 18)/fps; the scene it lands into gets `Transition: cut +jolt` (the sideways smear and shake of the hit, `references/cutting-and-pacing.md`). The cut
+   to the next shot is a plain `cut` on the touchdown frame; the sync report does not warn about these two overlays sitting on a cut.
+4. **Keep the picture honest**: the next scene's camera is `hold` for its first 0.4 s (a push moves the object away from where the cutout landed); the object must not move
+   across the cut (a vehicle driving off breaks the match); for a landing in every shot, vary `fall` (4-6), `tilt` (-6..6) and the burst `seed`.
+5. **Sound**: a short low thud or impact from the sound bank (`references/sound-design.md`) on the touchdown frame, 80-150 ms of quiet before it; nobody has listened to the kit's choice.
+6. **Check** with `node stills.mjs project.json out/d 0.5 0.53 ... ` at every frame of one landing (fall frames, touchdown, burst): the object must reach the spot the real one occupies.
+
+A person cropped at the waist has no ground in the frame: she lands on the bottom edge (`at=x,1.0`), so lift the burst with `burstY=0.95` or it is half off screen; the burst reads best on a ground that is visible, so prefer shots whose object stands on the floor.
+
+Limits: the cutout is a still (a few frames of fall hide that); a thin or glassy object gives a poor edge with a model, so use `--poly`; HyperFrames cannot draw it.
+
 
 ### The three-photo header (`thumbs`)
 

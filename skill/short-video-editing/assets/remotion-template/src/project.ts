@@ -105,10 +105,15 @@ export type Subject = {
 // opaque (default 0.5), above it inside the camera framing. `frames` limits it to that many frames after the planned cut (the last 6 fade out).
 export type Echo = { copies: number; delay: number; decay?: number; frames?: number };
 
+// Jolt: the hit of a landing. On the planned cut the whole picture is smeared sideways (a horizontal blur of `blur` px, default 36) and shaken
+// (`shake` px, default 26), both decaying with the square of the time left to nothing over `frames` frames (default 7). Card layouts ignore it.
+export type Jolt = { frames: number; blur?: number; shake?: number };
+
 export type Scene = {
   face?: Face;
   subject?: Subject;
   echo?: Echo;
+  jolt?: Jolt;
   layout?: Layout;
   clip: string | null; // file name in public/clips without extension; null renders a placeholder
   in: number; // source timecode (s) of the planned cut

@@ -4327,6 +4327,272 @@
    "avoid_when": "busy footage under thin letters: add stroke or a darker plate"
   },
   {
+   "id": "objectDrop",
+   "kind": "overlay",
+   "name": "Object drop",
+   "about": "An object cut out of the NEXT shot falls in from the top edge (accelerating, smeared, leaning, growing a little), and on the frame it touches down the picture cuts to that shot, where the real object stands on the same spot, with a ground burst over the cut. Each landmark of a road trip, each person, room or product of a montage arrives as a landing. Pair it with `+jolt` on the scene it lands into.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "objectDrop | top | src=objects/OBJ_A.png; at=0.5,0.66; width=412; aspect=0.74; fall=4   (start = cut time - fall/fps; scripts/object_cutout.py prints the cell; Transition of the next scene: cut +jolt)",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "drop in transition",
+    "object falls in",
+    "landmark drop",
+    "thả vật thể",
+    "vật thể rơi xuống",
+    "cutout drop transition",
+    "3D drop"
+   ],
+   "tags": [
+    "transition",
+    "matte",
+    "hit",
+    "montage",
+    "travel"
+   ],
+   "test": "object drop: cutout script and overlays",
+   "use_when": "a montage or road trip where each shot has one clear object standing on the ground (a gate, a house, a vehicle, a product on a table), at most one landing per second and five or six per video",
+   "avoid_when": "on a person's face, on a shot whose object touches the frame edge (the cutout would be cut), or when the object moves across the cut",
+   "pairs_with": [
+    "impact",
+    "jolt",
+    "pushCut"
+   ],
+   "params": [
+    {
+     "key": "src",
+     "type": "string",
+     "desc": "transparent PNG under public/ (object_cutout.py writes it)"
+    },
+    {
+     "key": "at",
+     "type": "point",
+     "default": [
+      0.5,
+      0.62
+     ],
+     "desc": "the object's bottom-centre as fractions of the frame: where it lands"
+    },
+    {
+     "key": "width",
+     "type": "number",
+     "default": 420,
+     "min": 60,
+     "max": 1080,
+     "step": 10,
+     "unit": "px",
+     "desc": "the object's width as it lands"
+    },
+    {
+     "key": "aspect",
+     "type": "number",
+     "default": 0.8,
+     "min": 0.1,
+     "max": 4,
+     "step": 0.01,
+     "desc": "height / width of the PNG"
+    },
+    {
+     "key": "fall",
+     "type": "integer",
+     "default": 4,
+     "min": 2,
+     "max": 12,
+     "unit": "frames",
+     "desc": "frames of falling; the cut is on the frame after"
+    },
+    {
+     "key": "tilt",
+     "type": "number",
+     "default": 4,
+     "min": -20,
+     "max": 20,
+     "unit": "deg",
+     "desc": "lean at the start that straightens while falling"
+    },
+    {
+     "key": "scaleFrom",
+     "type": "number",
+     "default": 0.9,
+     "min": 0.5,
+     "max": 1.2,
+     "step": 0.01,
+     "desc": "size on the first frame as a fraction of the landed size"
+    },
+    {
+     "key": "drift",
+     "type": "number",
+     "default": 0,
+     "min": -400,
+     "max": 400,
+     "unit": "px",
+     "desc": "how far to the side of the landing spot it starts"
+    },
+    {
+     "key": "enter",
+     "type": "number",
+     "default": 0.3,
+     "min": 0,
+     "max": 1,
+     "step": 0.05,
+     "desc": "fraction of the object already inside the frame on the first frame"
+    },
+    {
+     "key": "shadow",
+     "type": "boolean",
+     "default": true,
+     "desc": "ground shadow that darkens as the object nears"
+    },
+    {
+     "key": "impact",
+     "type": "integer",
+     "default": 18,
+     "min": 0,
+     "max": 18,
+     "unit": "frames",
+     "desc": "frames of burst after touchdown (0 = none)"
+    },
+    {
+     "key": "burstY",
+     "type": "number",
+     "default": 0.62,
+     "min": 0,
+     "max": 1,
+     "step": 0.01,
+     "desc": "burst centre as a fraction of the frame height (default: the landing y); lift it when the ground is below the frame"
+    },
+    {
+     "key": "size",
+     "type": "number",
+     "default": 240,
+     "min": 60,
+     "max": 800,
+     "step": 10,
+     "unit": "px",
+     "desc": "radius of the spark spread (default: half the object's width, 240-400)"
+    }
+   ],
+   "timing": "4 frames of fall (t squared) at 30 fps, the cut on the touchdown frame, 18 frames of burst",
+   "renderer_notes": "HyperFrames does not draw it (no cutout, burst or jolt in kit.js).",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on a public short video: object enters from the top edge 4 frames before touchdown, hard cut to the next shot on touchdown, 4-6 frames of flash then dust (30 fps); the burst and fall are drawn from geometry, no sample footage or sprite is used"
+  },
+  {
+   "id": "impact",
+   "kind": "overlay",
+   "name": "Impact burst",
+   "about": "The touchdown burst, layered the way a compositor stacks a ground hit: a one-frame exposure pop, a small white-hot core, spark STREAKS that fly out fast and drag to a stop, embers that fall back under gravity, dust that spreads along the ground with ragged noisy edges and thins out, a contact shadow and a faint flat shockwave ring. Squashed flat so it lies on the ground. Drawn from SVG shapes seeded by `seed`: no sprite, no stock clip.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "impact | top | at=0.5,0.62; size=230; flat=0.32; seed=7",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "explosion",
+    "dust burst",
+    "hit flash",
+    "landing flash",
+    "shockwave"
+   ],
+   "tags": [
+    "hit",
+    "light"
+   ],
+   "test": "object drop: cutout script and overlays",
+   "use_when": "the beat where something lands or is set down hard (a product on a table, a door, a stamp), once per beat",
+   "avoid_when": "over a face, more than one burst on screen at a time, or as a round soft glow: it must lie flat on the ground",
+   "pairs_with": [
+    "objectDrop",
+    "shake"
+   ],
+   "params": [
+    {
+     "key": "at",
+     "type": "point",
+     "default": [
+      0.5,
+      0.62
+     ],
+     "desc": "the ground point of the burst, fractions of the frame"
+    },
+    {
+     "key": "size",
+     "type": "number",
+     "default": 230,
+     "min": 60,
+     "max": 800,
+     "step": 10,
+     "unit": "px",
+     "desc": "radius of the spark spread"
+    },
+    {
+     "key": "heat",
+     "type": "color",
+     "default": "#FFC21A",
+     "desc": "colour of the sparks' glow"
+    },
+    {
+     "key": "dust",
+     "type": "color",
+     "default": "#CFC2AB",
+     "desc": "colour of the dust"
+    },
+    {
+     "key": "sparks",
+     "type": "integer",
+     "default": 56,
+     "min": 0,
+     "max": 120,
+     "desc": "spark streaks (embers are a third of that again)"
+    },
+    {
+     "key": "flat",
+     "type": "number",
+     "default": 0.32,
+     "min": 0.2,
+     "max": 1,
+     "step": 0.02,
+     "desc": "vertical squash (1 = a ball, lower = lying on the ground)"
+    },
+    {
+     "key": "ring",
+     "type": "number",
+     "default": 0.3,
+     "min": 0,
+     "max": 1,
+     "step": 0.05,
+     "desc": "opacity of the flat shockwave ring (0 = none)"
+    },
+    {
+     "key": "flash",
+     "type": "number",
+     "default": 0.14,
+     "min": 0,
+     "max": 0.6,
+     "step": 0.02,
+     "desc": "opacity of the one-frame exposure pop (0 = none)"
+    },
+    {
+     "key": "seed",
+     "type": "integer",
+     "default": 7,
+     "min": 0,
+     "max": 9999,
+     "desc": "changes the streaks, embers and dust puffs"
+    }
+   ],
+   "timing": "core 0-3 frames, streaks 3-6, embers 9-16, dust 2-17, ring 0-8, exposure pop on the first frame (30 fps)",
+   "renderer_notes": "HyperFrames does not draw it.",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on a public short video (4-6 frames of flash then 2 of dust); drawn from geometry"
+  },
+  {
    "id": "echo",
    "kind": "hit",
    "name": "Echo trail",
@@ -4348,6 +4614,42 @@
    "test": "light, subject and speed techniques compile",
    "use_when": "a fast move or a whip that should leave a trail",
    "avoid_when": "a calm shot: the copies just look like a stutter"
+  },
+  {
+   "id": "jolt",
+   "kind": "hit",
+   "name": "Landing jolt",
+   "about": "On the cut the whole picture is smeared sideways by a horizontal blur and shaken, both decaying to nothing over about 7 frames: the hit of something landing.",
+   "doc": "references/cutting-and-pacing.md",
+   "plan": "Transition: cut +jolt",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "impact shake",
+    "landing shake",
+    "hit shake",
+    "camera jolt",
+    "whip blur on cut",
+    "speed smear"
+   ],
+   "tags": [
+    "accent",
+    "hit",
+    "matte"
+   ],
+   "test": "object drop: cutout script and overlays",
+   "use_when": "the scene an objectDrop or impact lands into, once per beat",
+   "avoid_when": "a calm shot, or on every cut of a video: it stops reading as a hit",
+   "pairs_with": [
+    "objectDrop",
+    "impact"
+   ],
+   "timing": "7 frames, amplitude falling with the square of the time left; 36 px of blur and 26 px of shake at the cut",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on a public short video: the landing frames are smeared horizontally across the whole picture for about two frames"
   },
   {
    "id": "blur",
