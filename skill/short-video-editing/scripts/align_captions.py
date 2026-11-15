@@ -236,7 +236,7 @@ def group(words: list[Word], per_group: int) -> list[tuple[float, float, str]]:
         if e > nxt:
             groups[i] = (s, max(s + 0.3, nxt - 0.02), t)
 
-    # A fast voice leaves some groups on screen for a blink ("á.", "hả?"). Fold any group shorter
+    # A fast voice leaves some groups on screen for a blink ("ah.", "huh?"). Fold any group shorter
     # than MIN_ON into its predecessor, as long as the result stays short enough to read.
     merged: list[tuple[float, float, str]] = []
     for s, e, t in groups:

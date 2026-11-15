@@ -21,7 +21,7 @@ the scenes, each with its source time, so picture and sound stay in sync.
             quietest moment near the middle (a punch-in on the same take). Writes the joined sound
             (--out: the voice track for plan_to_project.py) and --scenes-out: [{start, end, clip, in}],
             which `playbook.py skeleton ID --cuts cuts.json` turns into a Scenes table with Source and In
-            filled. Pauses are found, fillers ("ờ", "à", repeats) are not: read the transcript and drop
+            filled. Pauses are found, fillers (Vietnamese "ờ", "à", English "um", repeats) are not: read the transcript and drop
             them with --keep.
 
 Needs ffmpeg and ffprobe on PATH. Re-run align_captions.py on the trimmed file: every timing moves.

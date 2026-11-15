@@ -94,7 +94,7 @@ TikTok app at upload when wanted. Details and levels: `audio-and-music.md`.
 
 - [ ] Master passes `process_audio.py measure` (−14 ± 1 LUFS, TP ≤ −1 dBTP) and plays on a phone.
 - [ ] Commercial-content disclosure switched on (TikTok "Disclose commercial content"; Instagram
-      "Paid partnership" label) when anything of value changed hands; ads labelled (Luật Quảng cáo 75/2025).
+      "Paid partnership" label) when anything of value changed hands; ads labelled (Advertising Law 75/2025, Luật Quảng cáo).
 - [ ] AI-generated or substantially AI-edited content labelled.
 - [ ] Music licensed for this platform and account type.
 - [ ] Reels ad? Rendered with `--platform reels-ad`, no cart arrow, no before/after comparison.

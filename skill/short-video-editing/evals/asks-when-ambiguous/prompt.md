@@ -5,4 +5,4 @@ timeout_seconds: 600
 allowed_tools: [Read, Glob, Grep, Skill, Write, Edit, Bash]
 ---
 
-mình có 12 clip quay ở quán cà phê của mình: cảnh pha chế, cảnh khách ngồi, ly nước cận cảnh, với một đoạn mình đứng nói giới thiệu quán khoảng 50 giây. dựng giúp mình 1 video nha
+i have 12 clips shot at my own cafe: drink-making shots, customers sitting, close-ups of the drinks, and a part about 50 seconds long where i stand and introduce the cafe. can you edit 1 video for me

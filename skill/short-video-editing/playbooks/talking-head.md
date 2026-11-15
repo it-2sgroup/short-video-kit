@@ -42,7 +42,7 @@ a new framing counts.
 1. Extract and jump-cut the A-roll: `trim_voice.py talk.mp4 --jumpcut --out voice.wav --scenes-out
    cuts.json` removes every pause over 0.35 s (padded 80 ms), joins stretches shorter than 1 s, splits
    stretches longer than 5 s at their quietest moment, and writes the scenes with their source times.
-   Fillers ("ờ", "à") and repeats are not detected: read the transcript (`align_captions.py voice.wav`)
+   Fillers (Vietnamese "ờ", "à", like "uh" and "um") and repeats are not detected: read the transcript (`align_captions.py voice.wav`)
    and drop them with `--keep`.
 2. `process_audio.py voice voice.wav --out public/audio/v.wav`, then align the captions on that file.
 3. `playbook.py skeleton talking-head --cuts cuts.json` gives a Scenes table with Source and In filled.
@@ -80,7 +80,7 @@ advertiser's registration with SBV, SSC or MOF [S: TikTok ads policy].
 
 ## Variant `agency`: a service pitch to camera
 
-For an agency, studio, clinic or school that pitches itself to camera: `playbook.py suggest` picks `talking-head:agency` on "dịch vụ", "agency", "tư vấn miễn phí".
+For an agency, studio, clinic or school that pitches itself to camera: `playbook.py suggest` picks `talking-head:agency` on "dịch vụ" ("service"), "agency", "tư vấn miễn phí" ("free consultation") or their English equivalents.
 Theme `crimson` (white, brand red, yellow, maroon); 40-75 s; scenes 0.7-4 s (cards are fast: 0.8-1.6 s; a closing `expand` card may run longer).
 
 - **Picture:** the speaker's takes cut on the voice (jump cuts that change the framing: `hold 1.3-1.4` / `push 1.1>1.24`), a card section over the animated grid wherever
@@ -107,7 +107,7 @@ python scripts/trim_voice.py talk.mp4 --jumpcut --out voice_cut.wav --scenes-out
 python scripts/process_audio.py voice voice_cut.wav --out ~/renders/x/public/audio/v1.wav
 python scripts/align_captions.py ~/renders/x/public/audio/v1.wav --out draft.srt     # correct by hand -> script.txt
 python scripts/align_captions.py ~/renders/x/public/audio/v1.wav --script script.txt --out captions.srt --words-out words.json
-python scripts/playbook.py skeleton talking-head --cuts cuts.json --title "Chủ đề" > edit-plan.md
+python scripts/playbook.py skeleton talking-head --cuts cuts.json --title "Topic" > edit-plan.md
 python scripts/plan_to_project.py edit-plan.md --out ~/renders/x/v1.json --voice audio/v1.wav \
     --captions captions.srt --words words.json --auto-camera --auto-sfx
 ```

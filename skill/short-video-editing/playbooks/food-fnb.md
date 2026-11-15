@@ -2,7 +2,7 @@
 
 Appetite first. The hero moment (a bite, a cheese pull, a pour, a sizzle) is on screen inside the
 first second, then the place, the making, the dish, the reaction, the price and where to find it.
-Goal: visits and orders; saves ("lưu lại đi ăn").
+Goal: visits and orders; saves ("lưu lại đi ăn", "save it for a food trip").
 
 Variant: `food-fnb:review` when a reviewer talks (voice-driven, longer scenes, verdict at the end).
 
@@ -71,18 +71,19 @@ or ingredients · `stat` for hours or a count · one `sticker` at most. No befor
 
 ## Compliance [L]
 
-- Ordinary food must not be presented as medicine: no "chữa", "giảm cân", "tốt cho gan".
-- Health-supplement food (TPBVSK) ads need registered ad content and the warning "Thực phẩm này không
-  phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh", shown or read clearly; no doctors or
+- Ordinary food must not be presented as medicine: no "chữa" (cure), "giảm cân" (weight loss), "tốt cho gan" (good for the liver).
+- Health-supplement food (TPBVSK) ads need registered ad content and the legally required warning "Thực phẩm này không
+  phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh" ("This food is not a medicine and does not replace
+  medicine for treating disease"), shown or read clearly; no doctors or
   medical staff in food ads.
 - Alcohol: no appeal to minors, no drinking and driving; follow the platform's alcohol rules (ask).
 - Paid or gifted visits disclosed; staff and diners consent or stay out of frame.
-- Luật Quảng cáo 75/2025 (from 01/01/2026): a KOC promotes only what they have tried; ads labelled.
+- Advertising Law 75/2025 (from 01/01/2026): a KOC promotes only what they have tried; ads labelled.
 
 ## Commands
 
 ```bash
-python scripts/new_remotion_project.py ~/renders/quan --playbook food-fnb --proxies CLIPS
+python scripts/new_remotion_project.py ~/renders/eatery --playbook food-fnb --proxies CLIPS
 python scripts/suggest_cuts.py --music music.wav --end 30 --playbook food-fnb --json > cuts.json
-python scripts/playbook.py skeleton food-fnb --cuts cuts.json --title "Quán X" > edit-plan.md
+python scripts/playbook.py skeleton food-fnb --cuts cuts.json --title "Eatery X" > edit-plan.md
 ```

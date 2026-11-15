@@ -157,6 +157,7 @@ def cell(h, row, name):
 
 # ----------------------------------------------------------------------------- words / anchors
 def fold(s: str) -> str:
+    # Vietnamese language data: strips tone marks and maps "đ" to "d", so a spoken phrase matches the script however it is typed.
     s = unicodedata.normalize("NFD", s.lower())
     s = "".join(c for c in s if unicodedata.category(c) != "Mn").replace("đ", "d")
     return re.sub(r"[^a-z0-9 ]", "", s)

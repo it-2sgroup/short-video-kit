@@ -54,6 +54,7 @@ const Pop: React.FC<{ words: Word[]; t: number; frame: number; fps: number; top:
   );
 };
 
+// Vietnamese language data: strip tone marks (NFD + combining range) and map "đ" to "d" so a highlighted keyword matches the spoken word whatever its diacritics.
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const Captions: React.FC<{ captions: Caption[]; words: Word[]; mode: CaptionStyle; top: number; lift?: number; bands?: CaptionBand[]; highlight?: CaptionHighlight; keywords?: string[] }> = ({

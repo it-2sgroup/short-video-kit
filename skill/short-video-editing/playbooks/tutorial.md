@@ -23,7 +23,7 @@ Labels: **[S]** sourced, **[C]** craft convention.
 
 | Phase | Purpose | Graphics |
 |---|---|---|
-| HOOK 0–3 s | The finished result, then the promise ("3 bước", "5 phút") | `title` with the count or the time |
+| HOOK 0–3 s | The finished result, then the promise ("3 steps", "5 minutes") | `title` with the count or the time |
 | TOOLS 12% | What you need, laid out | `checklist` |
 | STEP 62% | One action per step, 3–6 s each; waits sped up and labelled | `step` (numbered), `callout`, `magnifier`, `progress` |
 | RESULT 14% | The result in the same framing as the hook | `title` |
@@ -42,7 +42,7 @@ Shot-library kinds this playbook's camera knows: `HANDS`, `SCREEN`, `WIDE`.
 
 - Cut on pauses of the voice; a step never straddles a cut it does not need.
 - Waiting (mixing, baking, drying) at `2x`–`8x` in the Speed column, always labelled on screen
-  ("tua nhanh ×4", "sau 20 phút"); slow motion on pours (`0.5x`, 60 fps source) [C].
+  ("sped up ×4", "after 20 minutes"); slow motion on pours (`0.5x`, 60 fps source) [C].
 - Soft transitions within the steps (`fade`, `slide left`), a blur dissolve with a light leak into the result.
 - Screen recordings: `hold`, and a `magnifier` on the active element instead of camera moves.
 
@@ -58,20 +58,20 @@ dish or surface). Theme `cool`.
 
 ## Graphics
 
-`step` (one visible at a time, landing on the word that names the action: `@"đánh trứng"`),
+`step` (one visible at a time, landing on the word that names the action: `@"beat the eggs"`),
 `checklist` for tools or ingredients, `progress` for a wait, `callout` and `highlight` on a still
 moment, `magnifier` for fine detail, `stat` for a quantity or a time, `cart` when a product is sold.
 
 ## Compliance
 
 Sped-up waits labelled; safety steps shown (heat, electricity, chemicals, knives); quantities and times
-as actually done ("5 phút" only if it takes 5 minutes); products named honestly, paid placement disclosed.
+as actually done ("5 minutes" only if it takes 5 minutes); products named honestly, paid placement disclosed.
 
 ## Commands
 
 ```bash
 python scripts/suggest_cuts.py words.json --playbook tutorial --json > cuts.json
-python scripts/playbook.py skeleton tutorial --cuts cuts.json --title "Cách làm X" > edit-plan.md
+python scripts/playbook.py skeleton tutorial --cuts cuts.json --title "How to make X" > edit-plan.md
 python scripts/plan_to_project.py edit-plan.md --out render/v1.json --voice audio/v1.wav --captions captions.srt \
     --words words.json --auto-camera --auto-sfx
 ```

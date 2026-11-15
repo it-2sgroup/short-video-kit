@@ -1,4 +1,4 @@
-# Playbook: real-estate — property tour (căn hộ, nhà phố, villa, homestay, đất nền)
+# Playbook: real-estate — property tour (apartment, townhouse, villa, homestay, land plot)
 
 A tour cut to music: the best view first, then the route a visitor walks, the facts on screen, and how
 to book a viewing. Goal: leads (Zalo/DM/calls, viewing bookings), bookings for rentals, saves and shares.
@@ -16,10 +16,10 @@ Labels: **[S]** sourced, **[C]** craft convention, **[L]** law (research, not le
 
 ## Questions to ask when the brief does not say
 
-1. **The facts** the footage cannot give, exactly as the documents say: price (tỷ/triệu, rent per
-   month or night), area and **whether it is thông thủy or tim tường**, bedrooms and bathrooms,
+1. **The facts** the footage cannot give, exactly as the documents say: price (billion/million VND, rent per
+   month or night), area and **whether it is net usable area ("thông thủy") or wall-centre area ("tim tường")**, bedrooms and bathrooms,
    direction, floor, legal status, address or area name. Never invent or round them.
-2. For an off-plan project: is it **legally eligible to be sold** (đủ điều kiện kinh doanh)? If unsure,
+2. For an off-plan project: is it **legally eligible to be sold** ("đủ điều kiện kinh doanh", meets the conditions for business)? If unsure,
    the video presents the place, not a sale offer, and says so.
 3. Voice or music only? Show the agent's name/phone (only if asked)? A floor plan image to show?
 
@@ -33,7 +33,7 @@ Labels: **[S]** sourced, **[C]** craft convention, **[L]** law (research, not le
 | KITCHEN | 12% | Kitchen and dining, one detail | `label`, `callout` |
 | BEDROOM | 20% | Bedrooms, the master first | `label` |
 | BATH | 8% | One clean bathroom frame | `label` |
-| FEATURE | 18% | The selling point: balcony, view, pool, rooftop, amenities | `title` or `stat` ("5 phút tới…", labelled as an estimate) |
+| FEATURE | 18% | The selling point: balcony, view, pool, rooftop, amenities | `title` or `stat` ("5 minutes to…", labelled as an estimate) |
 | SPECS | 4 s | A calm wide shot under the facts | `specs` + `price`; `image` for a floor plan |
 | CTA | 3.5 s | Agent or brand, how to book a viewing | `lowerThird`, `title` |
 
@@ -82,12 +82,12 @@ Theme `luxe` (ivory, champagne, charcoal).
 ## Graphics (Overlays rows)
 
 ```
-| 1 | 0.1 | 2.9 | title | top | – | style=glass; lines=Căn 2PN view sông / Thảo Điền; accent=view sông |
-| 2 | 3.1 | +2.5 | pin | top | – | title=Thảo Điền, TP Thủ Đức; sub=Cách Q1 ~15 phút (ước tính) |
-| 3 | 6.2 | +2.2 | label | – | – | text=Phòng khách; sub=32 m² |
-| 4 | 34.2 | 38.0 | specs | upper | – | title=Thông tin; items=area:72 m² thông thủy / bed:2 PN / bath:2 WC / compass:Đông Nam |
-| 5 | 34.6 | 38.0 | price | lower | cta | value=5.2; decimals=1; unit= tỷ; label=Giá bán |
-| 6 | 38.3 | 41.8 | lowerThird | lower | – | name=Tên môi giới; role=Đặt lịch xem nhà |
+| 1 | 0.1 | 2.9 | title | top | – | style=glass; lines=2-bed apartment with a river view / Area A; accent=river view |
+| 2 | 3.1 | +2.5 | pin | top | – | title=Area A, City X; sub=About 15 min from the centre (estimate) |
+| 3 | 6.2 | +2.2 | label | – | – | text=Living room; sub=32 m² |
+| 4 | 34.2 | 38.0 | specs | upper | – | title=Details; items=area:72 m² net usable / bed:2 BR / bath:2 BA / compass:South-East |
+| 5 | 34.6 | 38.0 | price | lower | cta | value=5.2; decimals=1; unit= billion VND; label=Sale price |
+| 6 | 38.3 | 41.8 | lowerThird | lower | – | name=Agent name; role=Book a viewing |
 ```
 
 Write decimals with a point in the plan (`value=5.2; decimals=1`): it is shown as "5,2" (vi-VN), and
@@ -96,13 +96,13 @@ Write decimals with a point in the plan (`value=5.2; decimals=1`): it is shown a
 
 ## Compliance [L]
 
-- **Luật Kinh doanh bất động sản 2023** (29/2023/QH15, in force 01/08/2024): Điều 6 requires the
+- **Law on Real Estate Business 2023** (29/2023/QH15, in force 01/08/2024): Article 6 requires the
   business to publish full, truthful information (approvals, legal papers, the ownership certificate,
-  mortgages) before selling; Điều 8 bans distorting information, not disclosing it, and doing business
-  without meeting the conditions. Advertising itself falls under Luật Quảng cáo.
-- Penalties: **NĐ 339/2026/NĐ-CP** (in force 26/08/2026, replaces NĐ 16/2022), fines up to 1 tỷ.
+  mortgages) before selling; Article 8 bans distorting information, not disclosing it, and doing business
+  without meeting the conditions. Advertising itself falls under the Advertising Law.
+- Penalties: **Decree 339/2026/NĐ-CP** (in force 26/08/2026, replaces Decree 16/2022), fines up to 1 billion VND.
 - The plan's checklist (printed by the skeleton): facts match the documents; legal status only as
-  documented; no promised returns or price rises; renders and virtual staging labelled "hình minh hoạ";
+  documented; no promised returns or price rises; renders and virtual staging labelled "illustration" ("hình minh hoạ");
   travel times labelled as estimates; broker identified; neighbours and other houses' numbers out of frame.
 - TikTok does not restrict real-estate ads in Vietnam; its general rules (licensed advertiser,
   advertiser details on the landing page) apply [S: TikTok ads policy].
@@ -111,11 +111,11 @@ Write decimals with a point in the plan (`value=5.2; decimals=1`): it is shown a
 
 ```bash
 python scripts/inspect_footage.py CLIPS --measure --json analysis.json
-python scripts/new_remotion_project.py ~/renders/can-ho --playbook real-estate --proxies CLIPS --install
-python scripts/process_audio.py music track.mp3 --out ~/renders/can-ho/public/audio/music.wav
-python scripts/suggest_cuts.py --music ~/renders/can-ho/public/audio/music.wav --end 42 --playbook real-estate --json > cuts.json
-python scripts/playbook.py skeleton real-estate --cuts cuts.json --title "Căn 2PN Thảo Điền" > edit-plan.md
+python scripts/new_remotion_project.py ~/renders/apartment --playbook real-estate --proxies CLIPS --install
+python scripts/process_audio.py music track.mp3 --out ~/renders/apartment/public/audio/music.wav
+python scripts/suggest_cuts.py --music ~/renders/apartment/public/audio/music.wav --end 42 --playbook real-estate --json > cuts.json
+python scripts/playbook.py skeleton real-estate --cuts cuts.json --title "2-bed apartment, Area A" > edit-plan.md
 python scripts/plan_scenes.py --library library.json --plan edit-plan.md --kinds "VIEW,ROOM,EXTERIOR,..." > scenes.md
-python scripts/plan_to_project.py edit-plan.md --out ~/renders/can-ho/v1.json --music audio/music.wav \
+python scripts/plan_to_project.py edit-plan.md --out ~/renders/apartment/v1.json --music audio/music.wav \
     --auto-camera --analysis analysis.json --auto-sfx
 ```

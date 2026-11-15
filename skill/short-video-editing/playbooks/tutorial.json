@@ -1,13 +1,13 @@
 {
   "id": "tutorial",
-  "title": "Hướng dẫn / how-to / công thức nấu ăn / thao tác từng bước",
+  "title": "Tutorial / how-to / recipe / step-by-step operation",
   "summary": "Result first, then the steps in order, each one a beat with its number on screen, long waits compressed and labelled, the finished result again at the end. Clarity beats energy: hold each step long enough to be copied.",
-  "intents": ["hướng dẫn", "cách làm", "how to", "tutorial", "công thức", "recipe", "từng bước", "các bước", "mẹo", "diy", "lắp đặt", "cài đặt", "sử dụng", "thao tác"],
+  "intents": ["hướng dẫn", "cách làm", "how to", "tutorial", "công thức", "recipe", "từng bước", "các bước", "mẹo", "diy", "lắp đặt", "cài đặt", "sử dụng", "thao tác", "guide", "instructions", "step by step", "steps", "install", "installation", "setup", "usage", "walkthrough"],
   "expect": {"speech": "voiceover", "motion": "low"},
   "signals": ["hands doing a task from one fixed angle (top-down or front)", "a sequence of states (ingredients → result)", "screen recordings or device close-ups"],
   "platforms": ["tiktok", "reels"],
   "runtime": {"min": 25, "max": 75, "ideal": [35, 55], "why": "Each step needs time to be followed; trim waiting, not steps."},
-  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.5, "minBeat": 1.0, "purpose": "the finished result, then the promise (\"3 bước\", \"5 phút\")", "graphics": "title with the number of steps or the time"},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.5, "minBeat": 1.0, "purpose": "the finished result, then the promise (\"3 steps\", \"5 minutes\")", "graphics": "title with the number of steps or the time"},
   "scenes": {"min": 2.0, "max": 4.5, "target": 3.3},
   "drive": "voice",
   "structure": [
@@ -39,7 +39,7 @@
   },
   "sfx": {},
   "compliance": [
-    "Sped-up waiting labelled (\"tua nhanh ×4\", \"sau 20 phút\")",
+    "Sped-up waiting labelled (\"sped up ×4\", \"after 20 minutes\")",
     "Safety steps shown (electricity, heat, chemicals, knives); no dangerous shortcuts",
     "Quantities and times on screen match what was actually done",
     "Products used are named honestly; paid placement disclosed"

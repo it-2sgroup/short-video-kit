@@ -167,7 +167,7 @@ plan applied to both wastes the advantage each already has.
 | Captions naming 3+ problem types | 11.2% | 6.1% | 1.8× |
 | Avg hashtag count | 3.1 | 2.7 | 1.1× |
 | Mentions colored fabric safety | 2.3% | 1.2% | 1.9× |
-| Makes a result claim ("như mới", "trắng bóc", "sạch bong") | 3.9% | 2.1% | 1.9× |
+| Makes a result claim ("như mới" = like new, "trắng bóc" = spotless white, "sạch bong" = squeaky clean) | 3.9% | 2.1% | 1.9× |
 | Avg caption length (chars) | 78 | 65 | 1.2× |
 
 Every signal points the same way, at roughly 2×, but all are low-prevalence — even among winners,
@@ -177,7 +177,7 @@ of the edit budget here, and do not promise that caption rewriting will fix a vi
 What the winning captions actually do, from reading the top 25 by GMV:
 - Enumerate the specific problems the product handles (a list of named cases) rather than claiming
   general power.
-- Lead with a reaction, not a feature (*"Không tin được..."*).
+- Lead with a reaction, not a feature (*"Không tin được..."*, "Unbelievable...").
 - Carry 3–4 specific hashtags that name the use, not a hashtag wall.
 
 **Caution on one observed pattern.** A high-earning caption promised "no payment if it is not

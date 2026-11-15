@@ -56,6 +56,7 @@ const glyphs = (w: string): string[] => {
   const Seg = (Intl as unknown as { Segmenter?: new (l: string, o: { granularity: string }) => { segment: (s: string) => Iterable<{ segment: string }> } }).Segmenter;
   return Seg ? Array.from(new Seg("vi", { granularity: "grapheme" }).segment(w), (s) => s.segment) : Array.from(w);
 };
+// Vietnamese language data: strip tone marks and map "đ"/"Đ" to "d"/"D" so the scramble effect draws from plain Latin letters (Vietnamese text in, ASCII scramble out).
 const plain = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
 
 export type StrokeProps = { size: number; fill: string; stroke: string; family?: string; weight?: number; width?: number; shadow?: string; tracking?: string; glow?: string };

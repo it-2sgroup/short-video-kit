@@ -96,7 +96,7 @@ Use 3–4 transition types per video at most, energetic ones only on section bou
 shape-wipe transitions are in the library for the genres that want them; a pack of them in one video reads as a template
 and cheapens the subject, so one of each at most.
 
-### When a product-demo's transitions feel abrupt ("chuyển cảnh chưa mượt")
+### When a product-demo's transitions feel abrupt (Vietnamese feedback: "chuyển cảnh chưa mượt", the transitions are not smooth)
 
 1. Check scene lengths first: 3–4 s outside the hook for product-demo. Cuts every 1.5–2 s are what read as jerky; no
    transition fixes that (`pacing_checker.py` warns under 3 s).

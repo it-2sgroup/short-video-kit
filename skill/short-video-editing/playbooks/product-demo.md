@@ -12,7 +12,7 @@ own products; never against competitors).
 
 - Footage: hands and the product in close-up, tabletop or top-down; a visible process with a result
   (a stain, a mess, a surface, a gadget doing its job); little camera movement.
-- Intent: sell through TikTok Shop or affiliate (KOC/UGC), review, "dùng thử", before/after.
+- Intent: sell through TikTok Shop or affiliate (KOC/UGC), review, "dùng thử" (try-out), before/after.
 - Not this playbook: someone explaining at length to camera (`talking-head`, with the demo as B-roll),
   a step-by-step how-to where copying matters more than selling (`tutorial`).
 
@@ -20,7 +20,7 @@ own products; never against competitors).
 
 1. The product's name exactly as listed, its price and the product-card URL (on-screen prices must match).
 2. Will the video be **boosted as an ad**? TikTok ads forbid before/after comparisons: plan a version
-   without the `compare` card and the TRƯỚC/SAU labels (`references/before-after.md`).
+   without the `compare` card and the BEFORE/AFTER labels (`references/before-after.md`).
 3. How many videos must this footage feed (batch capacity, `references/policy.md` §4.1)?
 
 ## Structure (30–40 s; `playbook.py skeleton product-demo --duration 36`)
@@ -44,7 +44,7 @@ own products; never against competitors).
   the 3–4 s rhythm with soft transitions is this playbook's default style (with soft transitions, 1.5–2 s hard
   cuts read as jerky). Fast genres (food, fashion, montage) cut at 1–2 s: say so if the same user asks for another genre.
 - **Re-hook and open loops** [C]: 2–3 small unresolved questions and one mid-point reset around
-  18–20 s ("Cái thứ hai mới là cái mình bất ngờ", "Mà có một chỗ hơi khác, lát mình chỉ").
+  18–20 s ("The second one is the one that surprised me", "But there is one spot that is a bit different, I'll show you in a moment").
 
 ## Shots the footage needs (shot list when it must be shot)
 
@@ -60,7 +60,7 @@ the item lifted to camera. Shot-library kinds this playbook's camera knows: `STA
 - Transitions: soft (`fade`, `slide`, `blurDissolve`) within a beat, `slide up` / `wipe` / `zoomThrough
   +flash` on a change, `wipe right +leak` into the REVEAL; at most two accents per video.
 - **Never hide a cut between the BEFORE and the AFTER.** Hold the take; when the process takes hours,
-  same item, same framing, and the compression labelled on screen ("tua nhanh ×8", "sau 2 tiếng").
+  same item, same framing, and the compression labelled on screen ("sped up ×8", "after 2 hours").
   A sped-up wait is a `Speed` cell (`4x`) plus that label.
 - A single locked demo take becomes three scenes by scale: wide 0–4 s → punch to the detail 4–8 s →
   tight on the result 8–12 s (`references/camera-moves.md`).
@@ -92,36 +92,36 @@ a product reveal with an open loop. Examples written for a cleaning-type demo, c
 rules (swap in your own item):
 
 - **Result first.** Locked shot, the finished result; a hand moves in to show the BEFORE.
-  Text "Cái này 10 phút trước" · VO "Chỗ này mình tưởng phải bỏ luôn rồi…"
-- **Split half.** Half of the item treated, half not. Text "Nửa trái làm rồi, nửa phải chưa" · VO
-  "Cùng một món, cùng một chỗ nha." Self-evidencing: removes the "they swapped the item" doubt.
-- **Social proof (the one permitted superlative: own sales).** "Bán chạy nhất shop mình tháng này" ·
-  "Mà mình vẫn phải tự thử mới dám nói."
-- **Specific pain.** "Món này mới mua tháng trước" · "Hỏng một cái là coi như xong."
-- **Problem made on camera (anti-fake).** A mark made on purpose on a clean item. "Cố tình làm hỏng để test".
+  Text "This was 10 minutes ago" · VO "I thought I'd have to throw this spot away…"
+- **Split half.** Half of the item treated, half not. Text "Left half done, right half not yet" · VO
+  "Same item, same spot, okay?" Self-evidencing: removes the "they swapped the item" doubt.
+- **Social proof (the one permitted superlative: own sales).** "Best seller in my shop this month" ·
+  "But I still had to try it myself before I dared to say so."
+- **Specific pain.** "Bought this last month" · "Once one breaks, that's it."
+- **Problem made on camera (anti-fake).** A mark made on purpose on a clean item. "Ruined on purpose for the test".
 
 ## Compliance
 
 The checklist is printed into the plan by the skeleton. Detail and the rewrite table
-("Diệt khuẩn 99.9%" → "Làm sạch bụi bẩn bám trên vải", "Không sạch hoàn tiền" → remove) are in
+("Diệt khuẩn 99.9%" ("kills 99.9% of bacteria") → "Làm sạch bụi bẩn bám trên vải" ("cleans dirt clinging to fabric"), "Không sạch hoàn tiền" ("not clean, money back") → remove) are in
 `references/claims-and-compliance.md` §2. Claim forms that circulate in this category and must not
-be reused: money-back lines ("Không hiệu quả anh gửi tiền lại liền"), guarantee lines ("Hổng sạch hổng lấy tiền"),
-instant or total-result lines ("sạch tinh như mới", "tẩy sạch mọi vết bẩn cứng đầu"). Claims inside a **supplied** voice cannot be edited out silently:
+be reused: money-back lines ("Không hiệu quả anh gửi tiền lại liền", "if it doesn't work I'll send your money back right away"), guarantee lines ("Hổng sạch hổng lấy tiền", "no clean, no payment"),
+instant or total-result lines ("sạch tinh như mới", "spotless like new"; "tẩy sạch mọi vết bẩn cứng đầu", "removes every stubborn stain"). Claims inside a **supplied** voice cannot be edited out silently:
 flag them to the user and keep the on-screen text clear of them.
 
 ## Variant notes
 
 - **unboxing**: the opening in one take (packaging cannot be resealed convincingly); music low or off
-  during the reveal so the packaging sound carries it; a "Trong hộp có gì" `checklist`; the creator
-  must have actually used the product (Luật Quảng cáo 75/2025, Điều 15a).
+  during the reveal so the packaging sound carries it; a "What's in the box" `checklist`; the creator
+  must have actually used the product (Advertising Law 75/2025, Art. 15a).
 - **listicle**: one item per beat, each shot the same way so the comparison is fair; `ranking` for
-  the order; "Top 1", "tốt nhất" need documents; never name a competitor.
+  the order; "Top 1", "the best" need documents; never name a competitor.
 
 ## Commands
 
 ```bash
-python scripts/playbook.py skeleton product-demo --cuts cuts.json --title "Tên SP / KOC" > edit-plan.md
+python scripts/playbook.py skeleton product-demo --cuts cuts.json --title "Product name / KOC" > edit-plan.md
 python scripts/plan_scenes.py --library library.json --plan edit-plan.md --kinds "STAIN,LIFT@CLIP_A,..." --used other-plans...
 python scripts/plan_to_project.py edit-plan.md --out render/v1.json --voice audio/v1.wav --captions captions.srt \
-    --words words.json --auto-camera --auto-sfx --punch-keywords "tên sản phẩm"
+    --words words.json --auto-camera --auto-sfx --punch-keywords "product name"
 ```

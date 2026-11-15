@@ -18,8 +18,8 @@ making all three say the same thing, which wastes two of them.
 | Channel | Job | Example |
 |---|---|---|
 | **Visual** | Show the most arresting state — usually the end result, the best view or the worst-case problem | The finished room from the balcony; a cheese pull; the worst-case problem in close-up |
-| **On-screen text** | State the promise or the stake in words | "Căn 2PN view sông dưới 4 tỷ" · "Món này suýt bị vứt" |
-| **Audio** | Start a sentence the viewer needs to finish, or hit the music's first downbeat | VO mid-thought: "...và đây là lúc mình định bỏ nó đi" |
+| **On-screen text** | State the promise or the stake in words | "2-bed flat with a river view under 4 billion VND" · "I almost threw this away" |
+| **Audio** | Start a sentence the viewer needs to finish, or hit the music's first downbeat | VO mid-thought: "...and this is when I was about to give up on it" |
 
 TikTok's own creative guidance is explicit that a video should open with sound rather than a silent
 title card; the platform reports that 88% of users consider sound integral to the experience
@@ -68,11 +68,11 @@ Each playbook's `.md` has its own examples (product-demo: written and compliance
 
 | Playbook | Visual (0–1.5 s) | Text | Sound |
 |---|---|---|---|
-| product-demo | the result, then the problem; a split half (treated / untreated) | the stake, specific ("Món này mới mua tháng trước") | VO mid-thought |
-| real-estate | the best view or room, a door opening onto it | price + place, or one specific feature ("3,2 tỷ có gì ở Thảo Điền?") | first downbeat |
+| product-demo | the result, then the problem; a split half (treated / untreated) | the stake, specific ("Bought this just last month") | VO mid-thought |
+| real-estate | the best view or room, a door opening onto it | price + place, or one specific feature ("What does 3.2 billion VND get you in Thảo Điền?") | first downbeat |
 | food-fnb | the money shot: pull, pour, sizzle, steam | the dish + one hook word (price, place) | the sizzle itself (J-cut) |
 | talking-head | the speaker mid-sentence on the boldest line, or B-roll of the payoff | the payoff, not the topic | the sentence itself |
-| tutorial | the finished result | the number of steps or the time ("3 bước, 5 phút") | VO promise |
+| tutorial | the finished result | the number of steps or the time ("3 steps, 5 minutes") | VO promise |
 | fashion-beauty | the final look, or the most striking change on a beat | how many looks / the theme / the budget | the drop |
 | montage-recap | the most spectacular moment, hard cut on beat 1 | two to four words, or nothing | the track's opening hit |
 | promo-sale | the offer on the product | the number ("−50%", "11.11") | a hit under the number |
@@ -86,12 +86,12 @@ playbook's compliance list before locking them.
 
 | Avoid | Why |
 |---|---|
-| "Sản phẩm tốt nhất thị trường" | Prohibited absolute superlative |
-| "Tẩy sạch ngay lập tức" | Prohibited instant-effect claim |
-| "Không sạch hoàn tiền" / "cam kết lợi nhuận" | Guaranteed results (products) or returns (property) |
-| "Diệt khuẩn 99.9%", "trị mụn", "giảm cân" | Prohibited category claims (`claims-and-compliance.md`) |
-| "Là chuyên gia …, tôi khuyên…" | Authority archetype, worst-ranked as an opener |
-| "Hãy mua ngay" as the opening line | Direct command, second-worst ranked, and asks before earning |
+| "Sản phẩm tốt nhất thị trường" (the best product on the market) | Prohibited absolute superlative |
+| "Tẩy sạch ngay lập tức" (removes it instantly) | Prohibited instant-effect claim |
+| "Không sạch hoàn tiền" (money back if not clean) / "cam kết lợi nhuận" (guaranteed profit) | Guaranteed results (products) or returns (property) |
+| "Diệt khuẩn 99.9%" (kills 99.9% of bacteria), "trị mụn" (treats acne), "giảm cân" (lose weight) | Prohibited category claims (`claims-and-compliance.md`) |
+| "Là chuyên gia …, tôi khuyên…" (as an expert … I recommend…) | Authority archetype, worst-ranked as an opener |
+| "Hãy mua ngay" (buy now) as the opening line | Direct command, second-worst ranked, and asks before earning |
 | A silent 3-second title card | Throws away the audio channel |
 
 ---

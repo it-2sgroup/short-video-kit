@@ -17,14 +17,14 @@ files). Without `--project` the newest project JSON is opened; the header lists 
 
 | Area | What it does |
 |---|---|
-| Header | Project name, badge **N thay đổi chưa render** (changes against the project the last render saw), Hoàn tác / Làm lại, Lịch sử, Lưu project, Render lại |
-| Phone preview | Plays the newest `out/*.mp4`; with no render it plays the proxy clip of the current scene (voice and music follow). **Vùng an toàn** draws the platform zones (TikTok feed, or Meta Reels ads when `layout` is `reels-ad`), **Vùng mặt** the scene's `face` and camera `focus`, **Nháp chữ** draws boxes for the overlays and captions at the playhead (on by default when edits are newer than the render) |
-| Thuộc tính | Fields for the selected scene, overlay, caption or sound cue; nothing selected shows the project settings, quick checks and shortcuts. An overlay shows one field per `props` key, a box with the plan's `key=value; ...` notation (same rules as `plan_to_project.py`), and "Thêm thuộc tính" |
-| Timeline | Tracks Cảnh, Chữ · đồ họa (stacked lanes when they overlap), Phụ đề, Giọng, Nhạc (waveforms), Âm hiệu ứng. Click the ruler to seek; drag to move, drag edges to resize; snaps to cuts, other edges and the playhead (hold Alt to switch it off); zoom slider, Alt+wheel, **Vừa khung** |
+| Header | Project name, badge **N changes not rendered** (changes against the project the last render saw), Undo / Redo, History, Save project, Re-render |
+| Phone preview | Plays the newest `out/*.mp4`; with no render it plays the proxy clip of the current scene (voice and music follow). **Safe zone** draws the platform zones (TikTok feed, or Meta Reels ads when `layout` is `reels-ad`), **Face zone** the scene's `face` and camera `focus`, **Draft text** draws boxes for the overlays and captions at the playhead (on by default when edits are newer than the render) |
+| Properties | Fields for the selected scene, overlay, caption or sound cue; nothing selected shows the project settings, quick checks and shortcuts. An overlay shows one field per `props` key, a box with the plan's `key=value; ...` notation (same rules as `plan_to_project.py`), and "Add property" |
+| Timeline | Tracks Scenes, Text · graphics (stacked lanes when they overlap), Captions, Voice, Music (waveforms), Sound effects. Click the ruler to seek; drag to move, drag edges to resize; snaps to cuts, other edges and the playhead (hold Alt to switch it off); zoom slider, Alt+wheel, **Fit** |
 
 Dragging the edge of a scene is a rolling edit: the neighbour follows and the right scene's `in` moves with the cut so the
-footage stays in step (hold Shift to keep `in`). Dragging a scene's body reorders the scenes. **Cắt cảnh** (S) splits at
-the playhead; Delete on a scene gives its time to the previous one. **+ Thêm chữ** inserts a `title` at the playhead.
+footage stays in step (hold Shift to keep `in`). Dragging a scene's body reorders the scenes. **Split scene** (S) splits at
+the playhead; Delete on a scene gives its time to the previous one. **+ Text** inserts a `title` at the playhead.
 
 ## Shortcuts
 
@@ -33,12 +33,12 @@ Ctrl+S save, Esc deselect. Text fields keep their own shortcuts.
 
 ## What is saved where
 
-- Edits live in the page (undo and redo are snapshots there) until **Lưu project**.
+- Edits live in the page (undo and redo are snapshots there) until **Save project**.
 - Saving first copies the old file to `RENDER_DIR/.editor-history/<name>-<timestamp>.json` (the last 50 per project are
-  kept) and then replaces the project file atomically. **Lịch sử** lists them; restoring one also snapshots the current file.
+  kept) and then replaces the project file atomically. **History** lists them; restoring one also snapshots the current file.
   The file is rewritten with the same indentation; unknown keys (`words`, `punches`, ...) are kept untouched.
 - A save is refused with a prompt when the file changed on disk since it was opened (for example `plan_to_project.py` ran again).
-- **Render lại** saves, then runs `npx remotion render src/index.ts Short out/<name>.mp4 --props=<name>.json --codec=h264 --crf=18
+- **Re-render** saves, then runs `npx remotion render src/index.ts Short out/<name>.mp4 --props=<name>.json --codec=h264 --crf=18
   --concurrency=N` in `RENDER_DIR` (N = 5, or the core count when lower: Remotion refuses more workers than cores), one at a time,
   with a progress bar and log. It needs `node_modules` in `RENDER_DIR`; the editor never runs `npm install`. A copy of the project
   as rendered goes to `.editor-history/<name>.rendered.json` so the badge can count later edits.

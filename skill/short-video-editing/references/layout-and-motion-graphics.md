@@ -80,14 +80,14 @@ go. Put it on the shot list.
 | `price` | Count-up (vi-VN format), pulse, struck-through old price | `value, unit, label, old, prefix, decimals` | Must match the listing exactly; decimals with a point in the plan (`value=5.2; decimals=1` shows "5,2") |
 | `cart` | Hand-drawn arrow that curves down onto the product bar's bag tile (theme `cartPoint`), draws on, then bobs; label above its start | `text` | Early CTA (~9–12 s) and close. The label sits right above the arrow; give a `zone` only to move it. Never add a second graphic in the bottom-left |
 | `sticker` | Rotated badge that pops and wobbles | `text, at, rotate` | One per video; no claims |
-| `progress` | Bar fills across its life | `label` | Time passing ("Chờ 10 phút · đã rút gọn thời gian") |
+| `progress` | Bar fills across its life | `label` | Time passing ("Wait 10 minutes · time shortened") |
 | `magnifier` | Lens showing a 2.2× crop of a clip | `clip, in, target, at, zoom, diameter` | Fine detail (texture, fine print); keep the camera still meanwhile |
 | `thumbs` | Strip of up to 3 framed stills with a caption under each (the three-photo header) | `cards=CLIP@sec:caption+@"word"~x,y,zoom / …` | Top zone; see "The three-photo header" below |
-| `compare` | BEFORE and AFTER frames of the same item, TRƯỚC/SAU labels (`beforeLabel`, `afterLabel` to change them), the AFTER arriving over a dark scrim | `before=CLIP@sec; after=CLIP@sec; mode=side/slider/stack; beforeFocus, afterFocus, zoom; note` | The reveal (zone `top`, ≥ 2.5 s, note stays clear of `lower`); frames from ranges already shown; see `before-after.md` |
+| `compare` | BEFORE and AFTER frames of the same item, BEFORE/AFTER labels (default `BEFORE`/`AFTER`; `beforeLabel`, `afterLabel` change them, e.g. `TRƯỚC`/`SAU` in Vietnamese), the AFTER arriving over a dark scrim | `before=CLIP@sec; after=CLIP@sec; mode=side/slider/stack; beforeFocus, afterFocus, zoom; note` | The reveal (zone `top`, ≥ 2.5 s, note stays clear of `lower`); frames from ranges already shown; see `before-after.md` |
 | `ranking` | Glossy tiles on podiums | `items=Label#rank / …` | Listicles only; no third-party logos without rights |
 | `lowerThird` | Name bar | `name, role` | Creator/brand/agent ID, 2–3 s; credentials must be real |
-| `specs` | Up to six facts with line icons, popping in turn (two per row past three) | `items=area:85 m² / bed:3 PN / bath:2 WC / compass:Đông Nam; title` | Icons: `area bed bath compass car floor tree pool clock tag pin star`. Over a calm shot; facts from the documents |
-| `pin` | A map pin drops with a ring, the place name and a second line slide in | `title, sub, at=x,y` | Arrival or the end; "~15 phút (ước tính)" for travel times |
+| `specs` | Up to six facts with line icons, popping in turn (two per row past three) | `items=area:85 m² / bed:3 BR / bath:2 WC / compass:South-East; title` | Icons: `area bed bath compass car floor tree pool clock tag pin star`. Over a calm shot; facts from the documents |
+| `pin` | A map pin drops with a ring, the place name and a second line slide in | `title, sub, at=x,y` | Arrival or the end; "~15 min (estimate)" for travel times |
 | `label` | A quiet tag (name + detail) with a line drawing under it | `text, sub, at=x,y, align=left/right` | Rooms, dishes, items; one at a time; default bottom-left above the captions |
 | `stat` | One figure counting up (vi-VN format), unit and label | `value, unit, label, prefix, decimals` | A real number with a source; holds ≥ 1.5 s after it lands |
 | `chart` | 2–5 horizontal bars growing in turn, values counting up, the largest highlighted | `items=Label#45 / Label#120; unit; title; highlight` | Real measurements only; one idea per chart |
@@ -97,11 +97,11 @@ go. Put it on the shot list.
 | `pill` | A rounded label (white with red text, or red with white text) whose text types in | `text, variant=white/red, at=x,y, size, type` | Lists of two or three offers one under another; <= 30 characters |
 | `arc` | Letters along an arc with echoes fanning out behind them | `text, echoes, at, fill, stroke` | The opening shout (a place name or a hook word), once; it is there on frame 0. The alternative to `burst`: use one of the two |
 | `script` | One handwritten phrase in the highlight colour (Pacifico), letters scatter in | `text, at, rotate, size` | One per video, on a word that deserves warmth |
-| `tag` | A small loud label (red letters, white outline) popping over a card | `text, at` | "SẢN PHẨM", "F&B": kinds of work or sector; <= 14 characters |
+| `tag` | A small loud label (red letters, white outline) popping over a card | `text, at` | "PRODUCT", "F&B": kinds of work or sector; <= 14 characters |
 | `logo` | The brand mark (`public/images/logo.png`, a transparent PNG) arrives out of a motion blur and snaps sharp; `tint=white` for a red backdrop, `hold=1` for an end card | `at, width, src, tint, hold` | On the beats that name the brand and at the end; keyed from the brand's own file (a vector or PNG the user supplies; never redraw it) |
-| `counter` | A number pops, an arrow draws, the second number pops, a unit slides up | `from, to, label, at` | One range the voice says ("5 -> 10 ngày"); the figures are the brand's own and need evidence |
-| `icon` | A pictogram popping in at a point: `target megaphone bang search check` | `name, at, size, rotate` | A word that names the picture (mục tiêu, đừng bỏ qua); not on faces |
-| `circled` | A label that a hand-drawn ellipse draws around, a pictogram popping in below it | `text, at, icon` | One support or promise ("HỖ TRỢ"); the word is said while it is on |
+| `counter` | A number pops, an arrow draws, the second number pops, a unit slides up | `from, to, label, at` | One range the voice says ("5 -> 10 days"); the figures are the brand's own and need evidence |
+| `icon` | A pictogram popping in at a point: `target megaphone bang search check` | `name, at, size, rotate` | A word that names the picture ("goal", "don't skip"); not on faces |
+| `circled` | A label that a hand-drawn ellipse draws around, a pictogram popping in below it | `text, at, icon` | One support or promise ("SUPPORT"); the word is said while it is on |
 | `rawfinal` | Two cards side by side playing the same take: the unedited clip (`public/raw/…`) and the finished look | `raw, final, at, saturate, contrast, brightness` | The honest "what editing does": same take, only the edit differs; put it on a card scene with no clip |
 | `sweep` | A diagonal band of light crossing once (18-24 frames, screen blend). Without `text` it crosses a feathered box; with `text` it draws the words and the band shines only on the letters | `at=x,y, width, height, band, angle, color, opacity, text, size, fill` | One per beat, 0.6-0.8 s, on a title, a price or a product box; Remotion only |
 | `flare` | A lens flare: a white-hot disc with a soft halo that rises in 5 frames and decays, ghosts (rings and discs) along the line through the frame centre, one white frame at the peak with `flash=1` | `at=x,y, drift=dx,dy, color, size, ghosts, flash, opacity` | One per video, aimed at a bright source that is in the picture (window, lamp, sun); never on faces; Remotion only |
@@ -143,7 +143,7 @@ Limits: the cutout is a still (a few frames of fall hide that); a thin or glassy
 ### The three-photo header (`thumbs`)
 
 A strip of three small framed stills across the top, each with a two-or-three-word caption, while the
-main footage plays below: the layout of explainer videos that list three points ("điểm A / điểm B / điểm C"). It turns a spoken list of
+main footage plays below: the layout of explainer videos that list three points ("point A / point B / point C"). It turns a spoken list of
 three into something the eye can scan, and it fits where the voice names three things.
 
 - **When it fits:** a spoken list of exactly three: three problems, three steps, three results ("Text A / Text B / Text C"). Not for one or two items, and not at the same time as a
@@ -170,25 +170,25 @@ One engine (`components/text/Fx.tsx`), twenty-two effects; pick by what the word
 | `fx` | Look | Use it on |
 |---|---|---|
 | `scatter` | letters fly in from random places and settle; fly apart on exit | the default loud line |
-| `slam` | the whole line slams in from 3x size and shakes | a shout, a claim ("ĐỪNG BỎ QUA!!!", "CHỈ CÓ TRONG THÁNG NÀY!") |
-| `stamp` | tilted, lands with an overshoot, a double rule pressed round it | a verdict or a promise ("GIẢI QUYẾT VẤN ĐỀ") |
-| `glitch` | RGB-split jitter that settles | the problem, the pain ("VẤN ĐỀ A…") |
+| `slam` | the whole line slams in from 3x size and shakes | a shout, a claim ("DON'T MISS IT!!!", "ONLY THIS MONTH!") |
+| `stamp` | tilted, lands with an overshoot, a double rule pressed round it | a verdict or a promise ("PROBLEM SOLVED") |
+| `glitch` | RGB-split jitter that settles | the problem, the pain ("PROBLEM A…") |
 | `drop` | letters fall from above and bounce | a lead line that sets something down |
 | `elastic` | rubbery overshoot, letter by letter | the answer after a problem |
 | `wave` | letters rise in a ripple and keep rippling | friendly, flowing lines |
-| `flip` | letters flip up in 3D | an instruction ("Bạn chỉ cần chọn một bước") |
+| `flip` | letters flip up in 3D | an instruction ("You only need to pick one step") |
 | `maskwipe` | a coloured bar wipes the text into view | a list item, a plan |
 | `split` | two halves slide in from opposite sides and join | a before/after word pair |
 | `shine` | a light sweep crosses the finished text | the line that names the offer |
-| `neon` | flickers on, then glows | the call to action ("INBOX NGAY") |
+| `neon` | flickers on, then glows | the call to action ("MESSAGE US NOW") |
 | `typewriter` | letters appear one by one with a cursor | a short label, a quote |
 | `rise` | a quiet rise | calm lead lines |
-| `scramble` | random glyphs flicker, then lock into the real letters left to right (~0.8 s, a pop as each locks) | a reveal of 1-3 words ("ĐÃ CÓ KẾT QUẢ"); hold it 0.7 s after the lock; never on a spoken caption |
+| `scramble` | random glyphs flicker, then lock into the real letters left to right (~0.8 s, a pop as each locks) | a reveal of 1-3 words ("RESULTS ARE IN"); hold it 0.7 s after the lock; never on a spoken caption |
 | `blurin` | each word sharpens out of a soft blur while shrinking from 112%, 3 frames apart | a gentle opening line, a quote, a dreamy or luxe mood |
 | `tracking` | wide letter-spacing closes to none while the line fades in | a short brand or title line (up to ~14 characters; on a longer line the first frames overflow the frame, faintly) |
 | `slice` | three bands (the top one whole, so marks over capitals are never cut) slide in from alternating sides and snap together | a sharp, modern hook; not next to `split` |
 | `popword` | each word springs in tilted from 60% and settles, 4 frames apart | a spoken list or a sentence that should bounce along with the voice |
-| `flap` | split-flap board: every cell flips through glyphs and lands on the real one (~0.9 s) | digits and capitals: a price, a countdown, "ƯU ĐÃI 24H"; not a sentence |
+| `flap` | split-flap board: every cell flips through glyphs and lands on the real one (~0.9 s) | digits and capitals: a price, a countdown, "24H OFFER"; not a sentence |
 | `strike` | `emph=OLD -> NEW` (also `→` or `=>`): a red bar strikes OLD out and dims it, NEW springs in beside it; without an arrow the whole line is struck | a price or a claim being replaced. Only numbers the user's documents give: a "was" price must be a real earlier price |
 | `draw` | the line stays still; a hand-drawn wavy underline wipes in beneath it | the key phrase of the block; put it on the lowest line (the underline hangs below the box) |
 

@@ -35,7 +35,7 @@ or need an internet connection: check the current app before promising one [C].
 | Normal speed (0.1×–100×) | **K** | `Speed: 2x`, `0.5x`; under 1× needs a 60 fps proxy (`prepare_footage.py --slowmo`); the sync report flags slow motion that would stutter |
 | Speed curve (Montage, Hero, Bullet, Jump cut, Flash in/out, custom) | **K** | `Speed: ramp a>b>c`, speeds spread evenly over the scene and eased (`Easing.inOut(sin)`). Rough equivalents [C]: Montage `ramp 0.6>2.5>0.6`, Hero `ramp 2>0.4>2`, Bullet `ramp 1>0.2`, Flash in `ramp 3>1`. More than five points are not worth it: the ramp is eased between them |
 | Smooth slow motion (optical flow, frame interpolation) | **D** | ffmpeg `minterpolate=fps=60:mi_mode=mci` on a short proxy; slow and it smears fast motion. Prefer shooting 60 fps |
-| Time compression of a process ("chờ 10 phút") | **K** | `2x` or a ramp **plus** an on-screen note that time was cut (`progress` overlay: "đã rút gọn thời gian"); never silently (`before-after.md`) |
+| Time compression of a process ("wait 10 minutes") | **K** | `2x` or a ramp **plus** an on-screen note that time was cut (`progress` overlay: "time shortened"); never silently (`before-after.md`) |
 | Audio follows the speed (pitch) | — | scene audio is not used: the voice is separate and sound effects are placed by the plan |
 
 ## 3. Camera and keyframes
@@ -207,7 +207,7 @@ None of these is measured to perform better: they are structure and taste. Spend
 
 ## 13. Adding a technique
 
-1. Decide where it lives: a footage or audio step (a script and `scripts/` + `CAU-TRUC.md`), a cell of the
+1. Decide where it lives: a footage or audio step (a script and `scripts/` + `STRUCTURE.md`), a cell of the
    plan (`plan_to_project.py` parses it, the plan template and `playbooks/README.md` name it), or a
    component or effect in the renderer (`remotion-template/src` and `hyperframes-template/kit.js` together).
 2. Put it in the tables above with its status, and make the sync report warn when a renderer ignores it.

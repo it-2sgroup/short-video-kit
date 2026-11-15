@@ -73,6 +73,6 @@ numbers; licensed music; other brands' logos and artworks not featured without p
 python scripts/new_remotion_project.py ~/renders/event --playbook montage-recap --proxies CLIPS
 python scripts/process_audio.py music track.mp3 --out ~/renders/event/public/audio/music.wav
 python scripts/suggest_cuts.py --music ~/renders/event/public/audio/music.wav --end 25 --playbook montage-recap --json > cuts.json
-python scripts/playbook.py skeleton montage-recap --cuts cuts.json --title "Khai trương X" > edit-plan.md
+python scripts/playbook.py skeleton montage-recap --cuts cuts.json --title "Grand opening of X" > edit-plan.md
 python scripts/plan_to_project.py edit-plan.md --out ~/renders/event/v1.json --music audio/music.wav --auto-camera --analysis analysis.json --auto-sfx
 ```

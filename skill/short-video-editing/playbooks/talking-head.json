@@ -1,6 +1,6 @@
 {
   "id": "talking-head",
-  "title": "Nói trước camera — chia sẻ kiến thức, chuyên gia, câu chuyện thương hiệu, cảm nhận khách hàng",
+  "title": "Speaking to camera — knowledge sharing, experts, brand stories, customer testimonials",
   "summary": "One person speaking to camera. The A-roll is cut into jump cuts on the pauses (silences and fillers removed), framings alternate wide and tight so every cut reads as intentional, B-roll and graphics illustrate what is said, word-by-word captions carry it with the sound off.",
   "intents": [
     "đứng nói",
@@ -25,7 +25,19 @@
     "tư vấn",
     "phỏng vấn",
     "interview",
-    "vlog nói"
+    "vlog nói",
+    "presenter",
+    "host",
+    "speaker",
+    "speaking to camera",
+    "knowledge sharing",
+    "expert",
+    "explain",
+    "explainer",
+    "story",
+    "education",
+    "consulting",
+    "advice"
   ],
   "expect": {
     "speech": "on-camera",
@@ -182,7 +194,10 @@
         "testimonial",
         "feedback",
         "đánh giá của khách",
-        "ugc ad"
+        "ugc ad",
+        "customer review",
+        "customer story",
+        "customer feedback"
       ],
       "structure": [
         {
@@ -230,7 +245,19 @@
         "inbox tư vấn",
         "tư vấn miễn phí",
         "pitch",
-        "kêu gọi hợp tác"
+        "kêu gọi hợp tác",
+        "sample video",
+        "reference video",
+        "remake",
+        "takes",
+        "service ad",
+        "company introduction",
+        "video production",
+        "service package",
+        "free consultation",
+        "partnership",
+        "services",
+        "service"
       ],
       "runtime": {
         "min": 40,
@@ -246,7 +273,7 @@
         "beats": 2,
         "beat": 1.2,
         "minBeat": 0.8,
-        "purpose": "the place or the pain, shouted: a city name or 'đừng bỏ qua' with a megaphone, then the problem as a red block",
+        "purpose": "the place or the pain, shouted: a city name or 'đừng bỏ qua' (\"don't miss it\") with a megaphone, then the problem as a red block",
         "graphics": "burst (or arc), icon, phrase"
       },
       "scenes": {
@@ -376,7 +403,7 @@
         "Figures said in the voice (customers served, videos per month, delivery days) are the brand's own and can be shown with evidence: say who must keep it",
         "Customer names, logos and work shown on cards: written consent from each customer, or the footage is the agency's own",
         "RAW / FINAL cards use the same take; no staged 'before' made worse on purpose",
-        "Limited-time offers ('chỉ có trong tháng này') are real and dated; commercial-content disclosure on",
+        "Limited-time offers (\"chỉ có trong tháng này\", \"only this month\") are real and dated; commercial-content disclosure on",
         "Music is CC0, self-made or licensed for this account; the TikTok Commercial Music Library for business accounts"
       ]
     }

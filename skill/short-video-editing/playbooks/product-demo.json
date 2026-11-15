@@ -1,8 +1,8 @@
 {
   "id": "product-demo",
-  "title": "Review / demo sản phẩm (TikTok Shop), có thể có TRƯỚC/SAU",
+  "title": "Product review / demo (TikTok Shop), possibly with BEFORE/AFTER",
   "summary": "A product shown working: hook with the result, the problem, the demo, the reveal, the cart. Built on 16,242 measured TikTok Shop videos; its house style is 3-4 s scenes, soft transitions, no text in boxes.",
-  "intents": ["review", "demo", "sản phẩm", "tiktok shop", "affiliate", "koc", "ugc", "giỏ hàng", "tẩy", "vết bẩn", "trước sau", "before after", "đánh giá", "dùng thử", "gia dụng", "product"],
+  "intents": ["review", "demo", "sản phẩm", "tiktok shop", "affiliate", "koc", "ugc", "giỏ hàng", "tẩy", "vết bẩn", "trước sau", "before after", "đánh giá", "dùng thử", "gia dụng", "product", "cart", "shopping cart", "stain", "stains", "cleaner", "household", "hands-on", "try out"],
   "expect": {"speech": "voiceover", "motion": "low"},
   "signals": ["hands and the product in close-up, tabletop or top-down", "a visible process with a result (stain, mess, skin, surface)", "little camera movement", "voice recorded separately (or to be synthesized)"],
   "platforms": ["tiktok", "reels"],
@@ -15,7 +15,7 @@
     {"type": "CTA-EARLY", "seconds": 3.0, "purpose": "plant the cart once, lightly", "graphics": "cart"},
     {"type": "RE-HOOK", "seconds": 3.3, "purpose": "product hero shot, new energy", "graphics": "title stack + punch on the product name"},
     {"type": "DEMO", "share": 0.35, "purpose": "the transformation, match-on-action", "graphics": "step, callout, progress (time passing, labelled)"},
-    {"type": "REVEAL", "share": 0.2, "purpose": "pay off the hook; same framing as the BEFORE; no hidden cut", "graphics": "compare card (TRƯỚC/SAU) or checklist"},
+    {"type": "REVEAL", "share": 0.2, "purpose": "pay off the hook; same framing as the BEFORE; no hidden cut", "graphics": "compare card (BEFORE/AFTER) or checklist"},
     {"type": "CTA-CLOSE", "share": 0.25, "purpose": "repeat concretely, point at the real cart", "graphics": "cart, price"}
   ],
   "transitions": {
@@ -57,7 +57,7 @@
   "variants": {
     "unboxing": {
       "about": "First impression: the box, the reveal of the product, three details, the verdict.",
-      "intents": ["unboxing", "mở hộp", "đập hộp", "first impression"],
+      "intents": ["unboxing", "mở hộp", "đập hộp", "first impression", "unbox"],
       "runtime": {"min": 25, "max": 50, "ideal": [30, 40]},
       "hook": {"purpose": "the most surprising detail or the product in hand first, then the closed box", "graphics": "title (what it is, the price)"},
       "structure": [
@@ -71,7 +71,7 @@
     },
     "listicle": {
       "about": "Top-N or one-by-one of the shop's OWN products (TikTok Shop forbids comparing against competitors).",
-      "intents": ["top 3", "top 5", "listicle", "xếp hạng", "những món", "bộ sưu tập"],
+      "intents": ["top 3", "top 5", "listicle", "xếp hạng", "những món", "bộ sưu tập", "ranking", "roundup", "collection", "picks"],
       "structure": [
         {"type": "ITEM", "share": 0.75, "purpose": "one item per beat: name, the one reason, the proof shot", "graphics": "ranking chip, title, price"},
         {"type": "CTA-CLOSE", "share": 0.25, "purpose": "the winner again and the cart", "graphics": "ranking, cart"}

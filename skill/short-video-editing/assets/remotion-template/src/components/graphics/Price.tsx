@@ -14,7 +14,7 @@ export const Price: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
   const count = instant ? 1 : interpolate(frame, [0, 24], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
   const pulse = interpolate(frame, [24, 27, 30], [1, 1.08, 1], clamp);
   const strike = interpolate(frame, [14, 22], [0, 1], clamp);
-  const decimals = p.decimals ?? 0; // 1 for "5,2 tỷ" (value=5.2; decimals=1; unit= tỷ)
+  const decimals = p.decimals ?? 0; // 1 for "5.2 bn" (value=5.2; decimals=1; unit= bn); vi-VN formatting prints it as "5,2" (comma decimals)
   const vnd = new Intl.NumberFormat("vi-VN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   const value = (p.value ?? 0) * count;
   return (

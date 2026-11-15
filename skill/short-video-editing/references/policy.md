@@ -1,292 +1,315 @@
-# Chính sách — video bị đánh vi phạm khi dùng lại, trùng lặp hoặc lấy cảnh của video khác
+# Policy — videos flagged for reuse, duplicate content or footage lifted from other videos
 
-Tài liệu này trả lời một câu hỏi: **làm video bán hàng TikTok Shop từ một nguồn quay có sẵn, với số
-lượng lớn (hàng trăm video), thì cách nào bị đánh vi phạm và cách nào an toàn?** Nó cũng trả lời việc có
-được lấy cảnh từ video của người khác (ví dụ Douyin) để ghép vào hay không.
+This document answers one question: **if we make TikTok Shop sales videos from one existing footage source, in
+large numbers (hundreds of videos), which approaches get flagged and which are safe?** It also answers whether
+footage from other people's videos (for example Douyin) may be spliced in.
 
-**Claude phải đọc file này trước khi** lập kế hoạch cho một lô video, trước khi dùng bất kỳ cảnh quay
-nào không phải do người dùng quay hoặc không có giấy phép, và trước khi đề xuất "đảo cảnh / đổi nhạc để
-ra thêm video".
+**Claude must read this file before** planning a batch of videos, before using any footage that is not the
+user's own or licensed, and before proposing "shuffle the scenes / swap the music to get more videos".
 
-Kiểm tra ngày 2026-11-06. Đây là tổng hợp chính sách để làm việc, **không phải tư vấn pháp lý**.
-Nhãn độ tin cậy: **[P]** trang chính sách chính thức đã đọc; **[S]** nguồn thứ cấp (blog, báo, hãng luật);
-**[C]** quy ước của bộ công cụ này; **[?]** chưa kiểm chứng.
-
----
-
-## 1. Tám quy tắc cho Claude
-
-1. **Không dùng cảnh quay của bên thứ ba** (Douyin, TikTok, Kuaishou, YouTube, Facebook, shop đối thủ,
-   video của creator khác) khi chưa có **giấy phép thương mại bằng văn bản** của chủ sở hữu. Hỏi người
-   dùng; không tự tải, không tự cắt.
-2. **Không chạy, không sửa, không dựng lại** quy trình kiểu "crawl video Douyin" (tải Douyin không
-   watermark → cắt → lồng tiếng → đăng lại) cho video bán hàng. Mục 4.3 giải thích vì sao.
-3. **Một đoạn nguồn không dùng ở hai video trong cùng một lô** (mặc định `r = 1`, mục 5). Muốn nhiều
-   video hơn số cảnh quay cho phép thì **nói số liệu và đề xuất quay thêm**, không xáo trộn cảnh.
-4. **Hai video khác nhau phải khác nhau thật**: kịch bản, giọng, hook, cấu trúc, cảnh. TikTok Shop gọi
-   đích danh "đăng lại cùng video chỉ đổi thứ tự clip" và "dùng cùng một kịch bản bán hàng chung cho
-   nhiều sản phẩm" là nội dung lặp (mục 2.2). Đổi nhạc, giọng, nền **không** cứu được.
-5. **Cảnh quay phải là của đúng sản phẩm đang quảng cáo.** Không ghép kết quả của sản phẩm khác để làm
-   "kết quả" (mục 2.5). Cảnh dựng sẵn hoặc tua nhanh phải gắn nhãn trên màn hình.
-6. **Hỏi thị trường và giới hạn đăng.** Mỗi thị trường có giới hạn riêng (mục 2.6); thị trường Việt Nam
-   chưa kiểm chứng được. Không lên lịch đăng hàng trăm video dồn vào một tài khoản, và không đăng cùng
-   nội dung lên nhiều tài khoản.
-7. **Before/after trong quảng cáo trả phí** bị chính sách quảng cáo cấm (`before-after.md`). Hỏi người
-   dùng có định chạy quảng cáo / Spark Ads không.
-8. **Báo cáo trung thực**: nêu rủi ro bằng số liệu, nêu điều chưa kiểm chứng (mục 7), không nói "an toàn"
-   khi nguồn chỉ là blog.
+Checked on 2026-11-06. This is a working summary of the policies, **not legal advice**.
+Confidence labels: **[P]** official policy page that was read; **[S]** secondary source (blog, press, law firm);
+**[C]** a convention of this toolkit; **[?]** not verified.
 
 ---
 
-## 2. Các nhóm vi phạm
+## 1. Eight rules for Claude
 
-### 2.1 Nội dung không gốc / tái sử dụng
+1. **Do not use third-party footage** (Douyin, TikTok, Kuaishou, YouTube, Facebook, a competitor's shop,
+   another creator's video) without a **written commercial licence** from the owner. Ask the user; do not
+   download or cut it yourself.
+2. **Do not run, modify or rebuild** a "crawl Douyin videos" style pipeline (download Douyin without
+   watermark → cut → re-dub → re-post) for sales videos. Section 4.3 explains why.
+3. **One source range is not used in two videos of the same batch** (default `r = 1`, section 5). If the user
+   wants more videos than the footage allows, **state the numbers and propose shooting more**; do not shuffle
+   scenes.
+4. **Two different videos must really be different**: script, voice, hook, structure, scenes. TikTok Shop
+   names "re-posting the same video with only the order of clips changed" and "using the same generic sales
+   script for a range of different products" as repetitive content (section 2.2). Changing the music, voice or
+   background does **not** fix it.
+5. **The footage must show the product being advertised.** Do not splice in another product's result as the
+   "result" (section 2.5). Staged or sped-up footage must be labelled on screen.
+6. **Ask the market and the posting limits.** Each market has its own limits (section 2.6); the Vietnam
+   market could not be verified. Do not schedule hundreds of videos into one account, and do not post the
+   same content to several accounts.
+7. **Before/after in paid ads** is barred by the ad policy (`before-after.md`). Ask the user whether they
+   plan to run ads / Spark Ads.
+8. **Report honestly**: state the risk with numbers, state what is unverified (section 7), and do not say
+   "safe" when the source is only a blog.
 
-| Quy định | Nguồn |
+---
+
+## 2. Violation groups
+
+### 2.1 Unoriginal / reused content
+
+| Rule | Source |
 |---|---|
-| "Content is also ineligible for the FYF if it includes unoriginal or reused material without anything new." Nội dung tái sử dụng mà không có gì mới thì **không đủ điều kiện lên For You**. | [P] Community Guidelines, *Integrity & Authenticity* |
-| "You should only post content you created or have the right to share." Chỉ đăng thứ mình tạo ra hoặc có quyền chia sẻ. | [P] cùng trang |
-| TikTok Shop: nội dung bị coi là không gốc nếu "the user has not added new or creative edits to any imported or uploaded media". Watermark hoặc logo hiện trên video "is a sign of unoriginal content". | [P] TikTok Shop Academy, *Content Policy* (US, 2026-10-26) |
-| Hình phạt (TikTok Shop): xóa nội dung, hạn chế tính năng, điểm vi phạm, hạn chế tài khoản; áp dụng cho "all Creators and the content they promote". | [P] cùng trang |
+| "Content is also ineligible for the FYF if it includes unoriginal or reused material without anything new." Reused content with nothing new is **not eligible for For You**. | [P] Community Guidelines, *Integrity & Authenticity* |
+| "You should only post content you created or have the right to share." Only post what you made or have the right to share. | [P] same page |
+| TikTok Shop: content counts as unoriginal if "the user has not added new or creative edits to any imported or uploaded media". A watermark or logo showing on the video "is a sign of unoriginal content". | [P] TikTok Shop Academy, *Content Policy* (US, 2026-10-26) |
+| Penalties (TikTok Shop): content removal, feature restrictions, violation points, account restrictions; applies to "all Creators and the content they promote". | [P] same page |
 
-Hệ quả: video ghép từ cảnh của người khác **không có phần sáng tạo mới thật sự** là loại bị xử lý nhẹ nhất
-(mất phân phối) tới nặng (gỡ video, điểm vi phạm). Dùng cảnh Douyin còn rơi vào mục 2.4.
+Consequence: a video spliced from other people's footage **without genuinely new creative work** is treated
+anywhere from the mildest level (loss of distribution) to the heaviest (video removed, violation points).
+Using Douyin footage also falls under section 2.4.
 
-### 2.2 Nội dung lặp (repetitive / near-duplicate) — kể cả nội dung của chính mình
+### 2.2 Repetitive (near-duplicate) content — including your own content
 
-TikTok Shop định nghĩa nội dung lặp là nội dung "published continuously and in bulk, where the
-structure, visuals, narration, or materials are highly similar". Hai ví dụ nêu thẳng trong chính sách:
+TikTok Shop defines repetitive content as content "published continuously and in bulk, where the
+structure, visuals, narration, or materials are highly similar". Two examples are named directly in the
+policy:
 
-- "Re-posting the same video at high volume with only order of clips changed." (**đăng lại cùng video hàng
-  loạt, chỉ đổi thứ tự clip**)
-- "Using the same generic sales script for a range of different products." (**cùng một kịch bản chung cho
-  nhiều sản phẩm**)
+- "Re-posting the same video at high volume with only order of clips changed." (**re-posting the same video in
+  bulk, only changing the order of the clips**)
+- "Using the same generic sales script for a range of different products." (**one generic script for many
+  different products**)
 
-Chính sách nói thay đổi nhỏ về nhạc, lời đọc, nền **không** làm hết lặp. [P] *Content Policy*, US.
+The policy says small changes to the music, narration or background do **not** end the repetition. [P]
+*Content Policy*, US.
 
-Bản Malaysia của bài *Content Posting Limit* liệt kê thêm: số lượng lớn video "hampir sama dengan variasi
-kreatif yang minimum" (gần giống nhau, ít biến thể sáng tạo) và "menyiarkan video yang serupa pada beberapa
-akaun" (đăng video tương tự trên nhiều tài khoản). [P] seller-my.tiktok.com (bản Malay, 2026-10-16).
+The Malaysian version of the *Content Posting Limit* article adds: large numbers of videos "hampir sama dengan
+variasi kreatif yang minimum" (nearly identical, with minimal creative variation) and "menyiarkan video yang
+serupa pada beberapa akaun" (posting similar videos on several accounts). [P] seller-my.tiktok.com (Malay
+version, 2026-10-16).
 
-**Đây là điểm trúng đích với kế hoạch "một nguồn → hàng trăm video":** xáo cảnh từ một nguồn quay chính là
-"đổi thứ tự clip".
+**This hits the "one source → hundreds of videos" plan squarely:** shuffling scenes from one footage source is
+exactly "changing the order of the clips".
 
-Ngưỡng định lượng ("giống bao nhiêu phần trăm thì bị đánh") **không được công bố** [?]. Blog nói TikTok
-dùng nhận dạng nội dung (fingerprint) để bắt trùng; đó là suy đoán của blog, không có trong chính sách [S].
+The numeric threshold ("how many percent similar gets flagged") is **not published** [?]. Blogs say TikTok
+uses content recognition (fingerprinting) to catch duplicates; that is the blogs' guess and is not in the
+policy [S].
 
-### 2.3 Spam, hành vi giả mạo, nhiều tài khoản, công cụ tự động
+### 2.3 Spam, deceptive behaviour, multiple accounts, automation tools
 
-- "You can have multiple accounts … but not to deceive others or break the rules." Được có nhiều tài khoản,
-  không được dùng để lách luật. [P] *Integrity & Authenticity*
-- "We strictly prohibit automation tools, scripts, or other tricks designed to bypass our systems." [P] cùng trang
-- Liệt kê vi phạm của creator TikTok Shop có mục "Using multiple accounts to avoid enforcement". [P]
+- "You can have multiple accounts … but not to deceive others or break the rules." Multiple accounts are
+  allowed, but not to get around the rules. [P] *Integrity & Authenticity*
+- "We strictly prohibit automation tools, scripts, or other tricks designed to bypass our systems." [P] same page
+- The list of TikTok Shop creator violations includes "Using multiple accounts to avoid enforcement". [P]
   *Creator Enforcement Policy* (US, 2026-10-09)
-- Hình phạt cho hành vi giả mạo: hạn chế tài khoản, "limiting your ability to post new content, appear in
+- Penalty for deceptive behaviour: account restrictions, "limiting your ability to post new content, appear in
   top search results, or in the FYF". [P] *Integrity & Authenticity*
 
-Hệ quả: chia một lô video giống nhau ra nhiều tài khoản để "né" giới hạn là hướng bị xử lý.
+Consequence: splitting a batch of near-identical videos across several accounts to "dodge" the limits is the
+kind of behaviour that gets punished.
 
-### 2.4 Bản quyền / sở hữu trí tuệ
+### 2.4 Copyright / intellectual property
 
 **TikTok.** [P] *Copyright Policy* (2025-03-27):
 - "We do not allow any content that infringes copyright."
 - "The use of copyrighted content of others without proper authorization or legally valid reason may lead
-  to a violation of TikTok's policies." (có nhắc *fair use* của Mỹ và *fair dealing* của EU như lý do hợp
-  pháp, nhưng không đảm bảo)
-- Có quyền "ban the account of a user who repeatedly commits copyright infringement" và "immediately ban
+  to a violation of TikTok's policies." (US *fair use* and EU *fair dealing* are mentioned as legitimate
+  reasons, but are not guaranteed)
+- TikTok may "ban the account of a user who repeatedly commits copyright infringement" and "immediately ban
   any account in cases of severe copyright violations".
-- Có kháng nghị trong app; chủ bản quyền có thể phản đối kháng nghị.
-- Không tìm thấy số lượng "gậy bản quyền" cụ thể [?].
+- There is an in-app appeal; the copyright owner can object to the appeal.
+- No specific number of copyright "strikes" was found [?].
 
-**Douyin (nguồn video Trung Quốc).** [P] Thỏa thuận người dùng Douyin (cập nhật 2026-02-13, hiệu lực 2026-02-20):
-- Quyền sở hữu trí tuệ của video thuộc người đăng hoặc chủ bản quyền gốc (điều 10.2).
-- Người dùng chỉ được cấp quyền dùng Douyin **"cá nhân, … không thương mại"** và **không được** "改编、复制、传播、爬虫" —
-  chỉnh sửa, sao chép, phát tán, crawl (điều 2.4).
-- Cấm công cụ tự động thu thập nội dung (điều 5.1).
-- Khi chưa có **giấy phép bằng văn bản** của Douyin, cấm: chỉnh sửa rồi hiển thị ở nền tảng khác (5.3-2), tải
-  bằng scrape / mô phỏng tải (5.3-4), che hoặc sửa logo Douyin (5.3-5), và **"将抖音中的信息或内容用于任何形式的销售和商业使用"
-  — dùng nội dung cho bất kỳ hình thức bán hàng hoặc thương mại** (5.3-7).
-- Luật áp dụng là luật Trung Quốc, tòa Hải Điện (Bắc Kinh) có thẩm quyền (điều 16). Điều 14.6: Douyin không
-  bảo đảm hợp pháp ở ngoài nơi phát hành chính thức; người dùng tự chịu trách nhiệm theo luật nơi mình ở.
+**Douyin (source of Chinese videos).** [P] Douyin User Agreement (updated 2026-02-13, effective 2026-02-20):
+- The intellectual property in a video belongs to the poster or the original rights holder (article 10.2).
+- The user is only granted **"personal, … non-commercial"** use of Douyin and **may not** "改编、复制、传播、爬虫" —
+  adapt, copy, distribute, crawl (article 2.4).
+- Automated tools that collect content are prohibited (article 5.1).
+- Without Douyin's **written licence**, it is prohibited to: edit content and then display it on another
+  platform (5.3-2), download by scraping / simulated download (5.3-4), cover or alter the Douyin logo (5.3-5),
+  and **"将抖音中的信息或内容用于任何形式的销售和商业使用"
+  — use the content for any form of sales or commercial use** (5.3-7).
+- The governing law is Chinese law, with the Haidian court (Beijing) having jurisdiction (article 16).
+  Article 14.6: Douyin does not guarantee legality outside its official place of release; users are
+  responsible under the law where they live.
 
-Điều 10.5 cho phép người dùng khác "转发、复制、下载" **theo tính năng nền tảng** — đó là xem, chia sẻ, tải cá
-nhân; không phải giấy phép thương mại.
+Article 10.5 lets other users "转发、复制、下载" (forward, copy, download) **through platform features** — that
+is viewing, sharing and personal download; it is not a commercial licence.
 
-**Luật.**
-- Trung Quốc: tòa Internet Bắc Kinh (2018, Douyin kiện Huopai) công nhận video ngắn, kể cả 15 giây, là tác
-  phẩm được luật bản quyền bảo vệ. [S] technode, caixin, ipkitten. Có vụ hình sự ở Gia Hưng về kẻ lấy hàng loạt
-  clip phim, sửa và né bộ lọc để đăng lại kiếm lời. [S]
-- Việt Nam: Luật Sở hữu trí tuệ Điều 28 liệt kê hành vi xâm phạm quyền tác giả, trong đó sao chép tác phẩm
-  khi chưa được phép của chủ sở hữu. [S] bài tổng hợp của các hãng luật; chưa đối chiếu văn bản gốc [?].
-  Mức xử phạt hành chính hiện nằm ở Nghị định 341/2025/NĐ-CP, chưa đọc được mức tiền [?]; có khung hình sự cho
-  mức nghiêm trọng, chưa xác minh con số [?].
+**Law.**
+- China: the Beijing Internet Court (2018, Douyin v. Huopai) recognised short videos, even 15 seconds long, as
+  works protected by copyright law. [S] technode, caixin, ipkitten. There is a criminal case in Jiaxing about
+  someone who took film clips in bulk, edited them and evaded filters to re-post for profit. [S]
+- Vietnam: Intellectual Property Law Article 28 lists acts that infringe copyright, among them copying a work
+  without the owner's permission. [S] summaries by law firms; not checked against the original text [?].
+  Administrative penalties are currently in Decree 341/2025/NĐ-CP; the fine amounts could not be read [?];
+  there is a criminal bracket for serious cases, figures not verified [?].
 
-Kết luận mục này: **tải video Douyin rồi ghép vào video bán hàng vi phạm điều khoản Douyin, rủi ro bản quyền
-ở cả Trung Quốc lẫn Việt Nam, và vi phạm chính sách bản quyền của TikTok.** Cắt nhỏ hay đổi tốc độ không biến
-nó thành "nội dung mới" (mục 2.1).
+Conclusion of this section: **downloading Douyin videos and splicing them into sales videos breaks Douyin's
+terms, carries copyright risk in both China and Vietnam, and breaks TikTok's copyright policy.** Cutting them
+small or changing the speed does not turn them into "new content" (section 2.1).
 
-### 2.5 Mô tả gây hiểu lầm: cảnh của sản phẩm khác, kết quả không phải của mình
+### 2.5 Misleading depiction: another product's footage, a result that is not yours
 
-- TikTok Shop, *How to Avoid Misleading Content* (áp dụng toàn cầu): hậu quả "content removal or account
-  suspension". [P] seller-us.tiktok.com (2026-06-25)
-- Before/after phải cùng ánh sáng, góc máy, không dựng khác biệt; demo phải phản ánh hiệu quả thật. Xem
-  `claims-and-compliance.md` §3.
-- Video demo "kết quả" lấy từ sản phẩm khác (như clip Douyin) cho người xem tưởng là kết quả của sản phẩm đang bán là
-  **quảng cáo sai sự thật**, chưa kể rủi ro bản quyền. Việt Nam: Luật Quảng cáo cấm quảng cáo gây nhầm lẫn;
-  Nghị định 38/2021/NĐ-CP có khung phạt, nguồn thứ cấp ghi 60–80 triệu đồng cho quảng cáo không đúng hoặc gây
-  nhầm lẫn, trần 100 triệu (cá nhân) và 200 triệu (tổ chức), và một nguồn nói đã đổi từ 2026-05-15 [S][?].
-  Chưa đối chiếu văn bản; cần người kiểm.
-- Nhắc lại luật của bộ công cụ: không gán nhãn "đánh giá thật của khách" cho đồ họa dựng sẵn (`CLAUDE.md`).
+- TikTok Shop, *How to Avoid Misleading Content* (applies globally): consequences are "content removal or
+  account suspension". [P] seller-us.tiktok.com (2026-06-25)
+- Before/after must use the same light and angle, with no staged difference; the demo must reflect the real
+  effect. See `claims-and-compliance.md` §3.
+- A "result" demo video taken from another product (such as a Douyin clip) that lets viewers believe it is the
+  result of the product being sold is **false advertising**, quite apart from the copyright risk. Vietnam: the
+  Advertising Law bans misleading advertising; Decree 38/2021/NĐ-CP has a penalty bracket, with secondary
+  sources giving 60–80 million VND for untrue or misleading ads, a cap of 100 million (individuals) and 200
+  million (organisations), and one source saying it changed from 2026-05-15 [S][?]. Not checked against the
+  text; a human needs to verify.
+- Reminder of the toolkit's rule: never label a staged graphic as a "real customer review" (`CLAUDE.md`).
 
-### 2.6 Giới hạn tần suất đăng
+### 2.6 Posting frequency limits
 
-| Thị trường | Quy định | Nguồn |
+| Market | Rule | Source |
 |---|---|---|
-| Mỹ | Từ 2026-05-11: tối đa 30 video mua sắm ngắn và 60 bài ảnh mỗi ngày; affiliate thử nghiệm dưới 5.000 follower: 3 video mỗi ngày và 3 LIVE mỗi tuần | [P] *Creator Eligibility Policy* (2026-09-25) |
-| Malaysia | Đăng 5 video trở lên "tidak interaktif atau mengelirukan" (không tương tác hoặc gây hiểu lầm) trong 7 ngày thì bị giới hạn 7 video trong 7 ngày kế tiếp; video vượt hạn mức vẫn đăng nhưng **mất liên kết sản phẩm**. Lời đọc thu sẵn hoặc giọng máy được tính là "không tương tác" | [P] *Content Posting Limit* và bài *Non-interactive content* (seller-my, 2026-10-16 và 2026-11-05) |
-| Việt Nam | **Chưa tìm được trang chính thức** | [?] — kiểm tra Seller Center / Creator Academy VN |
+| US | From 2026-05-11: at most 30 short shopping videos and 60 photo posts per day; trial affiliates under 5,000 followers: 3 videos per day and 3 LIVEs per week | [P] *Creator Eligibility Policy* (2026-09-25) |
+| Malaysia | Posting 5 or more videos that are "tidak interaktif atau mengelirukan" (non-interactive or misleading) in 7 days gets a limit of 7 videos in the next 7 days; videos over the quota can still be posted but **lose their product link**. A pre-recorded voice or machine voice counts as "non-interactive" | [P] *Content Posting Limit* and the *Non-interactive content* article (seller-my, 2026-10-16 and 2026-11-05) |
+| Vietnam | **No official page found** | [?] — check Seller Center / Creator Academy VN |
 
-Video của bộ công cụ này dùng giọng thu sẵn, nên nếu thị trường áp dụng định nghĩa "không tương tác" như
-Malaysia thì **hàng loạt video giọng thu sẵn có thể bị giới hạn** dù không trùng cảnh.
+This toolkit's videos use a pre-recorded voice, so if the market applies the "non-interactive" definition as
+Malaysia does, **batches of pre-recorded-voice videos may be limited** even when no scenes overlap.
 
-### 2.7 Quảng cáo trả phí
+### 2.7 Paid advertising
 
-Chính sách quảng cáo TikTok không cho phép "product effect comparisons, such as before-and-after results"
-trong quảng cáo và trang đích [P]; xem `before-after.md`. Hỏi người dùng có chạy Spark Ads hoặc quảng cáo không.
+TikTok's ad policy does not allow "product effect comparisons, such as before-and-after results" in ads and
+landing pages [P]; see `before-after.md`. Ask the user whether they run Spark Ads or ads.
 
 ---
 
-## 3. Leo thang xử lý
+## 3. Escalation of enforcement
 
-| Bước | Điều chính sách nói | Nguồn |
+| Step | What the policy says | Source |
 |---|---|---|
-| Phân phối | Video "không gốc" mất quyền lên For You; tài khoản đăng nhiều nội dung không đủ điều kiện có thể bị cả tài khoản mất đủ điều kiện | [P] + [S] |
-| Cảnh báo, hạn chế | "a warning, temporary feature or account restriction, or a full account ban, depending on what happened" | [P] *Accounts & features* |
-| TikTok Shop (Mỹ) | Gỡ nội dung, giới hạn video mua sắm, đóng băng hoa hồng, đình chỉ kiếm tiền, giảm lượt tiếp cận. **Cùng một vi phạm 6 lần trong 90 ngày** thì có thể mất quyền thương mại điện tử và bị đóng băng hoa hồng. Cảnh cáo lần đầu không tính điểm | [P] *Creator Enforcement Policy* |
-| Cấm tài khoản | "Repeated rule violations" hoặc "A single, severe violation"; vi phạm bản quyền nặng bị cấm ngay | [P] *Accounts & features*, *Copyright Policy* |
-| Kháng nghị | Kháng nghị trong 30 ngày kể từ khi bị xử lý, một lần cho mỗi vi phạm; hoa hồng bị đóng băng có thể bị mất nếu kháng nghị muộn hoặc bị bác | [P] *Creator Enforcement Policy* (US) |
+| Distribution | "Unoriginal" videos lose the right to appear on For You; an account posting a lot of ineligible content may have the whole account made ineligible | [P] + [S] |
+| Warning, restriction | "a warning, temporary feature or account restriction, or a full account ban, depending on what happened" | [P] *Accounts & features* |
+| TikTok Shop (US) | Content removal, shopping-video limits, commission freeze, monetisation suspension, reduced reach. **The same violation 6 times in 90 days** can lose e-commerce access and freeze commission. A first warning carries no points | [P] *Creator Enforcement Policy* |
+| Account ban | "Repeated rule violations" or "A single, severe violation"; serious copyright violations are banned immediately | [P] *Accounts & features*, *Copyright Policy* |
+| Appeal | Appeal within 30 days of the action, once per violation; frozen commission can be lost if the appeal is late or rejected | [P] *Creator Enforcement Policy* (US) |
 
 ---
 
-## 4. Áp dụng: một nguồn quay phải ra nhiều video
+## 4. Application: one footage source has to yield many videos
 
-### 4.1 "Từ một nguồn phải ra 200–300 video": cần bao nhiêu cảnh quay
+### 4.1 "200–300 videos from one source": how much footage is needed
 
-Một video 12 cảnh cần khoảng **42 giây nguồn riêng** (12 cảnh × 3,5 giây gồm khoảng đệm 0,5 giây giữa hai
-đoạn của cùng một clip, xem `footage-ingest.md` §1b). Ví dụ một nguồn 587 giây ≈ 9,8 phút đủ cho khoảng 14
-video khi không dùng lại cảnh nào. Gọi `r` là số video được dùng chung cùng một đoạn nguồn:
+A 12-scene video needs about **42 seconds of its own source** (12 scenes × 3.5 seconds, which includes the
+0.5 second buffer between two ranges of the same clip, see `footage-ingest.md` §1b). For example a 587-second
+source ≈ 9.8 minutes is enough for about 14 videos when no scene is reused. Let `r` be the number of videos
+allowed to share the same source range:
 
-| Số video | `r = 1` (không dùng lại) | `r = 2` | `r = 3` | `r = 5` |
+| Number of videos | `r = 1` (no reuse) | `r = 2` | `r = 3` | `r = 5` |
 |---|---|---|---|---|
-| 14 | 9,8 phút | | | |
-| 200 | 140 phút | 70 phút | 47 phút | 28 phút |
-| 250 | 175 phút | 88 phút | 58 phút | 35 phút |
-| 300 | 210 phút | 105 phút | 70 phút | 42 phút |
+| 14 | 9.8 min | | | |
+| 200 | 140 min | 70 min | 47 min | 28 min |
+| 250 | 175 min | 88 min | 58 min | 35 min |
+| 300 | 210 min | 105 min | 70 min | 42 min |
 
-(Cần bao nhiêu phút **cảnh quay dùng được** để đạt số video với mức dùng lại `r`.)
+(How many minutes of **usable footage** are needed to reach the number of videos at reuse level `r`.)
 
-- Với một nguồn cỡ 10 phút, 200–300 video chỉ làm được nếu **mỗi đoạn nguồn dùng lại khoảng 14–21 lần**. Đó là mô
-  hình "đăng lại, đổi thứ tự clip" mà TikTok Shop nêu tên là nội dung lặp (mục 2.2).
-- Đổi giọng, nhạc, nền, crop, tốc độ **không** cứu: chính sách nói thay đổi nhỏ về nhạc, lời đọc, nền không
-  làm hết lặp, và "visuals" nằm trong danh sách yếu tố so sánh.
-- Ngưỡng an toàn không được công bố [?]. Quy ước của bộ công cụ [C]: **`r = 1`** là mặc định an toàn;
-  `r = 2` chỉ khi hai video khác hẳn kịch bản, giọng, hook và thứ tự, và người dùng đã chấp nhận rủi ro.
-- Kể cả có đủ cảnh quay, đăng 200–300 video từ một tài khoản đụng giới hạn tần suất (mục 2.6) và dễ bị coi là
-  spam. Cách mở rộng hợp lệ là **nhiều creator thật, mỗi người quay và đăng nội dung của mình** (mục 6).
+- With a source of about 10 minutes, 200–300 videos are only possible if **each source range is reused about
+  14–21 times**. That is the "re-post, change the order of the clips" model that TikTok Shop names as
+  repetitive content (section 2.2).
+- Changing the voice, music, background, crop or speed does **not** save it: the policy says small changes to
+  music, narration and background do not end the repetition, and "visuals" are in the list of elements compared.
+- The safe threshold is not published [?]. The toolkit's convention [C]: **`r = 1`** is the safe default;
+  `r = 2` only when the two videos are completely different in script, voice, hook and order, and the user has
+  accepted the risk.
+- Even with enough footage, posting 200–300 videos from one account hits the frequency limit (section 2.6) and
+  is easily treated as spam. The legitimate way to scale is **many real creators, each shooting and posting
+  their own content** (section 6).
 
-### 4.2 "Lấy khung cảnh từ video khác ghép vào"
+### 4.2 "Take scenes from another video and splice them in"
 
-| Nguồn cảnh | Kết luận | Lý do |
+| Scene source | Conclusion | Reason |
 |---|---|---|
-| Douyin, TikTok, Kuaishou, YouTube… của người khác | **Không** nếu chưa có giấy phép thương mại bằng văn bản | Mục 2.1, 2.4, 2.5 |
-| Video của đối thủ hoặc shop khác | **Không** | Cùng lý do, thêm nguy cơ khiếu nại bản quyền và thương hiệu |
-| Video khách hàng gửi | Chỉ khi có **đồng ý bằng văn bản** cho phép dùng thương mại và đăng lên kênh | Quyền thuộc về người quay |
-| Video creator/KOC được thuê | **Được** nếu hợp đồng nêu rõ quyền dùng thương mại và quyền chỉnh sửa; Spark Ads cần mã ủy quyền | Có quyền chia sẻ (mục 2.1) |
-| Kho video bản quyền (stock) | Chỉ làm **cảnh nền / không khí**, không làm "kết quả của sản phẩm" | Quyền dùng thương mại có, nhưng không phải cảnh của sản phẩm mình (mục 2.5) |
-| Cảnh AI tạo | **Không** cho kết quả của sản phẩm | Cấm demo hiệu quả phi thực tế và phải gắn nhãn AI (`claims-and-compliance.md` §3) |
-| Xem Douyin làm **tham khảo ý tưởng**, rồi tự quay lại | **Được** | Ý tưởng, kiểu cảnh không phải tác phẩm; quay mới là nội dung gốc |
+| Douyin, TikTok, Kuaishou, YouTube… from other people | **No** without a written commercial licence | Sections 2.1, 2.4, 2.5 |
+| A competitor's or another shop's video | **No** | Same reasons, plus the risk of copyright and trademark complaints |
+| A video sent by a customer | Only with **written consent** allowing commercial use and posting on the channel | The rights belong to the person who filmed it |
+| A hired creator/KOC video | **Yes** if the contract states commercial-use rights and editing rights; Spark Ads need an authorisation code | The right to share exists (section 2.1) |
+| Licensed stock video | Only as **background / atmosphere**, not as "the product's result" | Commercial-use rights exist, but it is not footage of our product (section 2.5) |
+| AI-generated footage | **No** for the product's result | Unrealistic effect demos are banned and AI must be labelled (`claims-and-compliance.md` §3) |
+| Watching Douyin for **idea reference**, then shooting it again yourself | **Yes** | Ideas and kinds of shots are not works; a new shoot is original content |
 
-### 4.3 Quy trình "tải Douyin → lồng tiếng → đăng lại" (đã đọc một repo mẫu, chỉ đọc, không chạy)
+### 4.3 The "download Douyin → re-dub → re-post" pipeline (a sample repo was read, only read, not run)
 
-Các repo mã nguồn mở kiểu "crawl video Douyin" (một repo Python công khai đã được đọc làm mẫu) làm đúng một việc: **tải video
-Douyin không watermark** (đổi `/playwm/` thành `/play/` trong đường dẫn playback, dựa vào cấu trúc trang
-nội bộ của Douyin; hoặc yt-dlp; hoặc công cụ ngoài như `Douyin_TikTok_Download_API`, `f2` để tải hàng loạt
-theo user / hashtag), rồi **STT → dịch → TTS → làm mờ caption gốc → chèn phụ đề → đăng lên TikTok** bằng
-Content Posting API. Repo mẫu không có phần nào nhận diện nội dung sản phẩm hay cắt theo cảnh.
+Open-source "crawl Douyin videos" repos (one public Python repo was read as a sample) do exactly one thing:
+**download Douyin videos without watermark** (change `/playwm/` to `/play/` in the playback path, relying on
+Douyin's internal page structure; or yt-dlp; or outside tools such as `Douyin_TikTok_Download_API` and `f2`
+for bulk download by user / hashtag), then **STT → translate → TTS → blur the original caption → insert
+subtitles → post to TikTok** through the Content Posting API. The sample repo has no part that recognises the
+product content or cuts by scene.
 
-Vì sao **không** nên dùng cho video bán hàng:
-- Tải bằng cách scrape trang nội bộ, tránh watermark = đúng các điều Douyin cấm (5.1, 5.3-4, 5.3-5, 2.4).
-- Dùng thương mại bị cấm khi chưa có giấy phép viết tay (5.3-7).
-- Quy trình "tải → lồng tiếng → đăng lại" là mô hình **nội dung tái sử dụng**, cùng loại mà mục 2.1 nói
-  không đủ điều kiện lên For You và có thể bị gỡ.
-- README của repo mẫu ghi: "Chỉ tải/lồng tiếng/đăng lại video công khai cho mục đích cá nhân/nghiên cứu …
-  Không dùng để tải hàng loạt/re-upload thương mại … mà không có sự cho phép của chủ sở hữu."
-- Phần đăng của repo mẫu dùng ứng dụng chưa qua audit của TikTok, chỉ đăng được ở chế độ riêng tư.
+Why it should **not** be used for sales videos:
+- Downloading by scraping internal pages and avoiding the watermark = exactly the things Douyin bans (5.1,
+  5.3-4, 5.3-5, 2.4).
+- Commercial use is banned without a written licence (5.3-7).
+- The "download → re-dub → re-post" pipeline is the **reused content** model, the same kind that section 2.1
+  says is not eligible for For You and can be removed.
+- The sample repo's README says: "Only download / re-dub / re-post public videos for personal / research
+  purposes … Do not use for bulk download / commercial re-upload … without the owner's permission." (translated
+  from the Vietnamese-language note.)
+- The sample repo's posting part uses an app that has not passed TikTok's audit, so it can only post in
+  private mode.
 
-Nếu sau này cần cảnh từ Douyin: **xin giấy phép thương mại từ chủ video** (liên hệ trực tiếp, mua bản quyền),
-lưu văn bản, rồi mới đưa vào kho cảnh quay với dòng ghi nguồn. Khi đó mới dùng công cụ cắt cảnh. Claude không
-được tải trước "để thử".
-
----
-
-## 5. Quy ước kiểm soát trùng cảnh của bộ công cụ [C]
-
-Áp dụng cho mọi lô video:
-
-1. **Sổ cái nguồn.** Mọi `edit-plan.md` của lô nằm cạnh nhau; chạy `footage_overlap_checker.py` với **tất cả**
-   file kế hoạch (tên từng file). Kết quả phải là PASS (không trùng, mỗi đoạn cách nhau ≥ 0,5 giây).
-2. **`r = 1` mặc định.** Hết đoạn nguồn chưa dùng thì **dừng và báo**, kèm số phút cần quay thêm (bảng ở mục 4.1).
-3. **Biến thể thật, không phải xáo trộn.** Giữa hai video bất kỳ phải khác **kịch bản** và **giọng**; thêm ít nhất
-   hai trong ba yếu tố: hook, cấu trúc cảnh, nhóm đồ họa. Chỉ đổi thứ tự clip, nhạc, nền, crop, tốc độ là **không
-   đủ** (mục 2.2).
-4. **Một kịch bản cho một sản phẩm.** Không dùng khung kịch bản chung cho nhiều sản phẩm.
-5. **Không chia một lô giống nhau cho nhiều tài khoản.**
-6. **Cảnh của đúng sản phẩm**; cảnh dựng sẵn và tua nhanh có nhãn.
-7. **Trước khi đăng:** hỏi thị trường, kiểm tra giới hạn đăng, nhắc bật "Disclose commercial content", hỏi có chạy
-   quảng cáo không.
+If Douyin footage is needed later: **ask the video's owner for a commercial licence** (contact directly, buy
+the rights), keep the document, and only then put it into the footage library with a source line. Only then
+use the scene-cutting tools. Claude must not download it in advance "to try".
 
 ---
 
-## 6. Cách đi hợp lệ để có số lượng lớn
+## 5. The toolkit's convention for controlling scene overlap [C]
 
-- **Quay theo ma trận biến thể** thay vì quay một lần rồi xáo: mỗi tổ hợp *đối tượng (loại vật liệu, màu, kiểu…) ×
-  tình huống (vấn đề cần giải quyết) × mẫu sản phẩm (loại, cỡ, combo) × góc quay (từ trên, ngang, cận)* ra một bộ
-  clip riêng gồm trước, thao tác, kết quả. Dự trù **~42 giây cảnh dùng được cho mỗi video**.
-- **Mạng creator / KOC**: mỗi người tự quay và đăng nội dung của mình, bạn dùng quyền dùng lại bằng hợp đồng
-  hoặc mã Spark Ads. Đây là cách TikTok Shop thiết kế để mở rộng quy mô [C].
-- **Video khách hàng** có đồng ý bằng văn bản.
-- **Kho stock** chỉ cho cảnh nền; không cho kết quả.
-- **Ý tưởng từ Douyin** thì xem làm tham khảo rồi quay lại bằng sản phẩm của mình.
-- Dựng bằng bộ công cụ này vẫn rẻ; thứ khan hiếm là **cảnh quay hợp lệ**, không phải khâu dựng.
+Applies to every batch of videos:
+
+1. **Source ledger.** All `edit-plan.md` files of the batch sit side by side; run `footage_overlap_checker.py`
+   with **all** the plan files (each file named). The result must be PASS (no overlap, ranges at least
+   0.5 seconds apart).
+2. **`r = 1` by default.** When the unused source ranges run out, **stop and report**, with the minutes that
+   need to be shot (table in section 4.1).
+3. **Real variants, not shuffles.** Any two videos must differ in **script** and **voice**; add at least two of
+   three factors: hook, scene structure, graphics set. Only changing the order of the clips, the music,
+   background, crop or speed is **not enough** (section 2.2).
+4. **One script per product.** Do not use a generic script frame for many products.
+5. **Do not split a batch of near-identical videos across several accounts.**
+6. **Footage of the right product**; staged and sped-up footage is labelled.
+7. **Before posting:** ask the market, check the posting limits, remind to turn on "Disclose commercial
+   content", ask whether ads will be run.
 
 ---
 
-## 7. Chưa kiểm chứng, cần người kiểm tra
+## 6. The legitimate way to get large numbers
 
-- **Chính sách TikTok Shop Việt Nam** (nội dung lặp, giới hạn đăng, điểm vi phạm): chưa tìm được trang chính
-  thức; các trang đã đọc là bản Mỹ và Malaysia. Kiểm tra Seller Center / Creator Academy VN.
-- **Ngưỡng "giống nhau"** mà TikTok dùng để đánh lặp: không công bố; mọi con số trên blog là suy đoán.
-- **Bài hỗ trợ TikTok về watermark của ứng dụng khác** (video có logo Douyin bị loại khỏi For You): trang trợ giúp
-  không đọc được; chỉ có dòng "visible watermark … sign of unoriginal content" trong Content Policy của Shop.
-- **Luật Việt Nam**: chưa đối chiếu Điều 28 Luật Sở hữu trí tuệ với văn bản gốc; chưa đọc mức phạt ở Nghị định
-  341/2025/NĐ-CP; các con số của Nghị định 38/2021 mâu thuẫn giữa các nguồn.
-- **Pháp luật Trung Quốc** chỉ qua báo chí (vụ 2018 và vụ hình sự Gia Hưng).
-- Các nguồn thứ cấp nói TikTok Shop bắt đầu siết nội dung không gốc từ 2025-09-15 và nội dung lặp từ 2025-09-25:
-  không có thông báo chính thức đi kèm [S][?].
+- **Shoot by a variant matrix** instead of shooting once and shuffling: each combination of *subject
+  (material type, colour, style…) × situation (the problem to solve) × product model (type, size, combo) ×
+  camera angle (from above, level, close-up)* gets its own set of clips: before, handling, result. Budget
+  **~42 seconds of usable footage per video**.
+- **A creator / KOC network**: each person shoots and posts their own content, and you use the reuse rights
+  through a contract or a Spark Ads code. This is how TikTok Shop is designed to scale [C].
+- **Customer videos** with written consent.
+- **Stock footage** only for background; not for results.
+- **Ideas from Douyin**: watch as reference, then shoot again with your own product.
+- Editing with this toolkit stays cheap; what is scarce is **legitimate footage**, not the editing step.
 
-## 8. Nguồn
+---
 
-Chính thức: TikTok Community Guidelines (`tiktok.com/community-guidelines/en/integrity-authenticity`,
+## 7. Unverified, needs a human check
+
+- **TikTok Shop Vietnam policy** (repetitive content, posting limits, violation points): no official page
+  found; the pages read are the US and Malaysia versions. Check Seller Center / Creator Academy VN.
+- **The "similarity" threshold** that TikTok uses to flag repetition: not published; every number on blogs is
+  a guess.
+- **The TikTok support article about watermarks of other apps** (videos carrying a Douyin logo are excluded
+  from For You): the help page could not be read; only the line "visible watermark … sign of unoriginal
+  content" in the Shop Content Policy.
+- **Vietnamese law**: Article 28 of the IP Law has not been checked against the original text; the penalty
+  amounts in Decree 341/2025/NĐ-CP have not been read; the figures of Decree 38/2021 conflict between sources.
+- **Chinese law** only through press (the 2018 case and the Jiaxing criminal case).
+- Secondary sources say TikTok Shop began tightening unoriginal content from 2025-09-15 and repetitive content
+  from 2025-09-25: no official announcement accompanies this [S][?].
+
+## 8. Sources
+
+Official: TikTok Community Guidelines (`tiktok.com/community-guidelines/en/integrity-authenticity`,
 `fyf-standards`, `accounts-features`, `enforcement`, `regulated-commercial-activities`); TikTok Copyright
 Policy (`tiktok.com/legal/page/global/copyright-policy/en`); TikTok Shop Academy: *Content Policy* (US,
 `knowledge_id=6837891779151617`), *Creator Enforcement Policy* (`6837869503317761`), *Creator Eligibility Policy*
 (`6939143037667118`), *How to Avoid Misleading Content* (`4581457528194817`), *Content Posting Limit* (seller-my,
 `6519771097237249`), *Non-interactive content* (seller-my, `752633581209360`); TikTok Ads policy *Misleading and
-false content*; Thỏa thuận người dùng Douyin (`douyin.com/draft/douyin_agreement/douyin_agreement_user.html`).
+false content*; Douyin User Agreement (`douyin.com/draft/douyin_agreement/douyin_agreement_user.html`).
 
-Thứ cấp: BigSeller (bài 3778, 3766, 4377, 4203), PPC Land (hai bài tháng 6/2026), Calywire, TokPortal;
-technode, caixin, ipkitten về vụ Douyin kiện Huopai; các bài tổng hợp luật của luatvietnam.vn, lsvn.vn,
-thuvienphapluat.vn về Điều 28 Luật SHTT, Nghị định 341/2025 và Nghị định 38/2021.
+Secondary: BigSeller (articles 3778, 3766, 4377, 4203), PPC Land (two June 2026 articles), Calywire, TokPortal;
+technode, caixin, ipkitten on the Douyin v. Huopai case; law summaries from luatvietnam.vn, lsvn.vn,
+thuvienphapluat.vn on Article 28 of the IP Law, Decree 341/2025 and Decree 38/2021.
 
-Repo mẫu đã đọc: một repo mã nguồn mở công khai kiểu "crawl video Douyin" (đọc README và mã tải/đăng qua GitHub API;
-không tải, không chạy).
+Sample repo read: a public open-source "crawl Douyin videos" style repo (README and the download/post code
+read through the GitHub API; not downloaded, not run).

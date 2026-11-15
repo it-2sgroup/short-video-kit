@@ -1,8 +1,8 @@
 {
   "id": "montage-recap",
-  "title": "Montage / recap — du lịch, sự kiện, khai trương, hậu trường, thương hiệu",
+  "title": "Montage / recap — travel, events, openings, behind the scenes, brand",
   "summary": "Music is the script: cuts on the beats (every one or two), energy built in sections that follow the track, speed ramps into the big moments, one or two words on screen at most, the place and the date as quiet labels.",
-  "intents": ["du lịch", "travel", "sự kiện", "event", "recap", "montage", "khai trương", "hậu trường", "behind the scenes", "bts", "team building", "lễ hội", "kỷ niệm", "trailer", "highlight", "vlog"],
+  "intents": ["du lịch", "travel", "sự kiện", "event", "recap", "montage", "khai trương", "hậu trường", "behind the scenes", "bts", "team building", "lễ hội", "kỷ niệm", "trailer", "highlight", "vlog", "festival", "anniversary", "grand opening", "brand film", "trip", "holiday"],
   "expect": {"speech": "none", "motion": "high"},
   "signals": ["many short clips of varied places, people and moments", "moving camera, people, crowds", "no voiceover; ambient sound only"],
   "platforms": ["tiktok", "reels"],

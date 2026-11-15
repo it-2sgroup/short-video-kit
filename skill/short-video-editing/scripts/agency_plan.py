@@ -23,7 +23,7 @@ What it decides:
   * Card scenes: every stretch of the voice that no take holds (0.8 s or more) is cut on its phrases into 0.8-1.6 s cards with the best
     unused cutaways (never one range twice, never two cards from one clip in a row); a long last card grows to full frame (`expand`).
   * Text: every clause the speaker says on camera becomes a `phrase` block (a lead line and a loud emphasis line, effects rotating so no two
-    neighbours match), the brand word (one or several words: --brand "Acme Studio") triggers a `logo`, "từ N đến M" a `counter`, the spoken --cta-word
+    neighbours match), the brand word (one or several words: --brand "Acme Studio") triggers a `logo`, the spoken Vietnamese "từ N đến M" ("from N to M") a `counter`, the spoken --cta-word
     (with --cta, the text) a neon call to action (off unless both are given), and a phrase that would share the top with a logo or counter drops to
     y=0.285; the first words are a `burst` with the silhouette `Subject` flash on frame 0 when --flash CLIP is given. The closing card repeats the --cta
     text when there is one. Captions are hidden where a block says the words and run (box, glow, underline in turn) above the cards.
@@ -329,6 +329,7 @@ def main() -> int:
         if len(ws) <= 3:
             props.append("exit=fade")
         ov.append((round(max(0.0, t0 - 0.1), 2), end, "phrase", "; ".join(props)))
+        # Vietnamese pattern, kept on purpose: the voice is Vietnamese, and "từ N đến M" means "from N to M" (a counter).
         m = re.search(r"từ (\d+) đến (\d+)", txt.lower())
         if m:
             nxt = next((w for w in words if w["start"] >= t1), None)

@@ -52,10 +52,10 @@ card around it**.
 
 A 35-second demo shows the result three times, each doing a different job:
 
-1. **Hook (0–3 s): BEFORE → AFTER.** Two ~1.5 s beats joined by a wipe, with `TRƯỚC` / `SAU`
-   labels (`hook-library.md`). It promises the result immediately.
+1. **Hook (0–3 s): BEFORE → AFTER.** Two ~1.5 s beats joined by a wipe, with `BEFORE` / `AFTER`
+   (BEFORE / AFTER) labels (`hook-library.md`). It promises the result immediately.
 2. **Process: the working time.** The application, the wait, a `progress` bar labelled
-   "Chờ 10 phút · đã rút gọn thời gian". Honest time compression is the credibility layer.
+   "Wait 10 minutes · time shortened". Honest time compression is the credibility layer.
 3. **Reveal: lift, then compare.** The treated item is revealed in one uncut take (never a cut across the
    reveal), and about half a second later the **`compare` card** puts the BEFORE frame from earlier
    in the same video next to the AFTER. This is where the viewer is *shown* the difference rather
@@ -71,7 +71,7 @@ as the second panel arrives (`sound-design.md`).
 ## 3. The `compare` component
 
 ```
-| 14 | 28.85 | 31.95 | compare | top | – | before=CLIP_A@1.6; after=CLIP_A@27.6; beforeFocus=0.68,0.55; afterFocus=0.55,0.33; zoom=1.4; note=Cùng một món · sau 10 phút (đã rút gọn thời gian) |
+| 14 | 28.85 | 31.95 | compare | top | – | before=CLIP_A@1.6; after=CLIP_A@27.6; beforeFocus=0.68,0.55; afterFocus=0.55,0.33; zoom=1.4; note=Same item · after 10 minutes (time shortened) |
 ```
 
 | Key | Meaning |
@@ -80,7 +80,7 @@ as the second panel arrives (`sound-design.md`).
 | `mode` | `side` (default): two portrait panels, the AFTER slides in; `slider`: one card with a divider that sweeps from BEFORE to half-and-half; `stack`: the same, top/bottom |
 | `beforeFocus`, `afterFocus`, `focus` | Point of the source frame (0..1) shown at the centre of that side's area. The changed spot is rarely in the same place before and after, so set the two separately; `focus` sets both |
 | `zoom` | 1 = the whole frame fits; 1.4–1.6 magnifies the detail (1080p proxies soften past ~1.6) |
-| `beforeLabel`, `afterLabel` | Default `TRƯỚC` / `SAU`, in the tone colours (coral / green) with an outline, no box |
+| `beforeLabel`, `afterLabel` | Default `BEFORE` / `AFTER` (set them for another language, e.g. `TRƯỚC` / `SAU` in Vietnamese), in the tone colours (coral / green) with an outline, no box |
 | `note` | The honest line under the card: what elapsed and that time was compressed |
 
 Behaviour: the card enters over 10 frames on a **dark scrim** (so a white subject does not blend into
@@ -103,8 +103,8 @@ the line that talks about the result, and end it at least 3 frames before the ne
 - **Take both frames from ranges the video already shows.** `footage_overlap_checker.py` does not see
   frames used by `compare`, `thumbs` or `magnifier`, so reusing a range already on screen costs no
   new footage and breaks no budget.
-- **Label what is staged** ("vết thử có chủ đích") and the time ("sau 10 phút · đã rút gọn
-  thời gian"). The result must be typical or its limits disclosed (`claims-and-compliance.md` §3).
+- **Label what is staged** ("deliberate test mark") and the time ("after 10 minutes · time
+  shortened"). The result must be typical or its limits disclosed (`claims-and-compliance.md` §3).
 - **Over a white subject** the scrim and the white border keep the card readable; keep the labels in the
   outlined text style, never a coloured box.
 

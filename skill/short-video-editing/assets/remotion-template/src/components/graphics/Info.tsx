@@ -123,7 +123,7 @@ export const Label: React.FC<Base> = ({ ov, dur, instant }) => {
 const number = (v: number, decimals: number) =>
   new Intl.NumberFormat("vi-VN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(v);
 
-// stat: one figure counting up (vi-VN format) with a unit and a label: "85 m²", "5 phút", "73%".
+// stat: one figure counting up (formatted with the vi-VN locale: dot for thousands, comma for decimals) with a unit and a label: "85 m²", "5 min", "73%".
 export const Stat: React.FC<Base> = ({ ov, dur, instant }) => {
   const p = (ov.props ?? {}) as { value?: number; unit?: string; label?: string; prefix?: string; decimals?: number };
   const { frame, enter, exit } = useEnterExit(dur, { instant });
@@ -147,7 +147,7 @@ export const Stat: React.FC<Base> = ({ ov, dur, instant }) => {
 };
 
 // chart: 2-5 horizontal bars growing in turn, each with its label and its value counting up.
-// `items=Tự làm#45 / Thuê dịch vụ#120`, `unit= phút`, `title=`. Bars scale to the largest value.
+// `items=DIY#45 / Hired service#120`, `unit= min`, `title=`. Bars scale to the largest value.
 export const Chart: React.FC<Base> = ({ ov, dur, instant }) => {
   const p = (ov.props ?? {}) as { items?: string[] | string; unit?: string; title?: string; highlight?: number };
   const rows = list(p.items).slice(0, 5).map((s) => {

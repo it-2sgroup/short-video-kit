@@ -26,7 +26,7 @@ directions and fails when a technique has no card, doc or test, or a card descri
 | `theme` | A palette for the template's graphics | `src/theme.ts` |
 
 Kinds added later (a matte effect, a light effect, an audio treatment) are one line in `technique.py` (`KINDS`) plus the
-same loop. A new pipeline **script** is not a technique card: it goes in `SKILL.md`'s workflow, `docs/CAU-TRUC.md` and the README tree,
+same loop. A new pipeline **script** is not a technique card: it goes in `SKILL.md`'s workflow, `docs/STRUCTURE.md` and the README tree,
 and gets its selftest.
 
 ## 1. Analyse the sample (when the technique comes from a reference video)
@@ -101,6 +101,6 @@ python scripts/technique.py check && python scripts/playbook.py check && ./selft
 
 ## 8. Record it in the repo's maps
 
-`docs/CAU-TRUC.md` (what every file is) and the structure tree in `README.md` change in the same commit as the file that
+`docs/STRUCTURE.md` (what every file is) and the structure tree in `README.md` change in the same commit as the file that
 made them stale. The case that revealed the technique (client, dates, measurements, what was not verified) goes into
 `docs/CASE-LOG.md`, never into the skill.

@@ -88,6 +88,8 @@ echo "3. playbooks and pacing_checker.py"
   && pass "example real-estate plan passes its playbook" || fail "pacing_checker rejected the real-estate plan"
 "$PY" "$S/pacing_checker.py" "$KIT/samples/example-real-estate-plan.md" --playbook product-demo >/dev/null 2>&1 \
   && fail "a 1.5 s non-hook scene passed product-demo's rules" || pass "the same plan fails product-demo's 2.5 s minimum (rules follow the playbook)"
+"$PY" "$S/playbook.py" suggest --intent "apartment tour" 2>&1 | head -1 | grep -q "real-estate"   && pass "suggest: 'apartment tour' -> real-estate" || fail "playbook.py suggest did not pick real-estate for an English request"
+# Vietnamese on purpose: playbook.py keeps Vietnamese keywords, and "tour căn hộ" ("apartment tour") must still pick real-estate.
 "$PY" "$S/playbook.py" suggest --intent "tour căn hộ" 2>&1 | head -1 | grep -q "real-estate" \
   && pass "suggest: 'tour căn hộ' -> real-estate" || fail "playbook.py suggest did not pick real-estate"
 printf '| # | Start | End | Type |\n|---|---|---|---|\n| 1 | 0.0 | 6.5 | HOOK |\n' > "$TMP/bad.md"
@@ -280,10 +282,11 @@ mkdir -p "$TMP/hfpub/clips"; cp "$TMP/clip.mp4" "$TMP/hfpub/clips/CLIP.mp4"
 "$PY" - "$TMP/hf.json" <<'PYEOF'
 import json, sys
 sc = lambda a, b, **k: dict(clip="CLIP", **{"in": 0.2}, start=a, end=b, type="DEMO", **k)
+# The caption is Vietnamese on purpose: it proves non-ASCII text survives the HyperFrames build.
 json.dump({"duration": 3.0, "captionStyle": "plain", "captions": [{"text": "xin chào", "start": 0.2, "end": 1.4}],
            "scenes": [sc(0, 1.0, fx=["shake"]), sc(1.0, 2.0, transition={"type": "slide", "direction": "up"}, speed=2),
                       sc(2.0, 3.0, transition={"type": "whip"}, ramp=[1, 2, 1], fx=["rgb"])],
-           "overlays": [{"component": "title", "start": 0, "end": 1.5, "props": {"style": "outline", "lines": ["Tiêu đề"]}},
+           "overlays": [{"component": "title", "start": 0, "end": 1.5, "props": {"style": "outline", "lines": ["Title text"]}},
                         {"component": "compare", "start": 1.5, "end": 2.5, "props": {}}]},
           open(sys.argv[1], "w", encoding="utf-8"), ensure_ascii=False)
 PYEOF
@@ -470,8 +473,10 @@ for word in ("layout", "subject", "face", "faceGlow", "look", "caption band", "c
     assert word in out, (word, out)
 assert hf.remotion_only({"scenes": [{"transition": {"type": "fade"}}], "look": {"vignette": 0.3}}) == []
 PYEOF
+# The first request is Vietnamese on purpose (playbook.py matches Vietnamese keywords); the English twin follows it.
 "$PY" "$S/playbook.py" suggest --intent "Tôi có thư mục clip thô quay một người dẫn, một file giọng (voice) cắt từ chính các take đó, và một video mẫu. Hãy dựng lại video giống bản mẫu" 2>&1 | head -1 | grep -q "talking-head:agency" \
   && pass "playbook.py suggest: the words a user uses for this job (người dẫn, video mẫu, các take) pick talking-head:agency" || fail "playbook.py suggest does not pick talking-head:agency for the agency-pitch request"
+"$PY" "$S/playbook.py" suggest --intent "I have a folder of raw clips of one presenter, a voice file cut from those same takes, and a reference video. Rebuild the video like the reference" 2>&1 | head -1 | grep -q "talking-head:agency"   && pass "playbook.py suggest: the English request for the same job also picks talking-head:agency" || fail "playbook.py suggest does not pick talking-head:agency for the English agency-pitch request"
 "$PY" "$S/agency_plan.py" --words "$TMP/w.json" --matches "$TMP/m.json" --cutaways "$TMP/c.json" --brand "we make" --cta "CALL NOW" --cta-word reach --out "$TMP/ap2.md" >"$TMP/ap2.log" 2>&1 \
   && grep -q "emph=CALL NOW" "$TMP/ap2.md" && grep -q "text=CALL NOW" "$TMP/ap2.md" && grep -q "| logo |" "$TMP/ap2.md" && [[ -s "$TMP/ap2.face-keys.txt" ]] \
   && pass "agency_plan.py: --cta with --cta-word reaches the neon block and the closing card, a two-word brand gets its logo, the face-keys file is written" \
@@ -694,7 +699,7 @@ done
 B="${URL%/}"; J='Content-Type: application/json'
 pass "editor.py started at $URL"
 
-check "page is served"                  'curl -sf "$B/" | grep -q "Trình sửa video"'
+check "page is served"                  'curl -sf "$B/" | grep -q "Video editor"'
 check "GET /api/project returns scenes" 'curl -sf "$B/api/project" | "$PYX" -c "import sys,json; d=json.load(sys.stdin); assert d[\"project\"][\"scenes\"] and d[\"name\"]==\"v1.json\""'
 
 # edit one scene length through the API and save
@@ -718,7 +723,7 @@ kill "$PID"; wait "$PID" 2>/dev/null; PID=""
 check "server stopped"                  '! curl -sf -m 1 "$B/api/info" >/dev/null 2>&1'
 [[ $FAILS -eq 0 ]] && echo "editor selftest: all PASS" || { echo "editor selftest: $FAILS FAIL"; exit 1; }
 EDITORTEST
-sed 's/accent=bạc màu/accent=bạc màu; font=no-such-font/' "$KIT/samples/example-edit-plan.md" >"$TMP/fontplan.md"
+sed 's/accent=[^;|]*[^;| ]/&; font=no-such-font/' "$KIT/samples/example-edit-plan.md" >"$TMP/fontplan.md"
 "$PY" "$S/plan_to_project.py" "$TMP/fontplan.md" --out "$TMP/fontplan.json" 2>&1 | grep -q "font=no-such-font is not in the font library" \
   && pass "plan_to_project.py warns about a font id the library does not have" || fail "plan_to_project.py unknown font warning"
 cat >"$TMP/rep.json" <<'JSON'

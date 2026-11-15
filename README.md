@@ -133,7 +133,7 @@ output is the evidence to bring back.
 Ask for a video in your own words; the skill analyses the clips, picks the playbook (or asks up to three
 questions when the request and the footage disagree) and runs the edit:
 
-> Clip trong `~/clips/villa-thao-dien`, căn 3PN giá 28,5 tỷ, dựng video tour 40 giây ghép nhạc cho TikTok và Reels.
+> The raw clips are in `~/clips/villa-thao-dien`, a 3-bedroom unit priced at 28.5 billion VND: make a 40-second tour video with music for TikTok and Reels.
 
 > Here are the raw clips in `~/clips/product-a` and the voiceover `voice.mp3`. Make a 35-second TikTok Shop
 > video for the stain remover combo, and keep enough footage for three more videos.
@@ -146,7 +146,7 @@ cd skill/short-video-editing
 # 1. Analyse and choose
 python scripts/inspect_footage.py CLIPS --measure --json analysis.json
 python scripts/contact_sheet.py CLIPS --out clips.png
-python scripts/playbook.py suggest --intent "tour căn hộ 2 phòng ngủ" --analysis analysis.json
+python scripts/playbook.py suggest --intent "tour of a 2-bedroom apartment" --analysis analysis.json
 python scripts/playbook.py show real-estate
 
 # 2. Render project with corrected, graded proxies (--install downloads npm packages and Chromium)
@@ -159,7 +159,7 @@ python scripts/align_captions.py ~/renders/batch/public/audio/v1.wav --script sc
 
 # 4. Cuts, plan, checks
 python scripts/suggest_cuts.py --music ~/renders/batch/public/audio/music.wav --end 40 --playbook real-estate --json > cuts.json
-python scripts/playbook.py skeleton real-estate --cuts cuts.json --title "Villa Thảo Điền" > edit-plan.md
+python scripts/playbook.py skeleton real-estate --cuts cuts.json --title "Villa Thao Dien" > edit-plan.md
 python scripts/plan_scenes.py --library library.json --plan edit-plan.md --kinds "VIEW,ROOM,..."
 python scripts/pacing_checker.py edit-plan.md
 python scripts/footage_overlap_checker.py plan-a.md plan-b.md --clips CLIPS
@@ -174,7 +174,7 @@ python <skill>/scripts/contact_sheet.py out/v1_final.mp4 --project v1.json --out
 
 `npm run studio` in a render project opens `project.example.json`, a footage-free gallery of every
 title style and component. The plan format is in `skill/short-video-editing/assets/edit-plan-template.md`;
-the workflow (Vietnamese) in `docs/WORKFLOW.md`; a file-by-file map in `docs/CAU-TRUC.md`.
+the workflow in `docs/WORKFLOW.md`; a file-by-file map in `docs/STRUCTURE.md`.
 
 ## A framework that grows
 
@@ -198,10 +198,10 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
 .
 ├── CLAUDE.md                      Agent instructions for this repository
 ├── docs/
-│   ├── WORKFLOW.md                Step-by-step workflow (Vietnamese)
-│   ├── CAU-TRUC.md                Every folder and file, tools and techniques (Vietnamese)
-│   ├── PROMPT-VIDEO.md            Generic prompt template for any genre (Vietnamese)
-│   ├── PROMPT-LO-VIDEO.md         Prompt structure for a production batch (Vietnamese)
+│   ├── WORKFLOW.md                Step-by-step workflow
+│   ├── STRUCTURE.md               Every folder and file, tools and techniques
+│   ├── PROMPT-VIDEO.md            Generic prompt template for any genre
+│   ├── PROMPT-BATCH-VIDEO.md      Prompt structure for a production batch
 │   ├── DECISIONS.md               Tool choices, technical pitfalls, sources, licence notes
 │   ├── CASE-LOG.md                History of the jobs done for clients (private; not a guide)
 │   └── niche-data-queries.sql     Reproduces the campaign figures behind the product-demo defaults (private)

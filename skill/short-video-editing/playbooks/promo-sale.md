@@ -16,7 +16,7 @@ Labels: **[S]** sourced, **[C]** craft convention, **[L]** law (research, not le
 
 1. The exact offer: price, discount, voucher code, dates, conditions (minimum order, while stock lasts).
 2. Where to act: TikTok Shop cart, a store address, a link in bio.
-3. Logo and artwork files (`public/images/`), and whether the promotion is registered (khuyến mại).
+3. Logo and artwork files (`public/images/`), and whether the promotion is registered with the authorities as a sales promotion (Vietnamese "khuyến mại").
 
 ## Structure (15–25 s)
 
@@ -56,8 +56,8 @@ Never a fake button or a fake cart: the arrow points at the real product bar.
 
 Every price, discount and date matches the listing or the store's terms; the old price was real; no
 false scarcity or invented countdown; conditions stated; logos and artwork owned or licensed;
-superlatives ("rẻ nhất", "số 1") need documents (Luật Quảng cáo 2012 Đ8; TT 10/2013); ads labelled
-(Luật Quảng cáo 75/2025); commercial-content disclosure on.
+superlatives ("cheapest", "number 1") need documents (Advertising Law 2012 Art. 8; Circular 10/2013); ads labelled
+(Advertising Law 75/2025); commercial-content disclosure on.
 
 ## Commands
 

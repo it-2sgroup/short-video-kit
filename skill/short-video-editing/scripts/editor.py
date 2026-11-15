@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A browser timeline editor for a render project's project.json ("trình sửa video"). Standard library only.
+"""A browser timeline editor for a render project's project.json ("the video editor"). Standard library only.
 
     python scripts/editor.py RENDER_DIR [--project v1.json] [--port 5174] [--no-open]
 
@@ -7,8 +7,8 @@ RENDER_DIR is a render project made by new_remotion_project.py (it holds src/, p
 project JSON files). The server prints a URL on 127.0.0.1; open it in a browser. The page (assets/editor/)
 shows the latest render (or the proxy clip of the current scene) in a phone frame, a timeline of scenes,
 overlays, captions, voice, music and sound cues, and a properties panel. Edits live in the browser until
-"Lưu project"; saving keeps the previous file in RENDER_DIR/.editor-history/ (the last 50 per project) and
-"Render lại" runs the template's render command for the saved project. See references/editor.md.
+"Save project"; saving keeps the previous file in RENDER_DIR/.editor-history/ (the last 50 per project) and
+"Re-render" runs the template's render command for the saved project. See references/editor.md.
 
 What the server does, and nothing else:
   * serves the page from assets/editor/, media from RENDER_DIR/public (/media/...) and renders from
@@ -126,15 +126,15 @@ def atomic_write(path: Path, text: str) -> None:
 
 def validate_project(obj) -> None:
     if not isinstance(obj, dict):
-        raise ApiError(400, "Project phải là một đối tượng JSON.")
+        raise ApiError(400, "The project must be a JSON object.")
     scenes = obj.get("scenes")
     if not isinstance(scenes, list) or not all(isinstance(s, dict) for s in scenes):
-        raise ApiError(400, "Project cần có danh sách `scenes` (mỗi cảnh là một đối tượng).")
+        raise ApiError(400, "The project needs a `scenes` list (each scene is an object).")
     for key in ("overlays", "captions", "sfx", "captionBands", "words", "punches"):
         if key in obj and not isinstance(obj[key], list):
-            raise ApiError(400, f"`{key}` phải là một danh sách.")
+            raise ApiError(400, f"`{key}` must be a list.")
     if "duration" in obj and (isinstance(obj["duration"], bool) or not isinstance(obj["duration"], (int, float))):
-        raise ApiError(400, "`duration` phải là số giây.")
+        raise ApiError(400, "`duration` must be a number of seconds.")
 
 
 def file_format(text: str) -> tuple[int, bool]:
@@ -147,7 +147,7 @@ def dump_project(obj: dict, indent: int, newline: bool) -> str:
     try:
         return json.dumps(obj, ensure_ascii=False, indent=indent, allow_nan=False) + ("\n" if newline else "")
     except ValueError as e:
-        raise ApiError(400, f"Project có giá trị không hợp lệ: {e}")
+        raise ApiError(400, f"The project has an invalid value: {e}")
 
 
 # ----------------------------------------------------------------------------- the editor's model of a render project
@@ -190,10 +190,10 @@ class Editor:
     def project_path(self, name: str | None) -> Path:
         name = name or self.default_project
         if not PROJECT_NAME.match(name or "") or name in NOT_PROJECTS:
-            raise ApiError(400, "Tên file project không hợp lệ.")
+            raise ApiError(400, "Invalid project file name.")
         path = self.dir / name
         if not path.is_file():
-            raise ApiError(404, f"Không thấy {name} trong thư mục render.")
+            raise ApiError(404, f"{name} not found in the render folder.")
         return path
 
     def load(self, name: str | None) -> dict:
@@ -215,7 +215,7 @@ class Editor:
         with self.lock:
             old_text = path.read_text(encoding="utf-8-sig")
             if base_mtime is not None and not force and abs(mtime_ms(path) - base_mtime) > 2:
-                raise ApiError(409, "File project đã bị sửa ở nơi khác kể từ lúc mở (ví dụ plan_to_project.py chạy lại).",
+                raise ApiError(409, "The project file was changed elsewhere since it was opened (for example plan_to_project.py ran again).",
                                {"mtime": mtime_ms(path)})
             if self.read_json(path) == obj:
                 return {"ok": True, "unchanged": True, "mtime": mtime_ms(path)}
@@ -261,10 +261,10 @@ class Editor:
         stem = self.project_path(name).stem
         m = HISTORY_FILE.match(hid or "")
         if not m or m.group("stem") != stem:
-            raise ApiError(400, "Mã bản lịch sử không hợp lệ.")
+            raise ApiError(400, "Invalid history version id.")
         path = self.history / hid
         if not path.is_file():
-            raise ApiError(404, "Không thấy bản lịch sử này.")
+            raise ApiError(404, "This history version was not found.")
         obj = self.read_json(path)
         validate_project(obj)
         return path, obj
@@ -348,10 +348,10 @@ class Editor:
     def waveform(self, src: str) -> dict:
         path = safe_join(self.public, src)
         if not path or not path.is_file():
-            raise ApiError(404, "Không thấy file âm thanh trong public/.")
+            raise ApiError(404, "Audio file not found in public/.")
         ffmpeg = find_tool("ffmpeg")
         if not ffmpeg:
-            raise ApiError(503, "Chưa có ffmpeg (chạy ./setup.sh --check).")
+            raise ApiError(503, "ffmpeg is not installed (run ./setup.sh --check).")
         st = path.stat()
         key = hashlib.sha1(f"{path}|{st.st_mtime_ns}|{st.st_size}|{WAVE_VERSION}".encode()).hexdigest()[:24]
         cached = CACHE_DIR / f"{key}.json"
@@ -363,9 +363,9 @@ class Editor:
             r = subprocess.run([ffmpeg, "-v", "error", "-nostdin", "-i", str(path), "-vn", "-ac", "1", "-ar", str(WAVE_RATE), "-f", "s16le", "-"],
                                capture_output=True, timeout=180)
         except (OSError, subprocess.SubprocessError) as e:
-            raise ApiError(500, f"ffmpeg không đọc được file: {e}")
+            raise ApiError(500, f"ffmpeg could not read the file: {e}")
         if r.returncode != 0:
-            raise ApiError(422, "ffmpeg không giải mã được file này.")
+            raise ApiError(422, "ffmpeg could not decode this file.")
         samples = array.array("h")
         samples.frombytes(r.stdout[: len(r.stdout) // 2 * 2])
         if sys.byteorder == "big":
@@ -405,10 +405,10 @@ class RenderJob:
         path = self.ed.project_path(name)
         npx = shutil.which("npx")
         if not npx or not (self.ed.dir / "node_modules" / ".bin").is_dir():
-            raise ApiError(412, "Chưa cài Node/npm packages cho thư mục render: chạy `npm install` trong đó (tải ~300 MB, hãy hỏi chủ dự án trước).")
+            raise ApiError(412, "Node/npm packages are not installed for the render folder: run `npm install` there (a ~300 MB download: ask the project owner first).")
         with self.lock:
             if self.state == "running":
-                raise ApiError(409, "Đang có một lần render chạy.")
+                raise ApiError(409, "A render is already running.")
             stem = path.stem
             cmd = [npx, "remotion", "render", "src/index.ts", "Short", f"out/{stem}.mp4", f"--props={path.name}",
                    "--codec=h264", "--crf=18", f"--concurrency={min(5, os.cpu_count() or 1)}"]  # Remotion refuses more workers than cores
@@ -421,7 +421,7 @@ class RenderJob:
                 self.proc = subprocess.Popen(cmd, cwd=self.ed.dir, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                                              stderr=subprocess.STDOUT, env=env, **kwargs)
             except OSError as e:
-                raise ApiError(500, f"Không chạy được lệnh render: {e}")
+                raise ApiError(500, f"Could not run the render command: {e}")
             self.state, self.name, self.output = "running", path.name, f"out/{stem}.mp4"
             self.started, self.finished, self.returncode, self.cancelled = time.time(), 0.0, None, False
             self.log.clear()
@@ -476,7 +476,7 @@ class RenderJob:
     def cancel(self) -> dict:
         with self.lock:
             if self.state != "running" or not self.proc:
-                raise ApiError(409, "Không có lần render nào đang chạy.")
+                raise ApiError(409, "No render is running.")
             self.cancelled = True
             self.terminate()
         return self.status()
@@ -536,7 +536,7 @@ class Handler(BaseHTTPRequestHandler):
         host = (self.headers.get("Host") or "").lower()
         origin = (self.headers.get("Origin") or "").lower()
         if host not in self.server.allowed_hosts or (origin and origin not in self.server.allowed_origins):  # type: ignore[attr-defined]
-            self.fail(403, "Yêu cầu không đến từ trang trình sửa này.")
+            self.fail(403, "The request did not come from this editor page.")
             return False
         return True
 
@@ -547,14 +547,14 @@ class Handler(BaseHTTPRequestHandler):
             length = -1
         if length < 0 or length > MAX_BODY:
             self.close_connection = True  # the body stays unread, so the connection cannot be reused
-            raise ApiError(413 if length > 0 else 400, "Nội dung gửi lên không hợp lệ hoặc quá lớn.")
+            raise ApiError(413 if length > 0 else 400, "The request body is invalid or too large.")
         raw = self.rfile.read(length)  # always consume the body so the keep-alive connection stays in step
         if (self.headers.get("Content-Type") or "").split(";")[0].strip().lower() != "application/json":
-            raise ApiError(415, "Cần Content-Type: application/json.")
+            raise ApiError(415, "Content-Type: application/json is required.")
         try:
             return json.loads(raw.decode("utf-8")) if raw.strip() else {}
         except (ValueError, UnicodeDecodeError):
-            raise ApiError(400, "Không đọc được JSON gửi lên.")
+            raise ApiError(400, "Could not parse the JSON that was sent.")
 
     def send_file(self, path: Path) -> None:
         """Serve a file with ETag and single-range support (browsers seek in video and audio with Range)."""
@@ -612,9 +612,9 @@ class Handler(BaseHTTPRequestHandler):
     def serve_under(self, base: Path, rel: str) -> None:
         target = safe_join(base, rel)
         if target is None:
-            return self.fail(403, "Đường dẫn không được phép.")
+            return self.fail(403, "Path not allowed.")
         if not target.is_file():
-            return self.fail(404, "Không thấy file.")
+            return self.fail(404, "File not found.")
         self.send_file(target)
 
     # ---- routing
@@ -635,12 +635,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self.api_get(path, query)
             name = "index.html" if path == "/" else path.lstrip("/")
             if "/" in name or name.startswith(".") or name not in {p.name for p in ASSET_DIR.iterdir() if p.is_file()}:
-                return self.fail(404, "Không thấy trang.")
+                return self.fail(404, "Page not found.")
             self.send_file(ASSET_DIR / name)
         except ApiError as e:
             self.fail(e.status, e.message, e.extra)
         except Exception as e:  # keep the server alive; the page shows the message
-            self.fail(500, f"Lỗi máy chủ: {e}")
+            self.fail(500, f"Server error: {e}")
 
     def api_get(self, path: str, q: dict) -> None:
         ed = self.ed
@@ -663,7 +663,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(ed.waveform(q.get("src", "")))
         if path == "/api/render/status":
             return self.send_json(ed.render.status())
-        self.fail(404, "Không có API này.")
+        self.fail(404, "No such API.")
 
     def do_POST(self):
         if not self.guard():
@@ -682,11 +682,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(ed.render.start(body.get("name") if isinstance(body, dict) else None), 202)
             if path == "/api/render/cancel":
                 return self.send_json(ed.render.cancel())
-            self.fail(404, "Không có API này.")
+            self.fail(404, "No such API.")
         except ApiError as e:
             self.fail(e.status, e.message, e.extra)
         except Exception as e:
-            self.fail(500, f"Lỗi máy chủ: {e}")
+            self.fail(500, f"Server error: {e}")
 
 
 class Server(ThreadingHTTPServer):

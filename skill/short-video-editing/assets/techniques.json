@@ -108,7 +108,7 @@
    "name": "Price",
    "about": "A count-up price with a pulse and an optional struck-through old price; must match the listing exactly.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "price | upper | value=199000; unit=đ; old=249000",
+   "plan": "price | upper | value=199; unit=$; old=249",
    "renderers": [
     "remotion",
     "hyperframes"
@@ -3202,7 +3202,7 @@
    "name": "Scramble",
    "about": "Random glyphs flicker, then lock into the real letters left to right (about 0.8 s). 1-3 words; hold it after the lock; never on spoken captions.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "phrase | top | emph=ĐÃ CÓ KẾT QUẢ; fx=scramble",
+   "plan": "phrase | top | emph=RESULTS ARE IN; fx=scramble",
    "renderers": [
     "remotion"
    ],
@@ -3224,7 +3224,7 @@
    "name": "Blur-in",
    "about": "Each word sharpens out of a soft blur while shrinking from 112%, word after word. A gentle, dreamy opening line.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "phrase | top | emph=Nhẹ như mây; fx=blurin",
+   "plan": "phrase | top | emph=Light as a cloud; fx=blurin",
    "renderers": [
     "remotion"
    ],
@@ -3266,7 +3266,7 @@
    "name": "Slice reveal",
    "about": "Three bands of the line slide in from alternating sides and snap together; the top band stays whole so Vietnamese marks are not cut.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "phrase | top | emph=CẮT LỚP; fx=slice",
+   "plan": "phrase | top | emph=LAYERED CUT; fx=slice",
    "renderers": [
     "remotion"
    ],
@@ -3287,7 +3287,7 @@
    "name": "Word pop",
    "about": "Each word springs in tilted from 60% and settles, one after another, so the line bounces along with the voice.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "phrase | top | emph=Nhẹ như mây ngọt như mơ; fx=popword",
+   "plan": "phrase | top | emph=Light as a cloud sweet as a dream; fx=popword",
    "renderers": [
     "remotion"
    ],
@@ -3308,7 +3308,7 @@
    "name": "Split-flap",
    "about": "Airport-board cells flip through glyphs and land on the real ones. For digits and capitals: a price, a countdown, a short offer.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "phrase | top | emph=ƯU ĐÃI 24H; fx=flap",
+   "plan": "phrase | top | emph=24H DEAL; fx=flap",
    "renderers": [
     "remotion"
    ],
@@ -3352,7 +3352,7 @@
    "name": "Underline draw",
    "about": "The line stays still while a hand-drawn wavy underline wipes in beneath it. Put it on the lowest line of a block.",
    "doc": "references/layout-and-motion-graphics.md",
-   "plan": "phrase | top | emph=Nhẹ như mây; fx=draw",
+   "plan": "phrase | top | emph=Light as a cloud; fx=draw",
    "renderers": [
     "remotion"
    ],

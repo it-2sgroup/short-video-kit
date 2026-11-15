@@ -1,8 +1,8 @@
 {
   "id": "real-estate",
-  "title": "Bất động sản — tour căn hộ, nhà phố, villa, homestay, đất",
+  "title": "Real estate — apartment, townhouse, villa, homestay and land tours",
   "summary": "A property tour cut to music: the best view first, then the route a visitor walks (arrival, living, kitchen, bedrooms, bath, the feature), the facts on screen (area, rooms, price, location) and the agent's contact. The footage moves (gimbal walk-throughs), so the virtual camera stays subtle and speed ramps carry the viewer between rooms.",
-  "intents": ["bất động sản", "bds", "căn hộ", "chung cư", "nhà phố", "biệt thự", "villa", "homestay", "đất nền", "cho thuê", "bán nhà", "tour nhà", "room tour", "house tour", "property", "real estate", "phòng khách", "penthouse", "airbnb"],
+  "intents": ["bất động sản", "bds", "căn hộ", "chung cư", "nhà phố", "biệt thự", "villa", "homestay", "đất nền", "cho thuê", "bán nhà", "tour nhà", "room tour", "house tour", "property", "real estate", "phòng khách", "penthouse", "airbnb", "apartment", "condo", "townhouse", "house", "land", "rental", "for rent", "for sale", "living room", "listing"],
   "expect": {"speech": "none", "motion": "high"},
   "signals": ["wide interior and exterior shots", "camera walking or gliding through rooms (gimbal, slider, drone)", "no one speaking to camera, or one agent presenting", "windows, views, furniture details"],
   "platforms": ["tiktok", "reels"],
@@ -16,7 +16,7 @@
     {"type": "KITCHEN", "share": 0.12, "purpose": "kitchen and dining, one detail shot", "graphics": "label, callout on one feature"},
     {"type": "BEDROOM", "share": 0.2, "purpose": "bedrooms, the master first", "graphics": "label"},
     {"type": "BATH", "share": 0.08, "purpose": "bathroom, one clean frame", "graphics": "label"},
-    {"type": "FEATURE", "share": 0.18, "purpose": "the selling point: balcony, view, pool, rooftop, amenities", "graphics": "title or stat (e.g. 5 phút tới …, estimated)", "speed": "ramp 1>1.8>1"},
+    {"type": "FEATURE", "share": 0.18, "purpose": "the selling point: balcony, view, pool, rooftop, amenities", "graphics": "title or stat (e.g. \"5 minutes to …\", estimated)", "speed": "ramp 1>1.8>1"},
     {"type": "SPECS", "seconds": 4.0, "purpose": "a calm wide shot under the facts", "graphics": "specs card (m², bedrooms, baths, direction, legal status) + price; image for a floor plan"},
     {"type": "CTA", "seconds": 3.5, "purpose": "agent or brand, how to book a viewing", "graphics": "lowerThird (agent, phone shown only if the user asks), title"}
   ],
@@ -43,11 +43,11 @@
   },
   "sfx": {"sceneStart": {"HOOK>HOOK": null}},
   "compliance": [
-    "Price, area and room count match the listing and the documents; say whether area is thông thủy or tim tường",
-    "Legal status (sổ hồng/sổ đỏ, HĐMB) only as the owner's documents state it; never invented",
+    "Price, area and room count match the listing and the documents; say whether the area is net usable (\"thông thủy\") or wall-centre (\"tim tường\")",
+    "Legal status (pink book / red book ownership certificate, sale contract) only as the owner's documents state it; never invented",
     "No promised returns, guaranteed price rises or rental yields",
-    "Renders, 3D views and virtual staging labelled \"hình minh hoạ\"; nothing shown that is not part of the sale",
-    "Travel times (\"5 phút tới…\") labelled as estimates",
+    "Renders, 3D views and virtual staging labelled \"illustration\" (\"hình minh hoạ\"); nothing shown that is not part of the sale",
+    "Travel times (\"5 minutes to…\") labelled as estimates",
     "Broker or developer identified; phone numbers only if the user asks to show them",
     "Faces of residents, neighbours and house numbers of other homes kept out of frame or blurred",
     "Music licensed for commercial use (business account)"
@@ -56,7 +56,7 @@
   "variants": {
     "voiceover": {
       "about": "An agent's voiceover (or on-camera intro) carries the tour; cuts follow the voice.",
-      "intents": ["giọng đọc", "thuyết minh", "lồng tiếng", "giới thiệu dự án", "voiceover", "voice"],
+      "intents": ["giọng đọc", "thuyết minh", "lồng tiếng", "giới thiệu dự án", "voiceover", "voice", "narration", "narrated", "dubbing", "project introduction"],
       "expect": {"speech": "voiceover"},
       "drive": "voice",
       "captions": "karaoke"

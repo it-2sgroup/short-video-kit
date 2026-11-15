@@ -1,13 +1,13 @@
 {
   "id": "food-fnb",
-  "title": "Ẩm thực / nhà hàng / quán / F&B",
+  "title": "Food / restaurant / eatery / F&B",
   "summary": "Appetite first: the hero bite, pour or sizzle inside the first second, then the place, the making, the dish, the reaction, the price and where to find it. Fast cuts on the music or the voice, warm grade, real sound of the kitchen kept under the music.",
-  "intents": ["ẩm thực", "món ăn", "nhà hàng", "quán", "food", "review quán", "đồ ăn", "đồ uống", "cafe", "cà phê", "trà sữa", "buffet", "lẩu", "nướng", "f&b", "menu", "mukbang", "đặc sản", "bếp"],
+  "intents": ["ẩm thực", "món ăn", "nhà hàng", "quán", "food", "review quán", "đồ ăn", "đồ uống", "cafe", "cà phê", "trà sữa", "buffet", "lẩu", "nướng", "f&b", "menu", "mukbang", "đặc sản", "bếp", "cuisine", "dish", "restaurant", "eatery", "drinks", "coffee", "milk tea", "bubble tea", "hotpot", "grill", "bbq", "specialty", "kitchen", "street food"],
   "expect": {"speech": "any", "motion": "any"},
   "signals": ["close-ups of food, steam, pouring, cutting, cheese pull", "warm restaurant light (amber, wood)", "a kitchen or a table", "a person eating or reacting"],
   "platforms": ["tiktok", "reels"],
   "runtime": {"min": 15, "max": 45, "ideal": [22, 35], "why": "Food watch-through drops fast once the dish has been seen; keep it tight."},
-  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.3, "minBeat": 0.8, "purpose": "the hero moment (bite, pull, pour, sizzle) then the dish in full", "graphics": "title: what it is and one hook word (giá, địa điểm, độ ngon)"},
+  "hook": {"deadline": 3.0, "beats": 2, "beat": 1.3, "minBeat": 0.8, "purpose": "the hero moment (bite, pull, pour, sizzle) then the dish in full", "graphics": "title: what it is and one hook word (price, location, taste)"},
   "scenes": {"min": 1.2, "max": 3.5, "target": 2.2},
   "drive": "music",
   "structure": [
@@ -41,7 +41,7 @@
   "sfx": {"sceneStart": {"HOOK>HOOK": null}},
   "compliance": [
     "Prices match the menu on the day of filming; promotions with their dates",
-    "No health or medical claims (\"chữa\", \"giảm cân\", \"tốt cho gan\") for food or drinks",
+    "No health or medical claims (\"chữa\" cure, \"giảm cân\" weight loss, \"tốt cho gan\" good for the liver) for food or drinks",
     "Alcohol: no appeal to minors, no drinking-and-driving, follow the platform's alcohol rules",
     "Paid or gifted visit disclosed (commercial-content toggle)",
     "Staff and other diners: consent, or out of frame",
@@ -51,7 +51,7 @@
   "variants": {
     "review": {
       "about": "A reviewer talks: voice-driven, the reviewer's verdict carries the video.",
-      "intents": ["review quán", "đánh giá quán", "food review", "ăn thử"],
+      "intents": ["review quán", "đánh giá quán", "food review", "ăn thử", "restaurant review", "review restaurant", "taste test", "tasting"],
       "drive": "voice",
       "expect": {"speech": "on-camera"},
       "scenes": {"min": 1.5, "max": 4.0, "target": 2.8},

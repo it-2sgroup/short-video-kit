@@ -1,8 +1,8 @@
 {
   "id": "fashion-beauty",
-  "title": "Thời trang / làm đẹp — thử đồ, phối đồ, lookbook, makeup, skincare",
+  "title": "Fashion / beauty — try-on, outfit styling, lookbook, makeup, skincare",
   "summary": "Transformation on the beat: outfit changes and looks cut on the music with match cuts (same pose, same framing) and short speed ramps, each item labelled with its name and price, skin kept natural in the grade. Beauty claims are tightly regulated: show the routine, not promises.",
-  "intents": ["thời trang", "phối đồ", "outfit", "try on", "thử đồ", "lookbook", "ootd", "quần áo", "váy", "giày", "túi", "makeup", "trang điểm", "skincare", "chăm sóc da", "mỹ phẩm", "làm đẹp", "son", "beauty", "tóc"],
+  "intents": ["thời trang", "phối đồ", "outfit", "try on", "thử đồ", "lookbook", "ootd", "quần áo", "váy", "giày", "túi", "makeup", "trang điểm", "skincare", "chăm sóc da", "mỹ phẩm", "làm đẹp", "son", "beauty", "tóc", "fashion", "clothes", "dress", "shoes", "handbag", "cosmetics", "lipstick", "hair", "haul"],
   "expect": {"speech": "any", "motion": "any"},
   "signals": ["a person in full or half body, mirror shots", "repeated framing with different outfits or looks", "close-ups of face, skin, fabric, product textures"],
   "platforms": ["tiktok", "reels"],
@@ -38,7 +38,7 @@
   },
   "sfx": {"sceneStart": {"HOOK>HOOK": "whoosh"}},
   "compliance": [
-    "Cosmetics: no treatment or medical claims (trị mụn, trị nám, trắng da cấp tốc, mọc tóc); TikTok bars before/after for acne, whitening and hair loss",
+    "Cosmetics: no treatment or medical claims (\"trị mụn\" acne treatment, \"trị nám\" melasma treatment, \"trắng da cấp tốc\" instant whitening, \"mọc tóc\" hair regrowth); TikTok bars before/after for acne, whitening and hair loss",
     "No skin smoothing or reshaping filters on a product result; the grade is the same on every shot",
     "Prices and sizes match the listing",
     "Gifted or paid items disclosed",

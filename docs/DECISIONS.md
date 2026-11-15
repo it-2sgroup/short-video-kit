@@ -1,214 +1,214 @@
-# Quyết định, bẫy đã gặp, và nguồn
+# Decisions, pitfalls met, and sources
 
-Mỗi mục ghi **điều gì đúng**, **vì sao biết**, và **chỗ nào còn chưa chắc**. Chỉ giữ quyết định và bẫy của **kỹ thuật**;
-việc đã làm cho từng khách (tên khách, số liệu chiến dịch, tên file) nằm ở `docs/CASE-LOG.md`.
+Each entry records **what is true**, **how we know**, and **what is still uncertain**. Only **technical** decisions and pitfalls are kept here;
+the work done for each client (client names, campaign figures, file names) is in `docs/CASE-LOG.md`.
 
-## Giấy phép — hai chỗ tốn tiền / có thể vi phạm
+## Licences: two places that cost money / may be a violation
 
-| Công cụ | Điều khoản | Nguồn |
+| Tool | Terms | Source |
 |---|---|---|
-| **Remotion** | Free cho cá nhân hoặc tổ chức vì lợi nhuận **tối đa 3 nhân viên**. Trên mức đó cần Company License **$25/tháng/người "who writes Remotion code themselves or using agentic coding tools"** → Claude viết code vẫn tính 1 ghế | `LICENSE.md` của repo remotion-dev/remotion; remotion.dev/docs/license/faq |
-| **ElevenLabs** | Gói Free **"cannot be used for any commercial purpose"**; âm thanh tạo ngoài gói trả phí "(before or after) cannot be used commercially"; Free phải ghi nguồn | elevenlabs.io/docs/help-center/legal/can-i-publish-the-content-i-generate-on-the-platform |
-| ffmpeg bản tĩnh | GPL. Dùng nội bộ, không phân phối lại | johnvansickle.com/ffmpeg |
+| **Remotion** | Free for individuals or for-profit organisations with **at most 3 employees**. Above that a Company License is needed, **$25/month/person "who writes Remotion code themselves or using agentic coding tools"** → Claude writing the code still counts as 1 seat | `LICENSE.md` of the repo remotion-dev/remotion; remotion.dev/docs/license/faq |
+| **ElevenLabs** | The Free plan **"cannot be used for any commercial purpose"**; audio generated outside a paid plan "(before or after) cannot be used commercially"; Free requires attribution | elevenlabs.io/docs/help-center/legal/can-i-publish-the-content-i-generate-on-the-platform |
+| ffmpeg static build | GPL. Internal use, no redistribution | johnvansickle.com/ffmpeg |
 | Whisper / faster-whisper | MIT | — |
 
-Telemetry Remotion: render CLI phía máy chỉ gửi dữ liệu **khi đặt license key**; render phía trình duyệt luôn gửi
-(IP, tên miền). Ghi lại để biết, **không phải** gợi ý né giấy phép — công ty đang đủ điều kiện Free.
+Remotion telemetry: the machine-side render CLI only sends data **when a license key is set**; browser-side rendering always sends
+(IP, domain name). Recorded for information, **not** a hint to dodge the licence: the company currently qualifies for Free.
 
-## Bẫy kỹ thuật đã gặp
+## Technical pitfalls met
 
-**1. `eleven_multilingual_v2` KHÔNG hỗ trợ tiếng Việt.** Tên "multilingual" gây hiểu nhầm; model chỉ có 29 ngôn
-ngữ, không có `vi`. Có `vi`: `eleven_v4`, `eleven_v4_turbo`, `eleven_v3`, `eleven_turbo_v2_5`,
-`eleven_flash_v2_5`. Cách biết: `GET /v1/models`, xem `languages`. Bản đầu của tài liệu này đã viết sai — sửa sau
-khi hỏi API. Mặc định hiện tại: `eleven_turbo_v2_5` (đã thử: chấp nhận cài đặt, chạy được trên gói Free).
+**1. `eleven_multilingual_v2` does NOT support Vietnamese.** The name "multilingual" is misleading; the model has only 29
+languages, with no `vi`. Models with `vi`: `eleven_v4`, `eleven_v4_turbo`, `eleven_v3`, `eleven_turbo_v2_5`,
+`eleven_flash_v2_5`. How to know: `GET /v1/models`, look at `languages`. The first version of this document got it wrong: fixed after
+asking the API. Current default: `eleven_turbo_v2_5` (tried: it accepts the settings and runs on the Free plan).
 
-**2. Gói Free chỉ gọi được giọng `premade` qua API.** Giọng thư viện/professional (kể cả giọng Việt Ethan
-trong tài khoản) trả HTTP 402 `paid_plan_required`.
+**2. The Free plan can only call `premade` voices through the API.** Library/professional voices (including the Vietnamese voice Ethan
+in the account) return HTTP 402 `paid_plan_required`.
 
-**3. Whisper nghe sai tiếng Việt.** "túi xách" → "tui sách", "kiểu dáng" → "kiểu gián". Vô hình trong bản ghi,
-chói mắt khi burn lên video. Cách xử lý: lấy **thời gian** từ Whisper, lấy **chữ** từ kịch bản gốc (ta đã biết
-chính xác vì chính ta gửi cho TTS), ghép bằng so chuỗi bỏ dấu. Kiểm chứng: 171/171 từ khớp.
+**3. Whisper mishears Vietnamese.** "túi xách" (handbag) → "tui sách", "kiểu dáng" (style) → "kiểu gián" (cockroach style). Invisible in a transcript,
+glaring when burned onto a video. The fix: take the **timing** from Whisper, take the **words** from the original script (we know them
+exactly because we sent them to the TTS), and join them by comparing strings with the diacritics removed. Verified: 171/171 words matched.
 
-**4. faster-whisper 1.2.1 vỡ với PyAV mới** (`open() got an unexpected keyword argument 'metadata_errors'`).
-Không ghim phiên bản; giải mã bằng ffmpeg ra mảng numpy rồi đưa thẳng cho Whisper.
+**4. faster-whisper 1.2.1 breaks with a new PyAV** (`open() got an unexpected keyword argument 'metadata_errors'`).
+Do not pin the version; decode with ffmpeg into a numpy array and hand that straight to Whisper.
 
-**5. Nhãn cảm xúc `[excited]` chỉ model dòng v3 hiểu.** Model khác đọc to chữ "excited". `make_voiceover.py`
-tự bỏ nhãn cho model không hỗ trợ; `align_captions.py` luôn bỏ nhãn khỏi chữ phụ đề.
+**5. The `[excited]` emotion tag is only understood by v3-family models.** Other models read the word "excited" aloud. `make_voiceover.py`
+drops the tag for models that do not support it; `align_captions.py` always removes tags from the caption text.
 
-**6. venv Python không mang sang máy khác được** (gắn cứng đường dẫn và phiên bản). Vì vậy `setup.sh` dựng
-lại thay vì copy. Venv của Python là symlink tới Python hệ thống nên so `resolve()` không phân biệt được hai
-cái — lỗi này đã bắt được nhờ chạy `selftest.sh` trên "máy mới" giả lập.
+**6. A Python venv cannot be carried to another machine** (paths and version are hard-wired). That is why `setup.sh` rebuilds
+instead of copying. A Python venv is a symlink to the system Python, so comparing `resolve()` cannot tell the two
+apart: this bug was caught by running `selftest.sh` on a simulated "new machine".
 
-**7. Kho cache Hugging Face mới dùng `blobs/` chung**, nên `du` trên thư mục model báo 2,6MB trong khi model thật
-462MB (symlink). Khi đóng gói phải `cp -L`.
+**7. The new Hugging Face cache uses a shared `blobs/` folder**, so `du` on the model folder reports 2.6 MB while the real model is
+462 MB (symlinks). When packaging, use `cp -L`.
 
-## Kiến trúc dựng (11/2026)
+## Edit architecture (11/2026)
 
-**Một bảng kế hoạch → `project.json` → một composition Remotion.** Không có nội dung video nào nằm trong
-code: đổi video là đổi kế hoạch. Lý do:
-- Kênh Mike Like Design (TikTok) chỉ ra rằng sửa video bằng cách gõ prompt cho từng thay đổi vừa lâu vừa tốn
-  token; một bộ skill/workflow cố định + dữ liệu là cách làm nhanh và rẻ.
-- `browser-use/video-use` (MIT) làm tương tự: tác tử làm việc trên transcript cấp từ chứ không trên khung hình.
-- `remotion-dev/skills` (quy tắc chính thức của Remotion cho tác tử AI): mọi chuyển động theo
-  `useCurrentFrame()`, transform trên lớp bọc, `perceptual-scale` khi phóng.
+**One plan table → `project.json` → one Remotion composition.** No video content lives in the
+code: changing the video means changing the plan. Reasons:
+- The channel Mike Like Design (TikTok) showed that editing a video by typing a prompt for every change is both slow and token-hungry;
+  a fixed set of skills/workflow + data is the fast, cheap way.
+- `browser-use/video-use` (MIT) does the same: the agent works on a word-level transcript, not on frames.
+- `remotion-dev/skills` (Remotion's official rules for AI agents): all motion follows
+  `useCurrentFrame()`, transforms on a wrapper layer, `perceptual-scale` when zooming.
 
-Các thành phần đã chọn và nguồn tham khảo:
+Components chosen and reference sources:
 
-| Phần | Lựa chọn | Nguồn |
+| Part | Choice | Source |
 |---|---|---|
-| Chuyển cảnh | `@remotion/transitions` (fade, slide, wipe, iris, pushCut, flip, crossZoom) + 3 cái tự viết (zoomThrough, blurDissolve, whip); căn giữa điểm cắt để không lệch giọng | Tài liệu Remotion; HyperFrames (Apache-2.0) cho thông số whip/blur |
-| Chữ | Be Vietnam Pro + Playfair Display Italic (chữ nhấn) + Anton (số); 5 kiểu tiêu đề; không khung viền | Siêu dữ liệu Google Fonts (đã kiểm subset `vietnamese`); ảnh mẫu của kênh Mike Like Design |
-| Bố cục | Dải trên đầu / mặt bỏ trống / dải ngực / dải phụ đề; tránh thanh nút bên phải | Đo của bên thứ ba (TikTok không công bố); Remotion safe-zone overlay |
-| Góc máy | push/pull/pan/hold + punch-in theo từ khoá, phóng perceptual, không reset ở điểm cắt | StudioBinder, iart-ai/tiktok-video-skills (MIT), tài liệu Remotion |
-| Bắt nhịp | Neo đồ hoạ vào từ (`@"từ"`), cắt ở khoảng lặng, báo cáo đồng bộ tự động | Hướng dẫn phụ đề tiếng Việt của Netflix (17 ký tự/giây), video-use |
+| Transitions | `@remotion/transitions` (fade, slide, wipe, iris, pushCut, flip, crossZoom) + 3 written by us (zoomThrough, blurDissolve, whip); centred on the cut point so they do not drift from the voice | Remotion docs; HyperFrames (Apache-2.0) for the whip/blur parameters |
+| Text | Be Vietnam Pro + Playfair Display Italic (emphasis) + Anton (numbers); 5 title styles; no outlined boxes | Google Fonts metadata (the `vietnamese` subset was checked); sample images from the channel Mike Like Design |
+| Layout | Strip at the top / a free face area / a chest strip / a caption strip; avoid the button bar on the right | Third-party measurements (TikTok does not publish them); the Remotion safe-zone overlay |
+| Camera | push/pull/pan/hold + a keyword-driven punch-in, perceptual zoom, no reset at cuts | StudioBinder, iart-ai/tiktok-video-skills (MIT), Remotion docs |
+| Beat sync | Anchor graphics to a word (`@"word"`), cut on pauses, an automatic sync report | Netflix's Vietnamese subtitle guidelines (17 characters/second), video-use |
 
-`iart-ai` = bộ skill MIT `iart-ai/tiktok-video-skills` và `ecommerce-video-skills` (Remotion). Đã đọc, lấy
-thông số; không chép nguyên văn vì có vài con số không có nguồn ("87% quyết định trong 3 giây").
+`iart-ai` = the MIT skill sets `iart-ai/tiktok-video-skills` and `ecommerce-video-skills` (Remotion). Read, parameters
+taken; not copied verbatim because some numbers have no source ("87% decide in 3 seconds").
 
-**Đã kiểm thực tế trên máy Windows của dự án:** render shader (`crossZoom`, light leak) với GL `angle`; render
-đủ 33,7 giây với 12 cảnh, 17 lớp đồ hoạ, phụ đề karaoke; audio và hình dài bằng nhau.
+**Checked for real on the project's Windows machine:** a shader render (`crossZoom`, light leak) with GL `angle`; a full
+33.7-second render with 12 scenes, 17 graphic layers, karaoke captions; audio and picture of equal length.
 
-**Chưa kiểm:** chưa nghe/xem trọn video cuối trên điện thoại thật; vùng an toàn chưa đối chiếu bằng bài đăng
-thử; chưa render từ proxy 2160×3840 (punch-in > 1,15× sẽ mờ trên proxy 1080p).
+**Not checked:** the final video was not listened to/watched in full on a real phone; the safe zones were not compared against a trial
+post; no render from a 2160×3840 proxy yet (a punch-in > 1.15× will be blurry on a 1080p proxy).
 
-## Renderer thứ hai: HyperFrames (11/2026)
+## The second renderer: HyperFrames (11/2026)
 
-**Vì sao.** Remotion tính phí theo ghế từ 4 nhân viên trở lên và một tác tử viết code Remotion cũng chiếm ghế. HyperFrames
-(HeyGen, Apache-2.0, "không phí mỗi lần render hay ngưỡng thương mại" theo README) dựng video từ HTML + animation tua được,
-render bằng Chrome headless + ffmpeg. Chọn cách **giữ nguyên mọi thứ trước bước render** (phân tích, proxy, giọng, phụ đề,
-kế hoạch, bộ kiểm) và chỉ thay renderer: `project_to_hyperframes.py` đọc cùng `project.json`.
+**Why.** Remotion charges per seat from 4 employees up and an agent writing Remotion code also takes a seat. HyperFrames
+(HeyGen, Apache-2.0, "no per-render fee or commercial threshold" according to its README) builds video from HTML + seekable animation,
+rendered with headless Chrome + ffmpeg. The choice was to **keep everything before the render step unchanged** (analysis, proxies, voice, captions,
+plan, checkers) and only swap the renderer: `project_to_hyperframes.py` reads the same `project.json`.
 
-**Thiết kế.** Hợp đồng của HyperFrames là timeline GSAP tạm dừng; bộ vẽ `kit.js` thì là **hàm thuần của khung hình**
-(`render(frame)`) đúng như component Remotion, nên công thức (easing, spring, camera, chuyển cảnh căn giữa) được port nguyên
-và chuyển động không phụ thuộc cách HyperFrames tua. GSAP chỉ đẩy đầu phát qua một setter, vì `seek()` mặc định chặn callback.
-Cảnh có `speed`/`ramp` được nướng bằng ffmpeg (HyperFrames chỉ phát tốc độ không đổi); âm thanh trộn sẵn một file
-(`audio/mix.wav`) để không phụ thuộc tự động hoá âm lượng của HyperFrames.
+**Design.** HyperFrames' contract is a paused GSAP timeline; the `kit.js` painter is a **pure function of the frame**
+(`render(frame)`) exactly like a Remotion component, so the formulas (easing, spring, camera, centred transitions) were ported as they are
+and the motion does not depend on how HyperFrames seeks. GSAP only pushes the playhead through a setter, because `seek()` suppresses callbacks by default.
+Scenes with `speed`/`ramp` are baked with ffmpeg (HyperFrames only plays a constant speed); the audio is pre-mixed into one file
+(`audio/mix.wav`) so it does not depend on HyperFrames' volume automation.
 
-**Đã kiểm thực tế** (Windows, Node 26, HyperFrames 0.9.26, Chrome hệ thống): `check` 0 lỗi (23 cảnh báo `line_unread` do phụ đề
-theo giọng nhanh); một video 28,5 s render ~55 s, 855 khung; độ ồn −16,3 LUFS và thời lượng giống bản Remotion; 6 khung
-chuyển cảnh/phụ đề và 7 khung đồ họa so cạnh nhau giống hệt mắt thường; tốc độ 2x, 0,5x và ramp ra đúng số khung của cảnh.
+**Checked for real** (Windows, Node 26, HyperFrames 0.9.26, system Chrome): `check` 0 errors (23 `line_unread` warnings because captions follow
+fast speech); a 28.5 s video renders in ~55 s, 855 frames; loudness −16.3 LUFS and duration the same as the Remotion version; 6 frames of
+transitions/captions and 7 frames of graphics side by side look identical to the naked eye; speeds 2x, 0.5x and ramp give exactly the scene's frame count.
 
-**Chưa kiểm / hạn chế.** Chưa nghe âm thanh bản HyperFrames; chưa render đồ họa `pin`, `label`, `chart`, `specs`, `stat`,
-`progress`, `lowerThird`, `image` song song với Remotion (đã nhìn ảnh HyperFrames, ảnh Remotion cùng khung không render
-được trong lần chạy đó); không vẽ `magnifier`, `thumbs`, `compare`, `ranking`; `crossZoom` là mờ-phóng chứ không phải shader
-WebGL; trên Windows HyperFrames dùng chụp màn hình (không phải đường BeginFrame chỉ có trên Linux) nên không đảm bảo giống
-từng bit với bản render Linux; GSAP tải từ jsDelivr nên lần render đầu cần mạng.
+**Not checked / limits.** The HyperFrames audio was not listened to; the graphics `pin`, `label`, `chart`, `specs`, `stat`,
+`progress`, `lowerThird`, `image` were not rendered side by side with Remotion (the HyperFrames image was looked at, the Remotion image of the same frame could not be
+rendered in that run); `magnifier`, `thumbs`, `compare`, `ranking` are not drawn; `crossZoom` is a blur-zoom, not a WebGL
+shader; on Windows HyperFrames uses screen capture (not the BeginFrame path that exists only on Linux), so a bit-for-bit match with a
+Linux render is not guaranteed; GSAP is loaded from jsDelivr, so the first render needs a network.
 
-**So sánh khung hình với Remotion** (cùng video, 855 khung): SSIM 0,987, PSNR 36,3 dB; 852/855 khung trên 0,95. Lần đo
-đầu chỉ 0,946 vì `perceptual-scale` của Remotion nội suy zoom theo **diện tích** (`√(a² + t(b² − a²))`) chứ không phải hàm mũ
-như bản port đầu: đã sửa. Một clip đếm khung cho thấy hai renderer đọc đúng cùng khung nguồn. Thời gian render (cùng máy,
-mỗi bên một lượt): HyperFrames 56 s (một lượt trước đó 122 s), Remotion 100 s.
+**Frame comparison with Remotion** (same video, 855 frames): SSIM 0.987, PSNR 36.3 dB; 852/855 frames above 0.95. The first
+measurement was only 0.946 because Remotion's `perceptual-scale` interpolates zoom by **area** (`√(a² + t(b² − a²))`), not exponentially
+as the first port did: fixed. A frame-counting clip showed that both renderers read exactly the same source frame. Render time (same machine,
+one run each): HyperFrames 56 s (an earlier run 122 s), Remotion 100 s.
 
-**Hiệu ứng kiểu CapCut** (`+shake`, `+glitch`, `+rgb`, `+pulse`, `--look`) chỉ có ở HyperFrames; `plan_to_project.py` lưu
-`scenes[].fx` và cảnh báo rằng Remotion bỏ qua. Bản đầu dùng `drop-shadow` để tách màu: sai (bóng của khung kín chỉ hiện ở
-mép), nên đổi sang bộ lọc SVG tách kênh thật. Bẫy làm tròn: `round()` của Python làm tròn nửa về số chẵn còn
-`Math.round` của JS làm tròn lên, đủ lệch một khung ở chuyển cảnh 9 khung: script dùng hàm làm tròn lên.
+**CapCut-style effects** (`+shake`, `+glitch`, `+rgb`, `+pulse`, `--look`) exist only in HyperFrames; `plan_to_project.py` stores
+`scenes[].fx` and warns that Remotion ignores them. The first version used `drop-shadow` to split colours: wrong (the shadow of an opaque frame only shows at the
+edges), so it was changed to an SVG filter that splits the channels for real. A rounding trap: Python's `round()` rounds half to even while
+JS `Math.round` rounds up, enough to be one frame off at a 9-frame transition: the script uses a round-half-up helper.
 
-Tham khảo: `github.com/heygen-com/hyperframes`, `hyperframes.heygen.com` (html-schema, data-attributes, frame-adapters,
-gsap-animation, shader-transitions, cli, rendering, faq), `heygen.com/research/html-to-video`. Danh mục kỹ thuật CapCut tổng
-hợp từ mô tả công khai của ứng dụng (chợ ứng dụng, trang tính năng): tên và gói trả phí thay đổi.
+References: `github.com/heygen-com/hyperframes`, `hyperframes.heygen.com` (html-schema, data-attributes, frame-adapters,
+gsap-animation, shader-transitions, cli, rendering, faq), `heygen.com/research/html-to-video`. The catalogue of CapCut techniques was compiled
+from the app's public descriptions (app stores, feature pages): names and paid tiers change.
 
-## Keyframe camera (11/2026)
+## Camera keyframes (11/2026)
 
-**Vì sao.** CapCut dựng chuyển động bằng keyframe (đặt giá trị tại mốc, đổi tiếp ở mốc khác, easing cho từng đoạn); bộ công cụ
-chỉ có một cú push/pull/pan cho mỗi cảnh. Thêm `Camera: keys TIME=ZOOM[@X,Y][ roll DEG][ ease] ; …`: 2-4 khung hình có tên, mỗi đoạn
-một easing, tiêu điểm là **điểm của cảnh quay** đặt vào giữa khung (khác `focus` là điểm gốc của phép scale). Hai renderer cùng đọc
-`scenes[].camera.keys` (`ts` = giây kể từ điểm cắt; phân số của cảnh được đổi sang giây ở `plan_to_project.py`).
+**Why.** CapCut builds motion with keyframes (set a value at a mark, change it at another mark, easing for each segment); the toolkit
+had only one push/pull/pan per scene. Added `Camera: keys TIME=ZOOM[@X,Y][ roll DEG][ ease] ; …`: 2-4 named frames, one
+easing per segment, and the focus is the **point of the shot** placed at the centre of the frame (unlike `focus`, which is the origin point of the scale). Both renderers read
+`scenes[].camera.keys` (`ts` = seconds from the cut point; fractions of the scene are converted to seconds in `plan_to_project.py`).
 
-**Quyết định thiết kế.** Zoom nội suy theo **diện tích** như `perceptual-scale` của Remotion; tâm và roll nội suy tuyến tính; mép khung
-không bao giờ lộ (tịnh tiến bị kẹp theo phần scale dư, trừ phần roll cần); 8 easing có tên thay vì tay cầm bezier tự do, vì đủ cho
-quảng cáo ngắn và kiểm được; `back` (lố 8 %) chỉ dùng một lần mỗi video. Nguồn: trang keyframe và hướng dẫn PC của CapCut (các
-công thức: Ken Burns = hai keyframe scale cách nhau vài giây, punch-in = hai keyframe sát nhau), nguyên tắc easing/anticipation/
-overshoot trong thiết kế chuyển động (dùng tiết chế).
+**Design decisions.** Zoom is interpolated by **area** like Remotion's `perceptual-scale`; centre and roll are interpolated linearly; the frame edge
+is never exposed (translation is clamped by the spare scale, except what the roll needs); 8 named easings instead of free bezier handles, because that is enough for
+short ads and can be checked; `back` (8 % overshoot) is used once per video at most. Sources: CapCut's keyframe page and PC guide (the
+recipes: Ken Burns = two scale keyframes a few seconds apart, punch-in = two keyframes close together), the principles of easing/anticipation/
+overshoot in motion design (used sparingly).
 
 
 
-## Mở rộng đa thể loại (11/2026)
+## Multi-genre extension (11/2026)
 
-**Vì sao playbook.** Bộ công cụ ban đầu chỉ cho một thể loại (review sản phẩm): hằng số nhịp (2,5–4 s, 25–45 s), cấu trúc
-HOOK→PROBLEM→…→REVEAL, loại shot STAIN/POUR/SOAK, camera và chuyển cảnh đều nằm cứng trong script. Giờ mọi thứ phụ thuộc
-thể loại là dữ liệu trong `playbooks/<id>.json`, có 8 thể loại và 7 biến thể. House style của một khách (cảnh 3–4 s, chuyển
-cảnh mềm, không chữ trong khung) là mặc định của playbook `product-demo`, không áp cho ẩm thực hay montage (ở đó cảnh 1–2 s theo
-beat là chuẩn nghề) — nếu cùng khách làm thể loại khác thì nói rõ với khách.
+**Why playbooks.** The original toolkit served a single genre (product review): the pacing constants (2.5–4 s, 25–45 s), the structure
+HOOK→PROBLEM→…→REVEAL, the shot types STAIN/POUR/SOAK, the camera and the transitions were all hard-coded in scripts. Now everything that depends on the
+genre is data in `playbooks/<id>.json`, with 8 genres and 7 variants. A client's house style (scenes 3–4 s, soft
+transitions, no text in boxes) is the default of the `product-demo` playbook, not applied to food or montage (where 1–2 s scenes on the
+beat are the craft standard): if the same client does another genre, say so to the client.
 
-**Nguyên tắc "kỹ thuật phải được dùng".** `playbook.py check` (selftest chạy) báo lỗi nếu một thành phần đồ họa, grade,
-theme hay kiểu phụ đề không được playbook nào dùng; mỗi khóa trong JSON đều có script đọc (bảng ở `playbooks/README.md`);
-khung kế hoạch do chính playbook sinh ra phải qua luật nhịp của chính nó ở cả hai đầu khoảng thời lượng lý tưởng.
+**The principle "a technique must be used".** `playbook.py check` (run by the selftest) fails if a graphic component, grade,
+theme or caption style is not used by any playbook; every key in the JSON has a script that reads it (the table in `playbooks/README.md`);
+the plan skeleton generated by the playbook itself must pass the playbook's own pacing rules at both ends of the ideal duration range.
 
-**Bẫy đã gặp khi làm (đã đo, đã sửa):**
+**Pitfalls met while building (measured, fixed):**
 
-| Bẫy | Hậu quả | Cách xử lý trong code |
+| Pitfall | Consequence | How the code handles it |
 |---|---|---|
-| Cân trắng "gray world" trên mọi điểm ảnh | Chậu nhựa xanh lá trong clip thật đọc thành ám xanh +0,10 | Chỉ đo điểm ảnh gần trung tính; < 5% khung là trung tính thì không đoán |
-| Đo nhiễu bằng PSNR so với bản khử nhiễu | Bê tông có vân (ban ngày, sạch) đọc 43,6 dB như "nhiễu" | Khử nhiễu chỉ khi < 40 dB, hoặc < 44 dB và cảnh tối |
-| `hqdn3d` ở khung đầu tiên | Gần như không lọc → PSNR khung đầu 55 dB so với 41 dB các khung sau | Bỏ khung đầu khi đo |
-| Bộ lọc RGB ngay sau `vidstabtransform` | ffmpeg 7.0 segfault (exit −11) | Chèn `scale=iw:ih` |
-| Chuỗi màu từng bộ lọc trên 4K60 | 113 s cho 6 s footage | Gộp cân trắng + phơi sáng + grade vào LUT 3D (Hald 64³): 45 s, sai khác 46 dB PSNR |
-| `grayworld` của ffmpeg | Chậm 23× thời gian thực, xuất float | Không dùng |
-| Hai job ffmpeg 4K chạy song song | Máy 14 GB hết RAM, tiến trình bị giết | Tài liệu: một job nặng một lúc trên máy nhỏ |
-| Nền nhiễu = phân vị 10% | Giọng TTS ít khoảng lặng: rơi vào mép từ (−47 dB) → "khử ồn" file sạch, nền lên −31 dB | Phân vị 5% (các khoảng lặng thật, −90 dB) |
-| Nén ngưỡng cố định −24 dB | Giọng to bị nén 10 dB, bước cân mức kéo nhiễu lên theo | Ngưỡng = mức giọng − 8 dB, thêm expander nhẹ |
-| `afftdn`, `alimiter`, `loudnorm` | Trễ 25 ms; tự tăng gain; giới hạn mẫu chứ không phải true peak; linear âm thầm chuyển dynamic | Xem `references/audio-processing.md` |
-| Phụ đề hiện từng chữ | Nghiên cứu ASSETS 2019/2021: người xem đọc trước, câu 6–12 từ dễ hơn từng từ | Kiểu `pop` hiện cả cụm ≤ 5 từ, tô từ đang nói |
-| Animate `playbackRate` trong Remotion | Không hoạt động (docs Remotion) | Ramp đọc lại khung nguồn từng khung trong `<Freeze>`; đã kiểm trên clip có đồng hồ |
+| "Gray world" white balance on every pixel | A green plastic basin in a real clip read as a +0.10 green cast | Measure only near-neutral pixels; when < 5% of the frame is neutral, do not guess |
+| Measuring noise by PSNR against a denoised copy | Textured concrete (daytime, clean) read 43.6 dB as "noisy" | Denoise only when < 40 dB, or < 44 dB and the scene is dark |
+| `hqdn3d` on the first frame | Barely filters → first-frame PSNR 55 dB against 41 dB for later frames | Skip the first frame when measuring |
+| An RGB filter right after `vidstabtransform` | ffmpeg 7.0 segfaults (exit −11) | Insert `scale=iw:ih` |
+| A chain of separate colour filters on 4K60 | 113 s for 6 s of footage | Bake white balance + exposure + grade into a 3D LUT (Hald 64³): 45 s, 46 dB PSNR difference |
+| ffmpeg's `grayworld` | 23× slower than real time, outputs float | Not used |
+| Two 4K ffmpeg jobs in parallel | A 14 GB machine ran out of RAM, a process was killed | Documented: one heavy job at a time on a small machine |
+| Noise floor = 10th percentile | A TTS voice with few pauses: it landed on a word's edge (−47 dB) → "denoising" a clean file, floor up to −31 dB | The 5th percentile (real pauses, −90 dB) |
+| Compression with a fixed −24 dB threshold | A loud voice was compressed by 10 dB and the level-matching step pulled the noise up with it | Threshold = voice level − 8 dB, plus a light expander |
+| `afftdn`, `alimiter`, `loudnorm` | 25 ms delay; adds gain by itself; sample limiting rather than true peak; linear silently turns into dynamic | See `references/audio-processing.md` |
+| Captions showing one word at a time | ASSETS 2019/2021 research: viewers read ahead, sentences of 6–12 words are easier than single words | The `pop` style shows a whole phrase of ≤ 5 words and highlights the spoken word |
+| Animating `playbackRate` in Remotion | Does not work (Remotion docs) | A ramp re-reads the source frame frame by frame inside `<Freeze>`; checked on a clip with a clock |
 
-**Nghiên cứu (07/11/2026):** ba hướng song song — kỹ thuật dựng theo 12 thể loại (có luật VN: Luật Quảng cáo 75/2025
-hiệu lực 01/01/2026, Luật KDBĐS 2023, NĐ 339/2026 thay NĐ 16/2022, cấm "trị" trong mỹ phẩm, cảnh báo TPBVSK), xử lý âm thanh
-+ thông số nền tảng (TikTok/Instagram không công bố chuẩn LUFS; vùng an toàn quảng cáo Reels của Meta 14% trên / 35% dưới /
-6% hai bên; tín hiệu xếp hạng Mosseri 01/2025), xử lý hình (tự đo trên ffmpeg 7.0, clip tổng hợp và một clip iPhone thật
-4K60). Năm con số hay được trích dẫn không tìm thấy nguồn gốc: liệt kê ở `references/platforms.md` §3 để đừng lặp lại.
+**Research (2026-11-07):** three parallel strands: editing techniques for 12 genres (with Vietnamese rules: Advertising Law 75/2025
+in force from 2026-01-01, the 2023 Real Estate Business Law, Decree 339/2026 replacing Decree 16/2022, the ban on "trị" (treat/cure) in cosmetics, the dietary-supplement (TPBVSK) warning), audio processing
++ platform parameters (TikTok/Instagram publish no LUFS standard; Meta's Reels ad safe zone is 14% top / 35% bottom /
+6% on both sides; Mosseri's ranking signals, 2025-01), image processing (self-measured on ffmpeg 7.0, synthetic clips and one real 4K60
+iPhone clip). Five often-quoted figures had no traceable source: they are listed in `references/platforms.md` §3 so they are not repeated.
 
-**Kiểm thêm sau khi người dùng giao "tự quyết, làm tốt nhất" (07/11/2026):**
+**Further checks after the user handed over "decide yourself, do your best" (2026-11-07):**
 
-| Hạng mục | Cách kiểm | Kết quả |
+| Item | How it was checked | Result |
 |---|---|---|
-| HDR | Bản HLG/BT.2020 10-bit chuyển từ clip iPhone thật | Công thức `hable` phổ biến làm tối 30% (luma 90 so với 128) → đổi sang `mobius`: 125 / bão hòa 11,6 so với 11,6 của bản gốc |
-| Cảnh đêm | Clip thật làm tối + nhiễu cảm biến | Đo ra "exposure, denoise"; proxy nâng bóng tối, giảm hạt rõ |
-| Nhận diện giọng trên camera | Cùng hình, một bản tiếng môi trường, một bản có giọng | no / yes đúng |
-| Rung/di chuyển | Clip thật quay tripod | 0,0 / 0,0 — đúng là máy đứng yên |
-| Beat trên nhạc thật | 3 bản CC0 OpenGameArt, đối chiếu khoảng cách onset | Bộ dò Python thuần sai 2/3 bài, bản "tương phản" sai 2/3; bản numpy (spectral flux + tempogram + DP) đúng 97 và 104 bpm, 88–95% phách trùng onset; bài nhịp ghép ra 73 bpm (110 cũng hợp lý) |
-| Âm thanh đầu ra | Render 9 s có giọng + nhạc thật + SFX, master, đo | −14,0 LUFS, đỉnh −1,4 dBTP; lời ~−11,7 LUFS, nhạc trong khoảng lặng ~−20,1 LUFS (thấp hơn ~8 LU) |
-| Eval `routes-real-estate-tour` | Agent mới, chỉ có skill đã cài, chấm theo 5 grader | Đạt 5/5: playbook `real-estate`, lộ trình tham quan, cắt theo nhạc, hook ban công 1,5 s, dữ kiện đúng nguyên văn, không bịa pháp lý, checker PASS, nêu tuân thủ. Lộ lỗi: `suggest` nghiêng về `:voiceover` vì chữ "môi giới" → biến thể giờ cộng từ khoá của bản gốc, bỏ từ khoá bị phủ định ("không có giọng đọc") |
-| Eval `asks-when-ambiguous` | Như trên, 2 grader | Đạt 2/2: nhận ra hai hướng (talking-head / food-fnb:review), hỏi đúng 3 câu có mặc định. Lộ lỗi: "giày" khớp nhầm "50 giây" khi bỏ dấu → so khớp có dấu, theo ranh giới từ; thêm từ khoá "đứng nói" cho talking-head; báo "Close call" giữa hai thể loại |
-| Cài đặt máy này | `setup.sh` (dùng mô hình Whisper có sẵn trong cache Hugging Face, không tải lại) | `selftest.sh` qua toàn bộ, `--render` qua |
+| HDR | An HLG/BT.2020 10-bit version converted from a real iPhone clip | The common `hable` formula darkened it by 30% (luma 90 against 128) → changed to `mobius`: 125 / saturation 11.6 against 11.6 for the original |
+| Night scene | A real clip darkened + sensor noise | Measured as "exposure, denoise"; the proxy lifts shadows, grain clearly reduced |
+| On-camera voice detection | The same picture, one version with ambient sound, one with a voice | no / yes, correct |
+| Shake/movement | A real clip shot on a tripod | 0.0 / 0.0: correctly a still camera |
+| Beats on real music | 3 CC0 OpenGameArt tracks, checked against onset spacing | The pure-Python detector was wrong on 2/3 tracks, the "contrast" version wrong on 2/3; the numpy version (spectral flux + tempogram + DP) was right at 97 and 104 bpm, 88–95% of beats on onsets; the syncopated track came out at 73 bpm (110 is also plausible) |
+| Output audio | A 9 s render with voice + real music + SFX, mastered, measured | −14.0 LUFS, peak −1.4 dBTP; speech ~−11.7 LUFS, music in the pauses ~−20.1 LUFS (about 8 LU lower) |
+| Eval `routes-real-estate-tour` | A fresh agent with only the installed skill, scored by 5 graders | Passed 5/5: playbook `real-estate`, the visitor route, cut on music, a balcony hook at 1.5 s, facts verbatim, no invented legal claims, checker PASS, compliance mentioned. It exposed a bug: `suggest` leaned to `:voiceover` because of the word "môi giới" (broker) → variants now add the keywords of the base playbook and drop negated keywords ("không có giọng đọc", no voiceover) |
+| Eval `asks-when-ambiguous` | As above, 2 graders | Passed 2/2: recognised the two directions (talking-head / food-fnb:review), asked exactly 3 questions with defaults. It exposed a bug: "giày" (shoes) wrongly matched "50 giây" (50 seconds) once diacritics were removed → matching now keeps diacritics and respects word boundaries; added the keyword "đứng nói" (standing and talking) for talking-head; reports a "Close call" between two genres |
+| Installation on this machine | `setup.sh` (using the Whisper model already in the Hugging Face cache, no re-download) | `selftest.sh` passes in full, `--render` passes |
 
-**Vẫn chưa kiểm:** footage thật quay cầm tay, ban đêm, góc rộng 0,5×, HDR quay thật; nhạc có tempo thay đổi; tai người
-chưa nghe đầu ra nào (bản `mix_final_phone.mp4` đã gửi để nghe thử).
+**Still not checked:** real handheld footage, night shots, 0.5× wide angle, real HDR footage; music with changing tempo; human ears
+have not heard any output (the file `mix_final_phone.mp4` was sent for a listening test).
 
-## Công cụ cho video người dẫn nói trước camera và dựng lại từ video mẫu
+## Tools for on-camera presenter videos and rebuilding from a sample video
 
-Quyết định chung (lịch sử của lần làm đầu tiên nằm ở `CASE-LOG.md`; quy trình đầy đủ: `references/agency-pitch-recipe.md`):
+General decisions (the history of the first run is in `CASE-LOG.md`; the full recipe: `references/agency-pitch-recipe.md`):
 
-- **Giọng ghép từ chính các take**: khi file giọng là âm thanh gốc của các take đã ghép (tương quan 0,98–1,0), mỗi cảnh người dẫn dùng hình của
-  chính take với `In = start + lag` (`match_voice_takes.py`) nên môi khớp từng mẫu âm thanh; `check_lipsync.py` kiểm lại trên bản cuối. Đoạn không
-  take nào chứa lấy hình phụ từ đoạn lặng đầu/cuối của take khác (`find_cutaways.py`), không bao giờ dùng take khác của cùng câu.
-- **Cú nháy silhouette mở đầu**: người dẫn tô trắng trên vài khung đầu (vd. khung 0, 2, 4 ở 30 fps) rồi mới tới video. Làm bằng model tách người
-  `u2net_human_seg` (Apache-2.0, 168 MB, để ngoài repo, hỏi trước khi tải) → PNG alpha; cùng model cho vị trí đầu (`--faces`). Chọn vì chạy CPU bằng
-  onnxruntime (đã có cùng faster-whisper), không cần GPU hay tài khoản.
-- **Chữ**: các hiệu ứng nằm trong một engine (`Fx.tsx`) thay vì mỗi hiệu ứng một component, mỗi hiệu ứng dùng ít lần trong một video. Vòng elip quanh
-  chữ cắt ngang mặt người → dùng khung hai vạch sát chữ; neon nhấp nháy làm mất chữ → nhấp nháy dịu.
-- **Âm thanh**: ngân hàng nhiều bản CC0 + âm tự tổng hợp, xoay vòng theo sự kiện (không lặp liền nhau), mỗi hiệu ứng chữ có tiếng riêng, `sfx.rules`
-  của biến thể giới hạn số tiếng/3 s. Không ai nghe thử: chọn theo tên, mô tả gói và số đo. **Đã thử và bỏ**: tự nhận diện tiếng hiệu ứng trong bản mix
-  (nhảy năng lượng trên 1 kHz): trên bản mix có 68 tiếng đã biết vị trí, AUC chỉ 0,53–0,58 vì giọng nói che mất. `analyze_reference.py` thay bằng ảnh phổ
-  (`spectrum_*.png`) để người xem; số tiếng và tỷ lệ cắt có tiếng KHÔNG được báo.
-- **Nhạc**: tài khoản doanh nghiệp TikTok chỉ được dùng Commercial Music Library (render không với tới được) → `make_music.py` viết nền tự tạo theo
-  điểm cắt, và giao thêm bản không nhạc. `--music-levels=-6,-6` phải có `=` (argparse từ chối `-8,-8`; không đọc dòng "wrote" thì video ra không nhạc).
-- **Dải màu**: Remotion xuất full-range `yuvj420p`; điện thoại hiện bạc hoặc cháy → `finish_video.py` đổi về limited BT.709, master −14 LUFS / ≤ −1 dBTP.
-- **Render**: 8 luồng báo "No frame found at position" với proxy cao 2880 → `--concurrency=5`.
-- **Logo của khách** chỉ tách nền từ khung mẫu khi không còn cách nào (alpha = (R−G+55)/260, ffmpeg `geq`, phóng 4× Lanczos): hỏi khách file vector.
-- **Chưa kiểm khi dùng lần đầu**: không ai nghe âm thanh/nhạc; số liệu nói trong giọng là lời của khách và cần bằng chứng; tên khách hàng trên thẻ cần sự đồng ý.
+- **A voice spliced from the takes themselves**: when the voice file is the original camera audio of the spliced takes (correlation 0.98–1.0), each presenter scene uses the picture of
+  the take itself with `In = start + lag` (`match_voice_takes.py`), so the lips match sample for sample; `check_lipsync.py` re-checks the final cut. A part
+  that no take contains gets cutaway pictures from the silent pre-roll/walk-off of other takes (`find_cutaways.py`), never another take of the same line.
+- **The opening silhouette flash**: the presenter is filled white on the first few frames (e.g. frames 0, 2, 4 at 30 fps) and then the video plays. Made with the person-segmentation model
+  `u2net_human_seg` (Apache-2.0, 168 MB, kept outside the repo, ask before downloading) → alpha PNG; the same model gives the head position (`--faces`). Chosen because it runs on CPU with
+  onnxruntime (already there with faster-whisper), needing no GPU or account.
+- **Text**: the effects live in one engine (`Fx.tsx`) instead of one component per effect, and each effect is used few times in a video. An ellipse around the
+  text cut across the face → use a two-bar frame hugging the text; a flickering neon made the text disappear → a gentler flicker.
+- **Sound**: a bank of many CC0 recordings + self-synthesized sounds, rotated per event (no immediate repeats), each text effect has its own sound, the variant's `sfx.rules`
+  limits the number of sounds per 3 s. Nobody listened: chosen by name, pack description and measurements. **Tried and dropped**: automatically detecting the effect sounds in the mix
+  (energy jumps above 1 kHz): on a mix with 68 sounds at known positions, AUC was only 0.53–0.58 because the voice masks them. `analyze_reference.py` instead gives a spectrogram image
+  (`spectrum_*.png`) for people to look at; the number of sounds and the share of cuts with a sound are NOT reported.
+- **Music**: a TikTok business account may only use the Commercial Music Library (which a render cannot reach) → `make_music.py` writes a self-made bed that follows the
+  cuts, and delivers an extra version without music. `--music-levels=-6,-6` needs the `=` (argparse rejects `-8,-8`; without reading the "wrote" line the video comes out without music).
+- **Colour range**: Remotion exports full-range `yuvj420p`; phones show it washed out or burnt → `finish_video.py` converts it back to limited BT.709, master −14 LUFS / ≤ −1 dBTP.
+- **Render**: 8 workers report "No frame found at position" with 2880-tall proxies → `--concurrency=5`.
+- **A client's logo** is keyed out of a sample frame only when there is no other way (alpha = (R−G+55)/260, ffmpeg `geq`, 4× Lanczos upscale): ask the client for the vector file.
+- **Not checked on first use**: nobody listened to the sound/music; figures spoken in the voice are the client's words and need evidence; client names on cards need consent.
 
-## Công cụ đã khảo sát
+## Tools surveyed
 
-| Công cụ | Kết luận |
+| Tool | Conclusion |
 |---|---|
-| **Kinocut** (github.com/KyaniteLabs/kinocut) — MCP server bọc ffmpeg, 205 tool, Apache-2.0 | Có thật (243 sao). **Chưa cài, chưa thử.** Ứng viên nếu muốn lớp kiểm tra giữa Claude và ffmpeg |
-| auto-editor | Tự cắt đoạn im lặng. Hợp bước làm sạch footage thô. Chưa dùng |
-| browser-use/video-use (MIT) | Biên tập theo transcript, cắt ở khoảng lặng ≥ 400 ms. Đã lấy quy tắc; bước phiên âm của nó cần ElevenLabs Scribe (trả phí) |
-| heygen-com/hyperframes (Apache-2.0) | HTML + GSAP, không phải React. Lấy quy tắc chuyển động/phụ đề, không lấy code. Dự án HyperFrames cũ đã xoá khỏi repo |
-| remotion-dev/skills | Quy tắc chính thức cho tác tử; không thấy giấy phép nên chỉ tham chiếu, không chép |
-| MoviePy, editly, OpenTimelineIO | MoviePy chậm; editly bỏ bê từ 05/2025; OTIO chỉ khi cần xuất sang Premiere/DaVinci |
+| **Kinocut** (github.com/KyaniteLabs/kinocut): an MCP server wrapping ffmpeg, 205 tools, Apache-2.0 | Real (243 stars). **Not installed, not tried.** A candidate if we want a checking layer between Claude and ffmpeg |
+| auto-editor | Cuts silent passages automatically. Fits the step of cleaning raw footage. Not used |
+| browser-use/video-use (MIT) | Transcript-based editing, cuts on pauses ≥ 400 ms. Its rules were taken; its transcription step needs ElevenLabs Scribe (paid) |
+| heygen-com/hyperframes (Apache-2.0) | HTML + GSAP, not React. Motion/caption rules taken, not the code. The old HyperFrames project was deleted from the repo |
+| remotion-dev/skills | Official rules for agents; no licence was found so it is only referenced, not copied |
+| MoviePy, editly, OpenTimelineIO | MoviePy is slow; editly abandoned since 05/2025; OTIO only when exporting to Premiere/DaVinci is needed |
 
-⚠️ Một kết quả tìm kiếm quảng cáo repo `kyanitelabs/mcp-video` "87 tool" — repo đó **không tồn tại** (API GitHub
-trả 404; tên thật là KyaniteLabs/kinocut). Thư mục MCP bên thứ ba ghi số sao mâu thuẫn nhau. **Luôn kiểm tra repo
-qua API GitHub trước khi tin.**
+⚠️ A search result advertised a repo `kyanitelabs/mcp-video` with "87 tools": that repo **does not exist** (the GitHub API
+returns 404; the real name is KyaniteLabs/kinocut). Third-party MCP directories give contradictory star counts. **Always check a repo
+through the GitHub API before trusting it.**

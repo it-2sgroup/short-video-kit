@@ -5,4 +5,4 @@ timeout_seconds: 900
 allowed_tools: [Read, Glob, Grep, Skill, Write, Edit, Bash]
 ---
 
-mình là môi giới, vừa quay căn hộ 2 phòng ngủ ở Khu A, Thành phố X bằng gimbal: đi từ cửa vào phòng khách, bếp, 2 phòng ngủ, 2 toilet, ban công nhìn ra sông. không có giọng đọc, chỉ muốn ghép nhạc. thông tin: giá 4,2 tỷ, 72 m² thông thủy, 2PN 2WC, hướng Đông Nam. đăng tiktok với reels. lên giúp mình kế hoạch dựng chi tiết có timestamp nhé, video tầm 40s
+i'm a real-estate agent and just shot a 2-bedroom apartment in Area A, City X on a gimbal: walking from the front door to the living room, kitchen, 2 bedrooms, 2 bathrooms, and a balcony looking out over the river. no voiceover, i just want to put it to music. details: price 4.2 billion VND, 72 m² net usable area, 2 bedrooms 2 bathrooms, facing south-east. posting on tiktok and reels. make me a detailed edit plan with timestamps please, the video should be about 40s

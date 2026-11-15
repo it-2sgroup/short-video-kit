@@ -12,7 +12,7 @@ the platforms for search, so they affect discovery. Titles and graphic text are 
 
 Platform auto-captions can be switched off and are often wrong on Vietnamese. Burn captions in
 whenever there is a voice. Captions take the **words from the script** and the **timing from Whisper**
-(`align_captions.py`): Whisper mishears Vietnamese ("túi xách" → "tui sách").
+(`align_captions.py`): Whisper mishears Vietnamese ("túi xách", handbag → "tui sách").
 
 ## Styles (`project.json` `captionStyle`; default from the playbook)
 
@@ -79,16 +79,16 @@ a channel — that is why **titles** say something else.
 
 | Moment | Voice says | Title says |
 |---|---|---|
-| Hook (demo) | "Chỗ này mình tưởng phải bỏ luôn" | "Cái này 10 phút trước" |
-| Room (property) | "Phòng khách đón nắng cả buổi sáng" | `label`: "Phòng khách · 32 m²" |
-| Step (tutorial) | "Mình cho nguyên liệu này vào trước" | `step`: "Bước 1 — chờ 5 phút" |
-| Point (talking head) | "Phần lớn mọi người mất tiền ở bước này" | `stat`: "73% · khảo sát của shop" |
-| CTA | "Mình để ở giỏ hàng góc trái rồi" | "Giỏ hàng ↙" |
+| Hook (demo) | "I thought I would have to throw this part away" | "This, 10 minutes ago" |
+| Room (property) | "The living room gets sun all morning" | `label`: "Living room · 32 m²" |
+| Step (tutorial) | "I put this ingredient in first" | `step`: "Step 1 — wait 5 minutes" |
+| Point (talking head) | "Most people lose money at this step" | `stat`: "73% · the shop's own survey" |
+| CTA | "I put it in the cart at the bottom left" | "Cart ↙" |
 
 Procedural facts (steps, timings, quantities, prices, areas) read faster than they are heard. Three
 kinds of text pull extra weight: **search keywords** (the problem, the dish, the neighbourhood);
-**time-compression labels** ("tua nhanh ×8", "sau 10 phút"), required in spirit by the instant-effect
-rules; **evidence labels** ("Cùng một góc máy", "hình minh hoạ", "ước tính").
+**time-compression labels** ("sped up ×8", "after 10 minutes"), required in spirit by the instant-effect
+rules; **evidence labels** ("Same camera angle", "illustration", "estimate").
 
 ## Pointing at the cart (TikTok Shop only)
 
@@ -100,7 +100,7 @@ Point at the **real** product bar (`cart`, aimed at (112, 1677)); never draw a f
 ```
 1
 00:00:00,706 --> 00:00:01,967
-Ủa mọi người ơi
+Hey everyone
 ```
 
 Commas as the decimal separator, `HH:MM:SS,mmm`, a blank line between entries. CapCut, Premiere and

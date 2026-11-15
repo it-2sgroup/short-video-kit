@@ -212,6 +212,7 @@ def skeleton(pb: dict, duration: float, cuts: list[dict] | None, title: str) -> 
 
 # ----------------------------------------------------------------------------- suggest
 def fold(s: str) -> str:
+    # Vietnamese language data: strips tone marks and maps "đ" to "d", so a request typed without diacritics still matches.
     import unicodedata
     s = unicodedata.normalize("NFD", s.lower())
     return "".join(c for c in s if unicodedata.category(c) != "Mn").replace("đ", "d")
@@ -227,10 +228,12 @@ def suggest(intent: str, analysis: dict | None) -> list[tuple[float, str, list[s
     plain = intent == fold(intent) or not any(unicodedata.category(c) == "Mn" for c in unicodedata.normalize("NFD", intent))
     text = fold(intent) if plain else unicodedata.normalize("NFC", intent.lower())
     norm = (lambda k: fold(k)) if plain else (lambda k: unicodedata.normalize("NFC", k.lower()))
+    # Vietnamese negation words ("không", "chẳng", "chả"...) and the filler after them: a keyword right after one of
+    # these is not a request ("không có giọng đọc" = "no voiceover"). Both toned and untoned spellings are listed.
     neg = re.compile(r"(?:không|chẳng|chả|ko|khong|chang|cha|no|without)\s+(?:có\s+|co\s+|dùng\s+|dung\s+|cần\s+|can\s+)?$")
 
     def hit(k: str) -> bool:
-        """A whole-word match that is not negated ("không có giọng đọc" does not ask for a voice)."""
+        """A whole-word match that is not negated (Vietnamese "không có giọng đọc", "no voiceover", does not ask for a voice)."""
         for m in re.finditer(r"(?<!\w)" + re.escape(norm(k)) + r"(?!\w)", text):
             if not neg.search(text[max(0, m.start() - 16):m.start()]):
                 return True

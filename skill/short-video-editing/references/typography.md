@@ -31,7 +31,7 @@ Kalam, Lobster Two. A subset existing does not prove the marks look good: render
 ### Font library (`font=<id>`)
 
 Besides the five role fonts, `src/fonts.ts` holds a registry of 31 Google Fonts families, each checked to exist in `@remotion/google-fonts`
-and to ship a `vietnamese` subset, and each rendered with `Nhẹ như mây ẩ ặ ễ ộ ự Ữ Ằ` (marks intact in every one). Add `font=<id>` to a plan
+and to ship a `vietnamese` subset, and each rendered with `Nhẹ như mây ẩ ặ ễ ộ ự Ữ Ằ` (a Vietnamese diacritics test string; "Nhẹ như mây" means "light as a cloud"; marks intact in every one). Add `font=<id>` to a plan
 row: `phrase | top | lead=Lead; emph=LOUD; font=anton`, `title | top | lines=...; font=fraunces`. Honoured by `title` (every line but the
 serif accent word), `phrase` (both lines; `leadFont=` sets the lead alone), `pill`, `script`, `tag`, `lowerThird` and the `label` of `counter`.
 No `font=` means the role font: nothing changes. An unknown id warns in the render log and falls back. Only the families a project names
@@ -85,11 +85,11 @@ reserve `glass` for the closing card.
 
 | Style | Look | Use | Motion |
 |---|---|---|---|
-| `outline` | Tone-coloured heavy text, dark outline, optional white sub-line | Default for product demos and honest labels ("TRƯỚC", "SAU", "Chờ 10 phút · đã rút gọn thời gian") | Fade + 24px rise, 10f |
+| `outline` | Tone-coloured heavy text, dark outline, optional white sub-line | Default for product demos and honest labels ("BEFORE", "AFTER", "Wait 10 minutes · time shortened") | Fade + 24px rise, 10f |
 | `stack` | Small lead line (64px/500) over a huge heavy line (≈2.5×, 900, white→sky gradient); one **accent** word in serif italic gradient | Hooks, product name, the key point — over dark or mid-tone footage; over white fabric it washes out like `gradient` | Lead fades up; main line rises through a mask (spring, 14f, +4f); accent blurs in (12f, +10f) |
 | `gradient` | Heavy white→sky gradient, soft shadow, no outline | Verdicts, reveals over calm, **dark or mid-tone** footage — never over white fabric, where the white fill vanishes (use `outline` there) | Lines rise through masks, 3f stagger, settle from 1.04 scale |
 | `glass` | Light frosted card, navy→royal gradient main line, small lead word | Section titles over busy footage, closing card | Card springs 0.92→1 and rises 40px; text rises inside |
-| `marker` | Heavy outlined words; the **accent** gets a highlighter block that sweeps in and turns the word to ink | Naming the problem ("Vấn đề chính"), a key spec | Text rises; block sweeps left→right over 12f from +10f |
+| `marker` | Heavy outlined words; the **accent** gets a highlighter block that sweeps in and turns the word to ink | Naming the problem ("The main problem"), a key spec | Text rises; block sweeps left→right over 12f from +10f |
 
 Content: `lines=lead / main` (one or two lines), `accent=word in the main line`, `sub=small honest
 label`. Exit for every style: fade + 12px lift over the last 8 frames (exits ~40% shorter than

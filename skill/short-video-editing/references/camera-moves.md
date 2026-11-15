@@ -125,7 +125,7 @@ computed from the voice). Both renderers read `keys` (`engine/camera.ts`, `hyper
 
 ---
 
-## Why it no longer feels "khựng" (jerky)
+## Why it no longer feels "jerky"
 
 1. **Eased, never linear at the ends** [D]: `Easing.bezier(0.33, 0, 0.67, 1)` for moves; punches use
    a no-overshoot spring (`damping: 200`, 6 frames).

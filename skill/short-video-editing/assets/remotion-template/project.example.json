@@ -179,10 +179,10 @@
       "props": {
         "style": "stack",
         "lines": [
-          "Dòng dẫn nhỏ",
-          "Tiêu đề lớn"
+          "Small lead line",
+          "Big title"
         ],
-        "accent": "lớn"
+        "accent": "Big"
       }
     },
     {
@@ -194,9 +194,9 @@
       "props": {
         "style": "outline",
         "lines": [
-          "Nhãn kiểu viền chữ"
+          "Outline-style label"
         ],
-        "sub": "dòng phụ trung thực"
+        "sub": "honest sub line"
       }
     },
     {
@@ -204,7 +204,7 @@
       "start": 3.4,
       "end": 6.3,
       "props": {
-        "label": "Chú thích bộ phận",
+        "label": "Part callout",
         "target": [
           0.62,
           0.55
@@ -221,8 +221,8 @@
       "props": {
         "style": "gradient",
         "lines": [
-          "Dòng phụ",
-          "Tiêu đề gradient"
+          "Sub line",
+          "Gradient title"
         ]
       }
     },
@@ -233,7 +233,7 @@
       "zone": "top",
       "props": {
         "n": 1,
-        "text": "Bước đầu tiên"
+        "text": "First step"
       }
     },
     {
@@ -257,8 +257,8 @@
       "props": {
         "style": "glass",
         "lines": [
-          "và",
-          "thẻ kính mờ"
+          "and",
+          "frosted glass card"
         ]
       }
     },
@@ -269,9 +269,9 @@
       "zone": "lower",
       "props": {
         "items": [
-          "Ý thứ nhất",
-          "Ý thứ hai",
-          "Ý thứ ba"
+          "First point",
+          "Second point",
+          "Third point"
         ]
       }
     },
@@ -283,9 +283,9 @@
       "props": {
         "style": "marker",
         "lines": [
-          "Nhấn mạnh một từ"
+          "Emphasise one word"
         ],
-        "accent": "một từ"
+        "accent": "one word"
       }
     },
     {
@@ -306,10 +306,10 @@
       "end": 23.8,
       "zone": "lower",
       "props": {
-        "value": 99000,
-        "unit": "đ",
-        "label": "Giá ví dụ",
-        "old": "150.000đ"
+        "value": 99,
+        "unit": "$",
+        "label": "Example price",
+        "old": "$150"
       }
     },
     {
@@ -317,7 +317,7 @@
       "start": 21.4,
       "end": 24,
       "props": {
-        "text": "Lời kêu gọi giỏ hàng"
+        "text": "Cart call to action"
       }
     },
     {
@@ -326,8 +326,8 @@
       "end": 27.3,
       "zone": "top",
       "props": {
-        "title": "Tên địa điểm",
-        "sub": "Quận, thành phố · ~15 phút (ước tính)"
+        "title": "Place name",
+        "sub": "District, city · ~15 min (estimate)"
       }
     },
     {
@@ -335,7 +335,7 @@
       "start": 24.6,
       "end": 27.3,
       "props": {
-        "text": "Tên khu vực",
+        "text": "Area name",
         "sub": "32 m²"
       }
     },
@@ -345,13 +345,13 @@
       "end": 30.8,
       "zone": "upper",
       "props": {
-        "title": "So sánh ví dụ",
+        "title": "Example comparison",
         "items": [
-          "Cách A#45",
-          "Cách B#120",
-          "Cách C#80"
+          "Method A#45",
+          "Method B#120",
+          "Method C#80"
         ],
-        "unit": " phút"
+        "unit": " min"
       }
     },
     {
@@ -360,12 +360,12 @@
       "end": 34.3,
       "zone": "upper",
       "props": {
-        "title": "Thông tin",
+        "title": "Details",
         "items": [
           "area:72 m²",
-          "bed:2 PN",
-          "bath:2 WC",
-          "compass:Đông Nam"
+          "bed:2 BR",
+          "bath:2 BA",
+          "compass:South-East"
         ]
       }
     },
@@ -377,18 +377,18 @@
       "props": {
         "value": 73,
         "unit": "%",
-        "label": "Số liệu ví dụ"
+        "label": "Example figure"
       }
     }
   ],
   "captions": [
     {
-      "text": "Phụ đề lời nói",
+      "text": "Spoken caption",
       "start": 0.3,
       "end": 2.6
     },
     {
-      "text": "nằm ở dải riêng",
+      "text": "sits in its own strip",
       "start": 3.2,
       "end": 5.8
     }

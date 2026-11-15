@@ -55,7 +55,7 @@ CLIP@seconds list the next step measures. `--voice-stem` is the voice file's nam
   (brightness, saturation, blur, size, warm, veil; matched against a hand-made reference edit).
 - Global look: `--look 1.10,1.05,1.04,0.06` (saturate, contrast, brightness, warm).
 - Then edit the plan by hand (re-running `agency_plan.py` overwrites it, so do this last): choose which words become the loud line (the draft takes the last ~28 characters, at most 5 words, of each clause; a clause
-  that is only a connective gets none), spend each effect once or twice (`layout-and-motion-graphics.md`, "Text effects"), put the tags (`SẢN PHẨM`, `DỊCH VỤ`...) on the right cards (`at=0.5,0.235`, over the
+  that is only a connective gets none), spend each effect once or twice (`layout-and-motion-graphics.md`, "Text effects"), put the tags (`PRODUCT`, `SERVICE`...) on the right cards (`at=0.5,0.235`, over the
   card's top edge: the card is 690 x 1227 with its top at y 360), add the counter, the circled promise, the RAW | FINAL pair (`raw` = the same take, ungraded: a plain re-encode of the original,
   `ffmpeg -i ORIGINAL_TAKE -vf scale=1620:2880 -an -c:v libx264 -crf 23 -r 30 RENDER/public/raw/CLIP.mp4`, beside `final=clips/CLIP.mp4`), the script phrase. Rules that held: one block at a time;
   cuts on word boundaries (the sync report lists any inside a word); text never starts or ends within 3 frames of a cut; `pacing_checker.py` and `footage_overlap_checker.py --gap 0`

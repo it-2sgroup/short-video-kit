@@ -64,8 +64,8 @@ garments use the `outline` or `marker` title styles. No smoothing or reshaping f
 
 ## Compliance [L]
 
-- Cosmetics may not claim to treat: "trị", "điều trị", "chữa" (trị mụn, trị nám), nor "trắng da cấp
-  tốc", "mọc tóc" [S: CV 1609/QLD-MP; ASEAN Cosmetic Claim Guidelines].
+- Cosmetics may not claim to treat: "trị", "điều trị", "chữa" (to treat, to cure, e.g. acne or melasma
+  treatment: "trị mụn", "trị nám"), nor "trắng da cấp tốc" (instant whitening) or "mọc tóc" (hair regrowth) [S: CV 1609/QLD-MP; ASEAN Cosmetic Claim Guidelines].
 - TikTok bars before/after for acne, whitening and hair-loss products; ads bar before/after entirely.
 - The same grade on every shot; no filter on a result.
 - Prices and sizes match the listing; gifted or paid items disclosed; licensed music.
@@ -75,5 +75,5 @@ garments use the `outline` or `marker` title styles. No smoothing or reshaping f
 ```bash
 python scripts/new_remotion_project.py ~/renders/lookbook --playbook fashion-beauty --proxies CLIPS
 python scripts/suggest_cuts.py --music music.wav --end 30 --playbook fashion-beauty --json > cuts.json
-python scripts/playbook.py skeleton fashion-beauty --cuts cuts.json --title "5 outfit đi làm" > edit-plan.md
+python scripts/playbook.py skeleton fashion-beauty --cuts cuts.json --title "5 office outfits" > edit-plan.md
 ```

@@ -5,8 +5,8 @@ timeout_seconds: 900
 allowed_tools: [Read, Glob, Grep, Skill, Write, Edit, Bash]
 ---
 
-mình cần làm video tiktok shop cho cái bộ chăm sóc thớt gỗ BRAND (2 chai: chai 1 làm sạch, thoa trước 5 phút, rồi tới chai 2 dầu dưỡng, để thấm 2-3 tiếng; dùng được cho cả thớt gỗ lẫn thớt tre). KOC nói chuyện thân mật, xưng "mình" với "các bạn".
+i need a tiktok shop video for the BRAND wooden cutting board care set (2 bottles: bottle 1 is the cleaner, applied first and left for 5 minutes, then bottle 2 is the conditioning oil, left to soak in for 2-3 hours; works on both wooden and bamboo boards). the KOC speaks in a casual, friendly way, saying "I" and "you guys".
 
-mình đã quay sẵn rồi: 1 cảnh cái thớt gỗ khô, bạc màu, 1 cảnh rót chai 1 lên mặt thớt, 1 cảnh thoa dầu chai 2 rồi để thấm, với 1 cảnh cái thớt sau khi xử lý xong. quay bằng tripod cố định hết.
+i've already shot it: 1 shot of the dry, faded wooden board, 1 shot of pouring bottle 1 onto the board, 1 shot of rubbing in the oil from bottle 2 and leaving it to soak, and 1 shot of the board after treatment. all shot on a fixed tripod.
 
-làm cho mình kế hoạch dựng chi tiết có timestamp từng cảnh + file phụ đề srt nữa nhé. video tầm 35s
+make me a detailed edit plan with a timestamp for every scene + an srt subtitle file too. the video should be about 35s

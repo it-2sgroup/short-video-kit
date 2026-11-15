@@ -1,138 +1,138 @@
-# Nhật ký các việc đã làm cho khách (CASE LOG)
+# Log of jobs done for clients (CASE LOG)
 
-File này là **lịch sử**, không phải hướng dẫn. Skill và bộ công cụ **không được đọc nó để biết cách làm**: mọi bài học dùng lại
-được đã được chuyển thành kỹ thuật trong `skill/short-video-editing/` (tài liệu chung, không tên khách, không tên file
-footage) và `docs/DECISIONS.md` (quyết định và bẫy kỹ thuật). Ở đây mới được ghi tên khách, số liệu chiến dịch, tên file thật.
+This file is **history**, not a guide. The skill and the toolkit **must not read it to learn how to work**: every reusable lesson
+has been turned into a technique in `skill/short-video-editing/` (general documents, no client names, no footage file
+names) and into `docs/DECISIONS.md` (technical decisions and pitfalls). Only here may a client name, campaign figures or real file names be written.
 
-Quy tắc ghi: mỗi việc một mục, có **ngày, việc gì, kết quả đo, chưa kiểm cái gì**; bài học dùng lại thì viết sang
-`DECISIONS.md` rồi để một dòng trỏ về đây. **Repo phải để private** (số liệu GMV, tên khách).
+Rule for entries: one entry per job, with the **date, what the job was, what was measured, what was not checked**; a lesson that can be reused is written into
+`DECISIONS.md` and a one-line pointer is left here. **The repo must stay private** (GMV figures, client names).
 
-## Số liệu ngách (16.242 video SAIZA tẩy mốc, 02/06/2025 → 03/11/2026)
+## Niche data (16,242 SAIZA mould-remover videos, 2025-06-02 → 2026-11-03)
 
-Tái hiện bằng `docs/niche-data-queries.sql`. Đo được:
-- Top 20% video theo view chiếm **95,1% GMV**; 80% còn lại trung bình **171 view**, nhưng GMV/1.000 view của họ
-  còn *nhỉnh hơn* → nút thắt là **reach**, không phải lời chào hàng.
-- CTR và tỉ lệ ra đơn đạt đỉnh ở **35–44 giây**; dưới 25s tệ nhất. Giữ nguyên khi chỉ xét KOC đã chứng minh.
-  KOC giỏi chỉ làm video dưới 25s đúng ~1% số lần.
-- **9 KOC tạo 59,3% GMV** trong ~2.900 người.
+Reproduced with `docs/niche-data-queries.sql`. Measured:
+- The top 20% of videos by views account for **95.1% of GMV**; the remaining 80% average **171 views**, yet their GMV per 1,000 views
+  is even *slightly higher* → the bottleneck is **reach**, not the sales pitch.
+- CTR and the order rate peak at **35–44 seconds**; under 25 s is the worst. This holds when only proven KOCs are considered.
+  Good KOCs make a video under 25 s only about 1% of the time.
+- **9 KOCs produce 59.3% of GMV** out of ~2,900 people.
 
-**Dữ liệu KHÔNG có:** retention / tỉ lệ xem hết, loại hook, nhịp cắt, âm thanh. Mọi nhận định về hook và nhịp
-cắt trong skill là **thực hành nghề**, không phải số đo — skill gắn nhãn `[DATA]` / `[HYPOTHESIS]` để phân biệt.
+**Data that is NOT there:** retention / completion rate, hook type, cutting rhythm, sound. Every judgement about hooks and cutting
+rhythm in the skill is **craft practice**, not a measurement: the skill labels them `[DATA]` / `[HYPOTHESIS]` to tell them apart.
 
-Quy tắc "cảnh ≤ 4 giây" và "hook ≤ 3 giây" đến từ thực hành short-form phổ biến, **không** rút ra từ dữ liệu này.
-Nhịp "3–4 giây một cảnh, chuyển cảnh mượt" là **yêu cầu của khách** (11/2026) — tìm trên web không có nguồn đo nào.
+The rules "scene ≤ 4 seconds" and "hook ≤ 3 seconds" come from common short-form practice, **not** from this data.
+The rhythm "3–4 seconds per scene, soft transitions" is a **client requirement** (11/2026): a web search found no measured source for it.
 
-## Video giới thiệu dịch vụ dựng lại từ video mẫu (11/2026)
+## Service-intro video rebuilt from a sample video (11/2026)
 
-Việc: video quảng cáo agency (SISMO) từ 28 take của một người dẫn + file giọng 62,6 s, theo video mẫu của khách (63,7 s, 60 fps, 31 cảnh). Quy trình
-đầy đủ và các lệnh: `references/agency-pitch-recipe.md`. Tại sao làm như vậy, và cái gì đã thử rồi bỏ:
+The job: an agency ad video (SISMO) from 28 takes of one presenter + a 62.6 s voice file, following the client's sample video (63.7 s, 60 fps, 31 scenes). The full
+recipe and the commands: `references/agency-pitch-recipe.md`. Why it was done this way, and what was tried and dropped:
 
-- **File giọng là âm thanh gốc của các take, đã ghép** (tương quan 0,98–1,0). Nên mỗi cảnh người dẫn dùng chính hình của take với `In = start + lag`
-  (`match_voice_takes.py`) và môi khớp từng mẫu âm thanh; `check_lipsync.py` kiểm lại trên bản cuối (21 cảnh lệch ≤ 5 ms). Đoạn không take nào chứa
-  (phần danh mục) lấy hình phụ từ đoạn lặng đầu/cuối của take khác (`find_cutaways.py`), không bao giờ dùng take khác của cùng câu.
-- **Cú nháy silhouette mở đầu**: đo trên mẫu, người dẫn tô trắng trên khung 0, 2, 4 (30 fps) rồi mới tới video. Làm bằng model tách người `u2net_human_seg`
-  (Apache-2.0, 168 MB, để ngoài repo, hỏi trước khi tải) → PNG alpha; cùng model cho vị trí đầu (`--faces`) để làm sáng da. Chọn model này vì chạy CPU bằng
-  onnxruntime (đã có cùng faster-whisper), không cần GPU, không cần tài khoản.
-- **Chữ**: 14 hiệu ứng trong một engine (`Fx.tsx`) thay vì mỗi hiệu ứng một component; mỗi hiệu ứng dùng một hai lần trong video. Vòng elip quanh chữ "stamp"
-  cắt ngang mặt người dẫn → thay bằng khung hai vạch sát chữ; neon nhấp nháy làm mất chữ → mẫu nhấp nháy dịu hơn.
-- **Âm thanh**: một tiếng whoosh và một tiếng pop làm video đơn điệu, nên ngân hàng có 58 bản ghi CC0 (Kenney, OpenGameArt) + 17 âm tự tổng hợp, xoay vòng theo
-  sự kiện (không lặp liền nhau), mỗi hiệu ứng chữ có tiếng riêng, `sfx.rules` của biến thể cho 5 tiếng/3 s. Không ai nghe thử: chọn theo tên, mô tả gói và số đo.
-  **Đã thử và bỏ**: tự nhận diện tiếng hiệu ứng trong bản mix (nhảy năng lượng trên 1 kHz). Thử trên bản mix có 68 tiếng đã biết vị trí: tìm được 5 tiếng, và
-  đo phân biệt giữa thời điểm có tiếng và thời điểm ngẫu nhiên chỉ AUC 0,53–0,58 (gần như tung đồng xu) vì giọng nói che mất. `analyze_reference.py` thay bằng
-  ảnh phổ (`spectrum_*.png`) để người xem; số tiếng, tỷ lệ cắt có tiếng KHÔNG được báo.
-- **Nhạc**: tài khoản doanh nghiệp TikTok chỉ được dùng Commercial Music Library (render không với tới được) → `make_music.py` viết nền tự tạo theo điểm cắt, và giao
-  thêm bản không nhạc. Mức nhạc `--music-levels=-6,-6` (phải có `=`): bản đầu render ra không nhạc vì argparse từ chối `-8,-8` mà không ai đọc dòng "wrote".
-- **Dải màu**: Remotion xuất full-range `yuvj420p`; điện thoại hiện bạc hoặc cháy → `finish_video.py` đổi về limited BT.709, master −14 LUFS / ≤ −1 dBTP.
-- **Render**: 8 luồng báo "No frame found at position" với proxy cao 2880 → `--concurrency=5`.
-- **Logo** được tách nền từ khung hình mẫu (alpha = (R−G+55)/260, ffmpeg `geq`, phóng 4× Lanczos): là giải pháp cuối cùng, hỏi khách file vector.
-- **Chưa kiểm**: không ai nghe âm thanh/nhạc hay xem trọn video; câu 8 của kịch bản đoán từ bản Whisper kém; số liệu trong giọng (hơn 300 thương hiệu, 10–50 video/tháng,
-  5–10 ngày, ưu đãi chỉ trong tháng này) là lời khách cần bằng chứng; tên khách hàng trên thẻ cần sự đồng ý.
-- **Công cụ thêm vì việc này** (đều có trong `docs/CAU-TRUC.md`): `analyze_reference.py`, `montage.py`, `stills.mjs` (template), `mix_report.py`, `match_voice_takes.py`,
-  `find_cutaways.py`, `person_matte.py`, `agency_plan.py`, `make_music.py`, `finish_video.py`, `check_lipsync.py`; `align_captions.py --prompt`; `doctor.py` kiểm
-  onnxruntime, model tách người và các filter ffmpeg mới; `./setup.sh --person-model`; `project_to_hyperframes.py` báo mọi tính năng chỉ Remotion có.
+- **The voice file is the takes' own camera audio, spliced** (correlation 0.98–1.0). So for each presenter scene the take's own picture is used with `In = start + lag`
+  (`match_voice_takes.py`) and the lips match sample for sample; `check_lipsync.py` re-checks the final cut (21 scenes off by ≤ 5 ms). For the part that no take contains
+  (the portfolio part), cutaway pictures come from the silent pre-roll/walk-off of other takes (`find_cutaways.py`), never another take of the same line.
+- **The opening silhouette flash**: measured on the sample, the presenter is filled white on frames 0, 2, 4 (30 fps) and then the video plays. Made with the person-segmentation model `u2net_human_seg`
+  (Apache-2.0, 168 MB, kept outside the repo, ask before downloading) → alpha PNG; the same model gives the head position (`--faces`) to brighten the skin. This model was chosen because it runs on CPU with
+  onnxruntime (already there with faster-whisper), needs no GPU and no account.
+- **Text**: 14 effects in one engine (`Fx.tsx`) instead of one component per effect; each effect is used once or twice in the video. The ellipse around the "stamp" text
+  cut across the presenter's face → replaced by a two-bar frame hugging the text; a flickering neon made the text disappear → a gentler flicker pattern.
+- **Sound**: a single whoosh and a single pop made the video monotonous, so the bank has 58 CC0 recordings (Kenney, OpenGameArt) + 17 self-synthesized sounds, rotated per
+  event (no immediate repeats), each text effect has its own sound, the variant's `sfx.rules` allows 5 sounds per 3 s. Nobody listened: chosen by name, pack description and measurements.
+  **Tried and dropped**: automatically detecting the effect sounds in the mix (energy jumps above 1 kHz). Tested on a mix with 68 sounds at known positions: it found 5 sounds, and
+  the measure separating moments with a sound from random moments gave only AUC 0.53–0.58 (almost a coin toss) because the voice masks them. `analyze_reference.py` instead gives a
+  spectrogram image (`spectrum_*.png`) for people to look at; the number of sounds and the share of cuts with a sound are NOT reported.
+- **Music**: a TikTok business account may only use the Commercial Music Library (which a render cannot reach) → `make_music.py` writes a self-made bed that follows the cuts, and delivers an
+  extra version without music. Music level `--music-levels=-6,-6` (the `=` is required): the first render came out without music because argparse rejected `-8,-8` and nobody read the "wrote" line.
+- **Colour range**: Remotion exports full-range `yuvj420p`; phones show it washed out or burnt → `finish_video.py` converts it back to limited BT.709, master −14 LUFS / ≤ −1 dBTP.
+- **Render**: 8 workers report "No frame found at position" with 2880-tall proxies → `--concurrency=5`.
+- **Logo** was keyed out of a sample frame (alpha = (R−G+55)/260, ffmpeg `geq`, 4× Lanczos upscale): the last resort, ask the client for the vector file.
+- **Not checked**: nobody listened to the sound/music or watched the whole video; sentence 8 of the script was guessed from a poor Whisper transcript; the figures in the voice (more than 300 brands, 10–50 videos/month,
+  5–10 days, an offer valid only this month) are the client's claims and need evidence; the client names on the cards need consent.
+- **Tools added for this job** (all in `docs/STRUCTURE.md`): `analyze_reference.py`, `montage.py`, `stills.mjs` (template), `mix_report.py`, `match_voice_takes.py`,
+  `find_cutaways.py`, `person_matte.py`, `agency_plan.py`, `make_music.py`, `finish_video.py`, `check_lipsync.py`; `align_captions.py --prompt`; `doctor.py` checks
+  onnxruntime, the person-segmentation model and the new ffmpeg filters; `./setup.sh --person-model`; `project_to_hyperframes.py` reports every feature only Remotion has.
 
-## Kỹ thuật "thả vật thể" học từ một video TikTok công khai (15/11/2026)
+## The "object drop" technique learned from a public TikTok video (2026-11-15)
 
-Việc: người dùng gửi https://vt.tiktok.com/ZSpqrEJLQ/ (video 14,6 s, 576x1024, "Trên đường về nhà", kênh vantien96666, tag #editcapcut) và nhờ nghiên cứu kỹ thuật "đặt vật thể". Chỉ xem trong trình duyệt, **không tải, không lấy hình ảnh** của họ vào kit.
+The job: the user sent https://vt.tiktok.com/ZSpqrEJLQ/ (a 14.6 s video, 576x1024, "Trên đường về nhà" (On the way home), channel vantien96666, tag #editcapcut) and asked for research into the "object placement" technique. Viewed only in the browser; **nothing of theirs was downloaded or taken** into the kit.
 
-Đo được (khung 1/30 s quanh giây 6,1): vật thể (cổng) vào từ mép trên ở 6,10, rơi 3-4 khung, **cắt cứng** sang cảnh mới ở 6,20 kèm chớp nổ vàng-cam ở chân cổng (4 khung), rồi khói xám 2 khung, hết ở 6,33. Cùng kiểu ở 0,6 (xe cẩu), 2,5 (nhà xây dở), 12,2 (tòa tháp), 12,6 (nhà thờ rơi chồng lên sau tòa tháp); thêm chuyển cảnh trượt dọc (2,9 / 4,0 / 11,4 s) và xoay nghiêng (9,0-9,6 s). Âm thanh: nhạc liên tục có nhịp ~0,4-0,6 s, nhịp to hơn 6-8 dB ngay sau lần chạm đất ở 6,2 và sau cú cắt ở 8,1 (đo mức, chưa nghe).
+Measured (frames at 1/30 s around second 6.1): the object (a gate) enters from the top edge at 6.10, falls for 3-4 frames, **hard cut** to a new scene at 6.20 with a yellow-orange explosion flash at the foot of the gate (4 frames), then grey smoke for 2 frames, gone by 6.33. The same pattern at 0.6 (a crane), 2.5 (a half-built house), 12.2 (a tower), 12.6 (a church dropping in front of the tower); plus vertical slide transitions (2.9 / 4.0 / 11.4 s) and tilted rotation (9.0-9.6 s). Sound: continuous music with a beat of ~0.4-0.6 s, the beat 6-8 dB louder right after the touchdown at 6.2 and after the cut at 8.1 (level measured, not listened to).
 
-Chưa kiểm: người làm dùng công cụ nào để tách vật thể (tìm kiếm tiếng Việt và tiếng Anh không ra tên kỹ thuật hay hướng dẫn); chưa nghe âm thanh; chưa có ai xin phép dùng video đó làm mẫu (kit chỉ lấy kỹ thuật).
+Not checked: which tool the author used to cut out the object (searches in Vietnamese and English found neither the technique's name nor a tutorial); the sound was not listened to; nobody asked permission to use that video as a reference (the kit takes only the technique).
 
-Xây vào kit: overlay `objectDrop` và `impact` (`Drop.tsx`), `scripts/object_cutout.py` (`--poly` không cần model; `--model` chỉ chạy với model người dùng đưa, mới thử với `u2net_human_seg` trên cảnh có người, **chưa thử với `isnet-*`**), cách làm ở `references/layout-and-motion-graphics.md` ("The object drop"). Giấy phép trọng số tách nền kiểm ngày 15/11/2026 qua trang GitHub: SAM 2 Apache-2.0 (code và checkpoint); rembg MIT nhưng mỗi model có giấy phép riêng; `isnet-general-use` trang DIS không nêu; RMBG-2.0 cần thỏa thuận trả phí; BiRefNet code MIT, trọng số không nêu. Chưa render video đầy đủ bằng kỹ thuật này; mới xem ảnh tĩnh từng khung rơi và nổ trên cảnh thử.
+Built into the kit: the overlays `objectDrop` and `impact` (`Drop.tsx`), `scripts/object_cutout.py` (`--poly` needs no model; `--model` only runs with a model the user supplies, so far tried with `u2net_human_seg` on a scene with a person, **not tried with `isnet-*`**), the method in `references/layout-and-motion-graphics.md` ("The object drop"). Licences of the background-removal weights, checked on 2026-11-15 through the GitHub pages: SAM 2 Apache-2.0 (code and checkpoint); rembg MIT but each model has its own licence; `isnet-general-use` the DIS page does not state; RMBG-2.0 needs a paid agreement; BiRefNet code MIT, weights not stated. No full video has been rendered with this technique yet; only stills of each falling and exploding frame on a test scene were looked at.
 
-Bản demo SISMO lần 1 (4 cú rơi, mỗi cảnh 2,4 s, người dẫn đứng yên, chớp nổ tròn to) bị chấm 4/10: so với video gốc, 4 sự kiện trong 12,4 s thay vì ~22 trong 14,6 s, chuyển động trung vị 1,7 thay vì 9,7, chớp nổ là một vầng sáng tròn che cả thân người. Đo video gốc từng khung (bộ đo: chênh lệch độ sáng giữa hai khung liên tiếp ở 72x128, đếm điểm ảnh vàng): mỗi cú rơi gồm rơi 3-4 khung, cắt cứng, nhòe ngang cả khung 2 khung, chùm tia vàng-trắng mảnh dẹt trên mặt đất (rộng ~29% khung, cao ~10%), bụi nâu loãng dần. Viết lại `impact` theo cách xếp lớp của người làm hậu kỳ (pop phơi sáng, lõi nhỏ, tia lửa có vệt, hạt lửa rơi theo trọng lực, bụi nhiễu có cạnh sần, bóng tiếp đất, vòng sóng rất mờ), thêm hit `+jolt` (nhòe ngang và rung giảm dần lúc cắt). Bản 2: 12 cảnh 0,8-1,6 s, 11 cú rơi, đo lại 11 sự kiện trong 11,6 s, chuyển động trung vị 3,8. Vẫn chưa bằng bản gốc về chuyển động (camera tĩnh, đẩy giả) và vẫn có hai người dẫn trong 4 khung lúc rơi vì cảnh cũ cũng có cô ấy. Chưa nghe âm thanh.
+The first SISMO demo (4 drops, each scene 2.4 s, the presenter standing still, a big round explosion flash) was scored 4/10: against the original video, 4 events in 12.4 s instead of ~22 in 14.6 s, median motion 1.7 instead of 9.7, the explosion flash was a round glow covering the whole torso. The original was measured frame by frame (the meter: the brightness difference between two consecutive frames at 72x128, counting yellow pixels): each drop is a fall of 3-4 frames, a hard cut, a whole-frame horizontal blur for 2 frames, a thin flat yellow-white burst of rays on the ground (about 29% of the frame wide, 10% high), brown dust thinning out. `impact` was rewritten the way a post-production artist layers it (an exposure pop, a small core, sparks with trails, embers falling with gravity, noisy dust with ragged edges, a contact shadow, a very faint shock ring), and a `+jolt` hit was added (a horizontal blur and a decaying shake at the cut). Version 2: 12 scenes of 0.8-1.6 s, 11 drops, re-measured as 11 events in 11.6 s, median motion 3.8. Still not equal to the original in motion (a static camera, a fake push-in) and two presenters are still visible for 4 frames at the moment of the drop because the old scene also contained her. The sound was not listened to.
 
-## Kịch bản hiện hành của campaign đang chứa claim vi phạm
+## The current campaign scripts contain violating claims
 
-Doc Lark *"TQA 6 - REVIEW - GIỌNG ADAM"* (21 kịch bản). Các câu cần viết lại — đối chiếu chính sách TikTok Shop
-trong `references/claims-and-compliance.md` §2:
+Lark doc *"TQA 6 - REVIEW - GIỌNG ADAM"* ("TQA 6 - REVIEW - ADAM VOICE") (21 scripts). The sentences to rewrite, checked against the TikTok Shop policy
+in `references/claims-and-compliance.md` §2:
 
-| Câu | Vấn đề |
+| Sentence | Problem |
 |---|---|
-| "Không hiệu quả anh gửi tiền lại liền" · "Hổng sạch hổng lấy tiền" | Cam kết hoàn tiền / đảm bảo kết quả |
-| "diệt khuẩn", "diệt nấm mốc" | Sản phẩm tẩy rửa không được tuyên bố diệt/ức chế vi khuẩn, **nấm**, virus |
-| "tẩy sạch mọi vết bẩn" · "sạch tinh như mới" | "Giải quyết mọi vấn đề" / phục hồi tức thì |
-| "ngay lập tức" | Hiệu quả tức thì |
-| "tốt nhất thị trường" | Cấp so sánh tuyệt đối không có bằng chứng |
+| "Không hiệu quả anh gửi tiền lại liền" (if it does not work I send the money back right away) · "Hổng sạch hổng lấy tiền" (no clean, no payment) | A money-back promise / guaranteed result |
+| "diệt khuẩn" (kills bacteria), "diệt nấm mốc" (kills mould) | A cleaning product may not claim to kill/inhibit bacteria, **fungi**, viruses |
+| "tẩy sạch mọi vết bẩn" (removes every stain) · "sạch tinh như mới" (spotless as new) | "Solves every problem" / an instant restoration |
+| "ngay lập tức" (immediately) | An instant effect |
+| "tốt nhất thị trường" (best on the market) | An absolute superlative with no evidence |
 
-Câu hoàn tiền nằm trên **một trong những video doanh thu cao nhất** của campaign. Chạy được ≠ hợp lệ.
-Đồng thời, TikTok Shop yêu cầu **kịch bản gốc cho từng video** — phát nguyên một kịch bản cho nhiều KOC là rủi ro.
+The money-back sentence is in **one of the highest-revenue videos** of the campaign. Running ≠ compliant.
+Also, TikTok Shop asks for an **original script for each video**: playing one script as is across many KOCs is a risk.
 
-## Lô 8 video đăng thật: prompt gốc của khách và chỗ dễ mơ hồ (11/2026)
+## Batch of 8 videos posted for real: the client's original prompt and where it is ambiguous (11/2026)
 
-Phân tích prompt thật của một lô (nguồn: `docs/PROMPT-LO-VIDEO.md` trước khi tách). Khung dùng lại được vẫn ở `PROMPT-LO-VIDEO.md`.
+An analysis of the real prompt of one batch (source: `docs/PROMPT-LO-VIDEO.md` before it was split; now `docs/PROMPT-BATCH-VIDEO.md`). The reusable frame stays in `PROMPT-BATCH-VIDEO.md`.
 
-### Prompt viết lại theo khung
+### The prompt rewritten into the frame
 
 ```
-Dùng skill `short-video-editing`. Làm việc bằng tiếng Việt. Hôm nay là 11-11-2026. Quy tắc chung và quy trình theo
-docs/PROMPT-VIDEO.md (mục 2–6).
+Use the skill `short-video-editing`. Work in Vietnamese. Today is 2026-11-11. General rules and workflow as in
+docs/PROMPT-VIDEO.md (sections 2–6).
 
-## A. Mục tiêu và mức rủi ro
-- Dựng 8 video dọc 9:16 cho kênh TikTok [tên kênh], [organic / chạy quảng cáo]. Đây là bản ĐĂNG THẬT.
-- Thành công: 8 file đạt tiêu chí mục E, nằm đúng thư mục đích, không video nào trùng cảnh với video khác.
+## A. Goal and risk level
+- Make 8 vertical 9:16 videos for the TikTok channel [channel name], [organic / run as ads]. This is the version that gets POSTED FOR REAL.
+- Success: 8 files that meet the criteria in section E, in the right destination folder, no video sharing a scene with another.
 
-## B. Đầu vào
-- Footage MỚI (tạo hôm nay, gồm cả video mới và giọng AI): thư mục Drive "video ngày [11-10-2026 — xác nhận ngày]" tại
-  `[đường dẫn đã tải về máy]`; footage mới là [AI tạo bằng công cụ nào / quay thật].
-- Footage CŨ: thư mục "Video AI cà phê" tại `[đường dẫn]`; [AI tạo / quay thật].
-- Giọng AI: trong thư mục "[...]", [số] file, mỗi file 1 phút 07 giây – 1 phút 18 giây; tạo bằng [ElevenLabs gói ... / công cụ
-  khác]. Ghép: [mỗi video một giọng / giọng dùng lại cho nhiều video].
-- Nhạc: [không dùng / nhờ tìm, hỏi trước khi tải]. Kịch bản chữ: [có/không]. Dữ kiện trên màn hình: [giá, tên sản phẩm, ...].
+## B. Input
+- NEW footage (made today, both new video and AI voice): the Drive folder "video ngày [11-10-2026 — confirm the date]" (that day's videos) at
+  `[path downloaded to the machine]`; the new footage is [AI-generated with which tool / really shot].
+- OLD footage: the folder "Video AI cà phê" (AI coffee videos) at `[path]`; [AI-generated / really shot].
+- AI voice: in the folder "[...]", [number] files, each 1 minute 07 seconds – 1 minute 18 seconds; made with [ElevenLabs plan ... / another
+  tool]. Pairing: [one voice per video / a voice reused across several videos].
+- Music: [not used / please find some, ask before downloading]. Text script: [yes/no]. On-screen facts: [price, product name, ...].
 
-## C. Số lượng và ràng buộc
-- 8 video, mỗi video 40–45 giây.
-- Tỷ lệ footage: khoảng 40% mới / 60% cũ tính theo giây hiển thị trong MỖI video, sai số ±5 điểm %.
-- Không đoạn nguồn nào dùng hai lần trong cả 8 video (không ngoại lệ).
-- Thể loại: để Claude đề xuất (sản phẩm là [tên]); nói lý do.
-- Yêu cầu riêng: [giữ nguyên các quy ước của khách nếu có: cảnh 3–4 s, chuyển cảnh mềm, không chữ trong khung].
+## C. Quantity and constraints
+- 8 videos, each 40–45 seconds.
+- Footage ratio: about 40% new / 60% old, by seconds on screen in EACH video, tolerance ±5 percentage points.
+- No source range is used twice across all 8 videos (no exceptions).
+- Genre: let Claude propose (the product is [name]); give the reason.
+- Special requirements: [keep the client's conventions if any: scenes of 3–4 s, soft transitions, no text in boxes].
 
-## D. Xử lý giọng
-- Giọng đọc chậm: tăng tốc để mỗi video 40–45 s, tối đa 1.7×, giữ cao độ; nghe rõ từng chữ, không méo.
-  Cần hơn 1.7× mới đủ → dừng và báo. Phiên âm và phụ đề làm sau khi tăng tốc.
+## D. Voice handling
+- The voice reads slowly: speed it up so each video is 40–45 s, at most 1.7×, keeping the pitch; every word clearly audible, no distortion.
+  If more than 1.7× is needed → stop and report. Transcription and captions are done after the speed-up.
 
-## E. Nghiệm thu: như khung, mục E.
+## E. Acceptance: as in the frame, section E.
 
-## F. Cách làm: như khung, mục F (làm video 1 trước, rồi nhân ra 7 video còn lại, không cần chờ tôi duyệt mẫu).
+## F. Method: as in the frame, section F (make video 1 first, then multiply to the other 7 videos, no need to wait for my approval of the sample).
 
-## G. Bàn giao
-- Đích: `G:\[...]\Video Final\[11-09-2026 hay 11-11-2026 — xác nhận]`. Tên file `[Kênh]_[ngày]_V01 … V08.mp4`. Sao chép, không di chuyển,
-  kiểm đủ 8 file, không ghi đè. Việc đồng bộ Drive là của ứng dụng Drive.
+## G. Delivery
+- Destination: `G:\[...]\Video Final\[11-09-2026 or 11-11-2026 — confirm]`. File names `[Channel]_[date]_V01 … V08.mp4`. Copy, do not move,
+  check that all 8 files are there, do not overwrite. Drive syncing is the Drive app's job.
 ```
 
 ---
 
-### Chỗ prompt gốc dễ làm Claude đoán sai (và cách sửa)
+### Where the original prompt could make Claude guess wrong (and the fix)
 
-| Câu gốc | Vấn đề | Sửa |
+| Original sentence | Problem | Fix |
 |---|---|---|
-| "dài từ 1.07s cho tới 1.18s" | Là 1:07–1:18 (67–78 s) hay 1,07 s? Nếu 67–78 s, chia 1.7 ra **39,4–45,9 s**: vừa đủ, gần như không dư để bỏ câu. | Ghi "1 phút 07 giây". Kiểm số học trước: độ dài giọng ÷ hệ số phải nằm trong 40–45 s. |
-| "tăng lên khoảng 1.7x" | 1.7× là cách, không phải đích. Kit ghi giọng thương mại quá ~1.15× đã nghe vội (`voiceover-and-captions.md`); 1.7× trên giọng Việt dễ mất thanh điệu và nuốt âm. Kit **chưa có script tăng tốc** (chỉ có `make_voiceover.py --speed` khi tạo giọng), Claude sẽ dùng `ffmpeg atempo` trong thư mục làm việc. | Đặt đích = độ dài và độ rõ, 1.7× là trần; có phương án khi vượt trần. |
-| "40% video thô hôm nay và 60% cũ" | Tính theo giây hiển thị, theo số clip hay theo dung lượng? Mỗi video hay cả lô? Không có sai số. Còn `CLAUDE.md` ghi tỷ lệ "mới" bị chặn bởi số học khi không được dùng lại: 8 × ~42 s = ~336 s footage dùng được, 40% là ~134 s mới và ~202 s cũ. | Nêu cách đo và sai số; Claude tính ngân sách và báo trước khi dựng. |
-| "ko trùng nhau" | Trùng cảnh, trùng đoạn nguồn, hay chỉ khác thứ tự? TikTok Shop gọi việc xáo thứ tự là nội dung lặp (`policy.md`). | "Không đoạn nguồn nào dùng hai lần trong cả lô", kiểm bằng `footage_overlap_checker.py`. Hết cảnh thì dừng và báo. |
-| "11-10-2026" nguồn, "11-09-2026" đích | Hai ngày khác nhau, trong khi hôm nay là 11-11. Một trong hai có thể đánh nhầm. | Ghi đường dẫn đầy đủ hoặc để Claude liệt kê thư mục rồi bạn xác nhận. |
-| "đẩy vào ổ G … tự đồng bộ" | Ổ G có thể chưa gắn; file Drive đôi khi chỉ là bản giữ chỗ chưa tải; ghi đè nhầm file đang có. | Mục G và F.1: kiểm tồn tại, sao chép, không ghi đè, kiểm sau khi chép. |
-| "ai voice audio" | Giọng AI: gói nào? Gói miễn phí của ElevenLabs không dùng thương mại; đăng kênh thật là dùng thương mại. Footage AI cũng cần nhãn "nội dung do AI tạo". | Ghi nguồn gốc từng thứ ở mục B; Claude đưa vào checklist đăng. |
-| "Áp dụng mọi kỹ thuật … tuyệt đối không được lỗi" | Không kiểm được, và "mọi kỹ thuật" có thể dùng thừa (kit nói dùng theo playbook, không dùng hết). | Thay bằng tiêu chí đo được (mục E) và quy trình mẫu-rồi-nhân. |
-| "Bắt đầu làm đi!!!" kèm "nghiên cứu kĩ trước" | Hai yêu cầu kéo ngược nhau: vừa phải kiểm kê, vừa muốn làm ngay. | Mục F: kiểm kê và ngân sách là bước 1–2 (không cần chờ), chỉ dừng ở điều kiện đã liệt kê. |
+| "dài từ 1.07s cho tới 1.18s" (from 1.07s to 1.18s long) | Is it 1:07–1:18 (67–78 s) or 1.07 s? If 67–78 s, dividing by 1.7 gives **39.4–45.9 s**: just enough, with almost nothing spare to drop a sentence. | Write "1 minute 07 seconds". Check the arithmetic first: the voice length ÷ the factor must land in 40–45 s. |
+| "tăng lên khoảng 1.7x" (speed up by about 1.7x) | 1.7× is a method, not a goal. The kit notes that a commercial voice faster than ~1.15× already sounds rushed (`voiceover-and-captions.md`); 1.7× on a Vietnamese voice easily loses tones and swallows sounds. The kit **has no speed-up script yet** (only `make_voiceover.py --speed` when synthesizing), so Claude would use `ffmpeg atempo` in the work folder. | Make the goal = length and clarity, with 1.7× as a ceiling; give a plan for when the ceiling is exceeded. |
+| "40% video thô hôm nay và 60% cũ" (40% of today's raw video and 60% old) | By seconds on screen, by number of clips, or by file size? Per video or the whole batch? No tolerance. And `CLAUDE.md` records that the "new" share is capped by arithmetic when reuse is not allowed: 8 × ~42 s = ~336 s of usable footage, 40% is ~134 s new and ~202 s old. | State how it is measured and the tolerance; Claude computes the budget and reports it before editing. |
+| "ko trùng nhau" (do not overlap) | Overlapping scenes, overlapping source ranges, or only a different order? TikTok Shop calls reshuffling the order repetitive content (`policy.md`). | "No source range is used twice across the whole batch", checked with `footage_overlap_checker.py`. When the scenes run out, stop and report. |
+| "11-10-2026" source, "11-09-2026" destination | Two different dates, while today is 11-11. One of them may be a slip. | Write the full path or let Claude list the folder and you confirm. |
+| "đẩy vào ổ G … tự đồng bộ" (push into drive G … syncs by itself) | Drive G may not be mounted; Drive files are sometimes only placeholders that are not downloaded; an existing file may be overwritten by mistake. | Section G and F.1: check existence, copy, do not overwrite, check after copying. |
+| "ai voice audio" (AI voice audio) | An AI voice: which plan? ElevenLabs' free plan is not for commercial use; posting to a real channel is commercial use. AI footage also needs an "AI-generated content" label. | Write down where each thing comes from in section B; Claude puts it in the publishing checklist. |
+| "Áp dụng mọi kỹ thuật … tuyệt đối không được lỗi" (Apply every technique … there must absolutely be no errors) | Not checkable, and "every technique" can be overused (the kit says to use what the playbook says, not everything). | Replace with measurable criteria (section E) and the sample-then-multiply workflow. |
+| "Bắt đầu làm đi!!!" (Start now!!!) together with "nghiên cứu kĩ trước" (research carefully first) | Two requests pulling in opposite directions: both take inventory and start right away. | Section F: the inventory and the budget are steps 1–2 (no waiting), stopping only at the listed conditions. |

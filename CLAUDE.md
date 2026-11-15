@@ -20,7 +20,7 @@ skill, so a chat opened **outside** this repo can run it too (SKILL.md step 0). 
 bash through Git Bash — `& "C:\Program Files\Git\bin\bash.exe" ./setup.sh --check` from PowerShell. If
 anything is missing, or the skill copy is out of date after a `git pull`, follow the setup steps below.
 
-## When the user says "setup", "cài đặt", or has just cloned this repo
+## When the user says "setup", "cài đặt" (Vietnamese for "install"), or has just cloned this repo
 
 Do these in order. Show real output; never summarise a failure as success.
 
@@ -147,7 +147,7 @@ version, with the evidence in that file:
 - `eleven_multilingual_v2` does **not** support Vietnamese. Default is `eleven_turbo_v2_5`.
 - Free ElevenLabs plans can only use `premade` voices (library voices return HTTP 402).
 - `[emotion]` tags only work on `eleven_v3`; other models read them aloud. The scripts strip them.
-- Whisper mishears Vietnamese ("túi xách" → "tui sách"): captions take **words from the script**,
+- Whisper mishears Vietnamese ("túi xách" (handbag) → "tui sách"): captions take **words from the script**,
   **timing from Whisper**. Supplied voice files often differ from the written script — transcribe,
   correct by hand, then align.
 - A client's house style (e.g. scenes 3–4 s with soft transitions, no text in boxes) belongs to the playbook it was
@@ -184,7 +184,7 @@ version, with the evidence in that file:
   `references/layout-and-motion-graphics.md`. The `cart` arrow curves onto it; check any change with a
   mockup of the frame scaled to a real phone screen. When the voice lists three things, use the
   `thumbs` strip (three-photo header) with `+@"word"` timing and `~x,y,zoom` framing.
-- Before/after: the reveal gets a `compare` card (TRƯỚC/SAU frames of the same garment from ranges
+- Before/after: the reveal gets a `compare` card (BEFORE/AFTER labels by default; set `beforeLabel`/`afterLabel` for another language; frames of the same garment from ranges
   already on screen, with an honest time note); TikTok's **ad** policy bars before-and-after
   comparisons, so ask whether the video will be boosted. Details: `references/before-after.md`.
 - Viewer-first layout (default for the feed playbooks; the `talking-head:agency` variant deliberately puts captions in a strip above its cards instead): titles hug the top edge (y 236–420), captions are the
@@ -227,11 +227,11 @@ version, with the evidence in that file:
 
 ## Read next
 
-`README.md` → `docs/CAU-TRUC.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
+`README.md` → `docs/STRUCTURE.md` (what every folder and file is) → `docs/WORKFLOW.md` → `docs/DECISIONS.md` →
 `skill/short-video-editing/SKILL.md` → `skill/short-video-editing/playbooks/README.md` (genres: how to choose and add) →
 `skill/short-video-editing/references/policy.md` (content-rights and duplicate-content policy) → `references/hyperframes-flow.md` (the second renderer) and
 `references/capcut-techniques.md` (where each CapCut technique lives in the kit) → `references/adding-techniques.md` (how the kit grows) → `docs/CASE-LOG.md` (the history of jobs done: not a guide). Adding, renaming or removing a file or script means updating
-`docs/CAU-TRUC.md` and the structure tree in `README.md` in the same commit.
+`docs/STRUCTURE.md` and the structure tree in `README.md` in the same commit.
 
 ## Working in this repo
 

@@ -11,8 +11,8 @@ Running Whisper over a synthesized Vietnamese voiceover produced:
 
 | Spoken | Whisper heard |
 |---|---|
-| mua **túi xách** | mua *tui sách* |
-| thấy **kiểu dáng** | thấy *kiểu gián* |
+| mua **túi xách** (buy a handbag) | mua *tui sách* |
+| thấy **kiểu dáng** (see the design) | thấy *kiểu gián* |
 
 Both are plausible-looking Vietnamese. Neither is what was said. In a transcript that is a minor
 annoyance; burned onto a video at 44px it is the first thing a viewer notices, and it makes the
@@ -39,8 +39,8 @@ audio to fit is slower and sounds worse than writing shorter in the first place.
 One line per VO line, one line per file:
 
 ```
-Ủa, mọi người ơi! Có ai giống mình không?
-Nhưng mà lần này... mình phải nói thật là chiếc túi này khiến mình bất ngờ luôn!
+Hey everyone! Is anyone else like me?
+But this time... honestly, this bag really surprised me!
 ```
 
 Check every line against the rewrite table in `claims-and-compliance.md` §2 before synthesizing. Fixing
@@ -137,7 +137,7 @@ audio you did not generate, such as a creator's own recording — see "A supplie
 Caption groups get a minimum display of **0.5s + 0.3s per word**, so a four-word group holds at
 least 1.7s. Groups are trimmed if they would overrun the next one.
 
-Whisper sometimes stretches a word across a pause (it timed "Vừa" 0.5 s before the voice said it, and the
+Whisper sometimes stretches a word across a pause (it timed the word "Vừa" ("just") 0.5 s before the voice said it, and the
 caption showed early). After aligning, `align_captions.py` measures the real silences (≥ 0.2 s at −35 dB) and
 pulls any word that overlaps one back to the sound; it prints "Snapped N word edge(s)". The cuts the sync report
 still flags inside a word are then usually a pause that Whisper's timing hides: check it with

@@ -1,33 +1,33 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trình sửa video</title>
+<title>Video editor</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/editor.css">
 </head>
 <body>
 <header class="top">
   <div class="brand">
-    <strong>Trình sửa video</strong>
+    <strong>Video editor</strong>
     <span id="dirName" class="muted"></span>
-    <select id="projectSelect" aria-label="Chọn file project"></select>
+    <select id="projectSelect" aria-label="Choose project file"></select>
   </div>
-  <span id="badge" class="badge" role="status">Đang tải…</span>
-  <span id="dirty" class="dirty" hidden>● chưa lưu</span>
+  <span id="badge" class="badge" role="status">Loading…</span>
+  <span id="dirty" class="dirty" hidden>● unsaved</span>
   <div class="actions">
-    <button id="btnUndo" title="Ctrl+Z">Hoàn tác</button>
-    <button id="btnRedo" title="Ctrl+Y">Làm lại</button>
-    <button id="btnHistory">Lịch sử</button>
-    <button id="btnSave" class="primary" title="Ctrl+S">Lưu project</button>
-    <button id="btnRender">Render lại</button>
-    <button id="btnTheme" class="icon" title="Đổi giao diện sáng / tối" aria-label="Đổi giao diện">◐</button>
+    <button id="btnUndo" title="Ctrl+Z">Undo</button>
+    <button id="btnRedo" title="Ctrl+Y">Redo</button>
+    <button id="btnHistory">History</button>
+    <button id="btnSave" class="primary" title="Ctrl+S">Save project</button>
+    <button id="btnRender">Re-render</button>
+    <button id="btnTheme" class="icon" title="Switch light / dark theme" aria-label="Switch theme">◐</button>
   </div>
 </header>
 
 <main>
-  <section class="preview" aria-label="Xem trước">
+  <section class="preview" aria-label="Preview">
     <div class="stage">
       <div class="phone" id="phone">
         <div class="screen" id="screen">
@@ -40,46 +40,46 @@
     </div>
     <div class="note" id="renderNote"></div>
     <div class="transport">
-      <button id="btnPlay" class="icon" title="Space" aria-label="Phát / dừng">▶</button>
+      <button id="btnPlay" class="icon" title="Space" aria-label="Play / pause">▶</button>
       <span id="timeLabel" class="time">0:00.00 / 0:00.00</span>
-      <select id="srcSelect" aria-label="Nguồn xem trước"></select>
+      <select id="srcSelect" aria-label="Preview source"></select>
       <span class="toggles">
-        <label><input type="checkbox" id="tgSafe"> Vùng an toàn</label>
-        <label><input type="checkbox" id="tgFace"> Vùng mặt</label>
-        <label><input type="checkbox" id="tgDraft"> Nháp chữ</label>
+        <label><input type="checkbox" id="tgSafe"> Safe zone</label>
+        <label><input type="checkbox" id="tgFace"> Face zone</label>
+        <label><input type="checkbox" id="tgDraft"> Draft text</label>
       </span>
     </div>
   </section>
 
-  <aside class="panel" id="panel" aria-label="Thuộc tính"></aside>
+  <aside class="panel" id="panel" aria-label="Properties"></aside>
 </main>
 
-<section class="timeline" aria-label="Dòng thời gian">
+<section class="timeline" aria-label="Timeline">
   <div class="tl-bar">
-    <button id="btnAddText" title="Chèn một tiêu đề tại playhead">+ Thêm chữ</button>
-    <button id="btnAddCaption">+ Phụ đề</button>
-    <button id="btnAddSfx">+ Âm</button>
-    <button id="btnSplit" title="Phím S">Cắt cảnh</button>
-    <label class="chk"><input type="checkbox" id="tgSnap" checked> Bám mép</label>
+    <button id="btnAddText" title="Insert a title at the playhead">+ Text</button>
+    <button id="btnAddCaption">+ Caption</button>
+    <button id="btnAddSfx">+ Sound</button>
+    <button id="btnSplit" title="Key S">Split scene</button>
+    <label class="chk"><input type="checkbox" id="tgSnap" checked> Snap</label>
     <span class="spacer"></span>
-    <label class="zoom">Thu phóng <input type="range" id="zoom" min="0" max="100" value="40"></label>
-    <button id="btnFit">Vừa khung</button>
+    <label class="zoom">Zoom <input type="range" id="zoom" min="0" max="100" value="40"></label>
+    <button id="btnFit">Fit</button>
   </div>
   <div class="tl-scroll" id="tlScroll"><div class="tl-content" id="tlContent"></div></div>
 </section>
 
 <dialog id="dlgHistory">
-  <form method="dialog" class="dlg-head"><strong>Lịch sử lưu</strong><button class="icon" aria-label="Đóng">✕</button></form>
+  <form method="dialog" class="dlg-head"><strong>Save history</strong><button class="icon" aria-label="Close">✕</button></form>
   <p class="muted" id="historyHint"></p>
   <div id="historyList" class="list"></div>
 </dialog>
 
 <dialog id="dlgRender">
-  <form method="dialog" class="dlg-head"><strong>Render</strong><button class="icon" aria-label="Đóng">✕</button></form>
+  <form method="dialog" class="dlg-head"><strong>Render</strong><button class="icon" aria-label="Close">✕</button></form>
   <div id="renderState" class="render-state"></div>
   <div class="bar"><div id="renderBar"></div></div>
   <pre id="renderLog" class="log"></pre>
-  <div class="dlg-foot"><button id="btnCancelRender">Hủy render</button></div>
+  <div class="dlg-foot"><button id="btnCancelRender">Cancel render</button></div>
 </dialog>
 
 <div id="toasts" role="status" aria-live="polite"></div>

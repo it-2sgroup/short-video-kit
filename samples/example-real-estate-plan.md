@@ -21,12 +21,12 @@
 
 | # | Start | End | Component | Zone | Tone | Content |
 |---|-------|-----|-----------|------|------|---------|
-| 1 | 0.0 | 2.9 | title | top | – | style=glass; lines=Villa 3PN có hồ bơi / Khu A; accent=hồ bơi |
-| 2 | 3.2 | +2.2 | pin | top | – | title=Khu A, Thành phố X; sub=Cách trung tâm ~15 phút (ước tính) |
-| 3 | 5.8 | +2.3 | label | – | – | text=Tên phòng; sub=42 m² |
-| 4 | 14.2 | 16.2 | stat | upper | – | value=120; unit= m²; label=Sân thượng |
-| 5 | 16.6 | 20.2 | specs | upper | – | title=Thông tin; items=area:320 m² đất / bed:3 PN / bath:4 WC / compass:Đông Nam |
-| 6 | 17.0 | 20.2 | price | lower | cta | value=28.5; decimals=1; unit= tỷ; label=Giá bán |
-| 7 | 23.6 | 26.4 | lowerThird | lower | – | name=Tên môi giới; role=Đặt lịch xem nhà |
-| 8 | 8.6 | 11.0 | chart | upper | – | title=Ánh sáng tự nhiên; items=Phòng A#9 / Phòng B#7 / Phòng C#8; unit= giờ |
-| 9 | 11.4 | 13.8 | image | – | – | src=images/floorplan.png; at=0.5,0.3; width=600; caption=Mặt bằng tầng 2 |
+| 1 | 0.0 | 2.9 | title | top | – | style=glass; lines=3-bedroom villa with a pool / Area A; accent=pool |
+| 2 | 3.2 | +2.2 | pin | top | – | title=Area A, City X; sub=About 15 minutes from the centre (estimate) |
+| 3 | 5.8 | +2.3 | label | – | – | text=Room name; sub=42 m² |
+| 4 | 14.2 | 16.2 | stat | upper | – | value=120; unit= m²; label=Rooftop terrace |
+| 5 | 16.6 | 20.2 | specs | upper | – | title=Details; items=area:320 m² land / bed:3 BR / bath:4 WC / compass:Southeast |
+| 6 | 17.0 | 20.2 | price | lower | cta | value=28.5; decimals=1; unit= billion; label=Sale price |
+| 7 | 23.6 | 26.4 | lowerThird | lower | – | name=Agent name; role=Book a viewing |
+| 8 | 8.6 | 11.0 | chart | upper | – | title=Natural light; items=Room A#9 / Room B#7 / Room C#8; unit= hours |
+| 9 | 11.4 | 13.8 | image | – | – | src=images/floorplan.png; at=0.5,0.3; width=600; caption=Floor plan, level 2 |

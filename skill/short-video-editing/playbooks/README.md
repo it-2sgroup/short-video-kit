@@ -55,7 +55,7 @@ before planning anything:
 
 Ask at most three, each with your default, in one message. The usual gaps:
 
-- **Kind and goal** when ambiguous: "Video này để bán (giỏ hàng/đặt lịch xem) hay để kéo follow/nhận diện?"
+- **Kind and goal** when ambiguous: "Is this video for selling (cart / booking a viewing) or for gaining followers / brand awareness?"
 - **Platform and use**: TikTok, Reels or both; organic or boosted as an ad (ads forbid before/after
   comparisons and need Reels-ad safe zones: `--platform reels-ad`).
 - **Facts on screen** the footage cannot give: price, area, address, offer dates, the product name as listed.
@@ -109,4 +109,4 @@ playbook: the kit carries no technique that nothing uses.
    A new look → a grade in `assets/grades.json` or a theme in `src/theme.ts`, used by a playbook.
 5. Run `python scripts/playbook.py check` and `./selftest.sh`; render one still with the new theme or
    component (`./selftest.sh --render DIR`) and look at it.
-6. Update `docs/CAU-TRUC.md` and the tree in `README.md`.
+6. Update `docs/STRUCTURE.md` and the tree in `README.md`.

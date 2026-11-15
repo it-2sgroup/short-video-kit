@@ -136,8 +136,8 @@ export const Compare: React.FC<Base> = ({ ov, dur, instant }) => {
       <OutlineText size={48} weight={900} color={color} align={align}>{text}</OutlineText>
     </div>
   );
-  const beforeText = p.beforeLabel ?? "TRƯỚC";
-  const afterText = p.afterLabel ?? "SAU";
+  const beforeText = p.beforeLabel ?? "BEFORE";
+  const afterText = p.afterLabel ?? "AFTER";
   const scrim = <div style={{ position: "absolute", inset: 0, background: `rgba(8,16,36,${compare.scrim})`, opacity: enter }} />;
   const note = p.note ? (
     <div style={{ position: "absolute", left: safe.left, width: total, top: top + h + 2 * b + 22, opacity: Math.min(enter, exit) }}>

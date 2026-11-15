@@ -107,6 +107,8 @@ def parse_plan(text: str) -> tuple[list[Scene], list[str]]:
         if line.count("|") < 2:
             continue
         headers = split_row(line)
+        # The Vietnamese aliases ("bắt đầu", "kết thúc", "cảnh", "loại", "hình") stay: plan tables written before the
+        # English conversion may still use them.
         start_i = find_column(headers, "start", "from", "bắt đầu")
         end_i = find_column(headers, "end", "to", "kết thúc")
         if start_i is not None and end_i is not None:
