@@ -51,6 +51,12 @@ in the plan's **Transition** column. **[D]** documented, **[C]** convention.
 | `glRgbSplit [dir]` | 12 | The red, green and blue channels dissolve at different times and slide apart, then snap together (GL shader, Remotion only) | An RGB glitch without hard edges: music beats, tech, fashion |
 | `glRadialShutter` | 16 | A fan of spiral blades opens the new shot, like a camera shutter (GL shader, Remotion only) | A lens or "focus" beat, a product reveal |
 | `glRipplePixel` | 18 | A pixelated ring spreads from the centre; the new shot inside, the old outside (GL shader, Remotion only) | A pulse on the beat, tech and sound subjects |
+| `gridFlash` | 18 | A 3 x 3 grid: in a random order each cell goes flat cream for a frame, then shows the new shot; thin dark lines stay between cells; two cream frames close it (Remotion only) | Tech, a beat in a showreel, a product grid; see `transition-pack.md` |
+| `cropPop` | 8 | The new shot, scaled down, pops open as a window low in the middle and grows to the full frame with an ease-out (Remotion only) | A run of cuts on the beat about a second apart ("frame click") |
+| `cropNegative` | 8 | The same from a smaller window at the lower right of centre, an inverted black-and-white picture for the first half (Remotion only) | One punch accent per video |
+| `flashWipe [dir]` | 12 | A cream band wider than the frame sweeps across; the picture swaps under it (Remotion only) | A "teleport": two takes from one locked tripod, the subject moved |
+| `blackFlicker` | 14 | The picture flickers to black and back about five times while the shot changes; the frames beside a black one are dimmed (Remotion only) | Night, events, a drop in the music; keep it under three flashes a second |
+| `zoomFade` | 16 | The old shot dips to black while growing; the new one fades up from black growing 90 % to 100 % (Remotion only) | The last transition of a sequence, a mood change |
 
 Accents centred on a cut, not changing timing: append `+flash` (white flash, peak 0.55) or `+leak`
 (`lightLeak` of `@remotion/effects`, 0.6 opacity, screen blend). Use at most two per video.
@@ -63,6 +69,7 @@ machine with a GPU for the faster path. Without WebGL the render **throws** ("Fa
 the first thing to check when a render dies on a shader transition. The Studio preview shows a hard cut for these unless Chrome has
 `chrome://flags/#canvas-draw-element` enabled; renders are not affected. HyperFrames draws all of them as a `fade` and says so in its report
 (`project_to_hyperframes.py` lists them under "Remotion only"); `blinds`, `diamond`, `doors`, `glitchSlice`, `spinZoom`, `inkBleed`, `lumaWipe` and `cutCurve` are CSS/SVG and exist in both.
+The six showreel transitions (`gridFlash`, `cropPop`, `cropNegative`, `flashWipe`, `blackFlicker`, `zoomFade`) are CSS and SVG, measured on two technique-breakdown videos and described frame by frame in `references/transition-pack.md`; HyperFrames draws a fade for them.
 Each was rendered here as a still at mid-transition on a synthetic pair of clips (all 19 shipped names and the 10 kit-written ones below; `inkBleed`, `lumaWipe` and `cutCurve`
 also through the HyperFrames page); nobody has judged them on real footage.
 

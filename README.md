@@ -215,11 +215,11 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
     │                              typography, layout and motion graphics, captions, sync, footage ingest, voiceover,
     │                              audio and music, audio processing, sound design, before/after, campaign data, Remotion,
     │                              HyperFrames flow, CapCut techniques, adding techniques (how the kit grows), technique
-    │                              backlog, subject effects, reference analysis, editor
+    │                              backlog, transition pack, subject effects, reference analysis, editor
     ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
     │                              make_voiceover, make_sfx, make_music, match_voice_takes, align_captions, suggest_cuts, plan_scenes, pacing_checker,
     │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes,
-    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, person_matte, object_cutout, agency_plan, finish_video,
+    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, find_occluders, reverse_clip, person_matte, object_cutout, agency_plan, finish_video,
     │                              check_lipsync, technique (the technique catalogue), editor (browser timeline editor)
     ├── assets/
     │   ├── edit-plan-template.md  The plan format

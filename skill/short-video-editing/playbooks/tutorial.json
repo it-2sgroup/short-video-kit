@@ -34,7 +34,7 @@
   "correction": "shared",
   "music": {"bpm": [85, 115], "mood": "light, steady, low under the voice"},
   "components": {
-    "use": ["title", "step", "checklist", "progress", "callout", "magnifier", "highlight", "stat", "cart"],
+    "use": ["title", "step", "checklist", "progress", "callout", "magnifier", "highlight", "stat", "cart", "image", "timelinePanel"],
     "avoid": []
   },
   "sfx": {},

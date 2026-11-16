@@ -62,6 +62,13 @@ dish or surface). Theme `cool`.
 `checklist` for tools or ingredients, `progress` for a wait, `callout` and `highlight` on a still
 moment, `magnifier` for fine detail, `stat` for a quantity or a time, `cart` when a product is sold.
 
+### A technique breakdown (an editing tutorial: "the technique, then the clip that shows it")
+
+A video that teaches editing shows one technique per beat: the finished clip in a window, the technique's name under it, a screenshot of the real timeline with a white
+playhead sweeping across it (`timelinePanel`). Each beat is 1.2-4 s and long enough to be understood once; the clip IS the technique (a real example, never a mock-up),
+and the timeline is a real screenshot of the real project. `references/transition-pack.md` measures 17 such techniques frame by frame and says how to build each one
+(`gridFlash`, `cropPop`, `cropNegative`, `flashWipe`, `blackFlicker`, `zoomFade`, `find_occluders.py`, `reverse_clip.py`, recipes for the rest) and describes the layout.
+
 ## Compliance
 
 Sped-up waits labelled; safety steps shown (heat, electricity, chemicals, knives); quantities and times

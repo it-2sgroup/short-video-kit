@@ -43,7 +43,9 @@ REMOTION_ONLY_PROJECT = {"faceGlow": "face light", "captionHighlight": "caption 
 REMOTION_ONLY_TRANSITIONS = {"cardSlide", "cardSwirl", "filmBurn", "zoomBlur", "dreamyZoom", "linearBlur", "crosswarp", "zoomInOut", "blurSlide",
                              "clockWipe", "ripple", "burnDissolve", "cube", "bookFlip", "swap",
                              # kit-written GL Transitions shaders (engine/glTransitions.tsx, shaders/*.glsl)
-                             "glPixelate", "glDirectionalWarp", "glSwirl", "glMosaic", "glRgbSplit", "glRadialShutter", "glRipplePixel"}
+                             "glPixelate", "glDirectionalWarp", "glSwirl", "glMosaic", "glRgbSplit", "glRadialShutter", "glRipplePixel",
+                             # showreel transitions (engine/transitions.tsx, references/transition-pack.md)
+                             "gridFlash", "cropPop", "cropNegative", "flashWipe", "blackFlicker", "zoomFade"}
 
 
 def remotion_only(proj: dict) -> list[str]:

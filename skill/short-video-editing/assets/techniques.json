@@ -402,6 +402,94 @@
    ]
   },
   {
+   "id": "timelinePanel",
+   "kind": "overlay",
+   "name": "Timeline panel with playhead",
+   "about": "A screenshot of an editor's timeline (any file in public/) with a white playhead sweeping across it at constant speed over the overlay's length: the signature of a technique-breakdown video, showing where in the edit the demonstrated moment lives.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "timelinePanel | bottom | src=images/timeline.png; width=900; at=0.5,0.74; from=0.04; to=0.96",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "timeline breakdown",
+    "playhead sweep",
+    "editor screenshot",
+    "timeline screenshot",
+    "breakdown timeline"
+   ],
+   "tags": [
+    "graphic",
+    "media",
+    "tutorial",
+    "showreel"
+   ],
+   "params": [
+    {
+     "key": "src",
+     "type": "string",
+     "desc": "the screenshot, a file under public/"
+    },
+    {
+     "key": "at",
+     "type": "point",
+     "default": [
+      0.5,
+      0.74
+     ],
+     "desc": "centre of the panel as fractions of the frame"
+    },
+    {
+     "key": "width",
+     "type": "number",
+     "default": 900,
+     "min": 200,
+     "max": 1080,
+     "step": 10,
+     "unit": "px",
+     "desc": "width of the panel"
+    },
+    {
+     "key": "from",
+     "type": "number",
+     "default": 0.04,
+     "min": 0,
+     "max": 1,
+     "step": 0.01,
+     "desc": "playhead x at the start, as a fraction of the panel's width"
+    },
+    {
+     "key": "to",
+     "type": "number",
+     "default": 0.96,
+     "min": 0,
+     "max": 1,
+     "step": 0.01,
+     "desc": "playhead x at the end"
+    },
+    {
+     "key": "color",
+     "type": "color",
+     "default": "#FFFFFF",
+     "desc": "playhead colour"
+    }
+   ],
+   "use_when": "a tutorial or showreel that shows how each moment was built; a real screenshot of the user's own project",
+   "avoid_when": "a made-up screenshot presented as the real project (never fake a timeline)",
+   "pairs_with": [
+    "image",
+    "gridFlash",
+    "cropPop"
+   ],
+   "timing": "the playhead moves linearly for the whole overlay; the panel fades in over 8 frames",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two technique-breakdown videos: a still screenshot of the whole edit with a playhead at a constant 15-22 px/s",
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "renderer_notes": "HyperFrames does not draw it."
+  },
+  {
    "id": "burst",
    "kind": "overlay",
    "name": "Shout burst",
@@ -4234,6 +4322,247 @@
    ],
    "source": "kit-original GLSL in the gl-transitions convention (shaders/ripplePixel.glsl, loaded by engine/glTransitions.tsx); Remotion only, HyperFrames draws a fade",
    "licence": "MIT"
+  },
+  {
+   "id": "gridFlash",
+   "kind": "transition",
+   "name": "Grid flash reveal",
+   "about": "A 3 x 3 grid over the old shot: in a random order each cell goes flat cream for one frame and is then the new shot, thin dark lines stay between the cells, and two cream frames close it. Cream, never pure white. About 0.6 s.",
+   "doc": "references/transition-pack.md",
+   "plan": "Transition: gridFlash",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "grid transition",
+    "grid mask",
+    "grid reveal",
+    "tile flash",
+    "cell reveal",
+    "mosaic flash"
+   ],
+   "tags": [
+    "grid",
+    "flash",
+    "reveal",
+    "css",
+    "mask",
+    "showreel"
+   ],
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "use_when": "between two shots of different content on a beat; a tech, product or showreel video",
+   "avoid_when": "a calm or emotional shot, or more than once every few seconds",
+   "pairs_with": [
+    "pushCut",
+    "jolt",
+    "blackFlicker"
+   ],
+   "timing": "18 frames; cells open from 4 % to 78 % of the transition, 9 % of it cream per cell, lines from 12 % to 88 %, a closing cream flash from 88 % to 96 %",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two public technique-breakdown videos (references/transition-pack.md), drawn with CSS and SVG masks",
+   "renderer_notes": "HyperFrames draws a fade (project_to_hyperframes.py lists it under Remotion only)."
+  },
+  {
+   "id": "cropPop",
+   "kind": "transition",
+   "name": "Frame click (crop pop)",
+   "about": "The new shot, scaled down, pops open as a window low in the middle of the frame over the old shot and grows to the full frame with an ease-out in about 8 frames: a camera-click cut.",
+   "doc": "references/transition-pack.md",
+   "plan": "Transition: cropPop",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "frame click",
+    "crop open",
+    "window pop",
+    "box reveal",
+    "crop reveal",
+    "frame pop"
+   ],
+   "tags": [
+    "crop",
+    "window",
+    "reveal",
+    "css",
+    "beat",
+    "showreel"
+   ],
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "use_when": "a run of cuts on the beat about a second apart; the new shot must read at a third of its size",
+   "avoid_when": "a new shot whose subject is tiny or only readable full size",
+   "pairs_with": [
+    "cropNegative",
+    "jolt",
+    "flashWipe"
+   ],
+   "timing": "8 frames, ease-out cubic; the window starts 46 % of the frame wide at x 27 %, y 52 %",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two public technique-breakdown videos (references/transition-pack.md), drawn with CSS and SVG masks",
+   "renderer_notes": "HyperFrames draws a fade (project_to_hyperframes.py lists it under Remotion only)."
+  },
+  {
+   "id": "cropNegative",
+   "kind": "transition",
+   "name": "Crop with negative",
+   "about": "The same window pop, a smaller window at the lower right of centre, shown as an inverted black-and-white picture for its first half and turning to colour as it fills the frame.",
+   "doc": "references/transition-pack.md",
+   "plan": "Transition: cropNegative",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "crop negative",
+    "negative flash",
+    "invert pop",
+    "inverted crop",
+    "negative cut"
+   ],
+   "tags": [
+    "crop",
+    "invert",
+    "negative",
+    "css",
+    "showreel"
+   ],
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "use_when": "one accent per video on a punch beat; a high-contrast new shot",
+   "avoid_when": "skin-tone heavy shots (the negative looks sick), or twice in a row",
+   "pairs_with": [
+    "cropPop",
+    "jolt"
+   ],
+   "timing": "8 frames; the window starts 22 % wide at x 56 %, y 50 %; inverted for the first 50 % of the progress, back to colour by 80 %",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two public technique-breakdown videos (references/transition-pack.md), drawn with CSS and SVG masks",
+   "renderer_notes": "HyperFrames draws a fade (project_to_hyperframes.py lists it under Remotion only)."
+  },
+  {
+   "id": "flashWipe",
+   "kind": "transition",
+   "name": "Flash wipe (teleport band)",
+   "about": "A cream band wider than the frame sweeps across in about 12 frames (fast in the middle) with soft edges; the picture is swapped while it covers everything. Used for the teleport: the same locked-off place, the subject somewhere else.",
+   "doc": "references/transition-pack.md",
+   "plan": "Transition: flashWipe left",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "teleport",
+    "flash band",
+    "light wipe",
+    "cream wipe",
+    "flash cut",
+    "position swap"
+   ],
+   "tags": [
+    "flash",
+    "wipe",
+    "band",
+    "css",
+    "direction",
+    "showreel"
+   ],
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "use_when": "two takes from one tripod position with the subject moved; or any cut that needs a bright accent",
+   "avoid_when": "handheld pairs (the background will not match under the band)",
+   "pairs_with": [
+    "cut",
+    "pushCut",
+    "jolt"
+   ],
+   "timing": "12 frames; the band is 140 % of the frame wide; left = it travels right to left; a cream wash peaks at the swap in the middle",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two public technique-breakdown videos (references/transition-pack.md), drawn with CSS and SVG masks",
+   "renderer_notes": "HyperFrames draws a fade (project_to_hyperframes.py lists it under Remotion only)."
+  },
+  {
+   "id": "blackFlicker",
+   "kind": "transition",
+   "name": "Black flash and mix",
+   "about": "Over about 14 frames the picture flickers to black and back five or so times (the frames beside a black one are dimmed: the mix) while the shot changes; the first and last frames stay clean.",
+   "doc": "references/transition-pack.md",
+   "plan": "Transition: blackFlicker",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "black flash",
+    "black flash mix",
+    "flicker cut",
+    "strobe cut",
+    "blackout flicker",
+    "dip flicker"
+   ],
+   "tags": [
+    "flicker",
+    "black",
+    "strobe",
+    "css",
+    "night",
+    "showreel"
+   ],
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "use_when": "night, concert, event and tech footage with a drop in the music; pair with a camera-flash sound",
+   "avoid_when": "photosensitive viewers: a strobe of this kind is risky; keep it under three flashes in a second for any wide release",
+   "pairs_with": [
+    "flare",
+    "jolt",
+    "cut"
+   ],
+   "timing": "14 frames, one step per frame (set frames to 14 so the pattern is one per frame); black on frames 2, 3, 6, 9 and 10, the frames beside them dimmed; the new shot from frame 8",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two public technique-breakdown videos (references/transition-pack.md), drawn with CSS and SVG masks",
+   "renderer_notes": "HyperFrames draws a fade (project_to_hyperframes.py lists it under Remotion only)."
+  },
+  {
+   "id": "zoomFade",
+   "kind": "transition",
+   "name": "Zoom fade in",
+   "about": "The old shot darkens and grows a little; the new shot fades up from black while it grows from 90 % to the full frame, a dark border showing for a few frames; a slow push can continue.",
+   "doc": "references/transition-pack.md",
+   "plan": "Transition: zoomFade",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "zoom fade",
+    "fade zoom in",
+    "dip to black zoom",
+    "grow fade",
+    "cinematic fade in"
+   ],
+   "tags": [
+    "fade",
+    "zoom",
+    "black",
+    "css",
+    "cinematic",
+    "showreel"
+   ],
+   "test": "showreel transitions: six presentations, the occluder finder and the reverse tool",
+   "use_when": "the last transition of a sequence, or a mood change; follow with a push 1.0 to 1.12",
+   "avoid_when": "a fast montage (it needs 0.5 s)",
+   "pairs_with": [
+    "fade",
+    "zoomThrough"
+   ],
+   "timing": "16 frames; the old shot fades out over the first half; the new one fades in from 40 % to 90 % of the progress, scale 0.9 to 1.0",
+   "status": "experimental",
+   "licence": "kit-original",
+   "since": "2026-11",
+   "source": "measured on two public technique-breakdown videos (references/transition-pack.md), drawn with CSS and SVG masks",
+   "renderer_notes": "HyperFrames draws a fade (project_to_hyperframes.py lists it under Remotion only)."
   },
   {
    "id": "sweep",

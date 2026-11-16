@@ -39,6 +39,13 @@ export type TransitionType =
   | "inkBleed" // ink blobs grow from points and merge into the new shot (SVG goo mask)
   | "lumaWipe" // a noisy luma mask sweeps the new shot in from the given side
   | "cutCurve" // the old shot accelerates, a hard swap at peak speed, the new one carries the move on and settles (no blur)
+  // Showreel transitions, measured on two technique-breakdown videos (references/transition-pack.md). CSS/SVG, Remotion only: HyperFrames draws a fade
+  | "gridFlash" // a grid of cells; each cell flashes cream for a frame and then shows the new shot, in random order, a thin grid line left between them
+  | "cropPop" // a small window of the new shot pops open at a point of the frame and grows to the full frame
+  | "cropNegative" // the same, with the window in inverted black and white while it grows
+  | "flashWipe" // a cream band sweeps across the frame; the cut is hidden under it
+  | "blackFlicker" // the picture flickers to black and back about five times as the shot changes
+  | "zoomFade" // the old shot dips to black while it grows, the new one fades up from black while it grows into the frame
   // Written for the kit as GL Transitions shaders (engine/glTransitions.tsx, shaders/*.glsl): WebGL, Remotion only, HyperFrames draws a fade
   | "glPixelate" // square blocks grow to a peak and shrink back
   | "glDirectionalWarp" // a waving wipe edge that stretches the old shot

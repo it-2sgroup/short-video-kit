@@ -276,3 +276,30 @@ export const ImageCard: React.FC<Base> = ({ ov, dur, instant }) => {
     </AbsoluteFill>
   );
 };
+
+// timelinePanel: a screenshot of an editor's timeline (a file in public/, any size) with a white playhead that sweeps across it at a constant speed over the
+// overlay's own length, the way technique-breakdown videos show where in the edit the demonstrated moment lives. `from` and `to` are the playhead's x at
+// the start and the end as fractions of the panel's width (default 0.04 to 0.96); `at` is the panel's centre as fractions of the frame, `width` is in pixels
+// and may span nearly the frame (the safe zone does not apply: the panel is a picture of a screen, not a graphic over the footage).
+export type TimelineProps = { src: string; at?: Point; width?: number; from?: number; to?: number; color?: string };
+
+export const TimelinePanel: React.FC<Base> = ({ ov, dur, instant }) => {
+  const p = (ov.props ?? {}) as TimelineProps;
+  const { frame, exit } = useEnterExit(dur, { instant });
+  const k = instant ? 1 : interpolate(frame, [0, 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const width = Math.min(p.width ?? 900, size.width);
+  const [cx, cy] = p.at ?? [0.5, 0.74];
+  const a = p.from ?? 0.04;
+  const b = p.to ?? 0.96;
+  const x = a + (b - a) * Math.min(1, Math.max(0, frame / Math.max(1, dur - 1)));
+  const color = p.color ?? "#FFFFFF";
+  return (
+    <AbsoluteFill style={{ opacity: exit }}>
+      <div style={{ position: "absolute", left: cx * size.width - width / 2, top: cy * size.height, translate: "0 -50%", width, opacity: k }}>
+        <Img src={staticFile(p.src)} style={{ width: "100%", display: "block", borderRadius: 22, boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} />
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: `${x * 100}%`, width: 3, marginLeft: -1.5, background: color, boxShadow: `0 0 8px ${color}` }} />
+        <div style={{ position: "absolute", top: -5, left: `${x * 100}%`, width: 13, height: 13, marginLeft: -6.5, borderRadius: "50%", background: color }} />
+      </div>
+    </AbsoluteFill>
+  );
+};

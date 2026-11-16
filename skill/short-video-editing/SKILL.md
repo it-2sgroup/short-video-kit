@@ -59,7 +59,7 @@ the video will be boosted as an ad (no before/after in ads).
 
 Run scripts from this skill's folder (`~/.claude/skills/short-video-editing` once installed). They
 need Python 3 and a full ffmpeg; the scripts that need faster-whisper or numpy (`align_captions.py`, `suggest_cuts.py --music`,
-`match_voice_takes.py`, `find_cutaways.py`, `person_matte.py`, `object_cutout.py`, `check_lipsync.py`, `mix_report.py`, `make_music.py`, `analyze_reference.py`)
+`match_voice_takes.py`, `find_cutaways.py`, `find_occluders.py`, `person_matte.py`, `object_cutout.py`, `check_lipsync.py`, `mix_report.py`, `make_music.py`, `analyze_reference.py`)
 re-launch themselves in the kit's venv (`$SVK_PYTHON`, or the one `setup.sh` built).
 
 ### 0. Is this machine ready? (first time in a chat, and whenever a tool is "not found")
@@ -132,6 +132,7 @@ horizon. Look at `contact_sheet.py RENDER/public/clips` and read `corrections.js
   were dropped. Then `process_audio.py voice voice.mp3 --out RENDER/public/audio/v1.wav`.
 - **Landmarks that land (road trips, montages, tours):** `objectDrop` + `impact` overlays and `object_cutout.py`; the recipe is "The object drop" in
   `references/layout-and-motion-graphics.md` (cut the next shot's object out of its first frame, start the overlay `fall/fps` before the cut).
+- **Showreel and montage techniques (grid reveal, frame click, teleport, black flash, zoom fade, mask and shape transitions, reverse, match-cut bursts):** `references/transition-pack.md` measures each one in frames and says how to build it: the transitions `gridFlash`, `cropPop`, `cropNegative`, `flashWipe`, `blackFlicker`, `zoomFade`; `find_occluders.py` finds the moments an object covers the lens (where to hide a cut); `reverse_clip.py` writes a stretch backwards; the rest are recipes.
 - **Agency pitch end to end:** `references/agency-pitch-recipe.md` — `match_voice_takes.py` (lag per take), `find_cutaways.py`, `person_matte.py` (silhouette flash,
   head positions for the beauty light), `agency_plan.py` (draft plan), 14 text effects, caption highlights, `make_music.py`, a varied CC0 sound bank,
   `finish_video.py` (masters), `check_lipsync.py` and `mix_report.py` (proof).
@@ -265,6 +266,7 @@ Read as the task requires, not all at once.
 | `references/hook-library.md` | Choosing or writing the opening. |
 | `references/cutting-and-pacing.md` | Rhythm per playbook, cut types (J/L, match, jump), cutting on beats, speed ramps, re-hooks. |
 | `references/transitions.md` | The transition catalogue, centred-cut maths, shader transitions on Windows. |
+| `references/transition-pack.md` | The showreel techniques measured frame by frame (grid, frame click, teleport, black flash, zoom fade, mask and shape transitions, reverse, match-cut bursts, phone green screen) and how to build each; the layout of a "technique breakdown" video. |
 | `references/camera-moves.md` | Visible push/pull/pan/roll, shot-size ladder, focus, punch-ins, moving footage, proxies. |
 | `references/image-processing.md` | HDR, white balance, exposure, grades, stabilisation, noise, lens, levelling. |
 | `references/typography.md` | Fonts with Vietnamese, the five title styles, colour themes (cool, warm, luxe). |

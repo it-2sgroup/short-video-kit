@@ -6,7 +6,7 @@ import { Callout } from "./graphics/Callout";
 import { CheckList, Step } from "./graphics/Lists";
 import { Price } from "./graphics/Price";
 import { CartPointer, Highlight, Sticker } from "./graphics/Pointers";
-import { Compare, ImageCard, Magnifier, Thumbs } from "./graphics/Media";
+import { Compare, ImageCard, Magnifier, Thumbs, TimelinePanel } from "./graphics/Media";
 import { Chart, Label, Pin, Specs, Stat } from "./graphics/Info";
 import { Ranking } from "./graphics/Ranking";
 import { LowerThird, Progress } from "./graphics/Bars";
@@ -39,6 +39,7 @@ export const registry: Record<string, OverlayComponent> = {
   stat: Stat,
   chart: Chart,
   image: ImageCard,
+  timelinePanel: TimelinePanel,
   phrase: Phrase,
   pill: Pill,
   arc: Arc,

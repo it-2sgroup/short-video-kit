@@ -669,6 +669,45 @@ import plan_to_project as p
 assert {"objectDrop", "impact"} <= set(p.KNOWN) and {"objectDrop", "impact"} == set(p.LANDS_ON_CUT), "both overlays are registered and exempt from the cut-edge warning"
 assert p.parse_transition("cut +jolt")[2] == ["jolt"] and p.JOLT_HIT == {"frames": 7, "blur": 36, "shake": 26}, "+jolt is a transition hit with its default"
 PYEOF
+# label: showreel transitions: six presentations, the occluder finder and the reverse tool
+mkdir -p "$TMP/sr"
+ffmpeg -hide_banner -v error -y -f lavfi -i "nullsrc=s=320x180:d=3:r=30,geq=lum='255*random(1)':cb=128:cr=128" -f lavfi -i "color=c=0x404040:s=640x180:d=3:r=30" \
+  -filter_complex "[0:v][1:v]overlay=x='-640+1280*t/3':y=0,format=yuv420p" -c:v libx264 -crf 14 "$TMP/sr/pass.mp4" >/dev/null 2>&1 \
+  && ffmpeg -hide_banner -v error -y -f lavfi -i "testsrc2=s=160x90:d=2:r=30" -c:v libx264 -crf 12 -pix_fmt yuv420p "$TMP/sr/src.mp4" >/dev/null 2>&1 \
+  && "$PY" "$S/find_occluders.py" "$TMP/sr/pass.mp4" --json "$TMP/sr/occ.json" >"$TMP/sr/occ.log" 2>&1 \
+  && "$PY" "$S/reverse_clip.py" "$TMP/sr/src.mp4" --from 0 --to 2 --out "$TMP/sr/rev.mp4" >"$TMP/sr/rev.log" 2>&1 \
+  && ffmpeg -hide_banner -v error -y -sseof -0.1 -i "$TMP/sr/src.mp4" -frames:v 1 "$TMP/sr/src_last.png" \
+  && ffmpeg -hide_banner -v error -y -i "$TMP/sr/rev.mp4" -frames:v 1 "$TMP/sr/rev_first.png" \
+  && "$PY" -X utf8 - "$TMP/sr" "$S" "$KIT/skill/short-video-editing" <<'PYEOF' >"$TMP/sr/check.log" 2>&1 \
+  && pass "six showreel transitions are in project.ts, timeline.ts, transitions.tsx and the HyperFrames fallback list and plannable; find_occluders.py finds a flat mass sweeping across a textured picture; reverse_clip.py writes the stretch backwards" \
+  || { fail "showreel transitions: six presentations, the occluder finder and the reverse tool"; tail -6 "$TMP/sr/check.log" | sed 's/^/        /'; }
+import json, re, subprocess, sys
+import numpy as np
+d, s, k = sys.argv[1], sys.argv[2], sys.argv[3]
+NEW = ["gridFlash", "cropPop", "cropNegative", "flashWipe", "blackFlicker", "zoomFade"]
+ts = open(k + "/assets/remotion-template/src/project.ts", encoding="utf8").read()
+tl = open(k + "/assets/remotion-template/src/engine/timeline.ts", encoding="utf8").read()
+tr = open(k + "/assets/remotion-template/src/engine/transitions.tsx", encoding="utf8").read()
+hf = open(s + "/project_to_hyperframes.py", encoding="utf8").read()
+for t in NEW:
+    assert f'| "{t}"' in ts, f"{t} missing from TransitionType"
+    assert re.search(rf"\b{t}: \d+,", tl), f"{t} missing from DEFAULT_FRAMES"
+    assert f'case "{t}":' in tr, f"{t} has no case in presentationFor"
+    assert f'"{t}"' in hf, f"{t} missing from the HyperFrames fallback list"
+sys.path.insert(0, s)
+import plan_to_project as p
+for t in NEW:
+    assert t.lower() in p.CANON, f"{t} is not a plannable transition"
+occ = json.load(open(d + "/occ.json"))
+assert occ and any(0.5 <= c["peak"] <= 2.0 and c["cover"] >= 0.9 for c in occ), occ
+assert "timelinepanel" in {k.lower() for k in p.KNOWN}, "timelinePanel must be a plannable overlay"
+assert "wrote" in open(d + "/rev.log", encoding="utf8").read(), "reverse_clip.py must say what it wrote"
+def px(path):
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-v", "error", "-i", path, "-f", "rawvideo", "-pix_fmt", "gray", "-"], capture_output=True)
+    return np.frombuffer(r.stdout, np.uint8).astype(float)
+a, b = px(d + "/src_last.png"), px(d + "/rev_first.png")
+assert a.size == b.size and np.abs(a - b).mean() < 10, "the first frame of the reversed clip is the last frame of the source"
+PYEOF
 SVK_SELFTEST_PY="$PY" bash -s "$KIT/skill/short-video-editing" <<'EDITORTEST' >"$TMP/editor.log" 2>&1 \
   && pass "editor.py: serves the project, saves with a history snapshot, restores, refuses traversal and foreign hosts" || { fail "editor.py"; grep FAIL "$TMP/editor.log" | head -6 | sed 's/^/        /'; }
 #!/usr/bin/env bash

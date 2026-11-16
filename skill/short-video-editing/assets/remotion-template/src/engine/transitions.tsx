@@ -1,9 +1,10 @@
 // Transition registry. Built-in Remotion presentations where they exist (`@remotion/transitions`: the shader ones need the
 // angle GL renderer and HTML-in-canvas), and custom ones written with the documented custom-presentation API (zoomThrough,
-// blurDissolve, whip, blinds, diamond, doors, glitchSlice, spinZoom, inkBleed, lumaWipe, cutCurve, cardSlide, cardSwirl), plus the
+// blurDissolve, whip, blinds, diamond, doors, glitchSlice, spinZoom, inkBleed, lumaWipe, cutCurve, gridFlash, cropPop, cropNegative, flashWipe,
+// blackFlicker, zoomFade, cardSlide, cardSwirl), plus the
 // GL Transitions shaders of engine/glTransitions.tsx (glPixelate, glSwirl... one .glsl file each).
 import React from "react";
-import { AbsoluteFill, interpolate } from "remotion";
+import { AbsoluteFill, Easing, interpolate } from "remotion";
 import type { TransitionPresentation, TransitionPresentationComponentProps } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide, type SlideDirection } from "@remotion/transitions/slide";
@@ -321,6 +322,140 @@ const CutCurve: React.FC<TransitionPresentationComponentProps<CutCurveProps>> = 
   );
 };
 
+// ---- Showreel transitions (measured on two technique-breakdown videos: references/transition-pack.md) ----
+// The white of every measured flash is a warm cream, never pure white.
+const CREAM = "#FFFBEF";
+
+// gridFlash: the frame is a grid of cells. In a random order each cell flashes cream for about one frame, then shows the new shot; a thin dark line is
+// left between the cells until a last cream flash of two frames ends it. The new shot is drawn once, behind a mask of the cells that are open.
+type GridProps = { cols: number; rows: number; width: number; height: number };
+const GridFlash: React.FC<TransitionPresentationComponentProps<GridProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps: g }) => {
+  if (presentationDirection === "exiting") return <AbsoluteFill>{children}</AbsoluteFill>;
+  const n = g.cols * g.rows;
+  const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => glitchRand(a, 9) - glitchRand(b, 9));
+  const cw = g.width / g.cols;
+  const ch = g.height / g.rows;
+  const FLASH = 0.09; // a cell stays cream for this share of the transition
+  const open: string[] = [];
+  const flashing: { x: number; y: number }[] = [];
+  order.forEach((cell, r) => {
+    const a = 0.04 + 0.74 * (r / n);
+    const x = (cell % g.cols) * cw;
+    const y = Math.floor(cell / g.cols) * ch;
+    if (p >= a + FLASH) open.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${cw.toFixed(1)}" height="${ch.toFixed(1)}" fill="#fff"/>`);
+    else if (p >= a) flashing.push({ x, y });
+  });
+  const mask = svgMask(g.width, g.height, open.join(""));
+  const lines = p > 0.12 && p < 0.88;
+  const last = p >= 0.88 && p < 0.96;
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill style={p >= 0.9 ? undefined : { WebkitMaskImage: mask, maskImage: mask, maskSize: "100% 100%" }}>{children}</AbsoluteFill>
+      {flashing.map((f, i) => (
+        <div key={i} style={{ position: "absolute", left: f.x, top: f.y, width: cw, height: ch, background: CREAM }} />
+      ))}
+      {lines &&
+        Array.from({ length: g.cols - 1 }, (_, i) => <div key={`v${i}`} style={{ position: "absolute", left: (i + 1) * cw - 1.5, top: 0, width: 3, height: g.height, background: "rgba(0,0,0,0.55)" }} />)}
+      {lines &&
+        Array.from({ length: g.rows - 1 }, (_, i) => <div key={`h${i}`} style={{ position: "absolute", top: (i + 1) * ch - 1.5, left: 0, height: 3, width: g.width, background: "rgba(0,0,0,0.55)" }} />)}
+      {last && <AbsoluteFill style={{ background: CREAM, opacity: 0.92 }} />}
+    </AbsoluteFill>
+  );
+};
+
+// cropPop: the whole new shot, scaled down, pops open as a small window (x, y = its top-left, w = its width as fractions of the frame) over the old
+// shot and grows to the full frame with an ease-out. `negative` shows it as an inverted black-and-white picture for the first half of the growth.
+type CropProps = { x: number; y: number; w: number; width: number; height: number; negative: boolean };
+const CropPop: React.FC<TransitionPresentationComponentProps<CropProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps: c }) => {
+  if (presentationDirection === "exiting") return <AbsoluteFill>{children}</AbsoluteFill>;
+  const q = 1 - Math.pow(1 - p, 3);
+  const s = c.w + (1 - c.w) * q;
+  const neg = c.negative ? (p < 0.5 ? 1 : Math.max(0, 1 - (p - 0.5) / 0.3)) : 0;
+  return (
+    <AbsoluteFill
+      style={{
+        transformOrigin: "0 0",
+        transform: `translate(${c.x * c.width * (1 - q)}px, ${c.y * c.height * (1 - q)}px) scale(${s})`,
+        filter: neg > 0 ? `invert(${neg.toFixed(2)}) grayscale(${neg.toFixed(2)})` : undefined,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+
+// flashWipe: a cream band wider than the frame sweeps across (soft edges, `vx` = 1 travels right to left); the picture is swapped while it covers
+// everything, at the middle of the transition. The band is drawn by the incoming layer, which sits on top for the whole transition. The progress is
+// eased (fast in the middle), so a cream wash over the whole frame peaks at the swap: the cut is covered even when the band jumps between two frames.
+type FlashProps = { vx: number };
+const FlashWipe: React.FC<TransitionPresentationComponentProps<FlashProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps }) => {
+  if (presentationDirection === "exiting") return <AbsoluteFill>{p < 0.5 ? children : null}</AbsoluteFill>;
+  const BW = 140; // band width, % of the frame
+  const wash = Math.max(0, 1 - Math.pow((p - 0.5) / 0.2, 2));
+  const left = passedProps.vx > 0 ? 100 - (100 + BW) * p : -BW + (100 + BW) * p;
+  return (
+    <AbsoluteFill>
+      {p >= 0.5 ? children : null}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: `${left}%`,
+          width: `${BW}%`,
+          background: `linear-gradient(to right, rgba(255,251,239,0) 0%, ${CREAM} 22%, ${CREAM} 78%, rgba(255,251,239,0) 100%)`,
+        }}
+      />
+      <AbsoluteFill style={{ background: CREAM, opacity: wash }} />
+    </AbsoluteFill>
+  );
+};
+
+// blackFlicker: through the change the picture flickers to black and back, a deterministic pattern per frame (the transition's progress is eased, so the
+// frame number is recovered by inverting the easing of engine/Short.tsx: `steps` must be the number of frames of the transition, 14 by default). The frames
+// next to a black one are dimmed (the "mix"). The old shot shows in the first part, the new one in the rest; the first and last two frames stay clean.
+const SHORT_EASE = Easing.bezier(0.65, 0, 0.35, 1); // = motion.easeInOut, the easing of every transition
+const unease = (p: number) => {
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 14; i++) {
+    const m = (lo + hi) / 2;
+    if (SHORT_EASE(m) < p) lo = m;
+    else hi = m;
+  }
+  return (lo + hi) / 2;
+};
+type FlickerProps = { steps: number };
+const BlackFlicker: React.FC<TransitionPresentationComponentProps<FlickerProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps }) => {
+  const exiting = presentationDirection === "exiting";
+  const n = passedProps.steps;
+  const s = Math.min(n - 1, Math.round(unease(p) * n));
+  const black = (k: number) => k >= 1 && k < n - 2 && glitchRand(k, 3) > 0.42;
+  const swap = Math.floor(n * 0.55);
+  if (exiting ? s >= swap : s < swap) return null;
+  const opacity = black(s) ? 0 : black(s - 1) || black(s + 1) ? 0.55 : 1;
+  return <AbsoluteFill style={{ opacity }}>{children}</AbsoluteFill>;
+};
+
+// zoomFade: the old shot grows a little and dips to black; the new one fades up from black while it grows from 0.9 to the full frame, so a dark
+// border shows around it for a few frames.
+const ZoomFade: React.FC<TransitionPresentationComponentProps<Record<string, never>>> = ({ children, presentationDirection, presentationProgress: p }) => {
+  if (presentationDirection === "exiting") {
+    return <AbsoluteFill style={{ opacity: interpolate(p, [0, 0.5], [1, 0], clamp), scale: String(interpolate(p, [0, 1], [1, 1.07], clamp)) }}>{children}</AbsoluteFill>;
+  }
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: interpolate(p, [0.4, 0.9], [0, 1], clamp),
+        scale: String(interpolate(p, [0.4, 1], [0.9, 1], clamp)),
+        filter: `brightness(${interpolate(p, [0.4, 1], [0.4, 1], clamp)})`,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+
 // custom() wraps one of the components above as a presentation.
 const custom = <P extends Record<string, unknown>>(
   component: React.FC<TransitionPresentationComponentProps<P>>,
@@ -404,6 +539,18 @@ export const presentationFor = (
       return any(custom(LumaWipe, { width, height, vx: unit[dir][0], vy: unit[dir][1] }));
     case "cutCurve":
       return any(custom(CutCurve, { vx: unit[dir][0], vy: unit[dir][1], travel: 0.16 }));
+    case "gridFlash":
+      return any(custom(GridFlash, { cols: 3, rows: 3, width, height }));
+    case "cropPop":
+      return any(custom(CropPop, { x: 0.27, y: 0.52, w: 0.46, width, height, negative: false }));
+    case "cropNegative":
+      return any(custom(CropPop, { x: 0.56, y: 0.5, w: 0.22, width, height, negative: true }));
+    case "flashWipe":
+      return any(custom(FlashWipe, { vx: unit[dir][0] }));
+    case "blackFlicker":
+      return any(custom(BlackFlicker, { steps: 14 }));
+    case "zoomFade":
+      return any(custom(ZoomFade, {}));
     case "fade":
     case "cut":
     default:
