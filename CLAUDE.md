@@ -233,6 +233,12 @@ version, with the evidence in that file:
 `references/capcut-techniques.md` (where each CapCut technique lives in the kit) → `references/adding-techniques.md` (how the kit grows) → `docs/CASE-LOG.md` (the history of jobs done: not a guide). Adding, renaming or removing a file or script means updating
 `docs/STRUCTURE.md` and the structure tree in `README.md` in the same commit.
 
+## Releasing a version
+
+The version is `skill/short-video-editing/VERSION`; every change that ships raises it and adds an entry to `CHANGELOG.md` (selftest group 15 fails when
+they disagree). The steps (selftest, tag, `./setup.sh` on each machine, `--package`) and how to regenerate the template's lockfile are in `README.md`,
+"Versions and releases". Never move or delete a pushed tag. `doctor.py` and `./setup.sh --check` show the version of this repository and of the installed skill.
+
 ## Working in this repo
 
 - **Never commit** `.env*`, `bin/`, `models/`, `dist/`, media files. `.gitignore` enforces it; still

@@ -96,6 +96,8 @@ if [[ $CHECK -eq 1 ]]; then
   chk "Whisper model"                       "run ./setup.sh (downloads ~460 MB: ask the user first)" model_ok
   chk "Node 20+ (rendering only)"           "install Node 20+ (Windows: winget install OpenJS.NodeJS.LTS, then open a NEW terminal)" node_ok
   chk "skill installed and identical to this repo" "run ./setup.sh (after every git pull), then start a NEW Claude Code session" skill_ok
+  KV=$(tr -d '[:space:]' < "$KIT/skill/short-video-editing/VERSION" 2>/dev/null); IV=$(tr -d '[:space:]' < "$HOME/.claude/skills/short-video-editing/VERSION" 2>/dev/null)
+  ok "versions: this repo ${KV:-unknown}, installed skill ${IV:-none}"
   DOCTOR="$KIT/skill/short-video-editing/scripts/doctor.py"
   if person_model_file >/dev/null; then ok "person-segmentation model (optional): $(person_model_file)"
   else warn "no person-segmentation model. Optional: only the agency-pitch recipe needs it (silhouette flash, beauty light). ./setup.sh --person-model (168 MB: ask the user first)"; fi
@@ -123,13 +125,14 @@ if [[ $PACKAGE -eq 1 ]]; then
   "$PY" - "$KIT/skill/short-video-editing" "$KIT/dist/short-video-editing.skill" << 'PY'
 import sys, zipfile, pathlib
 src, out = pathlib.Path(sys.argv[1]), sys.argv[2]
+version = (src / "VERSION").read_text(encoding="utf-8").strip() if (src / "VERSION").exists() else "unknown"
 skip = {"evals", "__pycache__", "node_modules"}
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     for p in sorted(src.rglob("*")):
         rel = p.relative_to(src.parent)
         if p.is_file() and not skip.intersection(rel.parts):
             z.write(p, rel.as_posix())
-print(f"wrote {out}")
+print(f"wrote {out} (version {version})")
 PY
   exit 0
 fi
@@ -289,7 +292,7 @@ if [[ $INSTALL_SKILL -eq 1 ]]; then
   DEST="$HOME/.claude/skills/short-video-editing"
   mkdir -p "$HOME/.claude/skills"; rm -rf "$DEST"
   cp -r "$KIT/skill/short-video-editing" "$DEST"; rm -rf "$DEST/evals"
-  ok "installed to $DEST"
+  ok "installed to $DEST (version $(tr -d '[:space:]' < "$DEST/VERSION" 2>/dev/null || echo unknown))"
   echo "      Start a NEW Claude Code session so it loads the skill."
   echo "      Claude desktop app: ./setup.sh --package, then open dist/short-video-editing.skill and click Save skill."
 else warn "skipped (--no-skill)"; fi

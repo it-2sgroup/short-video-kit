@@ -7,3 +7,6 @@
 *.png binary
 *.jpg binary
 *.skill binary
+*.wav binary
+*.onnx binary
+*.woff2 binary

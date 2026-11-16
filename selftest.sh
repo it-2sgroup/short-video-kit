@@ -277,6 +277,12 @@ sys.exit(0 if 'exposure' in c['DARK']['recommend'] and 'denoise' in c['DARK']['r
     || { fail "prepare_footage.py"; tail -4 "$TMP/prep.log" | sed 's/^/        /'; }
 else fail "inspect_footage --measure failed"; fi
 
+if ffmpeg -v error -y -f lavfi -i "color=c=0xD9A98B:s=320x180:d=1:r=25" -pix_fmt yuv420p "$TMP/skin.mp4" >/dev/null 2>&1 \
+   && OUT=$("$PY" "$S/skin_check.py" "$TMP/skin.mp4" --patch 0.4,0.3,0.2,0.2 --grade all 2>&1) \
+   && echo "$OUT" | grep -q "mono .*WARN: skin turned grey" && echo "$OUT" | grep -q "warm-food"; then
+  pass "skin_check.py measures a skin patch under every look and warns when a look turns it grey"
+else fail "skin_check.py"; echo "$OUT" | tail -4 | sed 's/^/        /'; fi
+
 echo "14. project_to_hyperframes.py builds a HyperFrames project (no Node needed)"
 mkdir -p "$TMP/hfpub/clips"; cp "$TMP/clip.mp4" "$TMP/hfpub/clips/CLIP.mp4"
 "$PY" - "$TMP/hf.json" <<'PYEOF'
@@ -525,6 +531,85 @@ for doc in docs:
 for b in bad:
     print(b)
 sys.exit(1 if bad else 0)
+PYEOF
+
+echo "15. packaging: version, changelog, pins, lockfile, documents"
+"$PY" -X utf8 - "$KIT" <<'PYEOF' >"$TMP/pack.log" 2>&1 \
+  && pass "$(head -1 "$TMP/pack.log")" || { fail "packaging is out of step"; sed 's/^/        /' "$TMP/pack.log" | tail -14; }
+import json, re, sys
+from pathlib import Path
+
+kit = Path(sys.argv[1])
+skill = kit / "skill" / "short-video-editing"
+tpl = skill / "assets" / "remotion-template"
+bad = []
+
+ver = (skill / "VERSION").read_text(encoding="utf-8").strip()
+if not re.fullmatch(r"\d+\.\d+\.\d+", ver):
+    bad.append(f"VERSION {ver!r} is not MAJOR.MINOR.PATCH")
+m = re.search(r"^## \[(\d+\.\d+\.\d+)\]", (kit / "CHANGELOG.md").read_text(encoding="utf-8"), re.M)
+if not m or m.group(1) != ver:
+    bad.append(f"the newest CHANGELOG.md entry ({m.group(1) if m else 'none'}) is not VERSION ({ver})")
+if not (kit / "LICENSE").read_text(encoding="utf-8").strip():
+    bad.append("LICENSE is empty")
+
+for line in (kit / "requirements.txt").read_text(encoding="utf-8").splitlines():
+    s = line.split("#")[0].strip()
+    if s and not re.search(r"(==|>=|~=|<)", s):
+        bad.append(f"requirements.txt: {s!r} has no version limit")
+
+pj = json.loads((tpl / "package.json").read_text(encoding="utf-8"))
+lock = json.loads((tpl / "package-lock.json").read_text(encoding="utf-8"))
+root = lock["packages"][""]
+for k in ("dependencies", "devDependencies"):
+    if root.get(k, {}) != pj.get(k, {}):
+        bad.append(f"package-lock.json is out of step with package.json ({k}): regenerate it (README, Versions and releases)")
+if lock.get("lockfileVersion", 0) < 3:
+    bad.append("package-lock.json: lockfileVersion is below 3")
+loose = [k for k, v in lock["packages"].items() if k and not v.get("link") and not (v.get("resolved") and v.get("integrity"))]
+if loose:
+    bad.append(f"package-lock.json: {len(loose)} package(s) without resolved or integrity, e.g. {loose[0]}")
+if len([k for k in lock["packages"] if "/compositor-" in k]) < 5:
+    bad.append("package-lock.json lacks the other platforms' Remotion binaries (generate it with npm install --package-lock-only)")
+
+struct = (kit / "docs" / "STRUCTURE.md").read_text(encoding="utf-8")
+for folder in ("scripts", "references", "playbooks"):
+    for f in sorted((skill / folder).iterdir()):
+        named = f.stem if folder == "playbooks" else f.name  # the playbooks are described by genre, the others file by file
+        if f.is_file() and f.suffix in (".py", ".md") and named not in struct:
+            bad.append(f"docs/STRUCTURE.md does not name {folder}/{f.name}")
+
+pat = re.compile(r"`((?:references|scripts|assets|playbooks|docs|samples)/[A-Za-z0-9_./-]+\.[a-z]{1,5})`")
+for doc in ("README.md", "CLAUDE.md", "docs/STRUCTURE.md", "docs/WORKFLOW.md", "docs/DECISIONS.md", "skill/short-video-editing/SKILL.md"):
+    where = (kit / doc).parent
+    for p in sorted(set(pat.findall((kit / doc).read_text(encoding="utf-8")))):
+        if any(c in p for c in "*<>{}"):
+            continue
+        if not any(c.exists() for c in (kit / p, skill / p, skill / "assets" / p, where / p, tpl / p)):
+            bad.append(f"{doc} names {p}, which does not exist")
+
+cards = json.loads((skill / "assets" / "techniques.json").read_text(encoding="utf-8"))["techniques"]
+n = {}
+for c in cards:
+    n[c["kind"]] = n.get(c["kind"], 0) + 1
+readme = (kit / "README.md").read_text(encoding="utf-8")
+sfx = sorted((skill / "assets" / "sfx").glob("*.wav"))
+groups = len(re.findall(r'^echo "\d+\. ', (kit / "selftest.sh").read_text(encoding="utf-8"), re.M))
+for text, what in ((f"{n['transition']} transitions", "README.md"), (f"{n['text-fx']} text effects", "README.md"),
+                   (f"{n['subject-fx']} subject effects", "README.md"), (f"{n['font']} fonts", "README.md"),
+                   (f"{n['grade']} colour grades", "README.md"), (f"{len(sfx)} recordings", "README.md"),
+                   (f"{groups} groups", "README.md"), (f"{groups} groups", "docs/STRUCTURE.md")):
+    if text not in (kit / what).read_text(encoding="utf-8"):
+        bad.append(f"{what} does not state the live count: {text}")
+sources = (skill / "assets" / "sfx" / "SOURCES.md").read_text(encoding="utf-8")
+for f in sfx:
+    if f"`{f.name}`" not in sources:
+        bad.append(f"assets/sfx/SOURCES.md has no row for {f.name} (a file without a row does not ship)")
+
+if bad:
+    print("\n".join(bad))
+    sys.exit(1)
+print(f"version {ver}: changelog, licence, version limits, lockfile ({len(lock['packages']) - 1} packages), documents and live counts agree")
 PYEOF
 
 echo "16. technique catalogue and the newer techniques"

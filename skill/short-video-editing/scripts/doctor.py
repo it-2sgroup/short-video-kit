@@ -5,7 +5,7 @@ Standard library only, so it runs on a machine where nothing else is installed y
 
     python scripts/doctor.py              all checks, human-readable
     python scripts/doctor.py --json       the same, machine-readable
-    python scripts/doctor.py --only ffmpeg   one group: python | venv | ffmpeg | model | node | key | disk
+    python scripts/doctor.py --only ffmpeg   one group: python | venv | ffmpeg | model | node | key | disk | version
 
 Exit code: 0 when everything REQUIRED is present, 1 otherwise. "Optional" items (Node for rendering,
 the ElevenLabs key) only warn, because a video can be planned and graded without them.
@@ -267,8 +267,29 @@ def check_disk(rep: Report) -> None:
             rep.add("disk", f"free space on {label}", "ok", msg)
 
 
+def check_version(rep: Report) -> None:
+    """The skill's own version (the VERSION file beside SKILL.md) and whether the installed copy is the same one."""
+    here = Path(__file__).resolve().parent.parent / "VERSION"
+    mine = here.read_text(encoding="utf-8").strip() if here.exists() else ""
+    if not mine:
+        rep.add("version", "skill version", "warn", "no VERSION file next to SKILL.md", "update the skill: git pull, then ./setup.sh")
+        return
+    folder = HOME / ".claude" / "skills" / "short-video-editing"
+    installed = folder / "VERSION"
+    other = installed.read_text(encoding="utf-8").strip() if installed.exists() else ""
+    if installed.exists() and here.resolve() == installed.resolve():
+        rep.add("version", "skill version", "ok", f"{mine} (the installed copy)")
+    elif not (folder / "SKILL.md").exists():
+        rep.add("version", "skill version", "warn", f"{mine}; the skill is not installed in ~/.claude/skills", setup_hint())
+    elif other != mine:
+        rep.add("version", "skill version", "warn", f"this copy is {mine}, the installed skill is {other or 'older than version numbers'}",
+                "run ./setup.sh (after every git pull), then start a NEW Claude Code session")
+    else:
+        rep.add("version", "skill version", "ok", f"{mine}; the installed skill is the same version")
+
+
 GROUPS = {"python": check_python, "venv": check_venv, "ffmpeg": check_ffmpeg, "model": check_model,
-          "node": check_node, "key": check_key, "disk": check_disk}
+          "node": check_node, "key": check_key, "disk": check_disk, "version": check_version}
 
 
 def main() -> int:

@@ -102,6 +102,10 @@ owns it; most free LUT packs forbid redistribution, so none ships with the kit.
 and one exposure are computed from all clips together and applied to every clip, so a BEFORE and an
 AFTER are never corrected differently (`claims-and-compliance.md` §3).
 
+**Skin check.** A look can move skin tones. `scripts/skin_check.py clip.mp4 --patch x,y,w,h --grade all` crops a patch of flat skin (cheek or
+forehead), applies each look and prints the median hue and mean saturation before and after, warning when the hue moves more than 8 degrees or the skin
+loses its colour. The 8 degrees is a rule of thumb, not a standard: compare a frame before and after on a contact sheet before changing a playbook's grade.
+
 ## 5. Stabilisation [M, D]
 
 - **Measured** with `vidstabdetect` on the first 12 s at 480 px wide: the median local-motion vector

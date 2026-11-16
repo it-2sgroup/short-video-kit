@@ -50,14 +50,16 @@ short-video-kit/
 | File | Function |
 |---|---|
 | `CLAUDE.md` | Instructions for Claude: check the machine at the start of a session, the setup steps, the workflow when the user asks for a video, what must be asked of the user (downloads, ElevenLabs plan, Remotion licence), lessons paid for the hard way. |
-| `README.md` | Overview, system requirements, installation (including Windows), usage, third-party licences, known limits. |
+| `README.md` | Overview, system requirements, installation (including Windows), usage, third-party licences, known limits, how to release a version. |
+| `CHANGELOG.md` | What changed in each version (the newest entry must equal `skill/short-video-editing/VERSION`; selftest group 15 checks it). |
+| `LICENSE` | The proprietary notice; third-party components keep their own licences (README). |
 | `setup.sh` | Installs everything under `$HOME`: the Python venv, libraries, the Whisper model (~460 MB), the ElevenLabs key (if `.env.local` exists), copies the skill into `~/.claude/skills`. Safe to re-run. Options: `--check` (report only), `--set-key` (hidden key entry), `--no-model`, `--person-model` (also downloads the 168 MB person-segmentation model for the agency workflow; ask the user first), `--ocr` (RapidOCR + OpenCV ~85 MB for analyze_reference.py; ask first), `--all` (every optional thing that can be downloaded without typing: OCR, the person model, static ffmpeg), `--no-skill`, `--download-ffmpeg` (Linux), `--package` (packs a `.skill` for the desktop app). |
-| `selftest.sh` | 13 groups of checks that cost no credits: tools; inspecting clips; playbooks (every playbook/variant valid, its skeleton passes its own pacing rules, every component/grade/theme/caption style is used by at least one playbook) and the per-playbook pacing rules; caption alignment; the ElevenLabs key; compiling plans (a product review + a property tour with speed ramps and information graphics); footage overlap (counting sped-up scenes too); cutting on pauses and on beats; voice cutting and jump cut; contact sheets; project skeleton building; sound effects; voice cleanup + master; measuring and correcting footage. `--render [DIR]` adds group 14: typechecking the template and rendering stills (including the information graphics). |
-| `requirements.txt` | `faster-whisper==1.2.1`, `numpy`, `onnxruntime`. |
+| `selftest.sh` | 16 groups of checks that cost no credits (group 15 guards packaging: version, changelog, version pins, lockfile, a document for every script and live counts in the README): tools; inspecting clips; playbooks (every playbook/variant valid, its skeleton passes its own pacing rules, every component/grade/theme/caption style is used by at least one playbook) and the per-playbook pacing rules; caption alignment; the ElevenLabs key; compiling plans (a product review + a property tour with speed ramps and information graphics); footage overlap (counting sped-up scenes too); cutting on pauses and on beats; voice cutting and jump cut; contact sheets; project skeleton building; sound effects; voice cleanup + master; measuring and correcting footage. `--render [DIR]` adds group 14: typechecking the template and rendering stills (including the information graphics). |
+| `requirements.txt` | `faster-whisper==1.2.1` (exact), `numpy>=2,<3` and `onnxruntime>=1.18,<2` (compatible ranges). |
 | `requirements-ocr.txt` | `rapidocr` and `opencv-python-headless` (version-pinned). Optional. Group 1 of `selftest.sh` checks that every third-party package the scripts import is in some `requirements*.txt` file. |
 | `.env.example` | Only the line `ELEVENLABS_API_KEY=`. The real key lives in `.env.local` (blocked by `.gitignore`) or `~/.config/short-video-kit/env`. |
 | `.gitignore` | Blocks keys (`.env*`), media (`*.mp4`, `*.mp3`), `models/`, `bin/`, `dist/`, `node_modules/`, `out/`, `renders/`. |
-| `.gitattributes` | Forces LF for text files, so that Git for Windows does not turn `.sh` into CRLF and break bash. |
+| `.gitattributes` | Forces LF for text files, so that Git for Windows does not turn `.sh` into CRLF and break bash; marks audio, images, models and `.skill` files as binary. |
 
 ## 4. `docs/`: documents for readers
 
@@ -87,6 +89,8 @@ The entry point that Claude loads. It holds 9 **general rules** for every video 
 pacing as the playbook says; timestamps; check claims; footage that is yours/licensed, not reused, not reshuffled; graphics
 respect the frame; no faking before/after; say clearly what was not checked), the decisions that belong to humans, the
 9-step workflow, the document index table and the "honesty about evidence" section.
+
+`VERSION` (beside it): the kit's version, three numbers, installed and packaged with the skill; the history is `CHANGELOG.md` at the root.
 
 ### 6.2 `playbooks/`: rules per genre
 
@@ -161,6 +165,9 @@ venv); the rest only need Python 3 and ffmpeg (a build with all the filters: `do
 | `object_cutout.py` | Cuts ONE object (a house, a gate, a vehicle, a product) out of a frame into a transparent-background PNG for the `objectDrop` overlay: a hand-drawn outline `--poly` (no model, nothing downloaded) or `--model` an ONNX model the user supplies (the kit ships no model); `--grid` prints the frame with a coordinate grid, `--preview` paints the background pink to check the edge; prints the ready plan cell `src, at, width, aspect`. | clip/image + time → PNG |
 | `find_occluders.py` | Scans clips for the moments a foreground object (a sleeve, a handrail, a pillar) covers the lens after a textured picture: the places to hide a hard cut for a mask or shape transition. Lists start, peak, end, cover share and tone; look at each on a contact sheet. | clips -> candidates (JSON) |
 | `reverse_clip.py` | Writes a stretch of a clip played backwards with ffmpeg (`trim`, `reverse`) for a reverse scene, refusing stretches whose raw frames would not fit in about 3 GB. | clip -> reversed mp4 |
+| `match_cut.py` | Match cut: the Camera cells that make scene B open on the same screen point and size as scene A's last frame, measuring the subject (the person matte, a bright blob or a box you give) in both frames. | CLIP_A@T, CLIP_B@T -> Camera cells |
+| `skin_check.py` | Did a grade move skin tones? Crops a patch of skin (`--patch x,y,w,h`), applies a look from `assets/grades.json` (or any ffmpeg chain) and reports the median hue and saturation before and after; warns when the hue moves more than 8 degrees (a rule of thumb) or the skin turns grey. ffmpeg only. | clip or still + patch + look -> hue and saturation shift |
+| `ref_text.py` | Not a command: the text measurements behind `analyze_reference.py` (OCR text events, caption style, font class, layout). Optional: needs RapidOCR and OpenCV (`./setup.sh --ocr`); without them every function returns None. | imported by `analyze_reference.py` |
 | `find_cutaways.py` | Lists the silent stretches of the takes (the gaps before/after speech) as cutaways: ranked by length, with a person in frame (`--person`), excluding used ones (`--avoid`). | clip folder → table, JSON |
 | `match_voice_takes.py` | When the voice was cut from the takes' own audio (presenter, interview): cross-correlates the voice with each clip, prints `clip time = voice time + lag` for each matched segment and the voice segments that no take has (where cutaways go). A scene starting at second T of the voice uses `In = T + lag`, so the mouth matches sample for sample. | voice + clip folder → table, `--out` JSON |
 | `make_music.py` | Synthesizes copyright-free background music itself (numpy + ffmpeg): music sections that start exactly at the video's cuts (the beat grid restarts at each section), an intensity 0..1 picks the layers (pad, bass, kick + hat, chord, clap + arpeggio), `--hits` places a hit + riser. The final level is `process_audio.py music`'s job. | `--sections --hits` → `.wav` |
@@ -203,7 +210,7 @@ A single composition, `Short`, reads `project.json` through `--props`. **No vide
 | Path | Function |
 |---|---|
 | `stills.mjs` | Renders several stills of a project from ONE bundle (`--cuts`, `--every S --from A --to B`, or list the seconds): to look at every transition and effect before the full render; joined with `montage.py`. |
-| `package.json` · `tsconfig.json` · `remotion.config.ts` | Dependencies pinned to exact versions; the TypeScript configuration; the default GL backend `swangle` (software, runs on any machine; `SVK_GL=angle` for a machine with a GPU) so that shader transitions and light leaks run. |
+| `package.json` · `package-lock.json` · `tsconfig.json` · `remotion.config.ts` | Dependencies pinned to exact versions, and the lockfile pins every other package for every platform (regenerate it on purpose: README, "Versions and releases"); the TypeScript configuration; the default GL backend `swangle` (software, runs on any machine; `SVK_GL=angle` for a machine with a GPU) so that shader transitions and light leaks run. |
 | `project.example.json` | A sample library that needs no footage: every text and graphic style (including `pin`, `label`, `chart`, `specs`, `stat`); open it with `npm run studio`. |
 | `src/index.ts` · `src/Root.tsx` | Registers the composition; the length comes from `duration` and `fps` in the data (`calculateMetadata`). |
 | `src/project.ts` | **The data contract**: the types `Project` (including `layout`), `Scene` (including `speed`, `ramp`), `Overlay`, `CaptionStyle`, `Word`, `Camera`… |

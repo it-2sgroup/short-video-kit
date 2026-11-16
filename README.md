@@ -6,8 +6,9 @@ beauty, montages, promos. A Claude Code skill analyses the footage and the reque
 playbook** and runs the edit; Python utilities measure and correct footage and sound, cut on voice
 pauses or music beats and check the plan; a data-driven Remotion template renders the video.
 
-> **Private repository.** `docs/` and `skill/short-video-editing/references/niche-winning-patterns.md`
-> contain real campaign figures and creator handles. Do not make this repository public.
+> **Private repository.** `docs/CASE-LOG.md`, `docs/niche-data-queries.sql` and `skill/short-video-editing/references/niche-winning-patterns.md`
+> contain client names and real campaign figures. Do not make this repository public, and do not hand `dist/short-video-editing.skill`
+> outside the company: it carries `niche-winning-patterns.md`.
 
 ## Contents
 
@@ -16,9 +17,11 @@ pauses or music beats and check the plan; a data-driven Remotion template render
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [A framework that grows](#a-framework-that-grows)
 - [Project structure](#project-structure)
 - [Testing](#testing)
 - [Licensing and third-party terms](#licensing-and-third-party-terms)
+- [Versions and releases](#versions-and-releases)
 - [Known limitations](#known-limitations)
 - [Contributing](#contributing)
 
@@ -61,9 +64,9 @@ music ─► process_audio ─► suggest_cuts --music ────────�
   (one bold line) and plain styles.
 - **Sync report**: cuts inside words, text on cuts, UI-zone collisions (TikTok and Reels ads),
   components a genre avoids, slow motion that would stutter, missing files (`plan_to_project.py`).
-- **Render template**: 11 transitions centred on the cut; a virtual camera that holds still on footage
-  that already moves; per-scene speed and eased ramps; three colour themes; five title styles; twenty
-  graphic components including information graphics (specs with icons, map pin, labels, count-up
+- **Render template**: 47 transitions centred on the cut (the shader ones need WebGL); a virtual camera that holds still on footage
+  that already moves; per-scene speed and eased ramps; four colour themes; five title styles; 40 overlay
+  components including information graphics (specs with icons, map pin, labels, count-up
   stats, bar charts, images, prices, steps, checklists, before/after card, cart arrow at TikTok Shop's
   measured product bar).
 - **Sound design** from an editable table with per-genre overrides; CC0 and synthesized sounds only.
@@ -91,7 +94,7 @@ cd short-video-kit
 ./setup.sh --check          # what is installed and what is missing; changes nothing
 ./setup.sh                  # venv, Python deps, Whisper model (~460 MB), skill install
 ./setup.sh --set-key        # optional: store the ElevenLabs key (typed hidden)
-./selftest.sh               # 13 groups of checks, no credits spent
+./selftest.sh               # 16 groups of checks, no credits spent
 ./selftest.sh --render DIR  # also typecheck the template and render stills (downloads ~300 MB once)
 ```
 
@@ -122,9 +125,12 @@ and the skill; with `--ocr`, `--person-model`, `--download-ffmpeg` (or `--all`) 
 | HyperFrames renderer (optional) | Node 22+, Chrome; the first `npx hyperframes` downloads a package, ask first |
 | Internet at render time | Remotion fetches the Google Fonts a video uses |
 
-Not verified: a run on Windows or macOS; the Whisper download from Hugging Face and `--download-ffmpeg` on a machine that has neither
-(only a clean `HOME` on Linux, reusing the existing model and ffmpeg). A new machine's `./setup.sh --check`, `doctor.py` and `./selftest.sh`
-output is the evidence to bring back.
+Verified on Windows 11 (Git Bash, 2026-11-16): `./setup.sh --check`, `doctor.py` and `./selftest.sh` (every check passed) on a machine that already had
+the tools; the Remotion template typechecked and rendered with the committed lockfile.
+
+Not verified: macOS; a first run on a machine that has none of the tools; the Whisper download from Hugging Face and `--download-ffmpeg` on a machine
+that has neither (only a clean `HOME` on Linux, reusing the existing model and ffmpeg). A new machine's `./setup.sh --check`, `doctor.py` and
+`./selftest.sh` output is the evidence to bring back.
 
 ## Usage
 
@@ -178,7 +184,7 @@ the workflow in `docs/WORKFLOW.md`; a file-by-file map in `docs/STRUCTURE.md`.
 
 ## A framework that grows
 
-Every technique the kit can do (31 transitions, 22 text effects, 6 subject effects shaped by a person matte, 31 fonts, 15 colour grades, camera
+Every technique the kit can do (47 transitions, 22 text effects, 8 subject effects shaped by a matte, 31 fonts, 15 colour grades, camera
 moves and options, speed curves, looks, graphics, themes) is one card in `skill/short-video-editing/assets/techniques.json`.
 
 ```bash
@@ -197,6 +203,7 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
 ```
 .
 ├── CLAUDE.md                      Agent instructions for this repository
+├── CHANGELOG.md · LICENSE         Release history; the proprietary notice
 ├── docs/
 │   ├── WORKFLOW.md                Step-by-step workflow
 │   ├── STRUCTURE.md               Every folder and file, tools and techniques
@@ -209,6 +216,7 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
 ├── setup.sh · selftest.sh · requirements.txt · requirements-ocr.txt · .env.example
 └── skill/short-video-editing/
     ├── SKILL.md                   Universal rules and workflow loaded by Claude
+    ├── VERSION                    The kit's version (installed and packaged with the skill)
     ├── playbooks/                 One JSON (rules the scripts read) + one MD (craft) per genre; README = how to choose and add
     ├── references/                Shared craft and policy: platforms, claims and compliance, content-rights policy
     │                              (policy.md), hooks, cutting and pacing, transitions, camera, image processing,
@@ -219,7 +227,7 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
     ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
     │                              make_voiceover, make_sfx, make_music, match_voice_takes, align_captions, suggest_cuts, plan_scenes, pacing_checker,
     │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes,
-    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, find_occluders, reverse_clip, person_matte, object_cutout, agency_plan, finish_video,
+    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, find_occluders, reverse_clip, match_cut, skin_check, person_matte, object_cutout, agency_plan, finish_video,
     │                              check_lipsync, technique (the technique catalogue), editor (browser timeline editor)
     ├── assets/
     │   ├── edit-plan-template.md  The plan format
@@ -235,14 +243,15 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
 
 ## Testing
 
-`./selftest.sh` runs fourteen groups without spending ElevenLabs credits: tools; footage inspection;
+`./selftest.sh` runs 16 groups without spending ElevenLabs credits: tools; footage inspection;
 playbooks (every playbook and variant valid, its own skeleton passing its own pacing, every component,
 grade, theme and caption style used by some playbook) and pacing per playbook; caption alignment; the
 ElevenLabs key (read-only); plan compilation (product demo and a music-driven property tour with speed
 ramps and information graphics); footage reuse (including fast scenes); cuts on pauses and on beats;
 voice trimming and jump cuts; contact sheets; scaffolding; sound effects; voice cleanup and mastering;
 footage measurement and correction; the HyperFrames project build (baked speed ramps, unsupported overlays
-reported). `./selftest.sh --render DIR` adds group 15: typecheck the Remotion template and render stills,
+reported); the technique catalogue; packaging (version, changelog, pins, lockfile, a document for every script).
+`./selftest.sh --render DIR` adds group 17: typecheck the Remotion template and render stills,
 including the information graphics.
 
 ## Licensing and third-party terms
@@ -255,7 +264,7 @@ This repository is proprietary and unlicensed for redistribution. Third-party te
 | HyperFrames (second renderer) | Apache-2.0 ([licence](https://github.com/heygen-com/hyperframes/blob/main/LICENSE)): free commercially, no seat count. The fonts, footage and music you add keep their own terms. Node 22+ and Chrome; the first `npx hyperframes` downloads the package. |
 | ElevenLabs | Free-plan audio cannot be used commercially, including after upgrading. |
 | Google Fonts used by the template | SIL Open Font License. |
-| Sound effects in `assets/sfx` | Five recordings under CC0 (sources in `assets/sfx/SOURCES.md`); the rest are synthesized by `make_sfx.py`. Add only CC0 or self-made sounds. |
+| Sound effects in `assets/sfx` | 68 recordings under CC0, each with its source in `assets/sfx/SOURCES.md`; the others are synthesized by `make_sfx.py`. Add only CC0 or self-made sounds. |
 | faster-whisper | MIT. |
 | ffmpeg | The static builds used here are GPL (libvidstab, x264); the kit calls ffmpeg as a program and ships none of it. |
 | Music on commercial content | The platform's commercial library (TikTok CML, Meta Sound Collection) or an explicit commercial licence only. |
@@ -263,6 +272,22 @@ This repository is proprietary and unlicensed for redistribution. Third-party te
 Design references: `remotion-dev/skills`, `iart-ai/tiktok-video-skills` (MIT),
 `browser-use/video-use` (MIT), `heygen-com/hyperframes` (Apache-2.0). Rules were adapted; no code
 was copied. Details in `docs/DECISIONS.md`.
+
+## Versions and releases
+
+The version (MAJOR.MINOR.PATCH) is in `skill/short-video-editing/VERSION`, which is installed and packaged with the skill; `CHANGELOG.md` says what
+changed. `doctor.py` and `./setup.sh --check` show the version of this repository and of the installed skill and warn when they differ.
+
+To release:
+
+1. `./selftest.sh` passes (and `./selftest.sh --render DIR` when the template changed).
+2. Raise `VERSION` and put a `## [x.y.z] - date` entry on top of `CHANGELOG.md` (selftest group 15 fails when they disagree).
+3. Commit, tag (`git tag -a vX.Y.Z -m "..."`) and push with `--follow-tags`.
+4. On every machine: `git pull`, `./setup.sh`, start a new Claude Code session. For the Claude desktop app: `./setup.sh --package`.
+
+The Remotion template's `package-lock.json` pins every npm package for every platform. Regenerate it only on purpose: change `package.json`, run
+`npm install --package-lock-only` in a copy of the template, check it with `npm ci --dry-run`, then typecheck and render a still
+(`./selftest.sh --render DIR`) before committing.
 
 ## Known limitations
 

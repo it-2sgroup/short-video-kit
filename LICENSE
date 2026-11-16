@@ -1,0 +1,9 @@
+short-video-kit: proprietary software. All rights reserved.
+
+This repository, the skill it installs and the files built from it (including dist/short-video-editing.skill)
+are for use by their owner and the people the owner authorises. No licence is granted to copy, modify,
+publish, distribute or sublicense any part of it.
+
+Third-party components keep their own licences and are not relicensed by this file: Remotion, HyperFrames,
+ElevenLabs, faster-whisper, ffmpeg, the Google Fonts used by the template, and the sound recordings listed in
+skill/short-video-editing/assets/sfx/SOURCES.md. See README.md, "Licensing and third-party terms".
