@@ -125,6 +125,13 @@ white-balances, fixes exposure and applies the playbook's grade; `--fix "CLIP:ro
 horizon. Look at `contact_sheet.py RENDER/public/clips` and read `corrections.json`
 (`references/image-processing.md`). Ask before `--install` (npm + Chromium, ~300 MB).
 
+If a supplied/licensed clip has a baked-in channel tag or watermark, measure its exact box on a coordinate grid and remove it with `delogo_clip.py` before planning, then inspect `--check-out`:
+
+```bash
+python scripts/delogo_clip.py CLIP --grid grid.png [--time 0.5]
+python scripts/delogo_clip.py CLIP --box x,y,w,h --out RENDER/public/clips/CLIP.mp4 [--hflip] [--zoom 1.13] [--speed 1.10] [--grain 3] [--no-audio] [--check-out check.png]
+```
+
 ### 3. Sound: voice, music
 
 - **Supplied voice**: several files → match by name and ask when unsure. Too long for the playbook's
