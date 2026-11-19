@@ -1,0 +1,44 @@
+{
+  "id": "reference",
+  "title": "Reference — make it like this sample video",
+  "summary": "The sample decides the rhythm, transitions, camera and text slots (reference_to_plan.py reads them from analyze_reference.py's report.json); the user's footage and words fill them. This playbook sets no genre numbers: every limit below is a wide net that only stops a broken plan, and pacing_checker.py --reference REPORT replaces it with the sample's own numbers.",
+  "intents": ["làm giống video mẫu", "dựng theo video mẫu", "giống video mẫu", "theo video mẫu", "làm giống mẫu", "make it like this video", "like this video", "like the sample", "copy this style", "recreate this video", "reference video", "sample video", "match the reference", "follow the reference", "edit like this"],
+  "expect": {"speech": "any", "motion": "any"},
+  "signals": ["the user supplies a sample video to imitate", "the footage can be of any kind: the sample, not the genre, sets the style"],
+  "platforms": ["tiktok", "reels"],
+  "runtime": {"min": 3, "max": 180, "ideal": [10, 90], "why": "The runtime follows the sample (reference_to_plan.py --duration); this band only stops a broken plan."},
+  "hook": {"deadline": 5.0, "beats": 1, "beat": 3.0, "minBeat": 0.1, "purpose": "whatever the sample opens with", "graphics": ""},
+  "scenes": {"min": 0.1, "max": 20, "target": 2.0},
+  "drive": "voice",
+  "structure": [
+    {"type": "SHOT", "share": 1.0, "purpose": "one scene per shot of the sample", "graphics": ""}
+  ],
+  "transitions": {
+    "hook": "cut",
+    "same": ["cut"],
+    "change": ["cut"],
+    "accentsMax": 2
+  },
+  "camera": {
+    "pattern": ["hold 1.0"],
+    "byType": {},
+    "byKind": {}
+  },
+  "captions": "plain",
+  "theme": "cool",
+  "grade": "natural",
+  "correction": "per-clip",
+  "music": {"bpm": [60, 200], "mood": "the sample's: measure it with analyze_reference.py (music.bpm, loudness)"},
+  "components": {
+    "use": ["title", "phrase", "pill", "tag", "callout", "highlight", "label", "stat", "price", "image"],
+    "avoid": []
+  },
+  "sfx": {},
+  "compliance": [
+    "The sample's logo, music, footage, typeface and customer work stay the sample's: take its rhythm and structure, not its assets",
+    "Every number, price and claim on screen comes from the user or the documents, never from the sample's text",
+    "A genre's own claim rules still apply to the words (pass --genre ID to reference_to_plan.py to copy that checklist)",
+    "Ask whether the video will be boosted as an ad: ad policies bar some formats the sample may use (before/after, absolute results)"
+  ],
+  "references": ["references/reference-analysis.md", "references/capcut-techniques.md", "references/adding-techniques.md"]
+}

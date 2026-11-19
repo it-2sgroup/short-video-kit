@@ -5,6 +5,36 @@ Versions follow [Semantic Versioning](https://semver.org/): the number lives in 
 MAJOR: a plan, `project.json` or script interface changes in a way that breaks existing plans. MINOR: a new playbook,
 technique, script or option. PATCH: a fix or a documentation change. Releasing: see "Releasing a version" in `README.md`.
 
+## [1.3.0] - 2026-11-20
+
+### Added
+- The creative layer (`references/creative-direction.md`): `concept.py` (the idea of a video: feeling, tension, a returning motif, ONE signature move, the restraint of the vocabulary, the energy curve; `check` against a plan, `lock` a chosen direction's
+  vocabulary), `directions.py` (three different directions from one plan and one concept, from the axes of `assets/style-axes.json` built only from catalogue ids, with `compare.md`, `--keep`, `--retime`, `--stills`; the same `--seed` gives the same plans)
+  and `style_ledger.py` (a memory of the style of finished videos; a repeat of the last eight is flagged and `directions.py` steers away from it). Selftest group 14f. `SKILL.md` step 1a, `docs/WORKFLOW.md` and `CLAUDE.md` put the idea before the plan.
+
+## [1.2.0] - 2026-11-19
+
+### Added
+- `textbox` overlay: text in a box you give (`box=x,y,w[,h]`), measured with the real font by `@remotion/layout-utils` (pinned 4.0.540, lockfile regenerated; `fontReady.ts` makes the measurement wait for the font), wrapped at word
+  boundaries, shrunk to fit, never drawn outside the box sideways; colour, outline, background plate, alignment, case and any text effect are keys. `reference_to_plan.py` now writes a sample's text slots as `textbox` rows in the sample's own box,
+  size, ink and entry effect (`--text-component phrase` keeps the older blocks).
+- `layout_check.py`, run by `plan_to_project.py` after every build: text against text, the captions (and their hide bands), the speaker's head, TikTok's right rail and the frame edge.
+- `analyze_reference.py --compare` pairs the text events of the recreation with the sample's by time (when, where, how big, how it enters).
+- Plan tables: `\;`, `\|` and `\/` write a literal semicolon, pipe and slash between spaces; a mistyped key of `textbox`, `phrase` or `pill` is reported instead of ignored.
+
+### Fixed
+- `title` no longer drops the lines between the first and the last (they joined the lead line); `End=auto` of a `phrase` counts its `lead` and `emph` text; a textbox is not judged by the zone-overlap rule.
+
+## [1.1.0] - 2026-11-19
+
+### Added
+- Reference mode, so a sample video drives the edit instead of a genre's defaults: `reference_to_plan.py` writes a first-draft plan from `analyze_reference.py`'s `report.json` (the sample's shots, transitions, camera moves,
+  text slots and caption track; the user's footage cells and words), the neutral playbook `reference` (no genre numbers), `pacing_checker.py --reference report.json` (the sample's own shot lengths and runtime; rhythm rules are
+  warnings, gaps and overlaps stay errors) and `playbook.py suggest --reference` (a request that names a sample picks `reference`). `SKILL.md` step 1b says the sample wins over the genre. Selftest group 14e.
+
+### Changed
+- `pacing_checker.check()` reports rhythm rules through one helper so a plan can be judged softly; genre playbooks behave exactly as before.
+
 ## [1.0.0] - 2026-11-16
 
 First packaged release.

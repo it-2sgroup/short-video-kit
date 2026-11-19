@@ -145,6 +145,27 @@ transition families and mean run length, flashes, camera moves and the largest `
 differences. Fix those first, then put the two videos side by side at the same seconds with `montage.py`. A table cannot say
 the recreation looks right: it says where it differs.
 
+## From the report to a plan (`reference_to_plan.py`)
+
+`python scripts/reference_to_plan.py ref/report.json --out edit-plan.md [--duration N] [--words words.json] [--texts texts.txt] [--genre ID]` writes the first draft of a plan under the neutral
+`reference` playbook (`playbooks/reference.md`). What it takes from the report, and how reliable that is:
+
+| report key | plan cell | caveat |
+|---|---|---|
+| `shots[].start/end` | Scenes Start/End, scaled by `duration / sample length`, snapped onto the voice's pauses (<= 0.3 s) | measured |
+| `transitions[]` (family, direction, frames) | Transition (`fade 12f`, `wipe left 9f`, `cut +flash`) | family measured, shape and direction read: every dissolve, wipe, iris, cover, reveal and unclassified run is noted "look" |
+| `shots[].camera` | Camera (`push a>b`, `pull a>b`, `pan DIR n% s>s`, `hold`, `keys 0=a ; 1=b out` for an eased zoom, `shake mild` for handheld) | zoom and pan are measured; the direction word is the camera's travel; `unknown` quality leaves the cell blank and says why |
+| `shots[].speed` | not written: a note only | a ramp is a hypothesis, a freeze may be a still card |
+| `text_events[]` | Overlays rows: Start/End, `y` or `at` from the box, `emphColor` from the ink, `fx` from the entry motion | the STRING is an OCR hint and is never copied; boxes, frames and colours are measured; a caption track (5+ short lines low in the frame) becomes a Caption bands row instead |
+| `grade.nearest`, `loudness` | header lines | indicative; compare on stills |
+
+Text slots are written as `textbox` rows in the sample's own box, size, alignment, ink and entry effect (`--text-component phrase` keeps the older blocks);
+`--compare` then pairs the text events of your video with the sample's by time and reports when, where, how big and how each one enters (strings are never compared).
+
+`pacing_checker.py edit-plan.md --reference ref/report.json` then judges the plan against the sample: shots may be 70 % of its shortest to 140 % of its longest, the opening as long as the sample's first shot, the
+runtime within 40-50 % of it; those are warnings. Gaps, overlaps and an empty first frame stay errors. **[synthetic]** tested on a hand-built report and on a synthetic clip (a crossfade, a wipe, a hard cut); like the
+analyzer, nothing here has been run on a real reference yet. The `textbox` component measures the real font, wraps and shrinks to its box; `layout_check.py` (run by `plan_to_project.py`) warns about boxes that share a place with other text, the captions, a head or the right rail.
+
 ## What the report does NOT measure (say so)
 
 Text, fonts and caption style (no OCR); what a graphic or sticker is; sound events (blind detection under a voice found 5 of 68

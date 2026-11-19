@@ -54,9 +54,9 @@ Graphics and titles on their own timeline (`references/layout-and-motion-graphic
 - **End** — seconds, `+2.5`, `auto` (reading time), `@"word"`, or `cut` (3 frames before the next cut).
 - **Component** — `title`, `callout`, `highlight`, `step`, `checklist`, `price`, `cart`, `sticker`,
   `progress`, `magnifier`, `thumbs`, `compare`, `ranking`, `lowerThird`, `specs`, `pin`, `label`,
-  `stat`, `chart`, `image`, plus `punch` (camera punch-in) and `sfx` (`src=sfx/riser.wav; volumeDb=-12`).
+  `stat`, `chart`, `image`, `textbox` (text in a box: `box=x,y,w[,h]`, measured wrapping and fit), plus `punch` (camera punch-in) and `sfx` (`src=sfx/riser.wav; volumeDb=-12`).
 - **Zone** — `top`, `upper`, `center`, `lower` (or `–`). **Tone** — `neutral`, `before`, `after`, `cta`, `product`.
-- **Content** — `key=value; key=value`. Lists: ` / `. Points: `x,y` as fractions of the frame.
+- **Content** — `key=value; key=value`. Lists: ` / `. Points: `x,y` as fractions of the frame. A literal `;`, `|` or ` / ` inside a value: `\;`, `\|`, `\/`.
   Decimals with a point (`value=5.2; decimals=1`).
 
 | # | Start | End | Component | Zone | Tone | Content |

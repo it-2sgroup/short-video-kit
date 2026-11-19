@@ -218,8 +218,9 @@ def fold(s: str) -> str:
     return "".join(c for c in s if unicodedata.category(c) != "Mn").replace("đ", "d")
 
 
-def suggest(intent: str, analysis: dict | None) -> list[tuple[float, str, list[str], int]]:
+def suggest(intent: str, analysis: dict | None, reference: bool = False) -> list[tuple[float, str, list[str], int]]:
     """Score every playbook (and variant) by the user's words and, when given, the footage analysis.
+    `reference`: the user supplied a sample video to imitate: the neutral `reference` playbook ranks first (the sample sets the style, not a genre).
     The footage summary (inspect_footage.py --measure --json) says whether there is speech on camera
     and how much the camera moves. It is a first guess for Claude to confirm by LOOKING, never a verdict."""
     # Match with the diacritics when the user typed them: folded, "giày" (shoes) equals "giây" (seconds).
@@ -260,6 +261,9 @@ def suggest(intent: str, analysis: dict | None) -> list[tuple[float, str, list[s
                     score -= 2
                 if exp.get("motion") and exp["motion"] == summary.get("motion"):
                     score += 1; why.append(f"camera motion {summary['motion']}")
+            if pid == "reference" and not var and (reference or score > 0):  # a sample is named in the words, or the caller says one was supplied
+                score += 6
+                why.append("'a sample video was supplied'" if reference else "'a sample to imitate'")
             if var and score > 0:  # a variant is chosen by its own words; without them its base ranks first
                 own = sum(hit(k) for k in base["variants"][var].get("intents", []))
                 score += 1.5 * own if own else -0.5
@@ -403,6 +407,7 @@ def main() -> int:
     sub.add_parser("list")
     s = sub.add_parser("show"); s.add_argument("name")
     g = sub.add_parser("suggest"); g.add_argument("--intent", required=True); g.add_argument("--analysis", type=Path)
+    g.add_argument("--reference", action="store_true", help="the user supplied a sample video to imitate: the `reference` playbook ranks first")
     k = sub.add_parser("skeleton"); k.add_argument("name"); k.add_argument("--duration", type=float)
     k.add_argument("--cuts", type=Path, help="scene boundaries from suggest_cuts.py --json"); k.add_argument("--title", default="[video]")
     sub.add_parser("check")
@@ -418,7 +423,7 @@ def main() -> int:
         return 0
     if a.cmd == "suggest":
         analysis = json.loads(a.analysis.read_text(encoding="utf-8")) if a.analysis else None
-        ranked = suggest(a.intent, analysis)
+        ranked = suggest(a.intent, analysis, a.reference)
         top = [r for r in ranked if r[3] > 0][:4]
         if not top:
             hint = max(ranked, key=lambda r: r[0]) if analysis else None
@@ -428,6 +433,9 @@ def main() -> int:
             return 1
         for score, name, why, _ in top:
             print(f"{score:5.1f}  {name:28} {', '.join(why)}")
+        if a.reference:
+            print("\nA sample video was supplied: analyze_reference.py, then reference_to_plan.py (playbooks/reference.md). "
+                  "Only a presenter's service pitch whose voice is cut from their own takes has its own recipe (talking-head:agency).")
         rival = next((r for r in top[1:] if r[1].split(":")[0] != top[0][1].split(":")[0]), None)  # another genre
         if rival and top[0][0] - rival[0] <= 1.5:
             print("\nClose call: look at the contact sheet and ask the user before choosing.")

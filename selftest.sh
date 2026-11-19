@@ -533,6 +533,221 @@ for b in bad:
 sys.exit(1 if bad else 0)
 PYEOF
 
+echo "14e. reference mode: reference_to_plan.py, the reference playbook, pacing_checker.py --reference"
+"$PY" -X utf8 - "$TMP" <<'PYEOF'
+import json, sys
+from pathlib import Path
+tmp = Path(sys.argv[1])
+cam = lambda drv, z, ease: {"quality": "ok", "driver": drv, "zoom_end": z, "pan_x": 0.06, "pan_y": 0.0, "ease": ease, "shake": {"level": "locked"}}
+unk = {"quality": "unknown", "reason": "flat picture"}
+shot = lambda a, b, enter, c: {"start": a, "end": b, "length": round(b - a, 3), "enter": enter, "edge": "blue", "centre": "green", "camera": c, "speed": {"ramp": "none", "frozen_runs": []}}
+shots = [shot(0, 1.0, "start", cam("zoom-in", 1.2, "ease-out")), shot(1.0, 2.6, "crossfade", cam("static", 1.0, "linear")),
+         shot(2.6, 4.2, "mask-wipe", cam("pan-left", 1.0, "linear")), shot(4.2, 6.0, "hard-cut", unk)]
+ev = lambda i, t0, t1, txt, box, fill, mot: {"id": f"tx{i:02d}", "text": txt, "bbox": box, "t_in": t0, "t_out": t1, "conf": 0.9, "precision": "frame",
+     "motion_in": {"family": mot}, "style": {"fill": fill}}
+events = [ev(1, 0.2, 1.4, "SAMPLE HEADLINE ONE", [0.1, 0.12, 0.8, 0.06], "#ffd21a", "pop"), ev(2, 2.8, 4.0, "Sample wording that must not be copied", [0.1, 0.40, 0.8, 0.1], "#ffffff", "fade")] + \
+         [ev(3 + j, 0.3 + j * 0.9, 1.0 + j * 0.9, f"caption {j}", [0.2, 0.74, 0.6, 0.04], "#ffffff", "cut") for j in range(6)]
+rep = {"video": "sample.mp4", "duration": 6.0, "shots": shots, "shot_length": {"count": 4, "median": 1.6, "shortest": 1.0, "longest": 1.8, "cuts_per_minute": 30.0},
+       "transitions": [{"t": 0.84, "kind": "run", "frames": 12, "seconds": 0.4, "family": "crossfade", "direction": None, "needs_look": False},
+                       {"t": 2.45, "kind": "run", "frames": 9, "seconds": 0.3, "family": "mask-wipe", "direction": "left", "needs_look": True},
+                       {"t": 4.2, "kind": "cut", "family": "hard-cut"}], "flashes": [], "text_events": events, "text": {"available": True},
+       "grade": {"nearest": [{"look": "natural"}]}, "loudness": {"lufs": -14.0}}
+(tmp / "refrep.json").write_text(json.dumps(rep), encoding="utf-8")
+(tmp / "reftexts.txt").write_text("MY OWN HEADLINE\n", encoding="utf-8")
+words, t = [], 0.1
+for w in "this is my own spoken line about the product and why it works well for you".split():
+    words.append({"text": w, "start": round(t, 2), "end": round(t + 0.3, 2)}); t += 0.45
+(tmp / "refwords.json").write_text(json.dumps(words), encoding="utf-8")
+PYEOF
+"$PY" "$S/reference_to_plan.py" "$TMP/refrep.json" --out "$TMP/refplan.md" --duration 7.2 --texts "$TMP/reftexts.txt" --words "$TMP/refwords.json" --genre product-demo >"$TMP/refplan.log" 2>&1 \
+  && grep -c "^| [0-9]* | [0-9.]* | [0-9.]* | \[CLIP\]" "$TMP/refplan.md" | grep -qx 4 \
+  && grep -q "| fade 12f |" "$TMP/refplan.md" && grep -q "| wipe left 9f |" "$TMP/refplan.md" && grep -q "| keys 0=1.00 ; 1=1.20 out |" "$TMP/refplan.md" \
+  && pass "reference_to_plan.py: one scene per sample shot, its transitions (fade 12f, wipe left 9f) and eased push as a camera key" || { fail "reference_to_plan.py scenes, transitions or camera wrong"; sed 's/^/        /' "$TMP/refplan.log" | tail -5; }
+grep -q "textbox | – | – | text=MY OWN HEADLINE; box=0.060,0.112,0.880,0.075" "$TMP/refplan.md" && ! grep -qi "SAMPLE HEADLINE\|must not be copied" <(sed -n '/## Overlays/,/Notes on the overlays/p' "$TMP/refplan.md") \
+  && grep -q "color=#ffd21a" "$TMP/refplan.md" && grep -q "in=elastic" "$TMP/refplan.md" \
+  && pass "reference_to_plan.py: the text slot is a textbox in the sample's own box, ink colour and entry effect, at its time; the words are the user's, never the sample's OCR string" || fail "reference_to_plan.py overlay text"
+grep -q "^## Caption bands" "$TMP/refplan.md" && grep -q "Compliance check (from \`product-demo\`" "$TMP/refplan.md" && grep -q "No antibacterial" "$TMP/refplan.md" \
+  && pass "reference_to_plan.py: six short lines low in the frame become a caption band; --genre copies only the compliance list" || fail "reference_to_plan.py caption band or --genre"
+"$PY" "$S/pacing_checker.py" "$TMP/refplan.md" --reference "$TMP/refrep.json" >"$TMP/refpace.log" 2>&1 \
+  && pass "pacing_checker.py --reference passes a plan made from the sample" || { fail "pacing_checker --reference rejected the plan"; tail -6 "$TMP/refpace.log" | sed 's/^/        /'; }
+"$PY" - "$TMP" <<'PYEOF'
+import re, sys
+from pathlib import Path
+tmp = Path(sys.argv[1])
+lines = (tmp / "refplan.md").read_text(encoding="utf-8").splitlines()
+rows = [i for i, l in enumerate(lines) if re.match(r"\| \d+ \| [\d.]+ \| [\d.]+ \| \[CLIP\]", l)]
+def set_cell(ls, i, col, val):
+    c = ls[i].split("|"); c[col] = f" {val:.2f} "; ls[i] = "|".join(c)      # col 2 = Start, col 3 = End
+start3 = float(lines[rows[2]].split("|")[2])
+short = list(lines)                                   # scene 3 (outside the hook) shrinks to 0.2 s, scene 4 starts right after it: no gap, only a rhythm break
+set_cell(short, rows[2], 3, start3 + 0.2); set_cell(short, rows[3], 2, start3 + 0.2)
+(tmp / "refplan_short.md").write_text("\n".join(short), encoding="utf-8")
+gap = list(short)                                     # scene 4 starts 0.5 s late: a hole in the timeline
+set_cell(gap, rows[3], 2, start3 + 0.7)
+(tmp / "refplan_gap.md").write_text("\n".join(gap), encoding="utf-8")
+PYEOF
+"$PY" "$S/pacing_checker.py" "$TMP/refplan_short.md" --reference "$TMP/refrep.json" >"$TMP/refshort.log" 2>&1 && grep -q "only 0.2s" "$TMP/refshort.log" \
+  && ! "$PY" "$S/pacing_checker.py" "$TMP/refplan_short.md" --playbook product-demo >/dev/null 2>&1 \
+  && pass "a scene shorter than the sample's is a warning with --reference (an error under a genre playbook)" || fail "--reference did not soften the rhythm rules"
+"$PY" "$S/pacing_checker.py" "$TMP/refplan_gap.md" --reference "$TMP/refrep.json" >/dev/null 2>&1 \
+  && fail "a gap between scenes passed --reference" || pass "a gap between scenes is still an error with --reference"
+sed 's/\[CLIP\]/CLIP_A/; s/| \[s\] |/| 0.5 |/' "$TMP/refplan.md" > "$TMP/refplan_filled.md"
+"$PY" "$S/plan_to_project.py" "$TMP/refplan_filled.md" --out "$TMP/refproj.json" --words "$TMP/refwords.json" >"$TMP/refproj.log" 2>&1 \
+  && "$PY" -c "import json,sys; p=json.load(open(sys.argv[1])); assert len(p['scenes'])==4 and any(o['component']=='textbox' and len(o['props']['box'])==4 for o in p['overlays'])" "$TMP/refproj.json" \
+  && pass "plan_to_project.py compiles a reference plan once its footage cells are filled" || { fail "plan_to_project.py could not compile the reference plan"; tail -5 "$TMP/refproj.log" | sed 's/^/        /'; }
+"$PY" - "$S" <<'PYEOF' >"$TMP/tb.log" 2>&1 && pass "textbox plan syntax (box, escaped ; | and slash) and layout_check.py: overlap, captions, head, right rail, frame edge" || { fail "textbox plan syntax or layout_check.py"; tail -6 "$TMP/tb.log" | sed 's/^/        /'; }
+import sys
+sys.path.insert(0, sys.argv[1])
+import plan_to_project as P, layout_check as L
+BS = chr(92)
+assert P.split_cells(f"| 1 | text=A {BS}| B; x=1 |") == ["1", "text=A | B; x=1"], "an escaped pipe stays in its cell"
+c = P.parse_content("textbox", f"box=0.1,0.4,0.8; text=Line one / Line {BS}/ two; color=#FFD21A")
+assert c["box"] == [0.1, 0.4, 0.8] and c["text"] == ["Line one", "Line / two"], c
+c = P.parse_content("textbox", f"box=0.1,0.4,0.8,0.2; text=50% off {BS}; today")
+assert c["box"] == [0.1, 0.4, 0.8, 0.2] and c["text"] == "50% off ; today", c
+tb = lambda s0, e0, box, **k: {"component": "textbox", "start": s0, "end": e0, "props": {"text": "Sample text", "box": box, **k}}
+proj = {"captionStyle": "plain", "layout": "feed", "captions": [{"start": 0, "end": 5, "text": "x"}], "captionBands": [], "words": [],
+        "scenes": [{"start": 0, "end": 5, "face": {"x": 0.5, "y": 0.3, "r": 0.08}}]}
+def n(*ov, **extra):
+    return len(L.check({**proj, **extra, "overlays": list(ov)}))
+assert n(tb(0, 2, [0.1, 0.1, 0.4, 0.05]), tb(1, 3, [0.15, 0.1, 0.4, 0.05])) == 1, "two boxes in one place at one time"
+assert n(tb(0, 2, [0.1, 0.1, 0.4, 0.05]), tb(2.5, 4, [0.15, 0.1, 0.4, 0.05])) == 0, "the same place at another time is fine"
+assert n(tb(0, 2, [0.1, 0.1, 0.4, 0.05]), tb(1, 3, [0.1, 0.5, 0.4, 0.05])) == 0, "two boxes apart"
+assert n(tb(0, 2, [0.1, 0.70, 0.5, 0.08])) == 1, "a box on the captions (y 1340)"
+assert n(tb(0, 2, [0.1, 0.70, 0.5, 0.08]), captionBands=[{"start": 0, "end": 5, "top": 0, "hide": True}]) == 0, "captions hidden by a band"
+assert n(tb(0, 2, [0.35, 0.25, 0.3, 0.1])) == 1, "a box over the speaker's head"
+assert n(tb(0, 2, [0.6, 0.5, 0.35, 0.05])) == 1, "the right rail (x > 900)"
+assert n(tb(0, 2, [0.8, 0.1, 0.4, 0.05])) >= 1, "outside the frame"
+PYEOF
+"$PY" - "$S" "$TMP" <<'PYEOF' >"$TMP/tcmp.log" 2>&1 && pass "analyze_reference.py --compare: text events paired by time (when, where, how big, how it enters; never the strings)" || { fail "--compare text rows"; tail -5 "$TMP/tcmp.log" | sed 's/^/        /'; }
+import copy, json, sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import analyze_reference as A
+tmp = Path(sys.argv[2])
+rep = json.loads((tmp / "refrep.json").read_text(encoding="utf-8"))
+rep["grade"] = {"global": {"warmth_b": 0, "chroma": 10, "luma": {"p1": 5, "p99": 240}}}
+rep["loudness"] = {"lufs": -14, "true_peak_db": -1}
+for t in rep["transitions"]:
+    t.setdefault("frames", 0)
+for e in rep["text_events"]:
+    e["bbox"] = list(e["bbox"])
+mine = copy.deepcopy(rep)
+mine["video"] = "mine.mp4"
+mine["text_events"] = mine["text_events"][:2]
+mine["text_events"][0]["bbox"][1] += 0.03
+A.write_diff(rep, mine, tmp / "diff.md")
+t = (tmp / "diff.md").read_text(encoding="utf-8")
+assert "## Text events, paired by time" in t and "| text events | 8 | 2 |" in t and "+0.030" in t and "missing" in t, t[-900:]
+assert "SAMPLE HEADLINE" not in t, "the strings are not compared"
+PYEOF
+"$PY" "$S/playbook.py" suggest --intent "làm giống video mẫu này" 2>&1 | head -1 | grep -q "reference" \
+  && "$PY" "$S/playbook.py" suggest --intent "tour căn hộ" --reference 2>&1 | head -1 | grep -q "reference" \
+  && pass "suggest: a request that names a sample (or --reference) picks the reference playbook first" || fail "playbook.py suggest did not pick the reference playbook"
+
+echo "14f. creative layer: style-axes.json, concept.py, directions.py, style_ledger.py"
+"$PY" - "$S" "$KIT" <<'PYEOF' >"$TMP/axes.log" 2>&1 && pass "style-axes.json names only things the catalogue has (transitions, fonts, text effects, grades), every option has a feel, every signature kind is built" || { fail "style-axes.json against the catalogue"; tail -5 "$TMP/axes.log" | sed 's/^/        /'; }
+import json, sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import playbook, directions
+skill = Path(sys.argv[2]) / "skill" / "short-video-editing"
+ax = json.loads((skill / "assets" / "style-axes.json").read_text(encoding="utf-8"))
+trans = set(playbook.transition_types())
+fonts = set(json.loads((skill / "assets" / "fonts.json").read_text(encoding="utf-8"))["fonts"])
+grades = set(json.loads((skill / "assets" / "grades.json").read_text(encoding="utf-8"))["grades"])
+fx = {c["id"] for c in json.loads((skill / "assets" / "techniques.json").read_text(encoding="utf-8"))["techniques"] if c["kind"] == "text-fx"}
+for o in ax["axes"]["transitions"]:
+    assert set(o["ids"]) <= trans, (o["id"], set(o["ids"]) - trans)
+for o in ax["axes"]["type"]:
+    assert set(o["fonts"]) <= fonts and set(o["fx"]) <= fx, (o["id"], set(o["fonts"]) - fonts, set(o["fx"]) - fx)
+for o in ax["axes"]["colour"]:
+    assert o["grade"] in grades, o["id"]
+for name, opts in ax["axes"].items():
+    assert len(opts) >= 4, f"{name} has too few options to vary"
+    for o in opts:
+        assert set(o["feel"]) <= set(ax["dimensions"]), o["id"]
+for k in ax["signatures"]:
+    assert k in {"flash-cut", "hold-then-burst", "speed-hit", "zoom-through", "text-takeover"}, k
+assert set(ax["axes"]) == set(directions.AXIS_NAMES)
+PYEOF
+"$PY" "$S/concept.py" example > "$TMP/c_ok.json" && "$PY" "$S/concept.py" check "$TMP/c_ok.json" >/dev/null 2>&1 \
+  && "$PY" - "$TMP" <<'PYEOF' && ! "$PY" "$S/concept.py" check "$TMP/c_flat.json" >/dev/null 2>&1 && ! "$PY" "$S/concept.py" check "$TMP/c_id.json" >/dev/null 2>&1 && ! "$PY" "$S/concept.py" check "$TMP/c_why.json" >/dev/null 2>&1 \
+  && pass "concept.py: the example is valid; a flat energy curve, an unknown technique and a missing 'why' are refused" || fail "concept.py validation"
+import json, sys
+from pathlib import Path
+tmp = Path(sys.argv[1])
+c = json.loads((tmp / "c_ok.json").read_text(encoding="utf-8"))
+c["energy"] = [[0, 0.5], [0.5, 0.55], [1, 0.5]]
+(tmp / "c_flat.json").write_text(json.dumps(c), encoding="utf-8")
+c = json.loads((tmp / "c_ok.json").read_text(encoding="utf-8")); c["restraint"]["use"] = ["cut", "fade", "no-such-technique"]
+(tmp / "c_id.json").write_text(json.dumps(c), encoding="utf-8")
+c = json.loads((tmp / "c_ok.json").read_text(encoding="utf-8")); c["signature"]["why"] = ""
+(tmp / "c_why.json").write_text(json.dumps(c), encoding="utf-8")
+PYEOF
+"$PY" - "$S" "$TMP" "$KIT" <<'PYEOF' >"$TMP/dir.log" 2>&1 && pass "directions.py: three directions that differ on most axes, the same seed gives the same plans, another seed other ones, the signature and the motif are in every plan" || { fail "directions.py"; tail -8 "$TMP/dir.log" | sed 's/^/        /'; }
+import hashlib, json, subprocess, sys
+from pathlib import Path
+S, tmp, kit = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+sys.path.insert(0, S)
+import style_ledger as SL
+plan = kit / "samples" / "example-edit-plan.md"
+def run(out, seed, *extra):
+    r = subprocess.run([sys.executable, "-X", "utf8", f"{S}/directions.py", str(plan), "--concept", str(tmp / "c_ok.json"), "--out-dir", str(out), "--seed", str(seed), *extra], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr + r.stdout
+    return [(out / d / "edit-plan.md").read_text(encoding="utf-8") for d in "ABC"]
+a, a2, b = run(tmp / "d1", 1), run(tmp / "d1b", 1), run(tmp / "d2", 2)
+assert a == a2, "the same seed must give the same directions"
+assert a != b, "another seed must give other directions"
+fps = [SL.fingerprint(t) for t in a]
+sims = [SL.similarity(x, y)[0] for i, x in enumerate(fps) for y in fps[i + 1:]]
+assert max(sims) < 0.6, f"the three directions are too alike: {sims}"
+for t in a:
+    assert t.count("[signature]") == 1 and t.count("[motif]") >= 3, "signature once, motif at least three times"
+    assert "**Direction:**" in t and "**Grade:**" in t
+dirs = {tuple(json.loads((tmp / "d1" / d / "direction.json").read_text(encoding="utf-8"))["axes"].values()) for d in "ABC"}
+assert len(dirs) == 3
+PYEOF
+"$PY" - "$S" "$TMP" <<'PYEOF' >"$TMP/lock.log" 2>&1 && pass "concept lock + plan check: a direction's vocabulary becomes the restraint, its own plan passes, another direction's plan is refused; every direction passes pacing_checker and compiles" || { fail "concept lock / plan check"; tail -6 "$TMP/lock.log" | sed 's/^/        /'; }
+import json, subprocess, sys
+from pathlib import Path
+S, tmp = sys.argv[1], Path(sys.argv[2])
+py = [sys.executable, "-X", "utf8"]
+def sh(*cmd):
+    return subprocess.run([*py, *cmd], capture_output=True, text=True)
+assert sh(f"{S}/concept.py", "lock", str(tmp / "c_ok.json"), "--direction", str(tmp / "d1" / "A" / "direction.json")).returncode == 0
+assert sh(f"{S}/concept.py", "check", str(tmp / "c_ok.json"), "--plan", str(tmp / "d1" / "A" / "edit-plan.md")).returncode == 0, "its own vocabulary must pass"
+refused = [d for d in "BC" if sh(f"{S}/concept.py", "check", str(tmp / "c_ok.json"), "--plan", str(tmp / "d1" / d / "edit-plan.md")).returncode != 0]
+assert refused, "a plan of another direction uses techniques outside the locked vocabulary"
+for d in "ABC":
+    plan = str(tmp / "d1" / d / "edit-plan.md")
+    assert sh(f"{S}/pacing_checker.py", plan).returncode == 0, f"pacing {d}"
+    r = sh(f"{S}/plan_to_project.py", plan, "--out", str(tmp / f"proj_{d}.json"))
+    assert r.returncode == 0, r.stderr + r.stdout
+PYEOF
+"$PY" - "$S" "$TMP" "$KIT" <<'PYEOF' >"$TMP/led.log" 2>&1 && pass "style_ledger.py: a plan is identical to itself (1.0), different directions score lower, and directions.py steers away from a remembered video" || { fail "style_ledger.py"; tail -6 "$TMP/led.log" | sed 's/^/        /'; }
+import json, subprocess, sys
+from pathlib import Path
+S, tmp, kit = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+sys.path.insert(0, S)
+import style_ledger as SL
+py = [sys.executable, "-X", "utf8"]
+ledger = tmp / "ledger.json"
+a = (tmp / "d1" / "A" / "edit-plan.md")
+assert subprocess.run([*py, f"{S}/style_ledger.py", "add", str(a), "--ledger", str(ledger), "--name", "v1"], capture_output=True).returncode == 0
+fa = SL.fingerprint(a.read_text(encoding="utf-8"))
+assert SL.similarity(fa, fa)[0] == 1.0
+assert SL.similarity(fa, SL.fingerprint((tmp / "d1" / "B" / "edit-plan.md").read_text(encoding="utf-8")))[0] < 0.6
+assert subprocess.run([*py, f"{S}/style_ledger.py", "check", str(a), "--ledger", str(ledger), "--strict"], capture_output=True).returncode == 1, "the same style is a repeat"
+c = json.loads((tmp / "c_ok.json").read_text(encoding="utf-8")); c["restraint"]["use"] = []
+(tmp / "c_open.json").write_text(json.dumps(c), encoding="utf-8")
+r = subprocess.run([*py, f"{S}/directions.py", str(kit / "samples" / "example-edit-plan.md"), "--concept", str(tmp / "c_open.json"), "--out-dir", str(tmp / "d3"), "--seed", "1", "--ledger", str(ledger)], capture_output=True, text=True)
+assert r.returncode == 0, r.stderr
+for d in "ABC":
+    s = SL.similarity(SL.fingerprint((tmp / "d3" / d / "edit-plan.md").read_text(encoding="utf-8")), fa)[0]
+    assert s < 0.8, f"direction {d} repeats the remembered video ({s})"
+PYEOF
+
 echo "15. packaging: version, changelog, pins, lockfile, documents"
 "$PY" -X utf8 - "$KIT" <<'PYEOF' >"$TMP/pack.log" 2>&1 \
   && pass "$(head -1 "$TMP/pack.log")" || { fail "packaging is out of step"; sed 's/^/        /' "$TMP/pack.log" | tail -14; }
@@ -1002,6 +1217,29 @@ PYEOF
      && [[ "$(ls "$RENDER_DIR"/out/sh_*.jpg 2>/dev/null | wc -l)" -ge 8 ]] && [[ -z "$(find "$RENDER_DIR"/out -name 'sh_*.jpg' -size -4k)" ]]; then
     pass "rendered stills of the newer techniques: subject outline, shake, blinds, diamond, doors, glitchSlice, spinZoom, filmBurn, zoomBlur, vignette and grain (LOOK at out/sh_*.jpg)"
   else fail "the newer techniques did not render"; tail -6 "$TMP/showcase.log" | sed 's/^/        /'; fi
+  ffmpeg -hide_banner -v error -y -f lavfi -i "color=c=black:s=1080x1920:r=30:d=4" -c:v libx264 -pix_fmt yuv420p "$RENDER_DIR/public/clips/BLACK.mp4"
+  "$PY" -X utf8 - "$RENDER_DIR/textbox.json" <<'PYEOF'
+import json, sys
+sc = [{"clip": "BLACK", "in": 0, "start": 0.0, "end": 4.0, "transition": {"type": "cut"}}]
+ov = [{"component": "textbox", "start": 0, "end": 4, "props": {"text": "SIEUCAPDAIDUONGKHONGLOSOSAU", "box": [0.1, 0.2, 0.3, 0.05], "size": 200, "color": "#ffffff", "in": "rise"}},
+      {"component": "textbox", "start": 0, "end": 4, "props": {"text": "Một câu rất dài rất dài rất dài rất dài rất dài rất dài rất dài rất dài rất dài rất dài", "box": [0.1, 0.5, 0.5, 0.1], "size": 90, "color": "#ffffff", "in": "rise"}}]
+json.dump({"fps": 30, "width": 1080, "height": 1920, "duration": 4, "scenes": sc, "overlays": ov, "captions": []}, open(sys.argv[1], "w"), ensure_ascii=False)
+PYEOF
+  if (cd "$RENDER_DIR" && node stills.mjs textbox.json out/tb 2) >"$TMP/tb_render.log" 2>&1 \
+     && ffmpeg -hide_banner -v error -i "$RENDER_DIR/out/tb_0002.00.jpg" -f rawvideo -pix_fmt gray - 2>/dev/null | "$PY" -c "
+import sys, numpy as np
+a = np.frombuffer(sys.stdin.buffer.read(), np.uint8).reshape(1920, 1080) > 200
+def cols(y0, y1):
+    c = np.where(a[y0:y1].any(axis=0))[0]
+    return (int(c.min()), int(c.max()), int(a[y0:y1].sum())) if len(c) else None
+one, two = cols(300, 700), cols(900, 1250)
+assert one and two, ('no text drawn', one, two)
+assert 108 - 8 <= one[0] and one[1] <= 432 + 8, ('a long word left its box sideways', one)
+assert 108 - 8 <= two[0] and two[1] <= 648 + 8, ('a long sentence left its box sideways', two)
+print(one, two)
+" >"$TMP/tb_px.log" 2>&1; then
+    pass "textbox: measured fit (a 27-letter word and a long sentence stay inside their boxes, measured on the rendered pixels)"
+  else fail "textbox: measured fit did not hold"; tail -4 "$TMP/tb_render.log" "$TMP/tb_px.log" | sed 's/^/        /'; fi
 fi
 
 echo

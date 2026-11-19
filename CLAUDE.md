@@ -94,6 +94,11 @@ Keep work files **outside this repo** (e.g. `<work>/v1/{script.txt,captions.srt,
 finish with `finish_video.py`; prove with `check_lipsync.py` and `mix_report.py`. A technique the kit lacks is researched and added (component + doc row + selftest), not faked. Say what was not
 verified: nobody has listened to the sound bank or the music, and a sentence guessed from a poor transcript or a logo keyed from a sample frame is the human's to confirm.
 
+## A video starts from an idea, not from a genre's defaults
+
+Before a plan, write the idea (`concept.py example`: feeling, tension, a motif, ONE signature move, the energy curve), build three different directions from it (`directions.py`), show `compare.md` and let the user choose, `concept.py lock` the choice, and after the video
+`style_ledger.py add` it so the next video is not the same. Full loop and limits: `skill/short-video-editing/references/creative-direction.md`. Never rotate a fixed list of transitions or camera moves by index: choose by what the shot needs, with a reason.
+
 ## Growing the kit: the technique catalogue
 
 The kit is a framework, not a record of past videos. Every technique it can do is one card in `skill/short-video-editing/assets/techniques.json`

@@ -97,7 +97,25 @@ address, offer dates, the voice), ask **at most three** questions in one message
 default (`playbooks/README.md` → Questions). For a batch: budget the footage first
 (`references/footage-ingest.md` §1b, `policy.md` §4.1).
 
+### 1a. The idea first: a concept, three directions, a memory (`references/creative-direction.md`)
+
+A plan built straight from a playbook is the genre's average. Before it, write the video's idea and explore:
+
+```bash
+python scripts/concept.py example > concept.json          # fill it: feeling, tension, motif, ONE signature move + why, energy curve; leave restraint.use empty while exploring
+python scripts/directions.py edit-plan.md --concept concept.json --out-dir dirs [--seed N] [--ledger L] [--keep transitions,camera] [--stills RENDER]   # three directions + compare.md
+python scripts/concept.py lock concept.json --direction dirs/A/direction.json   # after the user chooses
+python scripts/concept.py check concept.json --plan dirs/A/edit-plan.md
+python scripts/style_ledger.py add dirs/A/edit-plan.md --ledger L --name v3       # when the video is done
+```
+
+Show the user `compare.md` (and the stills) and let them choose or mix: the numbers say how different and how coherent the directions are, not how good. Use `--keep transitions,camera` for a plan made from a sample. A batch: `--ledger` on every run.
+
 ### 1b. A reference video to copy ("make it like this sample")
+
+**The sample wins over the genre.** With a sample, the playbook is `reference` (`playbook.py suggest --intent "..." --reference`), not the genre of the footage: the shot lengths, transitions, camera moves,
+text slots and runtime come from the sample's measurements, and no genre rule (scene minimum, transition list, camera pattern, caption position) is applied on top. A genre still supplies its claims and
+compliance checklist (`--genre ID`). Exception: a presenter's service pitch whose voice is cut from their own takes keeps its recipe (`references/agency-pitch-recipe.md`).
 
 ```bash
 python scripts/analyze_reference.py sample.mp4 --out ref/ --dense 0-3,15-20   # shots, transitions (and their family), camera paths, speed, flashes, grade, loudness, sheets
@@ -108,7 +126,17 @@ Open `ref/report.md`, `scenes.png`, every `dense_*.png` (every 2nd frame of a ra
 assembling) and every `spectrum_*.png` (a click is a vertical streak, a whoosh a slanted band) and **look**. The numbers give the
 frame-exact timing; the sheets give the technique; `references/reference-analysis.md` says which keys are measured and which are Claude's reading.
 Write down every technique you see in neutral words (text effects, card layouts, transitions, camera moves, grade, subject effects, sound on each cut), then
-**find each one in the catalogue** (`technique.py search`, `list`, `show`). Found: use it. Almost found: a new parameter, not a new technique. Not found: **research it,
+**find each one in the catalogue** (`technique.py search`, `list`, `show`). Then write the first draft of the plan from the measurements instead of from a skeleton:
+
+```bash
+python scripts/reference_to_plan.py ref/report.json --out edit-plan.md [--duration 38] [--words words.json] [--texts texts.txt] [--genre product-demo]
+python scripts/pacing_checker.py edit-plan.md --reference ref/report.json    # the sample's own numbers; rhythm rules are warnings, gaps and overlaps are errors
+```
+
+It keeps the sample's cuts (snapped onto your voice's pauses), transitions (family, direction, frames), camera moves and text slots (time, height, colour, entry); the footage (`[CLIP]`/`[s]`: `plan_scenes.py`
+or by hand) and every word are yours: pass the lines in `--texts`, or let it take the words spoken while a slot is on screen. Never copy the sample's OCR text. Whatever it marks "look" (a transition's shape,
+a camera direction, a speed ramp, a slot it could not fill) is for you to settle on the strips and stills. Read the plan, then continue at step 2.
+ Found: use it. Almost found: a new parameter, not a new technique. Not found: **research it,
 implement it where its kind lives, write its card, document it, prove it in selftest.sh** (`references/adding-techniques.md`: one loop for every kind; what
 was researched but not built is in `references/technique-backlog.md`), never fake it with a lookalike. A presenter talking to camera with a service pitch →
 `references/agency-pitch-recipe.md`, step by step. The sample's logo, and any customer work shown on its cards, belong to their owners: ask for the vector
@@ -181,7 +209,7 @@ Fill the **Overlays** table with the playbook's components (`references/layout-a
 titles (`references/typography.md`: 3–4 styles, never the same twice in a row, one accent word), and
 the information graphics the content needs — `specs` (area, rooms, direction), `pin` (place), `label`
 (room, dish, item), `stat` (a counted-up number), `chart` (bars), `price`, `step`, `checklist`, `thumbs`
-(a spoken list of three), `compare` (before/after), `image` (logo, floor plan), `cart` (TikTok Shop's real
+(a spoken list of three), `compare` (before/after), `image` (logo, floor plan), `textbox` (text in a box you give: `box=x,y,w[,h]`, measured wrapping and fit; a sample's text slot), `cart` (TikTok Shop's real
 product bar only), and effects shaped by a person matte (silhouette flash, outline, glow, spotlight, colour pop, text behind the subject: the `Subject` cell,
 `references/subject-effects.md`). Anchor to words with `@"phrase"`. On-screen text says something **different** from
 the voice. Every number on screen comes from the user or the documents.

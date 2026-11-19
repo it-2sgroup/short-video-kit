@@ -493,6 +493,11 @@ def write_diff(ref: dict, mine: dict, path: Path) -> None:
             ("grade chroma", ref["grade"]["global"]["chroma"], mine["grade"]["global"]["chroma"]),
             ("luma p1", ref["grade"]["global"]["luma"]["p1"], mine["grade"]["global"]["luma"]["p1"]),
             ("luma p99", ref["grade"]["global"]["luma"]["p99"], mine["grade"]["global"]["luma"]["p99"])]
+    rt_, mt_ = ref.get("text_events") or [], mine.get("text_events") or []
+    if (ref.get("text") or {}).get("available") and (mine.get("text") or {}).get("available"):   # text rows only when OCR ran on both
+        med = lambda ev, k: round(float(np.median([e["bbox"][k] for e in ev])), 3) if ev else None   # noqa: E731
+        rows += [("text events", len(rt_), len(mt_)), ("text on screen (s)", round(sum(e["t_out"] - e["t_in"] for e in rt_), 1), round(sum(e["t_out"] - e["t_in"] for e in mt_), 1)),
+                 ("text: median box height (share of the frame)", med(rt_, 3), med(mt_, 3)), ("text: median top (share of the frame)", med(rt_, 1), med(mt_, 1))]
     md = [f"# Reference vs recreation", "", f"Reference `{ref['video']}`, recreation `{mine['video']}`. Fix the biggest relative differences first.", "",
           "| measure | reference | mine | difference |", "|---|---|---|---|"]
     scored = []
@@ -516,6 +521,22 @@ def write_diff(ref: dict, mine: dict, path: Path) -> None:
     for i in range(min(len(ref["shots"]), len(mine["shots"]), 60)):
         r, m = ref["shots"][i], mine["shots"][i]
         md.append(f"| {i + 1} | {r['length']:.2f} | {m['length']:.2f} | {cam(r)} | {cam(m)} |")
+    if (ref.get("text") or {}).get("available") and (mine.get("text") or {}).get("available"):
+        md += ["", "## Text events, paired by time (within 0.7 s)", "",
+               "Strings are not compared (OCR is a hint and your words are your own): when, where, how big and how it enters are.", "",
+               "| reference in-out | ref top, height | ref enters | mine in-out | mine top, height | mine enters | top diff | height diff |", "|---|---|---|---|---|---|---|---|"]
+        used: set[str] = set()
+        for e in rt_:
+            near = min((x for x in mt_ if x["id"] not in used), key=lambda x: abs(x["t_in"] - e["t_in"]), default=None)
+            ref_cells = f"{e['t_in']:.2f}-{e['t_out']:.2f} | {e['bbox'][1]:.3f}, {e['bbox'][3]:.3f} | {(e.get('motion_in') or {}).get('family', '?')}"
+            if near is None or abs(near["t_in"] - e["t_in"]) > 0.7:
+                md.append(f"| {ref_cells} | missing | | | | |")
+                continue
+            used.add(near["id"])
+            md.append(f"| {ref_cells} | {near['t_in']:.2f}-{near['t_out']:.2f} | {near['bbox'][1]:.3f}, {near['bbox'][3]:.3f} | {(near.get('motion_in') or {}).get('family', '?')} | "
+                      f"{near['bbox'][1] - e['bbox'][1]:+.3f} | {near['bbox'][3] - e['bbox'][3]:+.3f} |")
+        extra = [x for x in mt_ if x["id"] not in used]
+        md += ["", f"Text of yours with no counterpart in the reference: {len(extra)}" + (" (" + ", ".join(f"{x['t_in']:.2f} s" for x in extra[:8]) + ")" if extra else "") + "."]
     md += ["", "## Biggest differences", ""] + [f"- {name}: reference {r}, mine {m} ({d:+})" for _, name, r, m, d in sorted(scored, reverse=True)[:5]]
     md += ["", "Put the two side by side at the same seconds with `montage.py` before trusting any row: these are measurements, not a judgement."]
     path.write_text("\n".join(md) + "\n", encoding="utf-8")

@@ -53,6 +53,10 @@ disagree or facts are missing (price, area, address, promotion dates, voice or m
 questions**, each with a default. For a batch of several videos: budget the footage first
 (`references/footage-ingest.md` §1b, `references/policy.md` §4.1).
 
+### 1a. The idea first (`references/creative-direction.md`)
+Before the plan, write `concept.json` (`concept.py example`): the feeling, the tension and how it is released, a motif that returns, ONE signature move and why, the energy curve. Then `directions.py PLAN --concept concept.json --out-dir dirs`
+builds three different directions and `compare.md`; look at it (and at `--stills`), let the user choose, `concept.py lock` the choice, edit, `concept.py check ... --plan`, and after the video `style_ledger.py add`. A batch: add each finished video to the ledger before planning the next.
+
 ### 1b. The client supplies a sample video ("make it like this")
 ```bash
 python3 scripts/analyze_reference.py sample.mp4 --out ref/ --dense 0-3,15-20   # measures: scene count, transitions, flashes, colour, noise + summary images
@@ -62,7 +66,9 @@ a pile of text being assembled) and `spectrum_*.png` (a click is a vertical line
 The numbers give the timing to the exact frame; the images tell you which technique it is. List every technique you can see,
 find it in `references/capcut-techniques.md` and `references/layout-and-motion-graphics.md`; a technique the kit does not have
 yet is **researched and added as a component** (with a documentation row and a selftest), not imitated. A presenter speaking
-to camera to introduce a service → `references/agency-pitch-recipe.md` (10 steps).
+to camera to introduce a service → `references/agency-pitch-recipe.md` (10 steps). Any other sample →
+the `reference` playbook: `reference_to_plan.py ref/report.json --out edit-plan.md [--duration N] [--words words.json] [--texts texts.txt] [--genre ID]` writes the sample's shots, transitions, camera moves and text slots
+into a plan (footage cells `[CLIP]`/`[s]` and the words are yours; a cell marked "look" is something the tool could not decide), then `pacing_checker.py edit-plan.md --reference ref/report.json`. Text slots are `textbox` rows (the sample's box, measured wrapping); `plan_to_project.py` prints a layout check (overlaps, captions, head, right rail).
 The logo and the product the client puts on a card belong to the client: ask for the vector file and for consent. Do not use the sample video's music or footage.
 
 ### 2. Prepare the footage (correction + colour)

@@ -5,6 +5,7 @@
 //   const f = pickFont(props.font, 900, fonts.sans);   // { family, weight, ratio }
 // `weight` is the nearest weight the family really has (Anton has only 400); `ratio` is the average letter width / font size,
 // for `fitSize`. Every id and weight below was checked against @remotion/google-fonts (see references/typography.md).
+import { trackFont } from "./fontReady";
 import * as BeVietnamPro from "@remotion/google-fonts/BeVietnamPro";
 import * as Montserrat from "@remotion/google-fonts/Montserrat";
 import * as BricolageGrotesque from "@remotion/google-fonts/BricolageGrotesque";
@@ -101,7 +102,7 @@ export const FONT_LIBRARY: FontDef[] = defs.map((d) => {
     load: (weight: number) => {
       if (done.has(weight)) return;
       done.add(weight);
-      mod.loadFont("normal", { weights: [String(weight)], subsets });
+      trackFont(mod.loadFont("normal", { weights: [String(weight)], subsets }));
     },
   };
 });

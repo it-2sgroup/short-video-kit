@@ -7,6 +7,7 @@ import { loadFont as loadNumber } from "@remotion/google-fonts/Anton";
 import { loadFont as loadCondensed } from "@remotion/google-fonts/BarlowCondensed";
 import { loadFont as loadScript } from "@remotion/google-fonts/Pacifico";
 import type { Tone, Zone } from "./project";
+import { trackFont } from "./fontReady";
 
 // Vietnamese needs BOTH subsets: the 'vietnamese' subset holds only the extra marks.
 const SUBSETS: ("latin" | "latin-ext" | "vietnamese")[] = ["latin", "latin-ext", "vietnamese"];
@@ -15,6 +16,8 @@ const serif = loadSerif("italic", { weights: ["700"], subsets: SUBSETS });
 const number = loadNumber("normal", { weights: ["400"], subsets: SUBSETS });
 const condensed = loadCondensed("normal", { weights: ["800", "900"], subsets: SUBSETS });
 const script = loadScript("normal", { weights: ["400"], subsets: ["latin", "latin-ext", "vietnamese"] });
+
+[sans, serif, number, condensed, script].forEach(trackFont); // text that is measured (TextBox) waits for these
 
 // The five role fonts below load for every project. The ~30 other families (src/fonts.ts, `font=<id>` in a plan row) load only when an overlay asks.
 export const fonts = {

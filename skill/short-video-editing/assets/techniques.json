@@ -4656,6 +4656,31 @@
    "avoid_when": "busy footage under thin letters: add stroke or a darker plate"
   },
   {
+   "id": "textbox",
+   "kind": "overlay",
+   "name": "Text box",
+   "about": "Text placed in a box you give (x, y, width, optional height as fractions of the frame), measured with the real font, wrapped at word boundaries and shrunk until it fits: it never leaves the box sideways. Colour, outline, background, alignment and any text effect are plan keys. The component a reference video's text slots are written as.",
+   "doc": "references/layout-and-motion-graphics.md",
+   "plan": "textbox | – | text=Line A / Line B; box=0.1,0.4,0.8,0.12; size=72; color=#FFD21A; in=blurin",
+   "renderers": [
+    "remotion"
+   ],
+   "aliases": [
+    "free text",
+    "text box",
+    "positioned text",
+    "caption box",
+    "text in a box"
+   ],
+   "tags": [
+    "text",
+    "layout"
+   ],
+   "test": "textbox: measured fit",
+   "use_when": "the position and size of the text are known (a reference video's box, a design) and the words may be longer or shorter than the original",
+   "avoid_when": "a heading in the top strip (use title) or a loud shouted line (use phrase): they have looks a plain box does not"
+  },
+  {
    "id": "objectDrop",
    "kind": "overlay",
    "name": "Object drop",

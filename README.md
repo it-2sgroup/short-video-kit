@@ -49,7 +49,7 @@ music ─► process_audio ─► suggest_cuts --music ────────�
 
 - **Genre playbooks**: `product-demo` (+ unboxing, listicle), `real-estate` (+ voiceover), `food-fnb`
   (+ review), `talking-head` (+ testimonial), `tutorial`, `fashion-beauty`, `montage-recap`,
-  `promo-sale`; `playbook.py suggest` ranks them from the request and the footage measurements;
+  `promo-sale`, and `reference` ("make it like this sample": the sample's own numbers instead of a genre's); `playbook.py suggest` ranks them from the request and the footage measurements;
   `playbook.py skeleton` writes a plan that already meets the genre's rules.
 - **Footage analysis and correction**: HDR tone-mapping, white balance from neutral pixels, exposure,
   stabilisation (vid.stab), denoise, levelling, lens correction and one grade per genre baked into a
@@ -191,10 +191,18 @@ moves and options, speed curves, looks, graphics, themes) is one card in `skill/
 python skill/short-video-editing/scripts/technique.py search "glitch rgb split"   # find a technique by the names editors use
 python skill/short-video-editing/scripts/technique.py check                       # cards <-> code <-> docs <-> selftest, both ways
 python skill/short-video-editing/scripts/analyze_reference.py sample.mp4 --out ref/   # measure a reference video's edit techniques
+python skill/short-video-editing/scripts/reference_to_plan.py ref/report.json --out edit-plan.md --words words.json --texts texts.txt   # a first-draft plan with the sample's rhythm, transitions, camera and text slots
 python skill/short-video-editing/scripts/editor.py RENDER_DIR                     # fix a project by hand on a browser timeline
+python skill/short-video-editing/scripts/concept.py example > concept.json          # the idea of a video: feeling, tension, motif, one signature move, restraint
+python skill/short-video-editing/scripts/directions.py edit-plan.md --concept concept.json --out-dir dirs   # three different directions + compare.md
+python skill/short-video-editing/scripts/style_ledger.py check edit-plan.md --ledger style-ledger.json     # is this the last video again?
 ```
 
-Handed a reference video, Claude measures it, finds each technique it sees in the catalogue, and adds the ones the kit lacks by one loop
+A video starts from an idea, not from a genre's defaults: `concept.py` (feeling, tension, a returning motif, ONE signature move, the restraint of the vocabulary), `directions.py` (three different directions built from it, with a table of how
+they differ), `style_ledger.py` (the style of finished videos, so the next one is not the same). `references/creative-direction.md` explains the loop and what it cannot judge.
+
+Handed a reference video, Claude measures it, writes a draft plan from the measurements (`reference_to_plan.py`: the sample's shots, transitions, camera moves and text slots; your footage and words; checked with `pacing_checker.py --reference`),
+finds each technique it sees in the catalogue, and adds the ones the kit lacks by one loop
 (`references/adding-techniques.md`): research with sources and licences, implement where its kind lives, a card, a doc row, a selftest.
 Nothing about the video that revealed a technique (client, footage, slogans) is written into the skill; the case goes in `docs/CASE-LOG.md`.
 
@@ -227,7 +235,7 @@ Nothing about the video that revealed a technique (client, footage, slogans) is 
     ├── scripts/                   doctor, playbook, inspect_footage, contact_sheet, prepare_footage, trim_voice, process_audio,
     │                              make_voiceover, make_sfx, make_music, match_voice_takes, align_captions, suggest_cuts, plan_scenes, pacing_checker,
     │                              footage_overlap_checker, plan_to_project, new_remotion_project, project_to_hyperframes,
-    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, find_occluders, reverse_clip, match_cut, skin_check, person_matte, object_cutout, agency_plan, finish_video,
+    │                              analyze_reference (+ ref_measure), montage, mix_report, find_cutaways, find_occluders, reverse_clip, match_cut, skin_check, person_matte, object_cutout, agency_plan, reference_to_plan, layout_check, concept, directions, style_ledger, finish_video,
     │                              check_lipsync, technique (the technique catalogue), editor (browser timeline editor)
     ├── assets/
     │   ├── edit-plan-template.md  The plan format

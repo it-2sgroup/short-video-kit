@@ -15,7 +15,7 @@ What it does, in order:
   4. links the clips the scenes use, writes index.html, kit.js (the renderer), kit.css, package.json.
 
 Overlay components the HyperFrames kit does not draw (read from kit.js: today magnifier, thumbs, compare, ranking and the
-agency-pitch set phrase, pill, arc, burst, script, tag, logo, counter, icon, circled, rawfinal) and scene or project features
+agency-pitch set phrase, pill, arc, burst, script, tag, logo, counter, icon, circled, rawfinal, and textbox) and scene or project features
 only Remotion has (card/expand layouts, subject effects (silhouette flash...), face light, look, caption highlights and bands, cardSlide and
 cardSwirl) are listed and left out: render such a video with Remotion instead (the agency recipe is Remotion only). Ask the user before the first `npx hyperframes`
 (it downloads the package). Needs ffmpeg; rendering needs Node 22+ and Chrome.

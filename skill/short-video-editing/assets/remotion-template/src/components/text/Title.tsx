@@ -34,7 +34,7 @@ export const Title: React.FC<{ ov: Overlay; dur: number; instant: boolean }> = (
   const top = zones[ov.zone ?? "top"];
   const width = ov.zone === "lower" || ov.zone === "center" ? 820 : 900; // keep clear of the right rail
 
-  const lead = lines.length > 1 ? lines[0] : undefined;
+  const lead = lines.length > 1 ? lines.slice(0, -1).join(" ") : undefined; // every line but the last is the small lead: a third line is no longer dropped
   const main = lines[lines.length - 1] ?? "";
   const [pre, acc, post] = splitAccent(main, p.accent);
 

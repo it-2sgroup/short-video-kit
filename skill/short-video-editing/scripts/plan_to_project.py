@@ -82,23 +82,40 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import playbook as playbooks  # noqa: E402
 from footage_overlap_checker import parse_speed  # noqa: E402
+import layout_check  # noqa: E402
 
 FPS = 30
+BS = chr(92)                      # the escape character of the plan tables: \| a pipe, \; a semicolon, \/ a slash between spaces
+BSP, BSC, BSS = BS + "|", BS + ";", BS + "/"
 LEAD = 3 / FPS  # graphics land 3 frames before their word
 KNOWN = playbooks.registry_components()  # the template's registry + punch and sfx
 CANON = {t.lower(): t for t in playbooks.transition_types()}  # every TransitionType of the template (project.ts)
+# The content keys the text components read (components/text/*.tsx); a key outside the list is ignored by the renderer.
+TEXT_PROP_KEYS = {
+    "textbox": {"text", "box", "size", "min", "maxLines", "lineHeight", "align", "valign", "case", "rotate", "color", "stroke", "strokeW", "bg", "pad", "radius", "font", "weight", "in", "out"},
+    "phrase": {"lead", "emph", "emphAt", "y", "emphColor", "fx", "leadFx", "enter", "exit", "font", "leadFont"},
+    "pill": {"text", "variant", "type", "at", "size", "font"},
+}
 LANDS_ON_CUT = {"objectDrop", "impact"}  # overlays whose edge belongs on a cut (references/layout-and-motion-graphics.md)
 LAYOUTS = {"full", "card", "expand"}
 DIRS = {"left", "right", "up", "down"}
 
 
 # ----------------------------------------------------------------------------- markdown tables
+def split_cells(line: str) -> list[str]:
+    """The cells of a table row. A literal pipe inside a cell is escaped with a backslash (a pipe in the text would otherwise split the row)."""
+    body = line.strip()
+    body = body[1:] if body.startswith("|") else body
+    body = body[:-1] if body.endswith("|") and not body.endswith(BSP) else body
+    return [c.replace(BSP, "|").strip() for c in re.split(r"(?<!" + re.escape(BS) + r")\|", body)]
+
+
 def tables(text: str) -> list[tuple[list[str], list[list[str]]]]:
     out, header, rows = [], None, []
     for line in text.splitlines() + [""]:
         s = line.strip()
         if s.startswith("|"):
-            cells = [c.strip() for c in s.strip("|").split("|")]
+            cells = split_cells(s)
             if header is None:
                 header = [c.lower() for c in cells]
             elif not set("".join(cells)) <= set("-: "):
@@ -305,7 +322,8 @@ def _parse_camera(raw: str):
 def value(v: str):
     v = unicodedata.normalize("NFC", v.strip())  # letters are split per character by the text effects: composed Vietnamese only
     if " / " in v:
-        return [x.strip() for x in v.split(" / ")]
+        return [x.strip().replace(BSS, "/") for x in v.split(" / ")]     # " / " separates list items; a literal slash between spaces is written \/
+    v = v.replace(BSS, "/")
     if re.fullmatch(r"-?[\d.]+\s*,\s*-?[\d.]+", v):
         return [float(x) for x in v.split(",")]
     if re.fullmatch(r"-?\d+", v):
@@ -316,20 +334,29 @@ def value(v: str):
 
 
 # Content keys the template draws as text: a bare number there must stay a string ("accent=100").
-TEXT_KEYS = {"accent", "sub", "text", "label", "caption", "title", "name", "role", "unit", "prefix", "note", "lines", "items"}
+TEXT_KEYS = {"accent", "sub", "text", "label", "caption", "title", "name", "role", "unit", "prefix", "note", "lines", "items", "lead", "emph"}
 
 
 def parse_content(component: str, raw: str) -> dict:
     props = {}
-    for chunk in filter(None, (c.strip() for c in raw.split(";"))):
+    for chunk in filter(None, (c.strip() for c in re.split(r"(?<!" + re.escape(BS) + r");", raw))):
         if "=" not in chunk:
             continue
         k, v = chunk.split("=", 1)
         k = k.strip()
+        v = v.replace(BSC, ";")                       # a literal semicolon inside a value is written \;
         val = value(v)
         if k in TEXT_KEYS and not isinstance(val, list):
-            val = v.strip()  # "accent=100" and "lines=300" are words to draw, not numbers
+            val = v.strip().replace(BSS, "/")  # "accent=100" and "lines=300" are words to draw, not numbers
         props[k] = val
+    if component == "textbox":
+        box = props.get("box")
+        nums = [float(x) for x in re.findall(r"-?\d*\.?\d+", str(box))] if box is not None and not isinstance(box, list) else box
+        if not nums or len(nums) not in (3, 4) or not all(isinstance(x, (int, float)) for x in nums):
+            sys.exit("textbox needs box=x,y,w[,h] (fractions of the frame: top-left corner, width, optional height)")
+        props["box"] = [float(x) for x in nums]
+        if "text" not in props:
+            sys.exit("textbox needs text=... (a list \" / \" is explicit lines)")
     if component == "title" and isinstance(props.get("lines"), str):
         props["lines"] = [props["lines"]]
     if component == "checklist" and isinstance(props.get("items"), str):
@@ -368,7 +395,7 @@ def parse_content(component: str, raw: str) -> dict:
 
 def text_of(props: dict) -> str:
     bits = []
-    for k in ("lines", "label", "text", "items", "sub", "title"):
+    for k in ("lines", "label", "text", "items", "sub", "title", "lead", "emph"):
         v = props.get(k)
         bits += v if isinstance(v, list) else [str(v)] if v else []
     return " ".join(map(str, bits))
@@ -549,8 +576,8 @@ def report(scenes, overlays, captions, words):
             continue
         if o["component"] == "cart":
             continue  # the cart arrow lives at the bottom-left and keeps its own label
-        if any(k in o.get("props", {}) for k in ("at", "y")):
-            continue  # placed by hand (at / y): the zone is only the default position, so two of them cannot be judged by it
+        if any(k in o.get("props", {}) for k in ("at", "y", "box")):
+            continue  # placed by hand (at / y / box): the zone is only the default position, so two of them cannot be judged by it
         # the compare card is tall: its note line reaches into the lower zone as well
         for z in [o.get("zone", "top")] + (["lower"] if o["component"] == "compare" else []):
             for p in busy.get(z, []):
@@ -778,7 +805,12 @@ def main() -> int:
     a.out.write_text(json.dumps(project, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"wrote {a.out}: {len(scenes)} scenes, {len(overlays)} overlays, {len(project['punches'])} punch-ins, "
           f"{len(project['sfx'])} sound cues, {len(captions)} captions, {project['duration']}s")
-    warns = report(scenes, overlays, captions, words)
+    warns = report(scenes, overlays, captions, words) + layout_check.check(project)
+    for o in overlays:  # a mistyped key (emphcolor, boxx) is ignored by the renderer: say so for the text components, whose keys are fixed
+        known = TEXT_PROP_KEYS.get(o["component"])
+        for key in o["props"]:
+            if known and key not in known:
+                warns.append(f"{o['component']} at {o['start']:.2f}s: key '{key}' is not one of its keys and is ignored (keys: {', '.join(sorted(known))})")
     fonts_ts = Path(__file__).resolve().parent.parent / "assets" / "remotion-template" / "src" / "fonts.ts"
     known_fonts = set(re.findall(r'\{\s*id:\s*"([\w-]+)"', fonts_ts.read_text(encoding="utf-8"))) if fonts_ts.is_file() else set()
     for o in overlays:  # a font id the library does not have falls back to the role font: say so

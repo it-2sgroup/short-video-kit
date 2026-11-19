@@ -15,6 +15,7 @@ policy) lives in `references/` and the scripts. A plan names its playbook in its
 | `fashion-beauty` | try-on, lookbook, makeup, skincare | music | 1–3.5 s | 15–45 s | luxe · soft-skin · pop |
 | `montage-recap` | travel, event, opening, behind the scenes | music | 0.5–3 s | 12–60 s | cool · vivid · none |
 | `promo-sale` | sale, launch, announcement | music | 1.2–3.5 s | 10–35 s | cool · vivid · plain |
+| `reference` | any footage, imitating a sample video the user supplies | the sample's | the sample's | the sample's | nothing of its own: `reference_to_plan.py` reads it from the sample's `report.json` |
 
 `python scripts/playbook.py show <id>` prints the numbers; `playbooks/<id>.md` explains them.
 
@@ -48,6 +49,7 @@ before planning anything:
 | A presenter pitching a service or agency, the voice cut from their takes, a sample to match | win customers | `talking-head:agency` (`references/agency-pitch-recipe.md`) |
 | Many clips of places, people, moments; little speech | reach, event, travel, brand | `montage-recap` |
 | Packshots, logo, offer artwork, little action | announce an offer | `promo-sale` |
+| Any footage, and **a sample video to imitate** | "make it like this" | `reference` (`playbooks/reference.md`); the genre only supplies its compliance list (`--genre`) |
 | Talking head + product demo | sell with authority | `talking-head` for the A-roll, demo shots as B-roll |
 | Footage cannot support what is asked | — | stop; list what to shoot |
 

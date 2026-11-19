@@ -29,6 +29,7 @@ const FALLBACK = {
 const DIRECTIONAL = new Set(["slide", "wipe", "whip", "flip", "cardSlide", "blurSlide", "cube", "bookFlip"]);
 // Keys each component reads (references/layout-and-motion-graphics.md): what "Add property" offers.
 const COMPONENT_KEYS = {
+  textbox: ["text", "box", "size", "min", "maxLines", "align", "valign", "case", "color", "stroke", "bg", "font", "in", "out"],
   title: ["style", "lines", "accent", "sub"], callout: ["label", "target", "side", "labelY"], highlight: ["shape", "target", "size"],
   step: ["n", "text"], checklist: ["title", "items"], price: ["value", "unit", "label", "old", "prefix", "decimals"], cart: ["text"],
   sticker: ["text", "at", "rotate"], progress: ["label"], magnifier: ["clip", "in", "target", "at", "zoom", "diameter"], thumbs: ["cards"],

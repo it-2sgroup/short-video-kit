@@ -13,7 +13,11 @@ render. The numbers come from the plan's playbook (playbooks/<id>.json, named by
   4. Runtime lands in `runtime.min`-`runtime.max`, ideally in `runtime.ideal`.
 
 Usage:
-    python pacing_checker.py <edit-plan.md> [--playbook ID] [--min 25] [--max 45] [--min-scene 2.5] [--json]
+    python pacing_checker.py <edit-plan.md> [--playbook ID] [--min 25] [--max 45] [--min-scene 2.5] [--reference ref/report.json] [--json]
+
+With --reference (a plan made like a sample video, `reference_to_plan.py`) the numbers above come from the sample's own report instead of a
+genre, and the rhythm rules (1, 2 and 4) are warnings: you may deviate from the sample on purpose. Rule 3 (no gaps, no overlaps, no empty
+first frame) stays an error.
 
 Exit code is 0 when every rule passes and 1 otherwise, so this can gate a build. The parser reads any
 markdown table with columns for the scene number, start and end, and tolerates extra columns.
@@ -193,6 +197,11 @@ def check(scenes: list[Scene], pb: dict) -> Report:
     rmin, rmax = pb["runtime"]["min"], pb["runtime"]["max"]
     ideal_lo, ideal_hi = pb["runtime"]["ideal"]
     why = pb["runtime"].get("why", "")
+    soft = bool(pb.get("soft"))  # a plan made from a reference (apply_reference): rhythm and runtime are warnings, structure stays an error
+
+    def rule(msg: str) -> None:
+        """A rhythm rule: an error for a genre playbook, a warning when the numbers come from a sample the user may deviate from on purpose."""
+        (report.warnings if soft else report.errors).append(msg)
 
     if not scenes:
         report.errors.append("No scenes to check.")
@@ -206,12 +215,12 @@ def check(scenes: list[Scene], pb: dict) -> Report:
             continue
         if is_hook(s, deadline):
             if s.duration < hook_min - EPSILON:
-                report.errors.append(
+                rule(
                     f"Hook scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s. "
                     f"Even hook beats need {hook_min:g}s to read."
                 )
         elif s.duration < lo - EPSILON:
-            report.errors.append(
+            rule(
                 f"Scene {s.index} ({s.start:g}-{s.end:g}s) is only {s.duration:.1f}s; outside the hook "
                 f"a {pb['name']} scene lasts at least {lo:g}s (aim {target:g}s). Merge it with a "
                 "neighbour or hold the shot longer."
@@ -224,7 +233,7 @@ def check(scenes: list[Scene], pb: dict) -> Report:
                 f"Scene {s.index} ({s.start:g}-{s.end:g}s): end must come after start."
             )
         elif s.duration > hi + EPSILON:
-            report.errors.append(
+            rule(
                 f"Scene {s.index} ({s.start:g}-{s.end:g}s) runs {s.duration:.1f}s, over the "
                 f"{hi:g}s limit of {pb['name']}. Split it, punch in, or cut to a B-roll insert."
             )
@@ -238,7 +247,7 @@ def check(scenes: list[Scene], pb: dict) -> Report:
             "it cannot be empty."
         )
     if first.end > deadline + EPSILON:
-        report.errors.append(
+        rule(
             f"The opening scene runs to {first.end:g}s, so the hook is not resolved within "
             f"{deadline:g}s. Cut it shorter or split it."
         )
@@ -267,9 +276,9 @@ def check(scenes: list[Scene], pb: dict) -> Report:
     # Rule: total runtime.
     runtime = ordered[-1].end
     if runtime < rmin - EPSILON:
-        report.errors.append(f"Runtime {runtime:.1f}s is under the {rmin:g}s floor of {pb['name']}. {why}".strip())
+        rule(f"Runtime {runtime:.1f}s is under the {rmin:g}s floor of {pb['name']}. {why}".strip())
     elif runtime > rmax + EPSILON:
-        report.errors.append(f"Runtime {runtime:.1f}s is over the {rmax:g}s ceiling of {pb['name']}.")
+        rule(f"Runtime {runtime:.1f}s is over the {rmax:g}s ceiling of {pb['name']}.")
     elif not (ideal_lo - EPSILON <= runtime <= ideal_hi + EPSILON):
         report.warnings.append(
             f"Runtime {runtime:.1f}s is allowed but outside the ideal {ideal_lo:g}-{ideal_hi:g}s of {pb['name']}."
@@ -283,6 +292,21 @@ def check(scenes: list[Scene], pb: dict) -> Report:
     elif avg < target * 0.8:
         report.warnings.append(f"Average non-hook scene is {avg:.1f}s against a target of {target:g}s; it may read as choppy.")
     return report
+
+
+def apply_reference(pb: dict, rep: dict) -> dict:
+    """Replace the playbook's rhythm numbers with the sample's own (report.json of analyze_reference.py) and make rhythm rules warnings.
+    Shots may run from 70 % of the sample's shortest to 140 % (+0.3 s) of its longest; the opening may last as long as the sample's own
+    first shot (at least the playbook's deadline); the runtime may differ from the sample's by 40-50 %. Structure (gaps, overlaps,
+    an empty first frame) stays an error."""
+    sl, shots, dur = rep["shot_length"], rep["shots"], float(rep["duration"])
+    pb["scenes"] = {"min": round(max(0.1, sl["shortest"] * 0.7), 2), "max": round(sl["longest"] * 1.4 + 0.3, 2), "target": sl["median"]}
+    pb["hook"] = {**pb["hook"], "deadline": round(max(3.0, shots[0]["end"] * 1.2 + 0.3), 2), "minBeat": 0.1, "beats": 1}
+    pb["runtime"] = {**pb["runtime"], "min": round(dur * 0.6, 1), "max": round(dur * 1.5, 1), "ideal": [round(dur * 0.85, 1), round(dur * 1.15, 1)],
+                     "why": f"The sample runs {dur:.1f} s."}
+    pb["soft"] = True
+    pb["name"] = f"reference ({rep.get('video', 'sample')})"
+    return pb
 
 
 def format_text(report: Report, path: Path, pb: dict) -> str:
@@ -328,6 +352,8 @@ def main() -> int:
     ap.add_argument("--min", type=float, help="override the minimum runtime (s)")
     ap.add_argument("--max", type=float, help="override the maximum runtime (s)")
     ap.add_argument("--min-scene", type=float, help="override the minimum non-hook scene length (s)")
+    ap.add_argument("--reference", type=Path, help="report.json of analyze_reference.py: judge the plan against the sample's own shot lengths and runtime "
+                    "(rhythm rules become warnings; gaps, overlaps and an empty first frame stay errors)")
     ap.add_argument("--json", action="store_true", help="Emit JSON instead of text")
     args = ap.parse_args()
 
@@ -337,6 +363,11 @@ def main() -> int:
 
     text = args.plan.read_text(encoding="utf-8")
     pb = playbooks.resolve(args.playbook, text)
+    if args.reference:
+        if not args.reference.is_file():
+            print(f"File not found: {args.reference}", file=sys.stderr)
+            return 1
+        pb = apply_reference(pb, json.loads(args.reference.read_text(encoding="utf-8-sig")))
     if args.min is not None:
         pb["runtime"]["min"] = args.min
     if args.max is not None:

@@ -1,0 +1,68 @@
+{
+  "about": "The creative vocabulary of directions.py: independent axes (transitions, camera, type, colour, rhythm) whose options are built only from catalogue ids (transitions of project.ts, fonts of fonts.json, text effects of Fx.tsx, grades of grades.json). A direction is one option per axis, narrowed by the concept's restraint, so the space is large and coherent instead of a short list rotated by index. `feel` places an option on four dimensions from -1 to 1: energy (calm .. driving), warmth (cool .. warm), formality (playful .. formal), grit (clean .. rough). `selftest.sh` checks every id here against the catalogue.",
+  "dimensions": ["energy", "warmth", "formality", "grit"],
+  "feel_words": {
+    "calm": {"energy": -0.8}, "quiet": {"energy": -0.8}, "slow": {"energy": -0.6}, "gentle": {"energy": -0.6, "grit": -0.3}, "yên tĩnh": {"energy": -0.8}, "nhẹ nhàng": {"energy": -0.7},
+    "energetic": {"energy": 0.9}, "fast": {"energy": 0.8}, "punchy": {"energy": 0.9, "grit": 0.2}, "hype": {"energy": 1.0, "formality": -0.5}, "năng động": {"energy": 0.9}, "sôi động": {"energy": 1.0, "formality": -0.4},
+    "warm": {"warmth": 0.8}, "cosy": {"warmth": 0.8, "energy": -0.4}, "golden": {"warmth": 0.9}, "ấm": {"warmth": 0.8}, "ấm áp": {"warmth": 0.9, "energy": -0.2},
+    "cool": {"warmth": -0.7}, "cold": {"warmth": -0.9}, "fresh": {"warmth": -0.4, "grit": -0.4}, "lạnh": {"warmth": -0.8}, "tươi mát": {"warmth": -0.4, "grit": -0.3},
+    "premium": {"formality": 0.9, "grit": -0.5}, "luxury": {"formality": 1.0, "grit": -0.6}, "elegant": {"formality": 0.9, "energy": -0.3}, "sang trọng": {"formality": 1.0, "grit": -0.5}, "tinh tế": {"formality": 0.8, "energy": -0.3},
+    "playful": {"formality": -0.8, "energy": 0.4}, "fun": {"formality": -0.7, "energy": 0.5}, "cute": {"formality": -0.6, "warmth": 0.4}, "vui": {"formality": -0.7, "energy": 0.5}, "dễ thương": {"formality": -0.6, "warmth": 0.4},
+    "raw": {"grit": 0.9, "formality": -0.4}, "gritty": {"grit": 1.0}, "street": {"grit": 0.8, "energy": 0.5}, "documentary": {"grit": 0.6, "formality": 0.2}, "thô": {"grit": 0.9}, "đời thường": {"grit": 0.5, "formality": -0.4},
+    "clean": {"grit": -0.9}, "minimal": {"grit": -0.8, "energy": -0.3, "formality": 0.5}, "sạch": {"grit": -0.8}, "tối giản": {"grit": -0.8, "formality": 0.5},
+    "trust": {"formality": 0.5, "energy": -0.2}, "tin cậy": {"formality": 0.5, "energy": -0.2},
+    "urgent": {"energy": 1.0, "grit": 0.3}, "gấp": {"energy": 1.0, "grit": 0.3}, "tense": {"energy": 0.5, "grit": 0.5}, "căng thẳng": {"energy": 0.5, "grit": 0.5},
+    "nostalgic": {"warmth": 0.6, "grit": 0.5, "energy": -0.3}, "hoài niệm": {"warmth": 0.6, "grit": 0.5, "energy": -0.3},
+    "modern": {"formality": 0.2, "grit": -0.3, "energy": 0.3}, "tech": {"grit": 0.4, "warmth": -0.5, "energy": 0.4}, "hiện đại": {"formality": 0.2, "grit": -0.3, "energy": 0.3}
+  },
+  "axes": {
+    "transitions": [
+      {"id": "quiet", "about": "cuts and short fades: the edit disappears", "ids": ["cut", "fade"], "frames": [8, 14], "accents": [], "feel": {"energy": -0.8, "formality": 0.6, "grit": -0.5}},
+      {"id": "soft-flow", "about": "dissolves and blurs that carry one shot into the next", "ids": ["fade", "blurDissolve", "dreamyZoom", "linearBlur", "blurSlide"], "frames": [14, 22], "accents": [], "feel": {"energy": -0.4, "warmth": 0.3, "formality": 0.4, "grit": -0.4}},
+      {"id": "kinetic", "about": "whips, zooms and slides driven by motion", "ids": ["whip", "zoomThrough", "crossZoom", "zoomBlur", "slide"], "frames": [6, 10], "accents": ["+flash"], "feel": {"energy": 0.9, "formality": -0.4}},
+      {"id": "graphic", "about": "wipes and shapes that read as a designed edit", "ids": ["wipe", "pushCut", "iris", "blinds", "diamond", "doors"], "frames": [10, 14], "accents": [], "feel": {"energy": 0.3, "formality": 0.2, "grit": -0.2}},
+      {"id": "glitch-tech", "about": "digital breaks: slices, channel splits, pixels, flicker", "ids": ["glitchSlice", "glRgbSplit", "glPixelate", "blackFlicker"], "frames": [6, 10], "accents": [], "feel": {"energy": 0.7, "warmth": -0.5, "grit": 0.8}},
+      {"id": "showreel", "about": "frame clicks, crops and flashes of a technique reel", "ids": ["gridFlash", "cropPop", "flashWipe", "cropNegative", "zoomFade"], "frames": [4, 9], "accents": [], "feel": {"energy": 0.9, "formality": -0.2, "grit": 0.3}},
+      {"id": "organic", "about": "ink, ripples and burns: the transition is a material", "ids": ["inkBleed", "ripple", "burnDissolve", "filmBurn", "crosswarp"], "frames": [14, 24], "accents": [], "feel": {"energy": 0.1, "warmth": 0.6, "grit": 0.4}}
+    ],
+    "camera": [
+      {"id": "locked", "about": "the camera does not move: the subject does", "cells": ["hold"], "feel": {"energy": -0.8, "formality": 0.5, "grit": -0.3}},
+      {"id": "drift", "about": "a slow breathing push and pull", "cells": ["push 1.00>1.06", "pull 1.06>1.00", "push 1.02>1.08"], "feel": {"energy": -0.5, "formality": 0.3}},
+      {"id": "push-in", "about": "steady moves into the subject", "cells": ["push 1.00>1.18", "push 1.04>1.22", "push 1.00>1.14"], "feel": {"energy": 0.3}},
+      {"id": "handheld", "about": "a held camera with a living sway", "cells": ["hold shake mild", "push 1.00>1.08 shake mild", "pull 1.08>1.00 shake mild"], "feel": {"energy": 0.4, "formality": -0.5, "grit": 0.7}},
+      {"id": "kinetic", "about": "big alternating moves with a lean", "cells": ["push 1.00>1.25 roll -1>1", "pull 1.25>1.00", "pan left 8% 1.15>1.15", "pan right 8% 1.15>1.15"], "feel": {"energy": 0.9, "formality": -0.3}},
+      {"id": "reveal", "about": "moves that uncover: tilts up, pulls back", "cells": ["pan up 6% 1.15>1.15", "pull 1.30>1.00", "pan down 6% 1.15>1.15"], "feel": {"energy": 0.2, "formality": 0.5, "warmth": 0.1}}
+    ],
+    "type": [
+      {"id": "bold-ad", "about": "loud condensed capitals that land hard", "fonts": ["anton", "league-spartan", "montserrat"], "fx": ["slam", "stamp", "elastic"], "case": "upper", "feel": {"energy": 0.8, "formality": -0.3, "grit": 0.2}},
+      {"id": "editorial", "about": "serif lines that rise and settle", "fonts": ["fraunces", "playfair-display", "newsreader", "cormorant-garamond"], "fx": ["rise", "blurin", "tracking"], "case": "none", "feel": {"energy": -0.3, "formality": 0.9, "grit": -0.5, "warmth": 0.2}},
+      {"id": "tech", "about": "monospace-leaning, scrambled and typed", "fonts": ["space-grotesk", "tektur", "unbounded"], "fx": ["scramble", "typewriter", "glitch"], "case": "upper", "feel": {"energy": 0.5, "warmth": -0.5, "grit": 0.6}},
+      {"id": "hand", "about": "handwritten and drawn, a person wrote this", "fonts": ["patrick-hand", "pacifico", "playpen-sans", "dancing-script"], "fx": ["draw", "popword", "rise"], "case": "none", "feel": {"energy": 0.2, "warmth": 0.7, "formality": -0.6, "grit": 0.2}},
+      {"id": "clean-sans", "about": "plain friendly sans that stays out of the way", "fonts": ["be-vietnam-pro", "plus-jakarta-sans", "tiktok-sans", "nunito"], "fx": ["rise", "blurin", "maskwipe"], "case": "none", "feel": {"formality": 0.3, "grit": -0.7}},
+      {"id": "retro-pop", "about": "fat retro faces that bounce", "fonts": ["bungee", "sigmar", "bangers", "paytone-one"], "fx": ["drop", "wave", "flip"], "case": "upper", "feel": {"energy": 0.7, "warmth": 0.3, "formality": -0.8, "grit": 0.4}}
+    ],
+    "colour": [
+      {"id": "natural-clean", "about": "true colour, white text with one yellow accent", "grade": "natural", "text": ["#FFFFFF"], "accent": "#FFD21A", "look": "", "look_fx": "", "feel": {"grit": -0.6}},
+      {"id": "golden", "about": "low warm sun, cream text, amber accent", "grade": "golden-hour", "text": ["#FFF4D6"], "accent": "#FFB347", "look": "1.08,1.04,1.02,0.06", "look_fx": "vignette=0.2", "feel": {"warmth": 0.9, "energy": -0.2}},
+      {"id": "teal-orange", "about": "cinema complement: teal shadows, orange highlights", "grade": "teal-orange", "text": ["#FFFFFF"], "accent": "#FF8A3D", "look": "1.10,1.06,1.00,0", "look_fx": "vignette=0.25", "feel": {"warmth": 0.2, "energy": 0.4, "formality": 0.3}},
+      {"id": "cold-clean", "about": "cool blue, crisp white text, ice accent", "grade": "cold-blue", "text": ["#FFFFFF"], "accent": "#7FD8FF", "look": "", "look_fx": "", "feel": {"warmth": -0.8, "grit": -0.4, "formality": 0.3}},
+      {"id": "mono-grit", "about": "desaturated and grained, one red accent", "grade": "bleach-bypass", "text": ["#FFFFFF"], "accent": "#FF3B30", "look": "", "look_fx": "vignette=0.3,grain=0.08", "feel": {"grit": 0.9, "warmth": -0.3, "energy": 0.3}},
+      {"id": "pastel-soft", "about": "light and sweet, soft pink accent", "grade": "pastel", "text": ["#FFFFFF"], "accent": "#FF8FB1", "look": "", "look_fx": "", "feel": {"warmth": 0.3, "formality": -0.5, "grit": -0.8, "energy": -0.2}},
+      {"id": "moody", "about": "dark and rich, gold accent", "grade": "moody", "text": ["#F4EBD9"], "accent": "#E8C468", "look": "", "look_fx": "vignette=0.35", "feel": {"warmth": 0.2, "formality": 0.7, "energy": -0.1, "grit": 0.2}},
+      {"id": "vivid-pop", "about": "saturated and bright, lemon accent", "grade": "vivid", "text": ["#FFFFFF"], "accent": "#FFE600", "look": "1.12,1.05,1.03,0", "look_fx": "", "feel": {"energy": 0.6, "formality": -0.5, "warmth": 0.3}}
+    ],
+    "rhythm": [
+      {"id": "steady", "about": "one pace from start to end", "profile": "steady", "feel": {"energy": 0.0, "formality": 0.3}},
+      {"id": "build", "about": "transitions tighten as the video climbs", "profile": "build", "feel": {"energy": 0.6, "grit": 0.1}},
+      {"id": "pulse", "about": "long and short transitions alternate", "profile": "pulse", "feel": {"energy": 0.5, "formality": -0.2}},
+      {"id": "drop", "about": "long soft holds, then hard cuts after the drop", "profile": "drop", "feel": {"energy": 0.4, "grit": 0.2}}
+    ]
+  },
+  "signatures": {
+    "flash-cut": {"about": "one hard cut with a white flash: the moment everything changes", "transition": "cut +flash"},
+    "hold-then-burst": {"about": "a long soft hold, then a hard cut into a push", "before": "fade 24f", "transition": "cut +flash", "camera": "push 1.00>1.30"},
+    "speed-hit": {"about": "the scene runs, freezes on the key frame, and runs on", "speed": "freeze-hit"},
+    "zoom-through": {"about": "the picture is flown through into the next shot", "transition": "zoomThrough 10f +flash"},
+    "text-takeover": {"about": "one line takes the whole frame for a beat", "overlay": "textbox | – | – | text={text}; box=0.06,0.36,0.88,0.28; size=150; case=upper; in=slam; out=fade"}
+  }
+}
